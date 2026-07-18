@@ -99,7 +99,7 @@ export default function GuidesPengantar() {
                 </section>
 
                 {/* Section 2 — image left, text right */}
-                <section className="pengantar-story__row pengantar-story__row--reverse">
+                <section className="pengantar-story__row">
                     <div className="pengantar-story__img-wrap">
                         <div className="pengantar-story__circle pengantar-story__circle--lg">
                             <img src="/Image/Pengantar/obj2_1.png" alt="Ancaman Kegelapan" />
@@ -149,7 +149,7 @@ export default function GuidesPengantar() {
                 </section>
 
                 {/* Section 4 — image left, text right */}
-                <section className="pengantar-story__row pengantar-story__row--reverse">
+                <section className="pengantar-story__row">
                     <div className="pengantar-story__img-wrap">
                         <div className="pengantar-story__circle pengantar-story__circle--lg">
                             <img src="/Image/Pengantar/obj4_1.png" alt="Hero dan Kisah Anda" />
