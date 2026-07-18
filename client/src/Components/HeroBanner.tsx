@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Link } from 'react-scroll';
 import { useLocation } from 'wouter';
-import { GiCrossedSwords, GiScrollUnfurled, GiSwordClash } from 'react-icons/gi';
+import { GiCrossedSwords, GiScrollUnfurled, GiSwordClash, GiHeartWings } from 'react-icons/gi';
 import { MdOutlineArrowDownward } from 'react-icons/md';
 
 const SLIDES = [
@@ -35,6 +35,16 @@ const SLIDES = [
         accent: '#388e3c',
         icon: <GiSwordClash size={14} />,
         image: '/Image/Pengantar/obj4_1.png',
+    },
+    {
+        id: 3,
+        badge: 'Couple & Married System',
+        title: 'Temukan Belahan\nJiwamu!',
+        desc: 'Jalin hubungan spesial di dunia Tales Hero — ajak pasanganmu berpetualangan bersama, lakukan ritual pernikahan sakral, dan dapatkan bonus eksklusif khusus untuk pasangan yang telah bersatu!',
+        bg: 'linear-gradient(135deg, #fce4ec 0%, #f8bbd0 60%, #f48fb1 100%)',
+        accent: '#e91e63',
+        icon: <GiHeartWings size={14} />,
+        image: '/Image/Pengantar/obj3_1.png',
     },
 ];
 
