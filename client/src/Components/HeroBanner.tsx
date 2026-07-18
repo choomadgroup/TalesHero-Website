@@ -14,7 +14,7 @@ const SLIDES = [
         bg: 'linear-gradient(135deg, #fff8e1 0%, #fff3cd 60%, #ffe082 100%)',
         accent: '#fab005',
         icon: <GiCrossedSwords size={14} />,
-        image: '/Image/Home/IMG-H01.jpg',
+        image: '/Image/Home/IMG-H01.png',
     },
     {
         id: 1,
@@ -24,7 +24,7 @@ const SLIDES = [
         bg: 'linear-gradient(135deg, #e8eaf6 0%, #dde1f8 60%, #c5caf5 100%)',
         accent: '#5c6bc0',
         icon: <GiScrollUnfurled size={14} />,
-        image: '/Image/Home/IMG-H02.jpg',
+        image: '/Image/Home/IMG-H02.png',
     },
     {
         id: 2,
