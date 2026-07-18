@@ -380,6 +380,11 @@ export default function GuidesKarakter() {
                 )}
             </main>
 
+            {/* Disclaimer */}
+            <p className="char-disclaimer">
+                ⚠️ Situs unofficial — gambar dan data milik Rhaon Entertainment.
+            </p>
+
             <CharacterModal characterId={selectedId} onClose={closeModal} />
 
             <Footer />
