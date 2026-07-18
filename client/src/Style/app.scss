@@ -619,6 +619,96 @@ footer {
   font-size: 14px;
 }
 
+// --- Pengantar showcase -----------------------------------------
+
+.pengantar-showcase {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  background: #fff;
+  overflow: hidden;
+  padding: 0;
+  min-height: 460px;
+
+  @media (max-width: 768px) {
+    flex-direction: column;
+    align-items: center;
+    padding: 40px 20px 0;
+    min-height: unset;
+  }
+
+  &__char {
+    flex: 0 0 280px;
+    display: flex;
+    align-items: flex-end;
+
+    img {
+      width: 100%;
+      height: auto;
+      display: block;
+      object-fit: contain;
+    }
+
+    @media (max-width: 1024px) { flex: 0 0 200px; }
+    @media (max-width: 768px)  {
+      flex: none;
+      width: 180px;
+      order: 2;
+    }
+
+    &--left  { justify-content: flex-end;  @media (max-width: 768px) { order: 2; } }
+    &--right { justify-content: flex-start; @media (max-width: 768px) { order: 3; } }
+  }
+
+  &__center {
+    flex: 1;
+    max-width: 520px;
+    text-align: center;
+    padding: 60px 40px 48px;
+
+    @media (max-width: 768px) {
+      order: 1;
+      padding: 0 0 32px;
+    }
+  }
+
+  &__sub {
+    font-size: 15px;
+    color: #555;
+    margin: 0 0 10px;
+    line-height: 1.5;
+  }
+
+  &__heading {
+    font-size: clamp(2.2rem, 5vw, 3.2rem);
+    font-weight: 900;
+    color: #1a1a2e;
+    margin: 0 0 6px;
+    line-height: 1.1;
+    letter-spacing: -1px;
+  }
+
+  &__accent {
+    font-size: clamp(1.6rem, 3.5vw, 2.2rem);
+    font-weight: 900;
+    color: #e63946;
+    margin: 0 0 24px;
+    letter-spacing: -0.5px;
+  }
+
+  &__desc {
+    font-size: 14px;
+    color: #555;
+    line-height: 1.75;
+    margin: 0 0 12px;
+  }
+
+  &__highlight {
+    color: #fab005;
+    font-weight: 700;
+  }
+}
+
 // --- Guides pages -----------------------------------------------
 
 .guides-hero {

@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import { useLocation } from 'wouter';
 import Header from '../../Components/Header';
 import Footer from '../../Components/Footer';
-import { GiCrossedSwords, GiBookmarklet, GiScrollUnfurled } from 'react-icons/gi';
+import { GiCrossedSwords, GiScrollUnfurled } from 'react-icons/gi';
 
 export default function GuidesPengantar() {
     const [, setLocation] = useLocation();
@@ -41,62 +41,34 @@ export default function GuidesPengantar() {
                 <span className="guides-breadcrumb__link guides-breadcrumb__link--active">Pengantar</span>
             </div>
 
-            {/* Content area */}
-            <main className="guides-main">
-                <aside className="guides-sidebar">
-                    <div className="guides-sidebar__title">
-                        <GiBookmarklet size={15} /> Daftar Isi
-                    </div>
-                    <nav className="guides-sidebar__nav">
-                        <a href="#tentang" className="guides-sidebar__link guides-sidebar__link--active">Tentang Game</a>
-                        <a href="#genre"   className="guides-sidebar__link">Genre &amp; Gameplay</a>
-                        <a href="#mulai"   className="guides-sidebar__link">Cara Memulai</a>
-                    </nav>
-                </aside>
+            {/* Character showcase section */}
+            <section className="pengantar-showcase">
+                <div className="pengantar-showcase__char pengantar-showcase__char--left">
+                    <img src="/Image/Pengantar/character1.png" alt="Tales Hero Character" />
+                </div>
 
-                <article className="guides-content">
+                <div className="pengantar-showcase__center">
+                    <p className="pengantar-showcase__sub">
+                        Petualangan di dunia penuh pahlawan legendaris
+                    </p>
+                    <h2 className="pengantar-showcase__heading">
+                        Jadilah hero<br />terkuat!
+                    </h2>
+                    <p className="pengantar-showcase__accent">Tales Hero Indonesia</p>
+                    <p className="pengantar-showcase__desc">
+                        Tales Hero adalah <span className="pengantar-showcase__highlight">game action-adventure online</span> yang menghadirkan
+                        dunia fantasi epik dengan jutaan pemain di seluruh Indonesia.
+                    </p>
+                    <p className="pengantar-showcase__desc">
+                        Jadilah protagonis dalam kisah heroikmu — jelajahi dungeon, taklukkan boss legendaris,
+                        dan tulis namamu di papan peringkat bersama guild terkuat!
+                    </p>
+                </div>
 
-                    {/* Tentang */}
-                    <section id="tentang" className="guides-section">
-                        <h2 className="guides-section__title">
-                            <span className="guides-section__num">01</span>
-                            Tentang Game
-                        </h2>
-                        {/* ✏️ Isi konten di sini */}
-                        <div className="guides-placeholder">
-                            <GiScrollUnfurled size={32} />
-                            <p>Tambahkan deskripsi tentang Tales Hero Indonesia di sini.</p>
-                        </div>
-                    </section>
-
-                    {/* Genre */}
-                    <section id="genre" className="guides-section">
-                        <h2 className="guides-section__title">
-                            <span className="guides-section__num">02</span>
-                            Genre &amp; Gameplay
-                        </h2>
-                        {/* ✏️ Isi konten di sini */}
-                        <div className="guides-placeholder">
-                            <GiScrollUnfurled size={32} />
-                            <p>Jelaskan genre dan mekanisme gameplay di sini.</p>
-                        </div>
-                    </section>
-
-                    {/* Cara Mulai */}
-                    <section id="mulai" className="guides-section">
-                        <h2 className="guides-section__title">
-                            <span className="guides-section__num">03</span>
-                            Cara Memulai
-                        </h2>
-                        {/* ✏️ Isi konten di sini */}
-                        <div className="guides-placeholder">
-                            <GiScrollUnfurled size={32} />
-                            <p>Tulis panduan langkah awal bermain di sini.</p>
-                        </div>
-                    </section>
-
-                </article>
-            </main>
+                <div className="pengantar-showcase__char pengantar-showcase__char--right">
+                    <img src="/Image/Pengantar/character2.png" alt="Tales Hero Character" />
+                </div>
+            </section>
 
             <Footer />
         </>
