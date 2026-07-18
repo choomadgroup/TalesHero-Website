@@ -12,7 +12,7 @@ const SCROLL_LINKS = [
 
 // Item dropdown Pengenalan Game
 const PENGENALAN_ITEMS = [
-    { label: 'Pengantar', href: '/guides/game', desc: 'Mulai perjalananmu di Tales Hero' },
+    { label: 'Pengantar', href: '/guides/pengantar', desc: 'Mulai perjalananmu di Tales Hero' },
 ];
 
 const Header = () => {
