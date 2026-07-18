@@ -1052,3 +1052,40 @@ export const CHARACTERS: Character[] = [
 
 export const RUNNERS = CHARACTERS.filter(c => c.category === 0);
 export const STORIES = CHARACTERS.filter(c => c.category === 1);
+
+/** Character image paths (avatar = circle icon, art = full body render) */
+export const CHARACTER_IMAGES: Record<number, { avatar?: string; art?: string }> = {
+  30: { avatar: '/Image/Karakter/avatar/jaka.png',         art: '/Image/Karakter/art/jaka.jpg'         }, // Jaka
+  34: { avatar: '/Image/Karakter/avatar/mingming.png',     art: '/Image/Karakter/art/mingming.jpg'     }, // Mingming
+  36: { avatar: '/Image/Karakter/avatar/tifanny.png',      art: '/Image/Karakter/art/tifanny.jpg'      }, // Tifanny
+  42: { avatar: '/Image/Karakter/avatar/bigbo.png',        art: '/Image/Karakter/art/bigbo.jpg'        }, // BigBo
+  43: { avatar: '/Image/Karakter/avatar/dnd.png',          art: '/Image/Karakter/art/dnd.jpg'          }, // DnD
+  44: { avatar: '/Image/Karakter/avatar/narcius.png',      art: '/Image/Karakter/art/narcius.jpg'      }, // Narcius
+  46: { avatar: '/Image/Karakter/avatar/maki.png',         art: '/Image/Karakter/art/maki.png'         }, // Maki
+  47: { avatar: '/Image/Karakter/avatar/rough.png',        art: '/Image/Karakter/art/rough.png'        }, // Rough
+  49: { avatar: '/Image/Karakter/avatar/dewi.png',         art: '/Image/Karakter/art/dewi.png'         }, // Dewi
+  50: { avatar: '/Image/Karakter/avatar/kai.png',          art: '/Image/Karakter/art/kai.png'          }, // Kai
+  51: { avatar: '/Image/Karakter/avatar/rina.png',         art: '/Image/Karakter/art/rina.png'         }, // Rina
+  52: { avatar: '/Image/Karakter/avatar/rini.png',         art: '/Image/Karakter/art/rini.png'         }, // Rini
+  53: { avatar: '/Image/Karakter/avatar/abel.png',         art: '/Image/Karakter/art/abel.png'         }, // Abel
+  54: { avatar: '/Image/Karakter/avatar/haru.png',         art: '/Image/Karakter/art/haru.png'         }, // Haru
+  55: { avatar: '/Image/Karakter/avatar/vera.png',         art: '/Image/Karakter/art/vera.png'         }, // Vera
+  56: { avatar: '/Image/Karakter/avatar/wukong.png',       art: '/Image/Karakter/art/wukong.png'       }, // Wukong
+  48: { avatar: '/Image/Karakter/avatar/hidden_rough.png'                                              }, // Hidden Rough
+  57: { avatar: '/Image/Karakter/avatar/siho.png',         art: '/Image/Karakter/art/siho.png'         }, // Siho
+  58: { avatar: '/Image/Karakter/avatar/luci.png',         art: '/Image/Karakter/art/luci.png'         }, // Luci
+  59: { avatar: '/Image/Karakter/avatar/miho.png'                                                      }, // Miho
+  60: { avatar: '/Image/Karakter/avatar/r.png',            art: '/Image/Karakter/art/r.png'            }, // R
+  61: { avatar: '/Image/Karakter/avatar/harang.jpg',       art: '/Image/Karakter/art/harang.png'       }, // Harang
+  62: { avatar: '/Image/Karakter/avatar/lala.png',         art: '/Image/Karakter/art/lala.png'         }, // LaLa
+  63: { avatar: '/Image/Karakter/avatar/yeonoh.png',       art: '/Image/Karakter/art/yeonoh.jpg'       }, // YeonOh
+  64: { avatar: '/Image/Karakter/avatar/bloody_vera.png',  art: '/Image/Karakter/art/bloody_vera.png'  }, // Bloody Vera
+  65: { avatar: '/Image/Karakter/avatar/xionell.png',      art: '/Image/Karakter/art/xionell.png'      }, // Xionell
+  66: { avatar: '/Image/Karakter/avatar/damyeon.png'                                                   }, // Damyeon
+  67: { avatar: '/Image/Karakter/avatar/chloe.png'                                                     }, // Chloe
+  68: { avatar: '/Image/Karakter/avatar/sid.png'                                                       }, // Sid
+  38: { avatar: '/Image/Karakter/avatar/elims.png',        art: '/Image/Karakter/art/elims.jpg'        }, // Elims
+  39: { avatar: '/Image/Karakter/avatar/cain.png',         art: '/Image/Karakter/art/cain.jpg'         }, // Cain
+  40: { avatar: '/Image/Karakter/avatar/roroa.png',        art: '/Image/Karakter/art/roroa.jpg'        }, // Roroa
+  41: { avatar: '/Image/Karakter/avatar/celia.png'                                                     }, // Celia
+};
