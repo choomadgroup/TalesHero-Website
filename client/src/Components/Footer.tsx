@@ -1,6 +1,9 @@
 const Footer = () => {
     return (
         <footer style={{ backgroundColor: '#fab005' }}>
+            <p style={{ textAlign: 'center', fontSize: 12, color: 'rgba(255,255,255,0.7)', margin: 0, padding: '10px 20px 0' }}>
+                Situs unofficial — gambar dan data milik Rhaon Entertainment.
+            </p>
             <div className="footer-container">
                 <div className="footer-grid">
                     <div className="footer-col-main">
