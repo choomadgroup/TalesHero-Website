@@ -112,11 +112,11 @@ section, footer {
   max-width: 1200px;
   margin: 0 auto;
   padding: 0 40px;
-  height: 68px;
+  height: 60px;
 
   @media (max-width: 768px) {
     padding: 0 20px;
-    height: 60px;
+    height: 56px;
   }
 }
 
@@ -127,12 +127,8 @@ section, footer {
   flex-shrink: 0;
 
   img {
-    height: 70px;
+    height: 52px;
     object-fit: contain;
-    filter: drop-shadow(0 0 8px rgba(250, 176, 5, 0.4));
-    transition: filter 0.2s ease;
-
-    &:hover { filter: drop-shadow(0 0 14px rgba(250, 176, 5, 0.7)); }
   }
 }
 

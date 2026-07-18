@@ -31,7 +31,7 @@ const Header = () => {
                         <img
                             src="/Image/tales-hero-banner.png"
                             alt="Tales Hero Indonesia"
-                            height= {100}
+                            height={100}
                             style={{ objectFit: 'contain' }}
                         />
                     </a>
