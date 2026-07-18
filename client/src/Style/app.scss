@@ -513,18 +513,19 @@ section, footer {
   &__cover {
     flex: 0 0 44%;
     max-width: 500px;
+    aspect-ratio: 16 / 9;
     border-radius: 20px;
     overflow: hidden;
     box-shadow: 0 12px 48px rgba(0, 0, 0, 0.18);
 
     img {
       width: 100%;
-      height: auto;
+      height: 100%;
       display: block;
     }
 
     @media (max-width: 1024px) { flex: 0 0 40%; }
-    @media (max-width: 768px)  { flex: none; width: 100%; max-width: 100%; }
+    @media (max-width: 768px)  { flex: none; width: 100%; max-width: 100%; aspect-ratio: 16 / 9; }
   }
 
   &__badge {

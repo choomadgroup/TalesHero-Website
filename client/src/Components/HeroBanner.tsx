@@ -25,6 +25,7 @@ const SLIDES = [
         accent: '#5c6bc0',
         icon: <GiScrollUnfurled size={14} />,
         image: '/Image/Home/IMG-H02.jpg',
+        imgFit: 'cover' as const,
     },
     {
         id: 2,
@@ -35,7 +36,7 @@ const SLIDES = [
         accent: '#388e3c',
         icon: <GiSwordClash size={14} />,
         image: '/Image/Home/IMG-H03.png',
-        imgMaxHeight: '280px',
+        imgFit: 'contain' as const,
     },
     {
         id: 3,
@@ -132,7 +133,7 @@ export default function HeroBanner() {
                             <img
                                 src={slide.image}
                                 alt={slide.badge}
-                                style={(slide as any).imgMaxHeight ? { maxHeight: (slide as any).imgMaxHeight, width: 'auto', margin: '0 auto' } : undefined}
+                                style={{ objectFit: (slide as any).imgFit ?? 'cover' }}
                             />
                         </motion.div>
                     </AnimatePresence>
