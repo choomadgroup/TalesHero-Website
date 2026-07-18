@@ -1,8 +1,16 @@
 import { useEffect } from 'react';
 import { useLocation } from 'wouter';
+import { motion } from 'framer-motion';
 import Header from '../../Components/Header';
 import Footer from '../../Components/Footer';
 import { GiCrossedSwords, GiScrollUnfurled } from 'react-icons/gi';
+
+const fromLeft  = { hidden: { opacity: 0, x: -60 }, show: { opacity: 1, x: 0 } };
+const fromRight = { hidden: { opacity: 0, x:  60 }, show: { opacity: 1, x: 0 } };
+const fromBelow = { hidden: { opacity: 0, y:  40 }, show: { opacity: 1, y: 0 } };
+
+const transition = { duration: 0.6, ease: 'easeOut' };
+const viewport   = { once: true, amount: 0.25 };
 
 export default function GuidesPengantar() {
     const [, setLocation] = useLocation();
@@ -43,11 +51,19 @@ export default function GuidesPengantar() {
 
             {/* Character showcase section */}
             <section className="pengantar-showcase">
-                <div className="pengantar-showcase__char pengantar-showcase__char--left">
+                <motion.div
+                    className="pengantar-showcase__char pengantar-showcase__char--left"
+                    variants={fromLeft} initial="hidden" whileInView="show"
+                    transition={transition} viewport={viewport}
+                >
                     <img src="/Image/Pengantar/character1.png" alt="Tales Hero Character" />
-                </div>
+                </motion.div>
 
-                <div className="pengantar-showcase__center">
+                <motion.div
+                    className="pengantar-showcase__center"
+                    variants={fromBelow} initial="hidden" whileInView="show"
+                    transition={{ ...transition, delay: 0.1 }} viewport={viewport}
+                >
                     <p className="pengantar-showcase__sub">
                         Petualangan di dunia penuh pahlawan legendaris
                     </p>
@@ -63,11 +79,15 @@ export default function GuidesPengantar() {
                         Jadilah protagonis dalam kisah heroikmu — jelajahi dungeon, taklukkan boss legendaris,
                         dan tulis namamu di papan peringkat bersama guild terkuat!
                     </p>
-                </div>
+                </motion.div>
 
-                <div className="pengantar-showcase__char pengantar-showcase__char--right">
+                <motion.div
+                    className="pengantar-showcase__char pengantar-showcase__char--right"
+                    variants={fromRight} initial="hidden" whileInView="show"
+                    transition={transition} viewport={viewport}
+                >
                     <img src="/Image/Pengantar/character2.png" alt="Tales Hero Character" />
-                </div>
+                </motion.div>
             </section>
 
             {/* Story sections */}
@@ -75,7 +95,11 @@ export default function GuidesPengantar() {
 
                 {/* Section 1 — text left, image right */}
                 <section className="pengantar-story__row">
-                    <div className="pengantar-story__text">
+                    <motion.div
+                        className="pengantar-story__text"
+                        variants={fromLeft} initial="hidden" whileInView="show"
+                        transition={transition} viewport={viewport}
+                    >
                         <h2 className="pengantar-story__heading pengantar-story__heading--blue">
                             Dunia Fantasi<br />yang Indah
                         </h2>
@@ -87,28 +111,40 @@ export default function GuidesPengantar() {
                             Dengan bantuan para hero pemberani yang menjaga kedamaian, kerajaan ini menjadi tempat
                             di mana semua petualangan epik bermula — dan di sinilah kisahmu dimulai.
                         </p>
-                    </div>
-                    <div className="pengantar-story__img-wrap">
+                    </motion.div>
+                    <motion.div
+                        className="pengantar-story__img-wrap"
+                        variants={fromRight} initial="hidden" whileInView="show"
+                        transition={transition} viewport={viewport}
+                    >
                         <div className="pengantar-story__circle pengantar-story__circle--lg">
                             <img src="/Image/Pengantar/obj1_1.png" alt="Dunia Fantasi" />
                         </div>
                         <div className="pengantar-story__circle pengantar-story__circle--sm">
                             <img src="/Image/Pengantar/obj1_2.png" alt="Detail" />
                         </div>
-                    </div>
+                    </motion.div>
                 </section>
 
                 {/* Section 2 — image left, text right */}
                 <section className="pengantar-story__row">
-                    <div className="pengantar-story__img-wrap">
+                    <motion.div
+                        className="pengantar-story__img-wrap"
+                        variants={fromLeft} initial="hidden" whileInView="show"
+                        transition={transition} viewport={viewport}
+                    >
                         <div className="pengantar-story__circle pengantar-story__circle--lg">
                             <img src="/Image/Pengantar/obj2_1.png" alt="Ancaman Kegelapan" />
                         </div>
                         <div className="pengantar-story__circle pengantar-story__circle--sm">
                             <img src="/Image/Pengantar/obj2_2.png" alt="Detail" />
                         </div>
-                    </div>
-                    <div className="pengantar-story__text">
+                    </motion.div>
+                    <motion.div
+                        className="pengantar-story__text"
+                        variants={fromRight} initial="hidden" whileInView="show"
+                        transition={transition} viewport={viewport}
+                    >
                         <h2 className="pengantar-story__heading pengantar-story__heading--orange">
                             Ancaman<br />Kegelapan
                         </h2>
@@ -120,12 +156,16 @@ export default function GuidesPengantar() {
                             Menyadari bahwa kerajaan mungkin musnah selamanya, sang raja membuat keputusan besar:
                             memanggil para hero sejati dari seluruh penjuru untuk menghadapi ancaman ini bersama.
                         </p>
-                    </div>
+                    </motion.div>
                 </section>
 
                 {/* Section 3 — text left, image right */}
                 <section className="pengantar-story__row">
-                    <div className="pengantar-story__text">
+                    <motion.div
+                        className="pengantar-story__text"
+                        variants={fromLeft} initial="hidden" whileInView="show"
+                        transition={transition} viewport={viewport}
+                    >
                         <h2 className="pengantar-story__heading pengantar-story__heading--pink">
                             Turnamen Hero<br />Dimulai
                         </h2>
@@ -137,28 +177,40 @@ export default function GuidesPengantar() {
                             Hero yang berhasil memenangkan turnamen akan menerima <em>Batu Impian</em> — artefak
                             legendaris yang mampu mengabulkan satu keinginan dan mengangkat nama guild ke puncak papan peringkat.
                         </p>
-                    </div>
-                    <div className="pengantar-story__img-wrap">
+                    </motion.div>
+                    <motion.div
+                        className="pengantar-story__img-wrap"
+                        variants={fromRight} initial="hidden" whileInView="show"
+                        transition={transition} viewport={viewport}
+                    >
                         <div className="pengantar-story__circle pengantar-story__circle--lg">
                             <img src="/Image/Pengantar/obj3_1.png" alt="Turnamen Hero" />
                         </div>
                         <div className="pengantar-story__circle pengantar-story__circle--sm">
                             <img src="/Image/Pengantar/obj3_2.png" alt="Detail" />
                         </div>
-                    </div>
+                    </motion.div>
                 </section>
 
                 {/* Section 4 — image left, text right */}
                 <section className="pengantar-story__row">
-                    <div className="pengantar-story__img-wrap">
+                    <motion.div
+                        className="pengantar-story__img-wrap"
+                        variants={fromLeft} initial="hidden" whileInView="show"
+                        transition={transition} viewport={viewport}
+                    >
                         <div className="pengantar-story__circle pengantar-story__circle--lg">
                             <img src="/Image/Pengantar/obj4_1.png" alt="Hero dan Kisah Anda" />
                         </div>
                         <div className="pengantar-story__circle pengantar-story__circle--sm">
                             <img src="/Image/Pengantar/obj4_2.png" alt="Detail" />
                         </div>
-                    </div>
-                    <div className="pengantar-story__text">
+                    </motion.div>
+                    <motion.div
+                        className="pengantar-story__text"
+                        variants={fromRight} initial="hidden" whileInView="show"
+                        transition={transition} viewport={viewport}
+                    >
                         <h2 className="pengantar-story__heading pengantar-story__heading--green">
                             Hero dan<br />Kisah Anda
                         </h2>
@@ -170,7 +222,7 @@ export default function GuidesPengantar() {
                             Di tanah fantasi yang terus berubah, kisah hero dan perjalananmu akan terus berlanjut —
                             dan legenda yang kamu tulis hari ini akan dikenang selamanya.
                         </p>
-                    </div>
+                    </motion.div>
                 </section>
 
             </div>
