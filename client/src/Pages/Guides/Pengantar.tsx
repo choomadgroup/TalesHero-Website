@@ -70,6 +70,111 @@ export default function GuidesPengantar() {
                 </div>
             </section>
 
+            {/* Story sections */}
+            <div className="pengantar-story">
+
+                {/* Section 1 — text left, image right */}
+                <section className="pengantar-story__row">
+                    <div className="pengantar-story__text">
+                        <h2 className="pengantar-story__heading pengantar-story__heading--blue">
+                            Dunia Fantasi<br />yang Indah
+                        </h2>
+                        <p className="pengantar-story__desc">
+                            Di dunia yang dipenuhi kekuatan magis dan makhluk legendaris, Kerajaan Tales berdiri megah
+                            di bawah langit yang selalu cerah, diperintah oleh raja yang adil dan bijaksana.
+                        </p>
+                        <p className="pengantar-story__desc">
+                            Dengan bantuan para hero pemberani yang menjaga kedamaian, kerajaan ini menjadi tempat
+                            di mana semua petualangan epik bermula — dan di sinilah kisahmu dimulai.
+                        </p>
+                    </div>
+                    <div className="pengantar-story__img-wrap">
+                        <div className="pengantar-story__circle pengantar-story__circle--lg">
+                            <img src="/Image/Pengantar/obj1_1.png" alt="Dunia Fantasi" />
+                        </div>
+                        <div className="pengantar-story__circle pengantar-story__circle--sm">
+                            <img src="/Image/Pengantar/obj1_2.png" alt="Detail" />
+                        </div>
+                    </div>
+                </section>
+
+                {/* Section 2 — image left, text right */}
+                <section className="pengantar-story__row pengantar-story__row--reverse">
+                    <div className="pengantar-story__img-wrap">
+                        <div className="pengantar-story__circle pengantar-story__circle--lg">
+                            <img src="/Image/Pengantar/obj2_1.png" alt="Ancaman Kegelapan" />
+                        </div>
+                        <div className="pengantar-story__circle pengantar-story__circle--sm">
+                            <img src="/Image/Pengantar/obj2_2.png" alt="Detail" />
+                        </div>
+                    </div>
+                    <div className="pengantar-story__text">
+                        <h2 className="pengantar-story__heading pengantar-story__heading--orange">
+                            Ancaman<br />Kegelapan
+                        </h2>
+                        <p className="pengantar-story__desc">
+                            Dari balik bayangan datang kekuatan jahat yang mengancam keseimbangan dunia — monster-monster
+                            ganas menyerang desa, dungeon bermunculan di mana-mana, dan para warga kehilangan harapan.
+                        </p>
+                        <p className="pengantar-story__desc">
+                            Menyadari bahwa kerajaan mungkin musnah selamanya, sang raja membuat keputusan besar:
+                            memanggil para hero sejati dari seluruh penjuru untuk menghadapi ancaman ini bersama.
+                        </p>
+                    </div>
+                </section>
+
+                {/* Section 3 — text left, image right */}
+                <section className="pengantar-story__row">
+                    <div className="pengantar-story__text">
+                        <h2 className="pengantar-story__heading pengantar-story__heading--pink">
+                            Turnamen Hero<br />Dimulai
+                        </h2>
+                        <p className="pengantar-story__desc">
+                            Kerajaan Tales menyelenggarakan turnamen besar di mana para hero bertarung membuktikan
+                            kehebatan mereka — mengalahkan boss, menyelesaikan dungeon, dan memenangkan kejuaraan antar guild.
+                        </p>
+                        <p className="pengantar-story__desc">
+                            Hero yang berhasil memenangkan turnamen akan menerima <em>Batu Impian</em> — artefak
+                            legendaris yang mampu mengabulkan satu keinginan dan mengangkat nama guild ke puncak papan peringkat.
+                        </p>
+                    </div>
+                    <div className="pengantar-story__img-wrap">
+                        <div className="pengantar-story__circle pengantar-story__circle--lg">
+                            <img src="/Image/Pengantar/obj3_1.png" alt="Turnamen Hero" />
+                        </div>
+                        <div className="pengantar-story__circle pengantar-story__circle--sm">
+                            <img src="/Image/Pengantar/obj3_2.png" alt="Detail" />
+                        </div>
+                    </div>
+                </section>
+
+                {/* Section 4 — image left, text right */}
+                <section className="pengantar-story__row pengantar-story__row--reverse">
+                    <div className="pengantar-story__img-wrap">
+                        <div className="pengantar-story__circle pengantar-story__circle--lg">
+                            <img src="/Image/Pengantar/obj4_1.png" alt="Hero dan Kisah Anda" />
+                        </div>
+                        <div className="pengantar-story__circle pengantar-story__circle--sm">
+                            <img src="/Image/Pengantar/obj4_2.png" alt="Detail" />
+                        </div>
+                    </div>
+                    <div className="pengantar-story__text">
+                        <h2 className="pengantar-story__heading pengantar-story__heading--green">
+                            Hero dan<br />Kisah Anda
+                        </h2>
+                        <p className="pengantar-story__desc">
+                            Para hero dari seluruh Indonesia telah datang ke Kerajaan Tales, masing-masing membawa
+                            cerita dan tujuan mereka sendiri — bergabung dalam guild, membangun persahabatan, dan menempa takdir.
+                        </p>
+                        <p className="pengantar-story__desc">
+                            Di tanah fantasi yang terus berubah, kisah hero dan perjalananmu akan terus berlanjut —
+                            dan legenda yang kamu tulis hari ini akan dikenang selamanya.
+                        </p>
+                    </div>
+                </section>
+
+            </div>
+
             <Footer />
         </>
     );
