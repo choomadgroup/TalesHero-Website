@@ -14,7 +14,7 @@ export default function GuidesCombat() {
 
     return (
         <>
-            <Header />
+            <Header light />
 
             {/* Hero banner */}
             <section className="guides-hero">
