@@ -1,0 +1,1 @@
+- [Tales Hero project layout](taleshero-layout.md) — root = workspace package; client/ is src only, not a separate pnpm package

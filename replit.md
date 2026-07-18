@@ -1,45 +1,53 @@
-# [Project name]
+# Tales Hero Indonesia
 
-_Replace the heading above with the project's name, and this line with one sentence describing what this app does for users._
+Website game online action adventure Tales Hero Indonesia — landing page + halaman pendaftaran hero.
 
 ## Run & Operate
 
-- `pnpm --filter @workspace/api-server run dev` — run the API server (port 5000)
-- `pnpm run typecheck` — full typecheck across all packages
-- `pnpm run build` — typecheck + build all packages
-- `pnpm --filter @workspace/api-spec run codegen` — regenerate API hooks and Zod schemas from the OpenAPI spec
-- `pnpm --filter @workspace/db run push` — push DB schema changes (dev only)
-- Required env: `DATABASE_URL` — Postgres connection string
+- `client: web` workflow — jalankan dev server (port dari env `PORT`)
+- `pnpm run typecheck` — typecheck seluruh project
 
 ## Stack
 
-- pnpm workspaces, Node.js 24, TypeScript 5.9
-- API: Express 5
-- DB: PostgreSQL + Drizzle ORM
-- Validation: Zod (`zod/v4`), `drizzle-zod`
-- API codegen: Orval (from OpenAPI spec)
-- Build: esbuild (CJS bundle)
+- pnpm workspaces, Node.js 20, TypeScript
+- Frontend: React 19 + Vite 7, wouter (routing), react-scroll (smooth scroll), react-icons, Sass
+- API routes: inline Vite middleware di `vite.config.ts` (dev only)
+- No database saat ini — data leaderboard hardcoded, form contact validasi saja
 
 ## Where things live
 
-_Populate as you build — short repo map plus pointers to the source-of-truth file for DB schema, API contracts, theme files, etc._
+- `client/src/Pages/` — halaman: Home.tsx, Daftar.tsx, Not-Found.tsx
+- `client/src/Components/` — Header.tsx, Footer.tsx, About.tsx
+- `client/src/Style/app.scss` — semua custom styles (warna, layout, komponen)
+- `vite.config.ts` — Vite config + API middleware (/api/contact, /api/leaderboard)
+- `public/` — assets statis: favicon.png, Image/tales-hero-banner.png, robots.txt
+- `index.html` — entry point HTML dengan meta tags SEO
+- `client/.replit-artifact/artifact.toml` — konfigurasi artifact Replit
 
 ## Architecture decisions
 
-_Populate as you build — non-obvious choices a reader couldn't infer from the code (3-5 bullets)._
+- API routes dihandle sebagai Vite middleware (bukan server terpisah) karena logic-nya sederhana — tidak butuh database, tidak butuh session
+- Source code ada di `client/src/` tapi package.json dan vite.config.ts ada di root (bukan subfolder terpisah)
+- Mantine UI diganti dengan plain CSS/SCSS + wouter supaya tidak ada dependency Next.js
 
 ## Product
 
-_Describe the high-level user-facing capabilities of this app once they exist._
+- Landing page (/) dengan hero section, navigasi smooth scroll, footer
+- Halaman daftar (/daftar) — form registrasi hero dengan validasi email + password
+- API /api/contact — validasi form pendaftaran
+- API /api/leaderboard — data 10 besar pemain (mock)
 
 ## User preferences
 
-_Populate as you build — explicit user instructions worth remembering across sessions._
+- Tidak suka folder/file tambahan yang tidak perlu — jaga struktur seminimal mungkin
+- Tidak suka `.replit-artifact` dan folder sistem muncul di GitHub — sudah di-gitignore
 
 ## Gotchas
 
-_Populate as you build — sharp edges, "always run X before Y" rules._
+- Jangan tambahkan `client` ke `packages` di pnpm-workspace.yaml — client/ bukan workspace package terpisah, root package.json yang handle
+- Workflow command: `pnpm --include-workspace-root --filter @workspace/taleshero run dev` — ini jalankan script `dev` dari root package.json
+- API middleware hanya berjalan di dev mode — untuk production perlu server terpisah (lihat task #3)
 
 ## Pointers
 
-- See the `pnpm-workspace` skill for workspace structure, TypeScript setup, and package details
+- See the `pnpm-workspace` skill for workspace structure details
