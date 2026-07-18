@@ -103,6 +103,25 @@ section, footer {
     background: rgba(8, 8, 18, 0.92);
     box-shadow: 0 4px 32px rgba(0, 0, 0, 0.5), 0 1px 0 rgba(250, 176, 5, 0.25);
   }
+
+  &--light {
+    background: rgba(255, 255, 255, 0.95);
+    border-bottom-color: rgba(0, 0, 0, 0.08);
+
+    .game-nav-link {
+      color: rgba(30, 30, 30, 0.75);
+      &:hover { color: #fab005; background: rgba(250, 176, 5, 0.08); }
+    }
+
+    .game-nav-link--dropdown.active { color: #fab005; }
+
+    .game-nav-chevron { opacity: 0.5; }
+
+    &.game-header--scrolled {
+      background: rgba(255, 255, 255, 0.98);
+      box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
+    }
+  }
 }
 
 .game-header__inner {

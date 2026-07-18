@@ -18,7 +18,7 @@ const PENGENALAN_ITEMS = [
     { label: 'Item & Equipment',   href: '/guides/item',      desc: 'Senjata, armor, dan item langka' },
 ];
 
-const Header = () => {
+const Header = ({ light = false }: { light?: boolean }) => {
     const [opened, setOpened] = useState(false);
     const [scrolled, setScrolled] = useState(false);
     const [dropdownOpen, setDropdownOpen] = useState(false);
@@ -37,7 +37,7 @@ const Header = () => {
 
     return (
         <>
-            <header className={`game-header ${scrolled ? 'game-header--scrolled' : ''}`}>
+            <header className={`game-header ${light ? 'game-header--light' : ''} ${scrolled ? 'game-header--scrolled' : ''}`}>
                 <div className="game-header__inner">
 
                     {/* Logo */}

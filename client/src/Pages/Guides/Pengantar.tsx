@@ -22,7 +22,7 @@ export default function GuidesPengantar() {
 
     return (
         <>
-            <Header />
+            <Header light />
 
             {/* Hero banner */}
             <section className="guides-hero">
