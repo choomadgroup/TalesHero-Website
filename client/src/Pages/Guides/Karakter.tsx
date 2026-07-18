@@ -1,133 +1,99 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { useLocation } from 'wouter';
 import Header from '../../Components/Header';
 import Footer from '../../Components/Footer';
 import { GiCrossedSwords, GiSwordman } from 'react-icons/gi';
-import { IoClose } from 'react-icons/io5';
+import { IoClose, IoSearch } from 'react-icons/io5';
+import { RUNNERS, STORIES, type Character } from '../../data/characters';
 
-// ─── Types ────────────────────────────────────────────────────────────────────
+// ─── Helpers ──────────────────────────────────────────────────────────────────
 
-interface CharacterListItem {
-    id: number;
-    characterNm: string;
-    category: number; // 0 = runner, 1 = story
-    catchPhrase: string;
-    circularImageUrl: string;
-    squareImageUrl: string;
-    mainImageUrl: string;
-    ingameId: number;
+/** Pick a card color theme based on the character's dominant stat */
+function cardTheme(c: Character): { bg: string; accent: string; label: string } {
+    const max = Math.max(c.acceleration, c.maximumSpeed, c.power, c.control);
+    if (max === c.power && c.power >= 5)
+        return { bg: 'linear-gradient(135deg,#7f1d1d,#dc2626)', accent: '#fca5a5', label: 'Kekuatan' };
+    if (max === c.maximumSpeed && c.maximumSpeed >= 5)
+        return { bg: 'linear-gradient(135deg,#1e3a8a,#2563eb)', accent: '#93c5fd', label: 'Kecepatan' };
+    if (max === c.acceleration && c.acceleration >= 5)
+        return { bg: 'linear-gradient(135deg,#14532d,#16a34a)', accent: '#86efac', label: 'Akselerasi' };
+    if (max === c.control && c.control >= 5)
+        return { bg: 'linear-gradient(135deg,#4c1d95,#7c3aed)', accent: '#c4b5fd', label: 'Kontrol' };
+    return { bg: 'linear-gradient(135deg,#78350f,#d97706)', accent: '#fde68a', label: 'Seimbang' };
 }
 
-interface CharacterDetail extends CharacterListItem {
-    comments: string;
-    acceleration: number;
-    maximumSpeed: number;
-    power: number;
-    control: number;
-    uniqueAbility: string;
-    uniqueAbilityBalance: string | null;
-    revivalMotion: string;
-    hurdleMotion: string;
-    landingMotion: string;
-    angryMotion: string;
-    swimmingMotion: string;
-    beehiveMotion: string;
-    electricShockMotion: string;
-    stunMotion: string;
-    ageInfo: string;
-    height: string;
-    weight: string;
-    mbti: string;
-    bloodType: string;
-    job: string;
-    birthDayInfo: string;
+/** Mini stat bar — 6 segments */
+function StatBar({ value, color }: { value: number; color: string }) {
+    return (
+        <div className="char-card__bar-track">
+            {Array.from({ length: 6 }, (_, i) => (
+                <div
+                    key={i}
+                    className="char-card__bar-seg"
+                    style={{ background: i < value ? color : 'rgba(255,255,255,0.15)' }}
+                />
+            ))}
+        </div>
+    );
 }
 
-// ─── Diamond Radar Chart ──────────────────────────────────────────────────────
+// ─── Diamond Chart ────────────────────────────────────────────────────────────
 
 function DiamondChart({ speed, acceleration, power, control }: {
     speed: number; acceleration: number; power: number; control: number;
 }) {
     const cx = 110, cy = 110, r = 80;
     const s = (v: number) => v / 6;
-
     const gridPts = (f: number) =>
         `${cx},${cy - r * f} ${cx + r * f},${cy} ${cx},${cy + r * f} ${cx - r * f},${cy}`;
-
-    const statPts =
-        `${cx},${cy - r * s(speed)} ${cx + r * s(power)},${cy} ${cx},${cy + r * s(control)} ${cx - r * s(acceleration)},${cy}`;
-
+    const statPts = `${cx},${cy - r * s(speed)} ${cx + r * s(power)},${cy} ${cx},${cy + r * s(control)} ${cx - r * s(acceleration)},${cy}`;
     return (
         <svg viewBox="0 0 220 220" width="200" height="200" className="char-chart-svg">
             <defs>
-                <linearGradient id="diamondGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                <linearGradient id="dg" x1="0%" y1="0%" x2="100%" y2="100%">
                     <stop offset="0%" stopColor="#2FB5FF" stopOpacity="0.5" />
                     <stop offset="100%" stopColor="#fab005" stopOpacity="0.5" />
                 </linearGradient>
             </defs>
-            {/* Grid diamonds */}
             {[0.2, 0.4, 0.6, 0.8, 1.0].map((f, i) => (
                 <polygon key={i} points={gridPts(f)} fill="none" stroke="#D1D5DB" strokeWidth="1" />
             ))}
-            {/* Axes */}
             <line x1={cx} y1={cy - r} x2={cx} y2={cy + r} stroke="#D1D5DB" strokeWidth="1" />
             <line x1={cx - r} y1={cy} x2={cx + r} y2={cy} stroke="#D1D5DB" strokeWidth="1" />
-            {/* Stat fill */}
-            <polygon points={statPts} fill="url(#diamondGrad)" stroke="#2FB5FF" strokeWidth="2" />
+            <polygon points={statPts} fill="url(#dg)" stroke="#2FB5FF" strokeWidth="2" />
             <circle cx={cx} cy={cy} r={3} fill="#fab005" />
         </svg>
     );
 }
 
-// ─── Character Modal ──────────────────────────────────────────────────────────
+// ─── Modal ────────────────────────────────────────────────────────────────────
 
-function CharacterModal({ characterId, onClose }: { characterId: number | null; onClose: () => void }) {
-    const [detail, setDetail] = useState<CharacterDetail | null>(null);
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState(false);
-
-    useEffect(() => {
-        if (!characterId) return;
-        setLoading(true);
-        setDetail(null);
-        setError(false);
-        fetch(`/webb/trintro/character/${characterId}`)
-            .then(r => r.json())
-            .then(data => {
-                setDetail(data.result.info);
-                setLoading(false);
-            })
-            .catch(() => {
-                setError(true);
-                setLoading(false);
-            });
-    }, [characterId]);
-
-    // Close on Escape
+function CharacterModal({ char, onClose }: { char: Character | null; onClose: () => void }) {
     useEffect(() => {
         const handler = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose(); };
         window.addEventListener('keydown', handler);
         return () => window.removeEventListener('keydown', handler);
     }, [onClose]);
 
-    // Lock body scroll
     useEffect(() => {
-        if (characterId) document.body.style.overflow = 'hidden';
+        if (char) document.body.style.overflow = 'hidden';
         return () => { document.body.style.overflow = ''; };
-    }, [characterId]);
+    }, [char]);
 
-    if (!characterId) return null;
+    if (!char) return null;
 
-    const motionRows = detail ? [
-        { label: 'Waktu Respawn', value: detail.revivalMotion, note: '1' },
-        { label: 'Waktu terjadi saat menabrak rintangan', value: detail.hurdleMotion, note: '3' },
-        { label: 'Waktu terjadi jika dash pendaratan gagal', value: detail.landingMotion, note: '1' },
-        { label: 'Waktu Transformasi Kemarahan', value: detail.angryMotion, note: null },
-        { label: 'Waktu Transformasi Kemarahan Saat Berenang', value: detail.swimmingMotion, note: null },
-        { label: 'Waktu sarang', value: detail.beehiveMotion, note: null },
-        { label: 'Waktu sengatan listrik', value: detail.electricShockMotion, note: '2' },
-        { label: 'Waktu setrum saat kepala diinjak', value: detail.stunMotion, note: '1' },
-    ] : [];
+    const { accent } = cardTheme(char);
+
+    const motionRows = [
+        { label: 'Waktu Respawn', value: char.revivalMotion, note: '1' },
+        { label: 'Waktu terjadi saat menabrak rintangan', value: char.hurdleMotion, note: '3' },
+        { label: 'Waktu terjadi jika dash pendaratan gagal', value: char.landingMotion, note: '1' },
+        { label: 'Waktu Transformasi Kemarahan', value: char.angryMotion, note: null },
+        { label: 'Waktu Transformasi Kemarahan Saat Berenang', value: char.swimmingMotion, note: null },
+        { label: 'Waktu sarang', value: char.beehiveMotion, note: null },
+        { label: 'Waktu sengatan listrik', value: char.electricShockMotion, note: '2' },
+        { label: 'Waktu setrum saat kepala diinjak', value: char.stunMotion, note: '1' },
+    ];
 
     return (
         <div className="char-modal-overlay" onClick={onClose} role="dialog" aria-modal="true">
@@ -136,132 +102,98 @@ function CharacterModal({ characterId, onClose }: { characterId: number | null; 
                     <IoClose size={22} />
                 </button>
 
-                {loading && (
-                    <div className="char-modal__state">
-                        <div className="char-modal__spinner" />
-                        <p>Memuat data karakter…</p>
-                    </div>
-                )}
+                {/* Header */}
+                <div className="char-modal__header">
+                    <span className="char-modal__catchphrase">{char.catchPhrase}</span>
+                    <h2 className="char-modal__name">{char.characterNm}</h2>
+                    <p className="char-modal__comments">{char.comments}</p>
+                </div>
 
-                {error && (
-                    <div className="char-modal__state">
-                        <p>Gagal memuat data. Coba lagi nanti.</p>
-                    </div>
-                )}
-
-                {detail && (
-                    <>
-                        {/* Header */}
-                        <div className="char-modal__header">
-                            <span className="char-modal__catchphrase">{detail.catchPhrase}</span>
-                            <h2 className="char-modal__name">{detail.characterNm}</h2>
-                            <p className="char-modal__comments">{detail.comments}</p>
+                {/* Body */}
+                <div className="char-modal__body">
+                    {/* Left */}
+                    <div className="char-modal__left">
+                        <div className="char-modal__section">
+                            <h3 className="char-modal__section-title">Statistik Eksklusif</h3>
+                            <div className="char-modal__exclusive">
+                                <p>{char.uniqueAbility}</p>
+                                {char.uniqueAbilityBalance && (
+                                    <>
+                                        <p className="char-modal__balance-lbl">[Koreksi Keseimbangan]</p>
+                                        <p>{char.uniqueAbilityBalance}</p>
+                                    </>
+                                )}
+                            </div>
                         </div>
-
-                        {/* Body */}
-                        <div className="char-modal__body">
-                            {/* Left — stats & motion table */}
-                            <div className="char-modal__left">
-                                <div className="char-modal__section">
-                                    <h3 className="char-modal__section-title">
-                                        Statistik Eksklusif
-                                    </h3>
-                                    <div className="char-modal__exclusive">
-                                        <p>{detail.uniqueAbility}</p>
-                                        {detail.uniqueAbilityBalance && (
-                                            <>
-                                                <p className="char-modal__balance-lbl">[Koreksi Keseimbangan]</p>
-                                                <p>{detail.uniqueAbilityBalance}</p>
-                                            </>
-                                        )}
-                                    </div>
-                                </div>
-
-                                <div className="char-modal__section">
-                                    <h3 className="char-modal__section-title">Waktu gerak karakter</h3>
-                                    <table className="char-modal__table">
-                                        <thead>
-                                            <tr>
-                                                <th>Kategori</th>
-                                                <th>Waktu (detik)</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            {motionRows.map((row, i) => (
-                                                <tr key={i}>
-                                                    <td>
-                                                        {row.label}
-                                                        {row.note && <sup>{row.note}</sup>}
-                                                    </td>
-                                                    <td>{row.value}</td>
-                                                </tr>
-                                            ))}
-                                        </tbody>
-                                    </table>
-                                </div>
-
-                                <div className="char-modal__footnotes">
-                                    <p><sup>1</sup> Regenerasi 50% lebih cepat tergantung pada peringkat (hingga peringkat sedang – terendah)</p>
-                                    <p><sup>2</sup> Pemutaran 50% lebih cepat tergantung pada pengoperasian tombol arah kiri dan kanan</p>
-                                    <p><sup>3</sup> Bervariasi tergantung pada lingkungan aktual (jenis rintangan, hitbox, medan, dll.)</p>
-                                </div>
-                            </div>
-
-                            {/* Center — character art */}
-                            <div className="char-modal__center">
-                                <img
-                                    src={detail.mainImageUrl}
-                                    alt={detail.characterNm}
-                                    className="char-modal__art"
-                                />
-                            </div>
-
-                            {/* Right — radar chart + profile */}
-                            <div className="char-modal__right">
-                                <div className="char-modal__chart">
-                                    <div className="char-modal__chart-top">
-                                        <span>Kecepatan Tertinggi</span>
-                                        <strong>{detail.maximumSpeed}</strong>
-                                    </div>
-                                    <div className="char-modal__chart-mid">
-                                        <div className="char-modal__chart-side">
-                                            <span>Akselerasi</span>
-                                            <strong>{detail.acceleration}</strong>
-                                        </div>
-                                        <DiamondChart
-                                            speed={detail.maximumSpeed}
-                                            acceleration={detail.acceleration}
-                                            power={detail.power}
-                                            control={detail.control}
-                                        />
-                                        <div className="char-modal__chart-side char-modal__chart-side--right">
-                                            <span>Kekuatan</span>
-                                            <strong>{detail.power}</strong>
-                                        </div>
-                                    </div>
-                                    <div className="char-modal__chart-bottom">
-                                        <span>Kontrol</span>
-                                        <strong>{detail.control}</strong>
-                                    </div>
-                                </div>
-
-                                <table className="char-modal__profile">
-                                    <tbody>
-                                        <tr><td>Usia</td><td>{detail.ageInfo}</td></tr>
-                                        <tr><td>Tinggi</td><td>{detail.height}</td></tr>
-                                        <tr><td>Berat</td><td>{detail.weight}</td></tr>
-                                        <tr>
-                                            <td>MBTI / Gol. Darah</td>
-                                            <td>{detail.mbti} / {detail.bloodType}</td>
+                        <div className="char-modal__section">
+                            <h3 className="char-modal__section-title">Waktu gerak karakter</h3>
+                            <table className="char-modal__table">
+                                <thead>
+                                    <tr><th>Kategori</th><th>Waktu (detik)</th></tr>
+                                </thead>
+                                <tbody>
+                                    {motionRows.map((row, i) => (
+                                        <tr key={i}>
+                                            <td>{row.label}{row.note && <sup>{row.note}</sup>}</td>
+                                            <td>{row.value}</td>
                                         </tr>
-                                        <tr><td>Pekerjaan</td><td>{detail.job}</td></tr>
-                                        <tr><td>Ulang tahun</td><td>{detail.birthDayInfo}</td></tr>
-                                    </tbody>
-                                </table>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+                        <div className="char-modal__footnotes">
+                            <p><sup>1</sup> Regenerasi 50% lebih cepat tergantung pada peringkat</p>
+                            <p><sup>2</sup> Pemutaran 50% lebih cepat tergantung pada arah kiri/kanan</p>
+                            <p><sup>3</sup> Bervariasi tergantung lingkungan aktual (rintangan, hitbox, dll.)</p>
+                        </div>
+                    </div>
+
+                    {/* Center — stat chart (replaces image) */}
+                    <div className="char-modal__center">
+                        <div className="char-modal__chart">
+                            <div className="char-modal__chart-top">
+                                <span>Kecepatan</span>
+                                <strong>{char.maximumSpeed}</strong>
+                            </div>
+                            <div className="char-modal__chart-mid">
+                                <div className="char-modal__chart-side">
+                                    <span>Akselerasi</span>
+                                    <strong>{char.acceleration}</strong>
+                                </div>
+                                <DiamondChart
+                                    speed={char.maximumSpeed}
+                                    acceleration={char.acceleration}
+                                    power={char.power}
+                                    control={char.control}
+                                />
+                                <div className="char-modal__chart-side char-modal__chart-side--right">
+                                    <span>Kekuatan</span>
+                                    <strong>{char.power}</strong>
+                                </div>
+                            </div>
+                            <div className="char-modal__chart-bottom">
+                                <span>Kontrol</span>
+                                <strong>{char.control}</strong>
                             </div>
                         </div>
-                    </>
-                )}
+                    </div>
+
+                    {/* Right — profile */}
+                    <div className="char-modal__right">
+                        <h3 className="char-modal__section-title" style={{ padding: '28px 20px 0' }}>Profil</h3>
+                        <table className="char-modal__profile">
+                            <tbody>
+                                <tr><td>Usia</td><td>{char.ageInfo}</td></tr>
+                                <tr><td>Tinggi</td><td>{char.height}</td></tr>
+                                <tr><td>Berat</td><td>{char.weight}</td></tr>
+                                <tr><td>MBTI</td><td>{char.mbti}</td></tr>
+                                <tr><td>Gol. Darah</td><td>{char.bloodType}</td></tr>
+                                <tr><td>Pekerjaan</td><td>{char.job}</td></tr>
+                                <tr><td>Ulang tahun</td><td>{char.birthDayInfo}</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
             </div>
         </div>
     );
@@ -269,18 +201,39 @@ function CharacterModal({ characterId, onClose }: { characterId: number | null; 
 
 // ─── Character Card ───────────────────────────────────────────────────────────
 
-function CharacterCard({ char, onClick }: { char: CharacterListItem; onClick: () => void }) {
+function CharCard({ char, onClick }: { char: Character; onClick: () => void }) {
+    const { bg, accent } = cardTheme(char);
     return (
-        <button className="char-card" onClick={onClick}>
-            <div className="char-card__circle">
-                <img
-                    src={char.circularImageUrl}
-                    alt={char.characterNm}
-                    loading="lazy"
-                    className="char-card__img"
-                />
+        <button className="char-card" onClick={onClick} style={{ background: bg }}>
+            <span className="char-card__badge">
+                {char.category === 0 ? 'Pelari' : 'Cerita'}
+            </span>
+            <div className="char-card__body">
+                <p className="char-card__name">{char.characterNm}</p>
+                <p className="char-card__catch">{char.catchPhrase}</p>
             </div>
-            <span className="char-card__name">{char.characterNm}</span>
+            <div className="char-card__stats">
+                <div className="char-card__stat-row">
+                    <span>SPD</span>
+                    <StatBar value={char.maximumSpeed} color={accent} />
+                    <span>{char.maximumSpeed}</span>
+                </div>
+                <div className="char-card__stat-row">
+                    <span>ACC</span>
+                    <StatBar value={char.acceleration} color={accent} />
+                    <span>{char.acceleration}</span>
+                </div>
+                <div className="char-card__stat-row">
+                    <span>PWR</span>
+                    <StatBar value={char.power} color={accent} />
+                    <span>{char.power}</span>
+                </div>
+                <div className="char-card__stat-row">
+                    <span>CTL</span>
+                    <StatBar value={char.control} color={accent} />
+                    <span>{char.control}</span>
+                </div>
+            </div>
         </button>
     );
 }
@@ -289,28 +242,27 @@ function CharacterCard({ char, onClick }: { char: CharacterListItem; onClick: ()
 
 export default function GuidesKarakter() {
     const [, setLocation] = useLocation();
-    const [runners, setRunners] = useState<CharacterListItem[]>([]);
-    const [stories, setStories] = useState<CharacterListItem[]>([]);
-    const [loadingList, setLoadingList] = useState(true);
-    const [selectedId, setSelectedId] = useState<number | null>(null);
+    const [query, setQuery] = useState('');
+    const [selected, setSelected] = useState<Character | null>(null);
 
     useEffect(() => {
         document.title = 'Karakter & Hero — Tales Hero Indonesia';
         window.scrollTo({ top: 0, behavior: 'smooth' });
-
-        fetch('/webb/trintro/character/all')
-            .then(r => r.json())
-            .then(data => {
-                const list: CharacterListItem[] = data.result.list;
-                setRunners(list.filter(c => c.category === 0));
-                setStories(list.filter(c => c.category === 1));
-                setLoadingList(false);
-            })
-            .catch(() => setLoadingList(false));
     }, []);
 
-    const openModal = useCallback((id: number) => setSelectedId(id), []);
-    const closeModal = useCallback(() => setSelectedId(null), []);
+    const openModal = useCallback((c: Character) => setSelected(c), []);
+    const closeModal = useCallback(() => setSelected(null), []);
+
+    const filter = (list: Character[]) =>
+        query.trim()
+            ? list.filter(c =>
+                c.characterNm.toLowerCase().includes(query.toLowerCase()) ||
+                c.catchPhrase.toLowerCase().includes(query.toLowerCase())
+            )
+            : list;
+
+    const filteredRunners = filter(RUNNERS);
+    const filteredStories = filter(STORIES);
 
     return (
         <>
@@ -341,47 +293,65 @@ export default function GuidesKarakter() {
                 <span className="guides-breadcrumb__link guides-breadcrumb__link--active">Karakter &amp; Hero</span>
             </div>
 
-            {/* Character grid */}
+            {/* Page content */}
             <main className="char-page">
-                {loadingList ? (
-                    <div className="char-page__loading">
-                        <div className="char-modal__spinner" />
-                        <p>Memuat daftar karakter…</p>
-                    </div>
-                ) : (
-                    <>
-                        {/* Runner characters */}
-                        {runners.length > 0 && (
-                            <section className="char-section">
-                                <h2 className="char-section__title">Karakter Pelari</h2>
-                                <div className="char-grid">
-                                    {runners.map(c => (
-                                        <CharacterCard key={c.id} char={c} onClick={() => openModal(c.id)} />
-                                    ))}
-                                </div>
-                            </section>
-                        )}
 
-                        {/* Story characters */}
-                        {stories.length > 0 && (
-                            <section className="char-section">
-                                <h2 className="char-section__title">
-                                    Karakter Cerita
-                                    <span className="char-section__tooltip" title="Karakter cerita adalah karakter khusus dari dunia dongeng. Penampilan tidak berubah meski menggunakan item.">ⓘ</span>
-                                </h2>
-                                <div className="char-grid">
-                                    {stories.map(c => (
-                                        <CharacterCard key={c.id} char={c} onClick={() => openModal(c.id)} />
-                                    ))}
-                                </div>
-                            </section>
-                        )}
-                    </>
+                {/* Search bar */}
+                <div className="char-search-wrap">
+                    <IoSearch size={18} className="char-search-icon" />
+                    <input
+                        className="char-search"
+                        type="text"
+                        placeholder="Cari karakter atau deskripsi…"
+                        value={query}
+                        onChange={e => setQuery(e.target.value)}
+                    />
+                    {query && (
+                        <button className="char-search-clear" onClick={() => setQuery('')}>
+                            <IoClose size={16} />
+                        </button>
+                    )}
+                </div>
+
+                {/* Runner characters */}
+                {filteredRunners.length > 0 && (
+                    <section className="char-section">
+                        <h2 className="char-section__title">
+                            Karakter Pelari
+                            <span className="char-section__count">{filteredRunners.length}</span>
+                        </h2>
+                        <div className="char-grid">
+                            {filteredRunners.map(c => (
+                                <CharCard key={c.id} char={c} onClick={() => openModal(c)} />
+                            ))}
+                        </div>
+                    </section>
+                )}
+
+                {/* Story characters */}
+                {filteredStories.length > 0 && (
+                    <section className="char-section">
+                        <h2 className="char-section__title">
+                            Karakter Cerita
+                            <span className="char-section__tooltip" title="Penampilan tidak berubah meski menggunakan item">ⓘ</span>
+                            <span className="char-section__count">{filteredStories.length}</span>
+                        </h2>
+                        <div className="char-grid">
+                            {filteredStories.map(c => (
+                                <CharCard key={c.id} char={c} onClick={() => openModal(c)} />
+                            ))}
+                        </div>
+                    </section>
+                )}
+
+                {filteredRunners.length === 0 && filteredStories.length === 0 && (
+                    <div className="char-empty">
+                        Tidak ada karakter yang cocok dengan "<strong>{query}</strong>"
+                    </div>
                 )}
             </main>
 
-            <CharacterModal characterId={selectedId} onClose={closeModal} />
-
+            <CharacterModal char={selected} onClose={closeModal} />
             <Footer />
         </>
     );

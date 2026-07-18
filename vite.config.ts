@@ -122,13 +122,6 @@ export default defineConfig({
     emptyOutDir: true,
   },
   server: {
-    proxy: {
-      '/webb': {
-        target: 'https://tr.rhaon.co.kr',
-        changeOrigin: true,
-        secure: true,
-      },
-    },
     port,
     strictPort: true,
     host: '0.0.0.0',
