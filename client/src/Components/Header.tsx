@@ -12,7 +12,10 @@ const SCROLL_LINKS = [
 
 // Item dropdown Pengenalan Game
 const PENGENALAN_ITEMS = [
-    { label: 'Pengantar', href: '/guides/pengantar', desc: 'Mulai perjalananmu di Tales Hero' },
+    { label: 'Pengantar',          href: '/guides/pengantar', desc: 'Mulai perjalananmu di Tales Hero' },
+    { label: 'Karakter & Hero',    href: '/guides/karakter',  desc: 'Kelas hero dan cara memilihnya' },
+    { label: 'Sistem Pertarungan', href: '/guides/combat',    desc: 'Mekanik battle, skill & combo' },
+    { label: 'Item & Equipment',   href: '/guides/item',      desc: 'Senjata, armor, dan item langka' },
 ];
 
 const Header = () => {
