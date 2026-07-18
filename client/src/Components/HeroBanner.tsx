@@ -71,54 +71,57 @@ export default function HeroBanner() {
                     />
                 </AnimatePresence>
 
-                {/* Content */}
-                <AnimatePresence mode="wait">
-                    <motion.div
-                        key={current}
-                        className="hero-banner__content"
-                        initial={{ opacity: 0, y: 24 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: -16 }}
-                        transition={{ duration: 0.5, ease: 'easeOut' }}
-                    >
-                        <p className="hero-banner__badge" style={{ color: slide.accent }}>
-                            {slide.icon}&nbsp;&nbsp;{slide.badge}
-                        </p>
+                {/* Two-column row */}
+                <div className="hero-banner__row">
+                    {/* Left: text content */}
+                    <AnimatePresence mode="wait">
+                        <motion.div
+                            key={current}
+                            className="hero-banner__content"
+                            initial={{ opacity: 0, y: 24 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: -16 }}
+                            transition={{ duration: 0.5, ease: 'easeOut' }}
+                        >
+                            <p className="hero-banner__badge" style={{ color: slide.accent }}>
+                                {slide.icon}&nbsp;&nbsp;{slide.badge}
+                            </p>
 
-                        <h1 className="hero-banner__title" style={{ '--accent': slide.accent } as React.CSSProperties}>
-                            {slide.title.split('\n').map((line, i) => (
-                                <span key={i}>{line}{i < slide.title.split('\n').length - 1 && <br />}</span>
-                            ))}
-                        </h1>
+                            <h1 className="hero-banner__title">
+                                {slide.title.split('\n').map((line, i) => (
+                                    <span key={i}>{line}{i < slide.title.split('\n').length - 1 && <br />}</span>
+                                ))}
+                            </h1>
 
-                        <p className="hero-banner__desc">{slide.desc}</p>
+                            <p className="hero-banner__desc">{slide.desc}</p>
 
-                        <div className="hero-banner__actions">
-                            <Link to="section-one" smooth duration={500}>
-                                <button className="hero-banner__btn-primary" style={{ background: slide.accent }}>
-                                    Lihat Fitur <MdOutlineArrowDownward size={15} style={{ verticalAlign: 'middle' }} />
+                            <div className="hero-banner__actions">
+                                <Link to="section-one" smooth duration={500}>
+                                    <button className="hero-banner__btn-primary" style={{ background: slide.accent }}>
+                                        Lihat Fitur <MdOutlineArrowDownward size={15} style={{ verticalAlign: 'middle' }} />
+                                    </button>
+                                </Link>
+                                <button className="hero-banner__btn-secondary" onClick={() => setLocation('/daftar')}>
+                                    Daftar Sekarang
                                 </button>
-                            </Link>
-                            <button className="hero-banner__btn-secondary" onClick={() => setLocation('/daftar')}>
-                                Daftar Sekarang
-                            </button>
-                        </div>
-                    </motion.div>
-                </AnimatePresence>
+                            </div>
+                        </motion.div>
+                    </AnimatePresence>
 
-                {/* Cover image card — right side */}
-                <AnimatePresence mode="wait">
-                    <motion.div
-                        key={`img-${current}`}
-                        className="hero-banner__cover"
-                        initial={{ opacity: 0, scale: 0.96 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        exit={{ opacity: 0, scale: 0.96 }}
-                        transition={{ duration: 0.5, ease: 'easeOut' }}
-                    >
-                        <img src={slide.image} alt={slide.badge} />
-                    </motion.div>
-                </AnimatePresence>
+                    {/* Right: cover image */}
+                    <AnimatePresence mode="wait">
+                        <motion.div
+                            key={`img-${current}`}
+                            className="hero-banner__cover"
+                            initial={{ opacity: 0, scale: 0.96 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            exit={{ opacity: 0, scale: 0.96 }}
+                            transition={{ duration: 0.5, ease: 'easeOut' }}
+                        >
+                            <img src={slide.image} alt={slide.badge} />
+                        </motion.div>
+                    </AnimatePresence>
+                </div>
 
                 {/* Dot indicators */}
                 <div className="hero-banner__dots">
