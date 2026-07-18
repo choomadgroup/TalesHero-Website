@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import Header from '../Components/Header';
-import About from '../Components/About';
+import HeroBanner from '../Components/HeroBanner';
 import Footer from '../Components/Footer';
 
 export default function Home() {
@@ -11,7 +11,7 @@ export default function Home() {
     return (
         <>
             <Header />
-            <About />
+            <HeroBanner />
             <Footer />
         </>
     );
