@@ -1,25 +1,36 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-scroll';
 import { useLocation } from 'wouter';
-import { GiCrossedSwords } from 'react-icons/gi';
-import { HiMenuAlt3, HiX } from 'react-icons/hi';
+import { GiCrossedSwords, GiBookmarklet } from 'react-icons/gi';
+import { HiMenuAlt3, HiX, HiChevronDown } from 'react-icons/hi';
 
-const NAV_LINKS = [
-    { label: 'Fitur',     to: 'section-one'  },
-    { label: 'Game',      to: 'section-four' },
-    { label: 'FAQ',       to: 'section-five' },
+// Nav links yang scroll ke section (tanpa dropdown)
+const SCROLL_LINKS = [
+    { label: 'Game',  to: 'section-four' },
+    { label: 'FAQ',   to: 'section-five' },
+];
+
+// Item dropdown Pengenalan Game
+const PENGENALAN_ITEMS = [
+    { label: 'Pengantar', href: '/guides/game', desc: 'Mulai perjalananmu di Tales Hero' },
 ];
 
 const Header = () => {
     const [opened, setOpened] = useState(false);
     const [scrolled, setScrolled] = useState(false);
+    const [dropdownOpen, setDropdownOpen] = useState(false);
     const [, setLocation] = useLocation();
+    const dropdownRef = useRef<HTMLDivElement>(null);
+    const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
     useEffect(() => {
         const onScroll = () => setScrolled(window.scrollY > 20);
         window.addEventListener('scroll', onScroll, { passive: true });
         return () => window.removeEventListener('scroll', onScroll);
     }, []);
+
+    const openDropdown  = () => { if (closeTimer.current) clearTimeout(closeTimer.current); setDropdownOpen(true); };
+    const closeDropdown = () => { closeTimer.current = setTimeout(() => setDropdownOpen(false), 120); };
 
     return (
         <>
@@ -37,7 +48,46 @@ const Header = () => {
 
                     {/* Desktop nav */}
                     <nav className="game-header__nav">
-                        {NAV_LINKS.map(({ label, to }) => (
+
+                        {/* Pengenalan Game — dengan dropdown */}
+                        <div
+                            className="game-nav-dropdown-wrapper"
+                            ref={dropdownRef}
+                            onMouseEnter={openDropdown}
+                            onMouseLeave={closeDropdown}
+                        >
+                            <span className={`game-nav-link game-nav-link--dropdown ${dropdownOpen ? 'active' : ''}`}>
+                                Pengenalan Game
+                                <HiChevronDown
+                                    size={14}
+                                    className={`game-nav-chevron ${dropdownOpen ? 'rotated' : ''}`}
+                                />
+                            </span>
+
+                            {dropdownOpen && (
+                                <div className="game-dropdown-menu">
+                                    <div className="game-dropdown-arrow" />
+                                    {PENGENALAN_ITEMS.map(item => (
+                                        <button
+                                            key={item.href}
+                                            className="game-dropdown-item"
+                                            onClick={() => { setLocation(item.href); setDropdownOpen(false); }}
+                                        >
+                                            <span className="game-dropdown-item__icon">
+                                                <GiBookmarklet size={16} />
+                                            </span>
+                                            <span className="game-dropdown-item__text">
+                                                <span className="game-dropdown-item__label">{item.label}</span>
+                                                <span className="game-dropdown-item__desc">{item.desc}</span>
+                                            </span>
+                                        </button>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
+
+                        {/* Scroll links biasa */}
+                        {SCROLL_LINKS.map(({ label, to }) => (
                             <Link
                                 key={to}
                                 to={to}
@@ -50,7 +100,7 @@ const Header = () => {
                         ))}
                     </nav>
 
-                    {/* CTA */}
+                    {/* CTA + burger */}
                     <div className="game-header__actions">
                         <button
                             className="game-cta-btn"
@@ -60,7 +110,6 @@ const Header = () => {
                             Main Sekarang
                         </button>
 
-                        {/* Mobile burger */}
                         <button
                             className="game-burger"
                             onClick={() => setOpened(o => !o)}
@@ -81,7 +130,21 @@ const Header = () => {
                         </div>
 
                         <nav className="game-drawer__nav">
-                            {NAV_LINKS.map(({ label, to }) => (
+                            {/* Pengenalan Game di mobile */}
+                            <div className="game-drawer__section-label">Pengenalan Game</div>
+                            {PENGENALAN_ITEMS.map(item => (
+                                <button
+                                    key={item.href}
+                                    className="game-drawer__link game-drawer__link--sub"
+                                    onClick={() => { setLocation(item.href); setOpened(false); }}
+                                >
+                                    <GiBookmarklet size={14} className="game-drawer__icon" />
+                                    {item.label}
+                                </button>
+                            ))}
+
+                            {/* Scroll links */}
+                            {SCROLL_LINKS.map(({ label, to }) => (
                                 <Link
                                     key={to}
                                     to={to}

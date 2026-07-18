@@ -1,6 +1,7 @@
 import { Route, Switch, Router as WouterRouter } from 'wouter';
 import Home from '@/Pages/Home';
 import Daftar from '@/Pages/Daftar';
+import GuidesGame from '@/Pages/Guides/Game';
 import NotFound from '@/Pages/Not-Found';
 
 function Router() {
@@ -8,6 +9,7 @@ function Router() {
         <Switch>
             <Route path="/" component={Home} />
             <Route path="/daftar" component={Daftar} />
+            <Route path="/guides/game" component={GuidesGame} />
             <Route component={NotFound} />
         </Switch>
     );
