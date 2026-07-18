@@ -35,7 +35,7 @@ export interface Character {
 export const CHARACTERS: Character[] = [
   {
     "id": 30,
-    "characterNm": "Chowon",
+    "characterNm": "Jaka",
     "category": 0,
     "catchPhrase": "Aku Seorang Atlet",
     "comments": "Anak laki-laki yang suka berlari dengan kepribadian sehat dan ceria, si jagoan kecil yang sportif.\nKarena selalu tampil ke depan dalam segala hal, ia memiliki banyak teman di sekitarnya.",
@@ -93,7 +93,7 @@ export const CHARACTERS: Character[] = [
   },
   {
     "id": 36,
-    "characterNm": "Rina",
+    "characterNm": "Tifanny",
     "category": 0,
     "catchPhrase": "Balerina dari Prancis",
     "comments": "Baik hati dan penurut, namun jika sudah menetapkan tujuan ia akan terus maju dengan keras kepala.\nDibesarkan dengan pendidikan keluarga yang ketat sehingga sangat sopan dan beretika.\nLebih menghargai kehidupan sehari-hari yang sederhana daripada kemewahan.",
@@ -122,7 +122,7 @@ export const CHARACTERS: Character[] = [
   },
   {
     "id": 42,
-    "characterNm": "Bigvo",
+    "characterNm": "BigBo",
     "category": 0,
     "catchPhrase": "Teman Bertubuh Besar",
     "comments": "Meski bertubuh sangat besar, ia adalah teman yang paling tulus dan baik hati.\nBertolak belakang dengan tubuhnya yang raksasa, ia menyukai hal-hal kecil dan menggemaskan.\nHobinya adalah memelihara hewan peliharaan lucu dan mengoleksi figur anime.",
@@ -180,7 +180,7 @@ export const CHARACTERS: Character[] = [
   },
   {
     "id": 44,
-    "characterNm": "Narsis",
+    "characterNm": "Narcius",
     "category": 0,
     "catchPhrase": "Pria Tampan Terbaik di Negeri Dongeng",
     "comments": "Narsis yang berkeinginan untuk mempertahankan kecantikannya selamanya.\nDemi mewujudkan keinginannya lewat Batu Impian — hadiah kemenangan lomba lari Negeri Dongeng —\nia ikut serta dalam perlombaan.",
@@ -267,7 +267,7 @@ export const CHARACTERS: Character[] = [
   },
   {
     "id": 49,
-    "characterNm": "Bada",
+    "characterNm": "Dewi",
     "category": 0,
     "catchPhrase": "Gadis Pulau",
     "comments": "Bada yang lahir di Pulau Tapak Beruang ikut serta dalam lomba Tales Runner untuk mencegah pulau damainya yang semakin tenggelam oleh air laut yang terus naik.\nKarena tumbuh di pulau, ia fasih berbicara dengan dialek kental dan berkarakter sangat aktif.",
@@ -325,7 +325,7 @@ export const CHARACTERS: Character[] = [
   },
   {
     "id": 51,
-    "characterNm": "Yuki",
+    "characterNm": "Rina",
     "category": 0,
     "catchPhrase": "Ninja Dingin",
     "comments": "Bergambar dingin dan cuek, namun sebenarnya adalah gadis berhati hangat yang menyayangi keluarganya.\nAktif sebagai ninja yang handal dengan kecepatan tinggi sebagai ciri khasnya.",
@@ -354,7 +354,7 @@ export const CHARACTERS: Character[] = [
   },
   {
     "id": 52,
-    "characterNm": "Kuro",
+    "characterNm": "Rini",
     "category": 0,
     "catchPhrase": "Anak Malam",
     "comments": "Ninja berwatak riang dan aktif.\nSejak kecil belajar teknik ninja bersama Yuki di bawah bimbingan Papa.",
@@ -470,7 +470,7 @@ export const CHARACTERS: Character[] = [
   },
   {
     "id": 56,
-    "characterNm": "Son Goku",
+    "characterNm": "Wukong",
     "category": 0,
     "catchPhrase": "Tokoh Utama Perjalanan ke Barat",
     "comments": "Son Goku yang muncul dari prasasti misterius yang jatuh di Negeri Dongeng.\nMeski berpenampilan nakal, ia pemberani dan berjiwa petualang, dan memutuskan tinggal di Negeri Dongeng demi mencegah Raja Sapi yang memenjarakannya bersekutu dengan Anubis.",
@@ -557,7 +557,7 @@ export const CHARACTERS: Character[] = [
   },
   {
     "id": 58,
-    "characterNm": "Lucy",
+    "characterNm": "Luci",
     "category": 0,
     "catchPhrase": "Peri Terakhir",
     "comments": "Peri terakhir yang bertahan hidup di Lembah Angin yang porak-poranda di wilayah kacau.\nSebagai peri yang mengabdi pada alam semesta, ia sangat waspada dan sensitif.",
@@ -673,7 +673,7 @@ export const CHARACTERS: Character[] = [
   },
   {
     "id": 62,
-    "characterNm": "Lara",
+    "characterNm": "LaLa",
     "category": 0,
     "catchPhrase": "Putri Kebahagiaan",
     "comments": "Putri Negeri Dongeng, anak dari Henri III dan Sabrina.\nMemiliki kekuatan kebahagiaan tersembunyi yang diwarisi dari Sabrina asal Negeri Kebahagiaan.",
@@ -702,7 +702,7 @@ export const CHARACTERS: Character[] = [
   },
   {
     "id": 63,
-    "characterNm": "Yono",
+    "characterNm": "YeonOh",
     "category": 0,
     "catchPhrase": "Dewa Pelindung yang Terbangun",
     "comments": "Dewa Pelindung yang lama tersegel dalam jimat dan akhirnya terbangun berkat kekuatan para Runner.\nBerkepribadian anggun dan terkadang dingin, namun sangat setia kepada orang yang sudah dipercayainya.",
@@ -760,7 +760,7 @@ export const CHARACTERS: Character[] = [
   },
   {
     "id": 65,
-    "characterNm": "Sionel",
+    "characterNm": "Xionell",
     "category": 0,
     "catchPhrase": "Pewaris Tahta",
     "comments": "Pangeran dari Kerajaan Kebahagiaan yang terletak di Kepulauan Emosi.\nCalon pewaris tahta terkemuka yang dipilih oleh roh air Nereid, namun di balik penampilan mewah dan dinginnya ia memiliki kepribadian pemberontak dan kasar.",
@@ -905,7 +905,7 @@ export const CHARACTERS: Character[] = [
   },
   {
     "id": 38,
-    "characterNm": "Elims Smile",
+    "characterNm": "Elims",
     "category": 1,
     "catchPhrase": "Artifacter",
     "comments": "Seorang Artifacter yang datang dari Kepulauan Emosi.\nSelalu mengenakan topeng senyum dan mahir mengendalikan berbagai artefak.",
@@ -934,7 +934,7 @@ export const CHARACTERS: Character[] = [
   },
   {
     "id": 39,
-    "characterNm": "Kain",
+    "characterNm": "Cain",
     "category": 1,
     "catchPhrase": "Malaikat Penyembuh",
     "comments": "Malaikat yang datang sebagai pendeta magang dari Angel City atas permintaan Bou.\nRamah kepada semua orang dan selalu bekerja keras, namun sering membuat kesalahan.",

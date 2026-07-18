@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Link } from 'react-scroll';
 import { useLocation } from 'wouter';
-import { GiCrossedSwords, GiScrollUnfurled, GiSwordClash, GiHeartWings } from 'react-icons/gi';
+import { GiCrossedSwords, GiScrollUnfurled, GiSwordClash, GiHeartWings, GiWheat, GiParkBench } from 'react-icons/gi';
 import { MdOutlineArrowDownward } from 'react-icons/md';
 
 const SLIDES = [
@@ -45,6 +45,26 @@ const SLIDES = [
         accent: '#e91e63',
         icon: <GiHeartWings size={14} />,
         image: '/Image/Home/IMG-H04.png',
+    },
+    {
+        id: 4,
+        badge: 'Farm & Garden System',
+        title: 'Tanam, Panen,\ndan Berkembang!',
+        desc: 'Kelola ladang dan kebunmu sendiri di dunia Tales Hero — tanam berbagai tanaman langka, panen hasil bumi untuk crafting item powerful, dan jadikan farm-mu sumber penghasilan utama di kerajaan!',
+        bg: 'linear-gradient(135deg, #f1f8e9 0%, #dcedc8 60%, #c5e1a5 100%)',
+        accent: '#558b2f',
+        icon: <GiWheat size={14} />,
+        image: '/Image/Home/IMG-H05.png',
+    },
+    {
+        id: 5,
+        badge: 'Park & Plaza System',
+        title: 'Bersantai di\nTaman Kerajaan!',
+        desc: 'Nikmati waktu santai di Park & Plaza Tales Hero — bertemu sesama hero, ikuti event mingguan, berdagang di pasar rakyat, dan perkuat hubungan sosialmu di pusat kota yang selalu hidup dan meriah!',
+        bg: 'linear-gradient(135deg, #e3f2fd 0%, #bbdefb 60%, #90caf9 100%)',
+        accent: '#1565c0',
+        icon: <GiParkBench size={14} />,
+        image: '/Image/Home/IMG-H06.png',
     },
 ];
 
