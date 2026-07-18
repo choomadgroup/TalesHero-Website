@@ -14,7 +14,7 @@ const SLIDES = [
         bg: 'linear-gradient(135deg, #fff8e1 0%, #fff3cd 60%, #ffe082 100%)',
         accent: '#fab005',
         icon: <GiCrossedSwords size={14} />,
-        image: '/Image/tales-hero-banner.png',
+        image: '/Image/Home/IMG-H01.jpg',
     },
     {
         id: 1,
@@ -24,7 +24,7 @@ const SLIDES = [
         bg: 'linear-gradient(135deg, #e8eaf6 0%, #dde1f8 60%, #c5caf5 100%)',
         accent: '#5c6bc0',
         icon: <GiScrollUnfurled size={14} />,
-        image: '/Image/Pengantar/obj2_1.png',
+        image: '/Image/Home/IMG-H02.jpg',
     },
     {
         id: 2,
@@ -34,7 +34,7 @@ const SLIDES = [
         bg: 'linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 60%, #a5d6a7 100%)',
         accent: '#388e3c',
         icon: <GiSwordClash size={14} />,
-        image: '/Image/Pengantar/obj4_1.png',
+        image: '/Image/Home/IMG-H03.png',
     },
     {
         id: 3,
@@ -44,7 +44,7 @@ const SLIDES = [
         bg: 'linear-gradient(135deg, #fce4ec 0%, #f8bbd0 60%, #f48fb1 100%)',
         accent: '#e91e63',
         icon: <GiHeartWings size={14} />,
-        image: '/Image/Pengantar/obj3_1.png',
+        image: '/Image/Home/IMG-H04.png',
     },
 ];
 
