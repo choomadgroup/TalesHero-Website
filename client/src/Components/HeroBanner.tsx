@@ -14,6 +14,7 @@ const SLIDES = [
         bg: 'linear-gradient(135deg, #fff8e1 0%, #fff3cd 60%, #ffe082 100%)',
         accent: '#fab005',
         icon: <GiCrossedSwords size={14} />,
+        image: '/Image/tales-hero-banner.png',
     },
     {
         id: 1,
@@ -23,6 +24,7 @@ const SLIDES = [
         bg: 'linear-gradient(135deg, #e8eaf6 0%, #dde1f8 60%, #c5caf5 100%)',
         accent: '#5c6bc0',
         icon: <GiScrollUnfurled size={14} />,
+        image: '/Image/Pengantar/obj2_1.png',
     },
     {
         id: 2,
@@ -32,6 +34,7 @@ const SLIDES = [
         bg: 'linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 60%, #a5d6a7 100%)',
         accent: '#388e3c',
         icon: <GiSwordClash size={14} />,
+        image: '/Image/Pengantar/obj4_1.png',
     },
 ];
 
@@ -68,11 +71,6 @@ export default function HeroBanner() {
                     />
                 </AnimatePresence>
 
-                {/* Banner image (decorative right side) */}
-                <div className="hero-banner__img-wrap">
-                    <img src="/Image/tales-hero-banner.png" alt="Tales Hero" className="hero-banner__img" />
-                </div>
-
                 {/* Content */}
                 <AnimatePresence mode="wait">
                     <motion.div
@@ -105,6 +103,20 @@ export default function HeroBanner() {
                                 Daftar Sekarang
                             </button>
                         </div>
+                    </motion.div>
+                </AnimatePresence>
+
+                {/* Cover image card — right side */}
+                <AnimatePresence mode="wait">
+                    <motion.div
+                        key={`img-${current}`}
+                        className="hero-banner__cover"
+                        initial={{ opacity: 0, scale: 0.96 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        exit={{ opacity: 0, scale: 0.96 }}
+                        transition={{ duration: 0.5, ease: 'easeOut' }}
+                    >
+                        <img src={slide.image} alt={slide.badge} />
                     </motion.div>
                 </AnimatePresence>
 
