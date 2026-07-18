@@ -127,8 +127,9 @@ section, footer {
   flex-shrink: 0;
 
   img {
-    height: 52px;
+    height: 68px;
     object-fit: contain;
+    transform: translateY(6px);
   }
 }
 
