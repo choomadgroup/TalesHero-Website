@@ -1,0 +1,418 @@
+// ============================================================
+//  Tales Hero Indonesia — Global Styles
+// ============================================================
+
+// --- Base -------------------------------------------------------
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  padding: 0;
+  background-color: rgb(248, 246, 246);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+section, footer {
+  padding: 4rem 60px;
+
+  @media only screen and (max-width: 768px) {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+}
+
+// --- Buttons ----------------------------------------------------
+
+.btn-yellow {
+  background-color: #fab005;
+  color: #fff;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background 0.15s;
+
+  &:hover { background-color: #f59f00; }
+  &:disabled { opacity: 0.6; cursor: not-allowed; }
+}
+
+.btn-yellow.btn-rounded {
+  border-radius: 100px;
+  padding: 10px 24px;
+  font-size: 15px;
+}
+
+.btn-yellow.btn-full {
+  width: 100%;
+  padding: 12px;
+  font-size: 16px;
+  border-radius: 8px;
+}
+
+.btn-default {
+  background-color: #fff;
+  color: #333;
+  border: 1px solid #ccc;
+  padding: 10px 20px;
+  border-radius: 6px;
+  font-weight: 500;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background 0.15s;
+
+  &:hover { background-color: #f5f5f5; }
+}
+
+.btn-default.btn-rounded {
+  border-radius: 100px;
+  padding: 10px 24px;
+  font-size: 15px;
+}
+
+.btn-white {
+  background-color: #fff;
+  color: #333;
+  border: none;
+  padding: 10px 24px;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  font-size: 14px;
+
+  &:hover { background-color: #f5f5f5; }
+}
+
+// --- Header -----------------------------------------------------
+
+header {
+  position: absolute;
+  z-index: 99;
+
+  .navbar {
+    display: flex;
+    flex-direction: row;
+    gap: 25px;
+    align-items: center;
+
+    .navbar-item {
+      cursor: pointer;
+      font-weight: 500;
+
+      a {
+        color: #2d2d2d;
+        transition: all 0.1s ease;
+        text-decoration: none;
+      }
+
+      a:hover { color: #fab005; }
+    }
+  }
+
+  .content-desktop {
+    justify-content: space-between;
+    display: flex;
+    align-items: center;
+  }
+
+  .content-mobile {
+    .burger-button { float: right; }
+  }
+
+  @media only screen and (min-width: 769px) {
+    .content-desktop { display: flex; }
+    .content-mobile  { display: none; }
+    top: 10px;
+    left: 60px;
+    right: 60px;
+  }
+
+  @media only screen and (max-width: 768px) {
+    .content-desktop { display: none; }
+    .content-mobile  { display: block; }
+    top: 30px;
+    left: 20px;
+    right: 20px;
+  }
+}
+
+// Burger icon
+.burger-icon {
+  background: none;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  padding: 4px;
+}
+
+.burger-line {
+  display: block;
+  width: 22px;
+  height: 2px;
+  background-color: #333;
+  border-radius: 2px;
+  transition: all 0.2s ease;
+
+  &.open-1 { transform: translateY(7px) rotate(45deg); }
+  &.open-2 { opacity: 0; }
+  &.open-3 { transform: translateY(-7px) rotate(-45deg); }
+}
+
+// Drawer
+.drawer-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.55);
+  z-index: 200;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.drawer-panel {
+  background: #fff;
+  width: min(320px, 90vw);
+  height: 100%;
+  padding: 24px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.drawer-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.drawer-title {
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.drawer-close {
+  background: none;
+  border: none;
+  font-size: 18px;
+  cursor: pointer;
+  color: #555;
+}
+
+.drawer-card {
+  background: #fff9db;
+  border-radius: 8px;
+  padding: 14px;
+}
+
+.drawer-user-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 0;
+  width: 100%;
+  text-align: left;
+}
+
+.drawer-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: #fd7e14;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.menu {
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+  flex: 1;
+
+  .menu-items {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+
+    a { color: #fab005; }
+    h2 { cursor: pointer; }
+    h2:hover { color: #fab005; }
+  }
+}
+
+// --- About / Hero -----------------------------------------------
+
+#about {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  padding-top: 0;
+
+  .about-content {
+    text-align: center;
+    background-color: rgba(255, 244, 213, 0.60);
+    padding: 100px 120px;
+    border-radius: 25px;
+    width: 100%;
+
+    .buttons {
+      display: flex;
+      flex-direction: row;
+      justify-content: center;
+      gap: 10px;
+    }
+
+    a { color: #fd7e14; }
+
+    @media only screen and (max-width: 1086px) { padding: 110px 120px; }
+    @media only screen and (max-width: 768px)  { padding: 120px 40px; }
+    @media only screen and (max-width: 350px)  { padding: 80px 20px; }
+  }
+}
+
+// --- Footer -----------------------------------------------------
+
+footer {
+  padding-top: 3rem;
+  padding-bottom: 3rem;
+
+  @media only screen and (max-width: 768px) {
+    text-align: center;
+  }
+}
+
+.footer-container {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.footer-grid {
+  display: flex;
+  gap: 40px;
+  flex-wrap: wrap;
+  justify-content: space-around;
+}
+
+.footer-col-main {
+  flex: 1;
+  min-width: 240px;
+}
+
+.footer-col-side {
+  flex: 0 0 auto;
+  min-width: 200px;
+}
+
+.footer-card {
+  background: #fff9db;
+  border-radius: 8px;
+  padding: 14px;
+}
+
+.footer-user {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 8px;
+}
+
+.footer-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: #fd7e14;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+// --- Daftar / Registration page ---------------------------------
+
+.daftar-bg {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: rgb(248, 246, 246);
+  padding: 20px;
+}
+
+.daftar-container {
+  width: 100%;
+  max-width: 400px;
+}
+
+.daftar-card {
+  background: #fff;
+  border-radius: 12px;
+  padding: 32px;
+  box-shadow: 0 2px 16px rgba(0,0,0,0.10);
+
+  h2 {
+    margin: 0 0 4px;
+    font-size: 1.4rem;
+  }
+}
+
+.form-group {
+  margin-bottom: 16px;
+}
+
+.form-label {
+  display: block;
+  font-size: 14px;
+  font-weight: 500;
+  margin-bottom: 6px;
+  color: #333;
+}
+
+.required { color: red; }
+
+.form-input {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #dee2e6;
+  border-radius: 6px;
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.15s;
+
+  &:focus { border-color: #fab005; box-shadow: 0 0 0 2px rgba(250,176,5,0.2); }
+}
+
+.pw-toggle {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 16px;
+  padding: 0;
+}
+
+.alert-error {
+  background: #fff5f5;
+  border: 1px solid #f03e3e;
+  color: #c92a2a;
+  border-radius: 8px;
+  padding: 12px 16px;
+  margin-bottom: 16px;
+  font-size: 14px;
+}

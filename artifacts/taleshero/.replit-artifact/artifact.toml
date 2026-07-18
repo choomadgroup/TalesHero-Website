@@ -1,0 +1,27 @@
+kind = "web"
+previewPath = "/"
+title = "Tales Hero Indonesia"
+version = "1.0.0"
+id = "artifacts/taleshero"
+router = "path"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 21986
+
+[services.development]
+run = "pnpm --filter @workspace/taleshero run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/taleshero", "run", "build" ]
+serve = "static"
+publicDir = "artifacts/taleshero/dist/public"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "21986"
+BASE_PATH = "/"
