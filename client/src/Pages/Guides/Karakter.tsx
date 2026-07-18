@@ -4,7 +4,7 @@ import Header from '../../Components/Header';
 import Footer from '../../Components/Footer';
 import { GiCrossedSwords, GiSwordman } from 'react-icons/gi';
 import { IoClose, IoSearch } from 'react-icons/io5';
-import { RUNNERS, STORIES, CHARACTER_IMAGES, type Character } from '../../Data/Characters';
+import { RUNNERS, STORIES, type Character } from '../../Data/Characters';
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -148,42 +148,34 @@ function CharacterModal({ char, onClose }: { char: Character | null; onClose: ()
                         </div>
                     </div>
 
-                    {/* Center — character art + stat chart */}
+                    {/* Center — stat chart */}
                     <div className="char-modal__center">
-                        {CHARACTER_IMAGES[char.id]?.art ? (
-                            <img
-                                src={CHARACTER_IMAGES[char.id].art}
-                                alt={char.characterNm}
-                                className="char-modal__art"
-                            />
-                        ) : (
-                            <div className="char-modal__chart">
-                                <div className="char-modal__chart-top">
-                                    <span>Kecepatan</span>
-                                    <strong>{char.maximumSpeed}</strong>
+                        <div className="char-modal__chart">
+                            <div className="char-modal__chart-top">
+                                <span>Kecepatan</span>
+                                <strong>{char.maximumSpeed}</strong>
+                            </div>
+                            <div className="char-modal__chart-mid">
+                                <div className="char-modal__chart-side">
+                                    <span>Akselerasi</span>
+                                    <strong>{char.acceleration}</strong>
                                 </div>
-                                <div className="char-modal__chart-mid">
-                                    <div className="char-modal__chart-side">
-                                        <span>Akselerasi</span>
-                                        <strong>{char.acceleration}</strong>
-                                    </div>
-                                    <DiamondChart
-                                        speed={char.maximumSpeed}
-                                        acceleration={char.acceleration}
-                                        power={char.power}
-                                        control={char.control}
-                                    />
-                                    <div className="char-modal__chart-side char-modal__chart-side--right">
-                                        <span>Kekuatan</span>
-                                        <strong>{char.power}</strong>
-                                    </div>
-                                </div>
-                                <div className="char-modal__chart-bottom">
-                                    <span>Kontrol</span>
-                                    <strong>{char.control}</strong>
+                                <DiamondChart
+                                    speed={char.maximumSpeed}
+                                    acceleration={char.acceleration}
+                                    power={char.power}
+                                    control={char.control}
+                                />
+                                <div className="char-modal__chart-side char-modal__chart-side--right">
+                                    <span>Kekuatan</span>
+                                    <strong>{char.power}</strong>
                                 </div>
                             </div>
-                        )}
+                            <div className="char-modal__chart-bottom">
+                                <span>Kontrol</span>
+                                <strong>{char.control}</strong>
+                            </div>
+                        </div>
                     </div>
 
                     {/* Right — profile */}
@@ -211,23 +203,11 @@ function CharacterModal({ char, onClose }: { char: Character | null; onClose: ()
 
 function CharCard({ char, onClick }: { char: Character; onClick: () => void }) {
     const { bg, accent } = cardTheme(char);
-    const imgs = CHARACTER_IMAGES[char.id];
     return (
         <button className="char-card" onClick={onClick} style={{ background: bg }}>
-            {imgs?.avatar ? (
-                <div className="char-card__avatar-wrap">
-                    <img
-                        src={imgs.avatar}
-                        alt={char.characterNm}
-                        className="char-card__avatar"
-                        loading="lazy"
-                    />
-                </div>
-            ) : (
-                <span className="char-card__badge">
-                    {char.category === 0 ? 'Pelari' : 'Cerita'}
-                </span>
-            )}
+            <span className="char-card__badge">
+                {char.category === 0 ? 'Pelari' : 'Cerita'}
+            </span>
             <div className="char-card__body">
                 <p className="char-card__name">{char.characterNm}</p>
                 <p className="char-card__catch">{char.catchPhrase}</p>

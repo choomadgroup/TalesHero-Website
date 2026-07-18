@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Link } from 'react-scroll';
 import { useLocation } from 'wouter';
-import { GiCrossedSwords, GiScrollUnfurled, GiSwordClash, GiHeartWings, GiWheat, GiParkBench } from 'react-icons/gi';
+import { GiCrossedSwords, GiScrollUnfurled, GiSwordClash, GiHeartWings, GiWheat, GiParkBench, GiFishingPole } from 'react-icons/gi';
 import { MdOutlineArrowDownward } from 'react-icons/md';
 
 const SLIDES = [
@@ -65,6 +65,16 @@ const SLIDES = [
         accent: '#1565c0',
         icon: <GiParkBench size={14} />,
         image: '/Image/Home/IMG-H06.png',
+    },
+    {
+        id: 6,
+        badge: 'Fishing System',
+        title: 'Pancing Ikan,\nRaih Hadiah!',
+        desc: 'Lemparkan kailmu ke danau, sungai, hingga lautan dalam Tales Hero — tangkap ratusan jenis ikan langka, tukarkan hasilnya dengan item eksklusif, dan buktikan siapa pemancing terhebat di kerajaan!',
+        bg: 'linear-gradient(135deg, #e0f7fa 0%, #b2ebf2 60%, #80deea 100%)',
+        accent: '#00838f',
+        icon: <GiFishingPole size={14} />,
+        image: '/Image/Home/IMG-H07.png',
     },
 ];
 
