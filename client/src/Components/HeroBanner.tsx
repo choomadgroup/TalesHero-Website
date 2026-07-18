@@ -35,6 +35,7 @@ const SLIDES = [
         accent: '#388e3c',
         icon: <GiSwordClash size={14} />,
         image: '/Image/Home/IMG-H03.png',
+        imgMaxHeight: '280px',
     },
     {
         id: 3,
@@ -128,7 +129,11 @@ export default function HeroBanner() {
                             exit={{ opacity: 0, scale: 0.96 }}
                             transition={{ duration: 0.5, ease: 'easeOut' }}
                         >
-                            <img src={slide.image} alt={slide.badge} />
+                            <img
+                                src={slide.image}
+                                alt={slide.badge}
+                                style={(slide as any).imgMaxHeight ? { maxHeight: (slide as any).imgMaxHeight, width: 'auto', margin: '0 auto' } : undefined}
+                            />
                         </motion.div>
                     </AnimatePresence>
                 </div>
