@@ -4,7 +4,7 @@ import Header from '../../Components/Header';
 import Footer from '../../Components/Footer';
 import { GiCrossedSwords, GiSwordman } from 'react-icons/gi';
 import { IoClose, IoSearch } from 'react-icons/io5';
-import { RUNNERS, STORIES, type Character } from '../../Data/characters';
+import { RUNNERS, STORIES, type Character } from '../../Data/Characters';
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
