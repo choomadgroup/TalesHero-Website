@@ -85,168 +85,247 @@ section, footer {
   &:hover { background-color: #f5f5f5; }
 }
 
-// --- Header -----------------------------------------------------
+// --- Game Navbar ------------------------------------------------
 
-header {
-  position: absolute;
-  z-index: 99;
+.game-header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 200;
+  background: rgba(8, 8, 18, 0.55);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border-bottom: 1px solid rgba(250, 176, 5, 0.15);
+  transition: background 0.3s ease, box-shadow 0.3s ease;
 
-  .navbar {
-    display: flex;
-    flex-direction: row;
-    gap: 25px;
-    align-items: center;
-
-    .navbar-item {
-      cursor: pointer;
-      font-weight: 500;
-
-      a {
-        color: #2d2d2d;
-        transition: all 0.1s ease;
-        text-decoration: none;
-      }
-
-      a:hover { color: #fab005; }
-    }
-  }
-
-  .content-desktop {
-    justify-content: space-between;
-    display: flex;
-    align-items: center;
-  }
-
-  .content-mobile {
-    .burger-button { float: right; }
-  }
-
-  @media only screen and (min-width: 769px) {
-    .content-desktop { display: flex; }
-    .content-mobile  { display: none; }
-    top: 10px;
-    left: 60px;
-    right: 60px;
-  }
-
-  @media only screen and (max-width: 768px) {
-    .content-desktop { display: none; }
-    .content-mobile  { display: block; }
-    top: 30px;
-    left: 20px;
-    right: 20px;
+  &--scrolled {
+    background: rgba(8, 8, 18, 0.92);
+    box-shadow: 0 4px 32px rgba(0, 0, 0, 0.5), 0 1px 0 rgba(250, 176, 5, 0.25);
   }
 }
 
-// Burger icon
-.burger-icon {
-  background: none;
-  border: none;
-  cursor: pointer;
+.game-header__inner {
   display: flex;
-  flex-direction: column;
-  gap: 5px;
-  padding: 4px;
+  align-items: center;
+  justify-content: space-between;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 40px;
+  height: 68px;
+
+  @media (max-width: 768px) {
+    padding: 0 20px;
+    height: 60px;
+  }
 }
 
-.burger-line {
-  display: block;
-  width: 22px;
-  height: 2px;
-  background-color: #333;
-  border-radius: 2px;
-  transition: all 0.2s ease;
+.game-header__logo {
+  display: flex;
+  align-items: center;
+  text-decoration: none;
+  flex-shrink: 0;
 
-  &.open-1 { transform: translateY(7px) rotate(45deg); }
-  &.open-2 { opacity: 0; }
-  &.open-3 { transform: translateY(-7px) rotate(-45deg); }
+  img {
+    height: 44px;
+    object-fit: contain;
+    filter: drop-shadow(0 0 8px rgba(250, 176, 5, 0.4));
+    transition: filter 0.2s ease;
+
+    &:hover { filter: drop-shadow(0 0 14px rgba(250, 176, 5, 0.7)); }
+  }
 }
 
-// Drawer
-.drawer-overlay {
+// Desktop nav links
+.game-header__nav {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  @media (max-width: 768px) { display: none; }
+}
+
+.game-nav-link {
+  position: relative;
+  padding: 8px 16px;
+  color: rgba(255, 255, 255, 0.75);
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  cursor: pointer;
+  text-decoration: none;
+  border-radius: 6px;
+  transition: color 0.2s ease, background 0.2s ease;
+
+  &::after {
+    content: '';
+    position: absolute;
+    bottom: 2px;
+    left: 50%;
+    transform: translateX(-50%) scaleX(0);
+    width: 60%;
+    height: 2px;
+    background: linear-gradient(90deg, #fab005, #fd7e14);
+    border-radius: 2px;
+    transition: transform 0.25s ease;
+    box-shadow: 0 0 8px rgba(250, 176, 5, 0.7);
+  }
+
+  &:hover {
+    color: #fab005;
+    background: rgba(250, 176, 5, 0.08);
+
+    &::after { transform: translateX(-50%) scaleX(1); }
+  }
+}
+
+// Actions (CTA + burger)
+.game-header__actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+// CTA button
+.game-cta-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 10px 22px;
+  background: linear-gradient(135deg, #fab005 0%, #fd7e14 100%);
+  color: #fff;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.4px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  white-space: nowrap;
+  box-shadow: 0 0 18px rgba(250, 176, 5, 0.35), inset 0 1px 0 rgba(255,255,255,0.15);
+  transition: box-shadow 0.2s ease, transform 0.15s ease, background 0.2s ease;
+
+  &:hover {
+    box-shadow: 0 0 28px rgba(250, 176, 5, 0.6), inset 0 1px 0 rgba(255,255,255,0.2);
+    transform: translateY(-1px);
+    background: linear-gradient(135deg, #fcc419 0%, #ff8c00 100%);
+  }
+
+  &:active { transform: translateY(0); }
+
+  &--full {
+    width: 100%;
+    justify-content: center;
+    padding: 13px 22px;
+    font-size: 15px;
+    border-radius: 10px;
+  }
+
+  @media (max-width: 768px) {
+    display: none;
+
+    &--full { display: inline-flex; }
+  }
+}
+
+// Mobile burger
+.game-burger {
+  display: none;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.12);
+  color: #fff;
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  cursor: pointer;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s ease, border-color 0.2s ease;
+
+  &:hover {
+    background: rgba(250, 176, 5, 0.12);
+    border-color: rgba(250, 176, 5, 0.4);
+    color: #fab005;
+  }
+
+  @media (max-width: 768px) { display: flex; }
+}
+
+// Mobile drawer
+.game-drawer-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,0.55);
-  z-index: 200;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(4px);
+  z-index: 300;
   display: flex;
   justify-content: flex-end;
 }
 
-.drawer-panel {
-  background: #fff;
-  width: min(320px, 90vw);
+.game-drawer {
+  background: linear-gradient(180deg, #0e0e1e 0%, #12121f 100%);
+  border-left: 1px solid rgba(250, 176, 5, 0.2);
+  width: min(300px, 85vw);
   height: 100%;
-  padding: 24px;
-  overflow-y: auto;
+  padding: 28px 24px;
   display: flex;
   flex-direction: column;
-}
+  gap: 32px;
+  box-shadow: -8px 0 40px rgba(0, 0, 0, 0.6);
 
-.drawer-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 24px;
-}
+  &__logo {
+    padding-bottom: 20px;
+    border-bottom: 1px solid rgba(250, 176, 5, 0.15);
 
-.drawer-title {
-  font-size: 18px;
-  font-weight: 700;
-}
+    img { height: 36px; object-fit: contain; }
+  }
 
-.drawer-close {
-  background: none;
-  border: none;
-  font-size: 18px;
-  cursor: pointer;
-  color: #555;
-}
-
-.drawer-card {
-  background: #fff9db;
-  border-radius: 8px;
-  padding: 14px;
-}
-
-.drawer-user-btn {
-  background: none;
-  border: none;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 0;
-  width: 100%;
-  text-align: left;
-}
-
-.drawer-avatar {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  background: #fd7e14;
-  color: #fff;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 11px;
-  font-weight: 700;
-}
-
-.menu {
-  display: flex;
-  flex-direction: column;
-  gap: 30px;
-  flex: 1;
-
-  .menu-items {
+  &__nav {
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 4px;
+    flex: 1;
+  }
 
-    a { color: #fab005; }
-    h2 { cursor: pointer; }
-    h2:hover { color: #fab005; }
+  &__link {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 14px;
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 15px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    text-decoration: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+
+    &:hover {
+      color: #fab005;
+      background: rgba(250, 176, 5, 0.1);
+      padding-left: 20px;
+    }
+  }
+
+  &__icon { color: #fab005; flex-shrink: 0; }
+
+  &__footer {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    padding-top: 20px;
+    border-top: 1px solid rgba(250, 176, 5, 0.15);
+  }
+
+  &__email {
+    text-align: center;
+    font-size: 12px;
+    color: rgba(255, 255, 255, 0.35);
+    text-decoration: none;
+
+    &:hover { color: #fab005; }
   }
 }
 
