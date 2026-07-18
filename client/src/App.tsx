@@ -9,7 +9,7 @@ function Router() {
         <Switch>
             <Route path="/" component={Home} />
             <Route path="/daftar" component={Daftar} />
-            <Route path="/guides/game" component={GuidesGame} />
+            <Route path="/guides/pengatar" component={GuidesGame} />
             <Route component={NotFound} />
         </Switch>
     );
