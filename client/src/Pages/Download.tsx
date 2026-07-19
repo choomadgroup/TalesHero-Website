@@ -150,6 +150,46 @@ export default function Download() {
 
             {/* Download banner */}
             <section className="dl-banner">
+                {/* floating characters — left side */}
+                {[
+                    { src: '/Image/Karakter/Art/Cain.png',  alt: 'Cain',  x: '2%',  delay: 0,    y: [0, -14, 0], duration: 3.2 },
+                    { src: '/Image/Karakter/Art/Luci.png',  alt: 'Luci',  x: '13%', delay: 0.6,  y: [0, -10, 0], duration: 2.8 },
+                    { src: '/Image/Karakter/Art/Haru.png',  alt: 'Haru',  x: '24%', delay: 0.3,  y: [0, -18, 0], duration: 3.6 },
+                ].map(c => (
+                    <motion.img
+                        key={c.alt}
+                        src={c.src}
+                        alt={c.alt}
+                        className="dl-banner__char dl-banner__char--left"
+                        style={{ left: c.x }}
+                        initial={{ opacity: 0, y: 40 }}
+                        whileInView={{ opacity: 1, y: 0 }}
+                        viewport={{ once: true }}
+                        transition={{ duration: 0.7, delay: c.delay }}
+                        animate={{ y: c.y }}
+                    />
+                ))}
+
+                {/* floating characters — right side */}
+                {[
+                    { src: '/Image/Karakter/Art/Miho.png',  alt: 'Miho',  x: '73%', delay: 0.2,  y: [0, -12, 0], duration: 3.0 },
+                    { src: '/Image/Karakter/Art/Vera.png',  alt: 'Vera',  x: '83%', delay: 0.5,  y: [0, -16, 0], duration: 3.4 },
+                    { src: '/Image/Karakter/Art/Wukong.png',alt: 'Wukong',x: '92%', delay: 0.1,  y: [0, -10, 0], duration: 2.6 },
+                ].map(c => (
+                    <motion.img
+                        key={c.alt}
+                        src={c.src}
+                        alt={c.alt}
+                        className="dl-banner__char dl-banner__char--right"
+                        style={{ left: c.x }}
+                        initial={{ opacity: 0, y: 40 }}
+                        whileInView={{ opacity: 1, y: 0 }}
+                        viewport={{ once: true }}
+                        transition={{ duration: 0.7, delay: c.delay }}
+                        animate={{ y: c.y }}
+                    />
+                ))}
+
                 <div className="dl-section-inner">
                     <motion.div
                         className="dl-banner__card"
@@ -158,24 +198,15 @@ export default function Download() {
                         viewport={{ once: true, amount: 0.3 }}
                         transition={{ duration: 0.5 }}
                     >
-                        <div className="dl-banner__left">
-                            <div className="dl-banner__icon">
-                                <IoLogoWindows size={52} />
-                            </div>
-                            <div className="dl-banner__info">
-                                <h3 className="dl-banner__title">Tales Hero Indonesia</h3>
-                                <p className="dl-banner__sub">Windows PC · Versi 1.0.0 · 1.2 GB</p>
-                                <div className="dl-banner__tags">
-                                    <span>Windows 10 / 11</span>
-                                    <span>64-bit</span>
-                                    <span>Gratis</span>
-                                </div>
-                            </div>
+                        <div className="dl-banner__icon">
+                            <IoLogoWindows size={40} />
                         </div>
-                        <a href="#" className="dl-banner__btn">
-                            <IoDownloadOutline size={20} />
-                            Unduh Sekarang
-                        </a>
+                        <p className="dl-banner__platform">Windows PC</p>
+                        <h3 className="dl-banner__title">Tales Hero Indonesia</h3>
+                        <p className="dl-banner__sub">Game aksi petualangan — hanya untuk PC</p>
+                        <span className="dl-banner__btn">
+                            🚧 Coming Soon
+                        </span>
                     </motion.div>
                 </div>
             </section>
