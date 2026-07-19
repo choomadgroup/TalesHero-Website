@@ -46,7 +46,7 @@ const CONTACTS = [
         desc: 'Komunitas aktif, event, dan update terbaru',
         value: 'Join Server',
         color: '#5865F2',
-        href: '#',
+        href: 'https://discord.gg/rTyNWEQhxB',
     },
     {
         id: 'email',
@@ -208,7 +208,7 @@ export default function Support() {
                         <h2 className="sp-cta__title">Masih Butuh Bantuan?</h2>
                         <p className="sp-cta__desc">Tim kami siap membantu kamu 24 jam melalui Discord dan Email.</p>
                         <div className="sp-cta__btns">
-                            <a href="#" className="game-cta-btn">
+                            <a href="https://discord.gg/rTyNWEQhxB" className="game-cta-btn" target="_blank" rel="noopener noreferrer">
                                 <IoLogoDiscord size={16} /> Join Discord
                             </a>
                             <button className="game-login-btn" onClick={() => setLocation('/')}>
