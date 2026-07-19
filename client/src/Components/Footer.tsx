@@ -7,7 +7,7 @@ const SOCIALS = [
     { icon: <FaInstagram size={13} />, href: "#", label: "Instagram" },
     {
         icon: <MdOutlineEmail size={15} />,
-        href: "mailto:support@taleshero.id",
+        href: "mailto:support@taleshero.web.id",
         label: "Email",
     },
 ];

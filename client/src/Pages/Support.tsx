@@ -53,9 +53,9 @@ const CONTACTS = [
         icon: <IoMail size={28} />,
         label: 'Email Support',
         desc: 'Untuk laporan bug dan pertanyaan teknis',
-        value: 'support@taleshero.id',
+        value: 'support@taleshero.web.id',
         color: '#fab005',
-        href: 'mailto:support@taleshero.id',
+        href: 'mailto:support@taleshero.web.id',
     },
     {
         id: 'wa',

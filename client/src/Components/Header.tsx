@@ -190,8 +190,8 @@ const Header = ({ light = false }: { light?: boolean }) => {
                                 <HiUserAdd size={16} />
                                 Daftar
                             </button>
-                            <a href="mailto:support@taleshero.id" className="game-drawer__email">
-                                support@taleshero.id
+                            <a href="mailto:support@taleshero.web.id" className="game-drawer__email">
+                                support@taleshero.web.id
                             </a>
                         </div>
                     </div>
