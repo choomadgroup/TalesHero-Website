@@ -1,13 +1,12 @@
 import { useState, useEffect, useRef } from 'react';
-import { Link } from 'react-scroll';
 import { useLocation } from 'wouter';
-import { GiCrossedSwords, GiBookmarklet } from 'react-icons/gi';
-import { HiMenuAlt3, HiX, HiChevronDown } from 'react-icons/hi';
+import { GiBookmarklet } from 'react-icons/gi';
+import { HiMenuAlt3, HiX, HiChevronDown, HiLogin, HiUserAdd, HiDownload, HiSupport } from 'react-icons/hi';
 
-// Nav links yang scroll ke section (tanpa dropdown)
-const SCROLL_LINKS = [
-    { label: 'Game',  to: 'section-four' },
-    { label: 'FAQ',   to: 'section-five' },
+// Nav links route-based
+const NAV_LINKS = [
+    { label: 'Download', href: '/download', icon: <HiDownload size={15} /> },
+    { label: 'Support',  href: '/support',  icon: <HiSupport  size={15} /> },
 ];
 
 // Item dropdown Pengenalan Game
@@ -87,28 +86,33 @@ const Header = ({ light = false }: { light?: boolean }) => {
                             )}
                         </div>
 
-                        {/* Scroll links biasa */}
-                        {SCROLL_LINKS.map(({ label, to }) => (
-                            <Link
-                                key={to}
-                                to={to}
-                                smooth
-                                duration={500}
-                                className="game-nav-link"
+                        {/* Nav links biasa */}
+                        {NAV_LINKS.map(({ label, href, icon }) => (
+                            <button
+                                key={href}
+                                className="game-nav-link game-nav-link--btn"
+                                onClick={() => setLocation(href)}
                             >
-                                {label}
-                            </Link>
+                                {icon}{label}
+                            </button>
                         ))}
                     </nav>
 
                     {/* CTA + burger */}
                     <div className="game-header__actions">
                         <button
+                            className="game-login-btn"
+                            onClick={() => setLocation('/login')}
+                        >
+                            <HiLogin size={16} />
+                            Login
+                        </button>
+                        <button
                             className="game-cta-btn"
                             onClick={() => setLocation('/daftar')}
                         >
-                            <GiCrossedSwords size={16} />
-                            Main Sekarang
+                            <HiUserAdd size={16} />
+                            Daftar
                         </button>
 
                         <button
@@ -144,29 +148,33 @@ const Header = ({ light = false }: { light?: boolean }) => {
                                 </button>
                             ))}
 
-                            {/* Scroll links */}
-                            {SCROLL_LINKS.map(({ label, to }) => (
-                                <Link
-                                    key={to}
-                                    to={to}
-                                    smooth
-                                    duration={500}
+                            {/* Nav links */}
+                            {NAV_LINKS.map(({ label, href, icon }) => (
+                                <button
+                                    key={href}
                                     className="game-drawer__link"
-                                    onClick={() => setOpened(false)}
+                                    onClick={() => { setLocation(href); setOpened(false); }}
                                 >
-                                    <GiCrossedSwords size={14} className="game-drawer__icon" />
+                                    <span className="game-drawer__icon">{icon}</span>
                                     {label}
-                                </Link>
+                                </button>
                             ))}
                         </nav>
 
                         <div className="game-drawer__footer">
                             <button
+                                className="game-login-btn game-login-btn--full"
+                                onClick={() => { setLocation('/login'); setOpened(false); }}
+                            >
+                                <HiLogin size={16} />
+                                Login
+                            </button>
+                            <button
                                 className="game-cta-btn game-cta-btn--full"
                                 onClick={() => { setLocation('/daftar'); setOpened(false); }}
                             >
-                                <GiCrossedSwords size={16} />
-                                Mulai Petualangan
+                                <HiUserAdd size={16} />
+                                Daftar
                             </button>
                             <a href="mailto:support@taleshero.id" className="game-drawer__email">
                                 support@taleshero.id

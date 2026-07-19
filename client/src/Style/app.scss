@@ -330,6 +330,61 @@ section, footer {
 }
 
 // CTA button
+// Login button (outline style)
+.game-login-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 10px 20px;
+  background: transparent;
+  color: #333;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.4px;
+  border: 1.5px solid rgba(0, 0, 0, 0.2);
+  border-radius: 8px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.2s ease, border-color 0.2s ease, transform 0.15s ease;
+
+  &:hover {
+    background: rgba(0, 0, 0, 0.05);
+    border-color: rgba(0, 0, 0, 0.35);
+    transform: translateY(-1px);
+  }
+
+  &:active { transform: translateY(0); }
+
+  // Light navbar version (default, white bg)
+  .game-header--light & {
+    color: #333;
+    border-color: rgba(0, 0, 0, 0.2);
+  }
+
+  // Dark navbar version
+  .game-header:not(.game-header--light) & {
+    color: #fff;
+    border-color: rgba(255, 255, 255, 0.35);
+    &:hover { background: rgba(255,255,255,0.08); border-color: rgba(255,255,255,0.6); }
+  }
+
+  &--full {
+    width: 100%;
+    justify-content: center;
+    padding: 13px 22px;
+    font-size: 15px;
+    border-radius: 10px;
+    color: #333;
+    border-color: rgba(0,0,0,0.2);
+    margin-bottom: 8px;
+  }
+
+  @media (max-width: 768px) {
+    display: none;
+    &--full { display: inline-flex; }
+  }
+}
+
 .game-cta-btn {
   display: inline-flex;
   align-items: center;
