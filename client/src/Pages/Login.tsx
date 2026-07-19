@@ -2,28 +2,28 @@ import { useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useLocation } from 'wouter';
 import { IoHome } from 'react-icons/io5';
-import { GiPartyPopper } from 'react-icons/gi';
 
 const STARS = Array.from({ length: 20 }, (_, i) => ({
     id: i,
-    left: `${(i * 4.9) % 100}%`,
-    top: `${(i * 6.7) % 90}%`,
-    delay: `${(i * 0.28) % 3}s`,
-    duration: `${1.8 + (i % 4) * 0.6}s`,
-    size: `${4 + (i % 5)}px`,
+    left: `${(i * 5.3) % 100}%`,
+    top: `${(i * 7.1) % 90}%`,
+    delay: `${(i * 0.35) % 3}s`,
+    duration: `${2 + (i % 4) * 0.5}s`,
+    size: `${5 + (i % 4)}px`,
 }));
 
-export default function Daftar() {
+export default function Login() {
     useEffect(() => {
-        document.title = 'Daftar — Segera Hadir | Tales Hero Indonesia';
+        document.title = 'Login — Segera Hadir | Tales Hero Indonesia';
     }, []);
     const [, setLocation] = useLocation();
 
     return (
-        <div className="cs-page cs-page--daftar">
+        <div className="cs-page cs-page--login">
+            {/* Animated background stars */}
             <div className="cs-page__bg">
                 {STARS.map(s => (
-                    <span key={s.id} className="cs-page__star cs-page__star--pink" style={{
+                    <span key={s.id} className="cs-page__star" style={{
                         left: s.left, top: s.top,
                         width: s.size, height: s.size,
                         animationDelay: s.delay,
@@ -38,34 +38,36 @@ export default function Daftar() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, ease: 'easeOut' }}
             >
+                {/* Character floating */}
                 <motion.img
-                    src="/Image/Karakter/Art/LaLa.png"
-                    alt="LaLa"
+                    src="/Image/Karakter/Art/Kai.png"
+                    alt="Kai"
                     className="cs-page__char"
-                    animate={{ y: [0, -14, 0], rotate: [0, 3, 0, -3, 0] }}
-                    transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
+                    animate={{ y: [0, -14, 0] }}
+                    transition={{ duration: 2.8, repeat: Infinity, ease: 'easeInOut' }}
                 />
 
+                {/* Badge */}
                 <motion.div
-                    className="cs-page__badge cs-page__badge--pink"
+                    className="cs-page__badge"
                     initial={{ scale: 0 }}
                     animate={{ scale: 1 }}
                     transition={{ delay: 0.4, type: 'spring', stiffness: 300 }}
                 >
-                    <GiPartyPopper size={14} /> Pendaftaran Segera Dibuka!
+                    🚧 Under Construction
                 </motion.div>
 
                 <h1 className="cs-page__title">
-                    Daftar Akun<br />Sebentar Lagi!
+                    Fitur Login<br />Segera Hadir!
                 </h1>
                 <p className="cs-page__desc">
-                    Sistem pendaftaran akun Tales Hero Indonesia sedang dalam tahap persiapan.<br />
-                    Pantau terus media sosial kami untuk info pembukaan pertama! 🎉
+                    Sistem login lagi dipersiapkan buat kamu. <br />
+                    Nantikan update selanjutnya dan tetap semangat berlari! 🏃‍♂️
                 </p>
 
                 <img src="/Image/tales-hero-banner.png" alt="Tales Hero" className="cs-page__logo" />
 
-                <button className="cs-page__btn cs-page__btn--pink" onClick={() => setLocation('/')}>
+                <button className="cs-page__btn" onClick={() => setLocation('/')}>
                     <IoHome size={16} />
                     Kembali ke Beranda
                 </button>
