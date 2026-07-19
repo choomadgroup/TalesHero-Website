@@ -230,12 +230,12 @@ section, footer {
   top: calc(100% + 10px);
   left: 50%;
   transform: translateX(-50%);
-  background: linear-gradient(160deg, #13131f 0%, #0d0d1a 100%);
-  border: 1px solid rgba(250, 176, 5, 0.25);
+  background: #ffffff;
+  border: 1px solid rgba(0, 0, 0, 0.08);
   border-radius: 12px;
   padding: 8px;
   min-width: 220px;
-  box-shadow: 0 16px 48px rgba(0,0,0,0.6), 0 0 0 1px rgba(250,176,5,0.08);
+  box-shadow: 0 16px 48px rgba(0,0,0,0.12), 0 2px 8px rgba(0,0,0,0.06);
   animation: dropdown-in 0.15s ease;
   z-index: 300;
 }
@@ -252,9 +252,9 @@ section, footer {
   transform: translateX(-50%) rotate(45deg);
   width: 10px;
   height: 10px;
-  background: #13131f;
-  border-left: 1px solid rgba(250, 176, 5, 0.25);
-  border-top: 1px solid rgba(250, 176, 5, 0.25);
+  background: #ffffff;
+  border-left: 1px solid rgba(0, 0, 0, 0.08);
+  border-top: 1px solid rgba(0, 0, 0, 0.08);
   border-radius: 2px 0 0 0;
 }
 
@@ -291,7 +291,7 @@ section, footer {
   }
 
   &__label {
-    color: rgba(255,255,255,0.9);
+    color: #1a1a2e;
     font-size: 13px;
     font-weight: 700;
     letter-spacing: 0.3px;
@@ -299,7 +299,7 @@ section, footer {
   }
 
   &__desc {
-    color: rgba(255,255,255,0.35);
+    color: #888;
     font-size: 11px;
     font-weight: 400;
   }
