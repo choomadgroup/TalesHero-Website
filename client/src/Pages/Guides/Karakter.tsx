@@ -8,21 +8,12 @@ import { RUNNERS, STORIES, type Character } from '../../Data/Characters';
 
 // ─── Image Helpers ────────────────────────────────────────────────────────────
 
-/** Maps characterNm to actual image filename (for names that differ) */
-const IMAGE_KEY_MAP: Record<string, string> = {
-  'Tifanny': 'Tiffany',
-};
-
-function imgKey(name: string): string {
-  return IMAGE_KEY_MAP[name] ?? name;
-}
-
 function avatarSrc(name: string): string {
-  return `/Image/Karakter/Avatar/${encodeURIComponent(imgKey(name))}.png`;
+  return `/Image/Karakter/Avatar/${encodeURIComponent(name)}.png`;
 }
 
 function artSrc(name: string): string {
-  return `/Image/Karakter/Art/${encodeURIComponent(imgKey(name))}.png`;
+  return `/Image/Karakter/Art/${encodeURIComponent(name)}.png`;
 }
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
