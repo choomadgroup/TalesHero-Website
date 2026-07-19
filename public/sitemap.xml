@@ -50,18 +50,5 @@
     <priority>0.8</priority>
   </url>
 
-  <url>
-    <loc>https://taleshero.id/guides/combat</loc>
-    <lastmod>2026-07-19</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-
-  <url>
-    <loc>https://taleshero.id/guides/item</loc>
-    <lastmod>2026-07-19</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
 
 </urlset>
