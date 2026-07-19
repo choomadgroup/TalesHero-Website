@@ -112,10 +112,19 @@ function CharacterModal({ char, onClose }: { char: Character | null; onClose: ()
                     <IoClose size={22} />
                 </button>
 
-                {/* Header — original light design */}
+                {/* Header */}
                 <div className="char-modal__header">
-                    <span className="char-modal__catchphrase">{char.catchPhrase}</span>
-                    <h2 className="char-modal__name">{char.characterNm}</h2>
+                    <div className="char-modal__header-title">
+                        <img
+                            src={avatarSrc(char.characterNm)}
+                            alt={char.characterNm}
+                            className="char-modal__header-avatar"
+                        />
+                        <div>
+                            <span className="char-modal__catchphrase">{char.catchPhrase}</span>
+                            <h2 className="char-modal__name">{char.characterNm}</h2>
+                        </div>
+                    </div>
                     <p className="char-modal__comments">{char.comments}</p>
                 </div>
 
@@ -158,13 +167,29 @@ function CharacterModal({ char, onClose }: { char: Character | null; onClose: ()
                         </div>
                     </div>
 
-                    {/* Center — full body art (top) + diamond chart (bottom) */}
+                    {/* Center — full body art only */}
                     <div className="char-modal__center">
                         <img
                             src={artSrc(char.characterNm)}
                             alt={`${char.characterNm} full art`}
                             className="char-modal__art"
                         />
+                    </div>
+
+                    {/* Right — profile + chart */}
+                    <div className="char-modal__right">
+                        <h3 className="char-modal__section-title">Profil</h3>
+                        <table className="char-modal__profile">
+                            <tbody>
+                                <tr><td>Usia</td><td>{char.ageInfo}</td></tr>
+                                <tr><td>Tinggi</td><td>{char.height}</td></tr>
+                                <tr><td>Berat</td><td>{char.weight}</td></tr>
+                                <tr><td>MBTI</td><td>{char.mbti}</td></tr>
+                                <tr><td>Gol. Darah</td><td>{char.bloodType}</td></tr>
+                                <tr><td>Pekerjaan</td><td>{char.job}</td></tr>
+                                <tr><td>Ulang tahun</td><td>{char.birthDayInfo}</td></tr>
+                            </tbody>
+                        </table>
                         <div className="char-modal__chart">
                             <div className="char-modal__chart-top">
                                 <span>Kecepatan</span>
@@ -191,22 +216,6 @@ function CharacterModal({ char, onClose }: { char: Character | null; onClose: ()
                                 <strong>{char.control}</strong>
                             </div>
                         </div>
-                    </div>
-
-                    {/* Right — profile */}
-                    <div className="char-modal__right">
-                        <h3 className="char-modal__section-title" style={{ padding: '28px 20px 0' }}>Profil</h3>
-                        <table className="char-modal__profile">
-                            <tbody>
-                                <tr><td>Usia</td><td>{char.ageInfo}</td></tr>
-                                <tr><td>Tinggi</td><td>{char.height}</td></tr>
-                                <tr><td>Berat</td><td>{char.weight}</td></tr>
-                                <tr><td>MBTI</td><td>{char.mbti}</td></tr>
-                                <tr><td>Gol. Darah</td><td>{char.bloodType}</td></tr>
-                                <tr><td>Pekerjaan</td><td>{char.job}</td></tr>
-                                <tr><td>Ulang tahun</td><td>{char.birthDayInfo}</td></tr>
-                            </tbody>
-                        </table>
                     </div>
                 </div>
             </div>

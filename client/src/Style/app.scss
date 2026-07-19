@@ -1488,32 +1488,53 @@ footer {
 
 .char-modal__header {
   background: linear-gradient(135deg, #f0f9ff 0%, #fefce8 100%);
-  padding: 36px 40px 28px;
+  padding: 28px 36px 24px;
   border-bottom: 1px solid #e8f0f8;
   border-radius: 16px 16px 0 0;
 
-  @media (max-width: 768px) { padding: 28px 24px 20px; }
+  @media (max-width: 768px) { padding: 20px 20px 18px; }
+}
+
+// Avatar + name row
+.char-modal__header-title {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 12px;
+}
+
+.char-modal__header-avatar {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  object-fit: cover;
+  object-position: top center;
+  flex-shrink: 0;
+  border: 3px solid #fff;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.15);
+
+  @media (max-width: 768px) { width: 52px; height: 52px; }
 }
 
 .char-modal__catchphrase {
   display: block;
-  font-size: 16px;
+  font-size: 13px;
   color: #475467;
-  margin-bottom: 4px;
+  margin-bottom: 3px;
   font-weight: 500;
 }
 
 .char-modal__name {
-  font-size: clamp(2rem, 5vw, 3.2rem);
+  font-size: clamp(1.6rem, 4vw, 2.4rem);
   font-weight: 900;
   color: #2FB5FF;
-  margin: 0 0 12px;
+  margin: 0;
   line-height: 1.1;
-  letter-spacing: -1px;
+  letter-spacing: -0.5px;
 }
 
 .char-modal__comments {
-  font-size: 14px;
+  font-size: 13.5px;
   color: #555;
   line-height: 1.7;
   margin: 0;
@@ -1550,49 +1571,40 @@ footer {
 
 .char-modal__center {
   display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: flex-start;
+  align-items: flex-end;
+  justify-content: center;
   background: linear-gradient(180deg, #f0f9ff 0%, #e0f2fe 100%);
-  padding: 0 16px 20px;
   overflow: hidden;
+  min-height: 340px;
 
-  @media (max-width: 600px) { order: -1; }
+  @media (max-width: 600px) { order: -1; min-height: 220px; }
 }
 
 .char-modal__art {
-  flex: 1;
   width: 100%;
-  max-width: 100%;
-  min-height: 0;
+  height: 100%;
   object-fit: contain;
-  object-position: center bottom;
+  object-position: bottom center;
   display: block;
-  filter: drop-shadow(0 6px 20px rgba(0,0,0,0.18));
+  filter: drop-shadow(0 6px 24px rgba(0,0,0,0.18));
 
-  @media (max-width: 600px) { max-height: 220px; flex: none; }
+  @media (max-width: 600px) { max-height: 220px; height: auto; }
 }
 
 .char-modal__right {
-  padding: 0 0 20px;
+  padding: 20px 16px 20px;
   border-left: 1px solid #f0f0f0;
   display: flex;
   flex-direction: column;
-  gap: 0;
+  gap: 20px;
   overflow-y: auto;
 
   @media (max-width: 1024px) { border-left: none; border-top: 1px solid #f0f0f0; }
-}
 
-// Diamond chart container inside the right panel
-.char-modal__chart-wrap {
-  padding: 16px 20px 20px;
-  background: linear-gradient(160deg, #1a1a2e 0%, #0f3460 100%);
-  border-radius: 0 0 0 0;
-  flex: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  // Section title inside right panel
+  .char-modal__section-title {
+    margin-bottom: 10px;
+  }
 }
 
 .char-modal__section {}
