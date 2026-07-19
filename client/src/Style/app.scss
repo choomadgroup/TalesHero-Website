@@ -1182,9 +1182,9 @@ footer {
 .char-page {
   max-width: 1160px;
   margin: 0 auto;
-  padding: 40px 40px 80px;
+  padding: 40px 40px 40px;
 
-  @media (max-width: 768px) { padding: 28px 16px 60px; }
+  @media (max-width: 768px) { padding: 28px 16px 32px; }
 }
 
 // Search bar
@@ -1236,6 +1236,7 @@ footer {
 
 .char-section {
   margin-bottom: 0;
+  padding: 0;
 }
 
 .char-section__title {
