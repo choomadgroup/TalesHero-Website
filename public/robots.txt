@@ -2,4 +2,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://taleshero.id/sitemap.xml
+Sitemap: https://taleshero.web.id/sitemap.xml
