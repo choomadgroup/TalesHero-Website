@@ -11,7 +11,7 @@ const port = rawPort ? Number(rawPort) : 5000;
 const basePath = process.env.BASE_PATH ?? '/';
 
 /* ── Per-route meta for social crawlers (no JS needed) ── */
-const OG_IMAGE = 'https://taleshero.id/Image/tales-hero-banner.png';
+const OG_IMAGE = 'https://taleshero.web.id/Image/tales-hero-banner.png';
 
 const routeMeta: Record<string, { title: string; description: string }> = {
   '/': {
