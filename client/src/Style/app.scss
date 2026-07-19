@@ -1713,6 +1713,15 @@ footer {
   border-top: 1px solid #f0f0f0;
 }
 
+.char-modal__logo {
+  display: block;
+  width: 80%;
+  max-width: 180px;
+  margin: 12px auto 0;
+  opacity: 0.75;
+  filter: drop-shadow(0 2px 6px rgba(0,0,0,0.08));
+}
+
 .char-modal__profile {
   width: 100%;
   border-collapse: collapse;

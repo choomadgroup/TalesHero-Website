@@ -224,6 +224,11 @@ function CharacterModal({ char, onClose }: { char: Character | null; onClose: ()
                             File &amp; Gambar Milik Rhaon Entertainment<br />
                             Website Server Private
                         </p>
+                        <img
+                            src="/Image/tales-hero-banner.png"
+                            alt="Tales Hero Indonesia"
+                            className="char-modal__logo"
+                        />
                     </div>
                 </div>
             </div>
