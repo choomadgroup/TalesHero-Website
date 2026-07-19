@@ -5,7 +5,7 @@ interface PageMeta {
     description: string;
 }
 
-const BASE_IMAGE = '/favicon.png';
+const BASE_IMAGE = '/Image/tales-hero-banner.png';
 
 function setMeta(property: string, content: string) {
     let el = document.querySelector<HTMLMetaElement>(
