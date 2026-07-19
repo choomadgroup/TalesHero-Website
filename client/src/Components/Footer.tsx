@@ -12,7 +12,7 @@ const Footer = () => (
     <footer className="site-footer">
         <div className="site-footer__inner">
             <p className="site-footer__copy">
-                © 2026 <span className="site-footer__sep">/</span> Tales Hero Indonesia <span className="site-footer__sep">/</span> Private Server Hak Cipta Dilindungi.
+                © 2026 <span className="site-footer__sep">/</span> Tales Hero Indonesia <span className="site-footer__sep">/</span> Private server sumber Data dan Gambar © Rhaon Entertaiment.
             </p>
             <div className="site-footer__socials">
                 {SOCIALS.map(s => (
