@@ -183,7 +183,26 @@ export default function Support() {
             {/* CTA */}
             <section className="sp-cta">
                 <div className="sp-section-inner sp-cta__inner">
-                    <img src="/Image/Karakter/Art/Chloe.png" alt="" className="sp-cta__char" />
+                    <div className="sp-cta__chars">
+                        {[
+                            { src: '/Image/Karakter/Art/Chloe.png', alt: 'Chloe', y: 0   },
+                            { src: '/Image/Karakter/Art/Abel.png',  alt: 'Abel',  y: -15 },
+                            { src: '/Image/Karakter/Art/Sid.png',   alt: 'Sid',   y: 0   },
+                            { src: '/Image/Karakter/Art/LaLa.png',  alt: 'LaLa',  y: -8  },
+                        ].map((c, i) => (
+                            <motion.img
+                                key={c.alt}
+                                src={c.src}
+                                alt={c.alt}
+                                className="sp-cta__char-img"
+                                initial={{ opacity: 0, y: 20 }}
+                                whileInView={{ opacity: 1, y: c.y }}
+                                viewport={{ once: true }}
+                                transition={{ delay: i * 0.1, duration: 0.5 }}
+                                style={{ filter: 'drop-shadow(0 10px 24px rgba(0,0,0,0.12))' }}
+                            />
+                        ))}
+                    </div>
                     <div>
                         <h2 className="sp-cta__title">Masih Butuh Bantuan?</h2>
                         <p className="sp-cta__desc">Tim kami siap membantu kamu 24 jam melalui Discord dan Email.</p>

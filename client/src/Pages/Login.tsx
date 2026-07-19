@@ -12,6 +12,13 @@ const STARS = Array.from({ length: 20 }, (_, i) => ({
     size: `${5 + (i % 4)}px`,
 }));
 
+const LOGIN_CHARS = [
+    { src: '/Image/Karakter/Art/Jaka.png',  alt: 'Jaka',  delay: 0,    dur: 2.6 },
+    { src: '/Image/Karakter/Art/Kai.png',   alt: 'Kai',   delay: 0.3,  dur: 2.2 },
+    { src: '/Image/Karakter/Art/Rough.png', alt: 'Rough', delay: 0.15, dur: 3.0 },
+    { src: '/Image/Karakter/Art/Vera.png',  alt: 'Vera',  delay: 0.45, dur: 2.5 },
+];
+
 export default function Login() {
     useEffect(() => {
         document.title = 'Login — Segera Hadir | Tales Hero Indonesia';
@@ -20,7 +27,6 @@ export default function Login() {
 
     return (
         <div className="cs-page cs-page--login">
-            {/* Animated background stars */}
             <div className="cs-page__bg">
                 {STARS.map(s => (
                     <span key={s.id} className="cs-page__star" style={{
@@ -38,14 +44,20 @@ export default function Login() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, ease: 'easeOut' }}
             >
-                {/* Character floating */}
-                <motion.img
-                    src="/Image/Karakter/Art/Kai.png"
-                    alt="Kai"
-                    className="cs-page__char"
-                    animate={{ y: [0, -14, 0] }}
-                    transition={{ duration: 2.8, repeat: Infinity, ease: 'easeInOut' }}
-                />
+                {/* Multiple characters */}
+                <div className="cs-page__chars">
+                    {LOGIN_CHARS.map((c, i) => (
+                        <motion.img
+                            key={c.alt}
+                            src={c.src}
+                            alt={c.alt}
+                            className="cs-page__char-multi"
+                            animate={{ y: [0, -14, 0] }}
+                            transition={{ duration: c.dur, delay: c.delay, repeat: Infinity, ease: 'easeInOut' }}
+                            style={{ zIndex: i === 1 ? 2 : 1 }}
+                        />
+                    ))}
+                </div>
 
                 {/* Badge */}
                 <motion.div

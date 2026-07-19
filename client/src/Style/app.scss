@@ -1831,14 +1831,29 @@ footer {
   width: 100%;
 }
 
-.cs-page__char {
-  width: 220px;
+.cs-page__chars {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 0;
+  margin-bottom: 8px;
+  width: 100%;
+  max-width: 520px;
+}
+
+.cs-page__char-multi {
+  width: 130px;
   height: auto;
   object-fit: contain;
-  filter: drop-shadow(0 20px 40px rgba(0,0,0,0.15));
-  margin-bottom: 8px;
+  filter: drop-shadow(0 12px 24px rgba(0,0,0,0.15));
+  margin: 0 -8px;
 
-  @media (max-width: 480px) { width: 160px; }
+  &:nth-child(2) { width: 155px; position: relative; z-index: 2; }
+
+  @media (max-width: 480px) {
+    width: 90px;
+    &:nth-child(2) { width: 110px; }
+  }
 }
 
 .cs-page__badge {
@@ -1976,14 +1991,31 @@ footer {
     border-radius: 100px;
   }
 
-  &__char {
-    width: 340px;
+  &__chars {
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    flex-shrink: 0;
+    gap: 0;
+    width: 420px;
     max-width: 100%;
+
+    @media (max-width: 900px) { width: 280px; }
+  }
+
+  &__char-img {
+    width: 100px;
     height: auto;
     object-fit: contain;
-    flex-shrink: 0;
+    margin: 0 -10px;
+    filter: drop-shadow(0 16px 32px rgba(0,0,0,0.35));
 
-    @media (max-width: 900px) { width: 220px; }
+    &:nth-child(3) { width: 130px; position: relative; z-index: 2; }
+
+    @media (max-width: 900px) {
+      width: 65px;
+      &:nth-child(3) { width: 85px; }
+    }
   }
 }
 
@@ -2380,14 +2412,24 @@ footer {
     @media (max-width: 768px) { flex-direction: column; text-align: center; }
   }
 
-  &__char {
-    width: 200px;
+  &__chars {
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    flex-shrink: 0;
+    gap: 0;
+
+    @media (max-width: 768px) { display: none; }
+  }
+
+  &__char-img {
+    width: 110px;
     height: auto;
     object-fit: contain;
+    margin: 0 -10px;
     filter: drop-shadow(0 10px 24px rgba(0,0,0,0.12));
-    flex-shrink: 0;
 
-    @media (max-width: 768px) { width: 140px; }
+    &:nth-child(2) { width: 135px; position: relative; z-index: 2; }
   }
 
   &__title { font-size: 1.8rem; font-weight: 900; color: #1a1a2e; margin: 0 0 8px; }

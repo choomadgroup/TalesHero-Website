@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useLocation } from 'wouter';
 import { IoLogoWindows, IoLogoAndroid, IoLogoApple, IoCheckmark, IoChevronForward } from 'react-icons/io5';
-import { GiProcessor, GiRam, GiHardDrive, GiVideoCamera } from 'react-icons/gi';
+import { GiProcessor, GiRam, GiSave, GiVideoCamera } from 'react-icons/gi';
 import Header from '../Components/Header';
 import Footer from '../Components/Footer';
 
@@ -51,7 +51,7 @@ const STEPS = [
 const SPECS = [
     { icon: <GiProcessor size={20} />, label: 'Prosesor', min: 'Intel Core i3', rec: 'Intel Core i5 / AMD Ryzen 5' },
     { icon: <GiRam size={20} />, label: 'RAM', min: '4 GB', rec: '8 GB atau lebih' },
-    { icon: <GiHardDrive size={20} />, label: 'Penyimpanan', min: '2 GB tersedia', rec: '5 GB tersedia' },
+    { icon: <GiSave size={20} />, label: 'Penyimpanan', min: '2 GB tersedia', rec: '5 GB tersedia' },
     { icon: <GiVideoCamera size={20} />, label: 'VGA', min: 'Intel HD Graphics', rec: 'NVIDIA GTX 950 / AMD RX 560' },
 ];
 
@@ -91,15 +91,26 @@ export default function Download() {
                             ))}
                         </div>
                     </motion.div>
-                    <motion.img
-                        src="/Image/Karakter/Art/Rough.png"
-                        alt="Tales Hero Character"
-                        className="dl-hero__char"
-                        initial={{ opacity: 0, x: 40 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ duration: 0.7, delay: 0.1 }}
-                        style={{ filter: 'drop-shadow(0 20px 40px rgba(250,176,5,0.3))' }}
-                    />
+                    <div className="dl-hero__chars">
+                        {[
+                            { src: '/Image/Karakter/Art/Kai.png',     alt: 'Kai',     delay: 0.1, y: 0    },
+                            { src: '/Image/Karakter/Art/Rough.png',   alt: 'Rough',   delay: 0,   y: -20  },
+                            { src: '/Image/Karakter/Art/Wukong.png',  alt: 'Wukong',  delay: 0.2, y: 0    },
+                            { src: '/Image/Karakter/Art/Vera.png',    alt: 'Vera',    delay: 0.15,y: -10  },
+                            { src: '/Image/Karakter/Art/Jaka.png',    alt: 'Jaka',    delay: 0.25,y: 0    },
+                        ].map((c, i) => (
+                            <motion.img
+                                key={c.alt}
+                                src={c.src}
+                                alt={c.alt}
+                                className="dl-hero__char-img"
+                                initial={{ opacity: 0, y: 30 }}
+                                animate={{ opacity: 1, y: c.y }}
+                                transition={{ duration: 0.6, delay: c.delay }}
+                                style={{ filter: 'drop-shadow(0 16px 32px rgba(0,0,0,0.4))' }}
+                            />
+                        ))}
+                    </div>
                 </div>
             </section>
 

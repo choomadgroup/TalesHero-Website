@@ -13,6 +13,13 @@ const STARS = Array.from({ length: 20 }, (_, i) => ({
     size: `${4 + (i % 5)}px`,
 }));
 
+const DAFTAR_CHARS = [
+    { src: '/Image/Karakter/Art/Rina.png',  alt: 'Rina',  delay: 0.2,  dur: 2.4 },
+    { src: '/Image/Karakter/Art/LaLa.png',  alt: 'LaLa',  delay: 0,    dur: 2.8 },
+    { src: '/Image/Karakter/Art/Chloe.png', alt: 'Chloe', delay: 0.35, dur: 2.2 },
+    { src: '/Image/Karakter/Art/Miho.png',  alt: 'Miho',  delay: 0.5,  dur: 3.1 },
+];
+
 export default function Daftar() {
     useEffect(() => {
         document.title = 'Daftar — Segera Hadir | Tales Hero Indonesia';
@@ -38,13 +45,19 @@ export default function Daftar() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, ease: 'easeOut' }}
             >
-                <motion.img
-                    src="/Image/Karakter/Art/LaLa.png"
-                    alt="LaLa"
-                    className="cs-page__char"
-                    animate={{ y: [0, -14, 0], rotate: [0, 3, 0, -3, 0] }}
-                    transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
-                />
+                <div className="cs-page__chars">
+                    {DAFTAR_CHARS.map((c, i) => (
+                        <motion.img
+                            key={c.alt}
+                            src={c.src}
+                            alt={c.alt}
+                            className="cs-page__char-multi"
+                            animate={{ y: [0, -14, 0], rotate: [0, 2, 0, -2, 0] }}
+                            transition={{ duration: c.dur, delay: c.delay, repeat: Infinity, ease: 'easeInOut' }}
+                            style={{ zIndex: i === 1 ? 2 : 1 }}
+                        />
+                    ))}
+                </div>
 
                 <motion.div
                     className="cs-page__badge cs-page__badge--pink"
