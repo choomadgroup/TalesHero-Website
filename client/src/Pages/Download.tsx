@@ -148,36 +148,35 @@ export default function Download() {
                 </div>
             </section>
 
-            {/* Platform cards */}
-            <section className="dl-platforms">
+            {/* Download banner */}
+            <section className="dl-banner">
                 <div className="dl-section-inner">
-                    <h2 className="dl-section-title">Pilih Platform</h2>
-                    <div className="dl-platform-grid">
-                        {PLATFORMS.map((p, i) => (
-                            <motion.div
-                                key={p.id}
-                                className={`dl-platform-card ${!p.available ? 'dl-platform-card--soon' : ''}`}
-                                initial={{ opacity: 0, y: 30 }}
-                                whileInView={{ opacity: 1, y: 0 }}
-                                viewport={{ once: true, amount: 0.3 }}
-                                transition={{ delay: i * 0.1, duration: 0.5 }}
-                            >
-                                <div className="dl-platform-card__icon" style={{ color: p.color }}>
-                                    {p.icon}
+                    <motion.div
+                        className="dl-banner__card"
+                        initial={{ opacity: 0, y: 30 }}
+                        whileInView={{ opacity: 1, y: 0 }}
+                        viewport={{ once: true, amount: 0.3 }}
+                        transition={{ duration: 0.5 }}
+                    >
+                        <div className="dl-banner__left">
+                            <div className="dl-banner__icon">
+                                <IoLogoWindows size={52} />
+                            </div>
+                            <div className="dl-banner__info">
+                                <h3 className="dl-banner__title">Tales Hero Indonesia</h3>
+                                <p className="dl-banner__sub">Windows PC · Versi 1.0.0 · 1.2 GB</p>
+                                <div className="dl-banner__tags">
+                                    <span>Windows 10 / 11</span>
+                                    <span>64-bit</span>
+                                    <span>Gratis</span>
                                 </div>
-                                <h3 className="dl-platform-card__label">{p.label}</h3>
-                                <p className="dl-platform-card__ver">{p.version}</p>
-                                {p.available && <p className="dl-platform-card__size">Ukuran: {p.size}</p>}
-                                <a
-                                    href={p.href}
-                                    className={`dl-platform-card__btn ${!p.available ? 'dl-platform-card__btn--soon' : ''}`}
-                                    style={p.available ? { background: p.color } : {}}
-                                >
-                                    {p.btn}
-                                </a>
-                            </motion.div>
-                        ))}
-                    </div>
+                            </div>
+                        </div>
+                        <a href="#" className="dl-banner__btn">
+                            <IoDownloadOutline size={20} />
+                            Unduh Sekarang
+                        </a>
+                    </motion.div>
                 </div>
             </section>
 
