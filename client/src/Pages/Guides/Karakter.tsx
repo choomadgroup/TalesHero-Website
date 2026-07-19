@@ -52,26 +52,51 @@ function StatBar({ value, color }: { value: number; color: string }) {
 function DiamondChart({ speed, acceleration, power, control }: {
     speed: number; acceleration: number; power: number; control: number;
 }) {
-    const cx = 110, cy = 110, r = 80;
+    // viewBox: 260×260, chart centre at 130,130, radius 80
+    const cx = 130, cy = 130, r = 80;
     const s = (v: number) => v / 6;
     const gridPts = (f: number) =>
         `${cx},${cy - r * f} ${cx + r * f},${cy} ${cx},${cy + r * f} ${cx - r * f},${cy}`;
     const statPts = `${cx},${cy - r * s(speed)} ${cx + r * s(power)},${cy} ${cx},${cy + r * s(control)} ${cx - r * s(acceleration)},${cy}`;
+
+    const labelStyle: React.CSSProperties = { fontSize: 11, fontWeight: 600, fill: '#667085', fontFamily: 'inherit' };
+    const valueStyle: React.CSSProperties = { fontSize: 15, fontWeight: 800, fill: '#1a1a1a', fontFamily: 'inherit' };
+
     return (
-        <svg viewBox="0 0 220 220" width="180" height="180" className="char-chart-svg">
+        <svg viewBox="0 0 260 260" width="100%" className="char-chart-svg">
             <defs>
                 <linearGradient id="dg" x1="0%" y1="0%" x2="100%" y2="100%">
                     <stop offset="0%" stopColor="#2FB5FF" stopOpacity="0.5" />
                     <stop offset="100%" stopColor="#fab005" stopOpacity="0.5" />
                 </linearGradient>
             </defs>
+
+            {/* Grid */}
             {[0.2, 0.4, 0.6, 0.8, 1.0].map((f, i) => (
                 <polygon key={i} points={gridPts(f)} fill="none" stroke="#D1D5DB" strokeWidth="1" />
             ))}
             <line x1={cx} y1={cy - r} x2={cx} y2={cy + r} stroke="#D1D5DB" strokeWidth="1" />
             <line x1={cx - r} y1={cy} x2={cx + r} y2={cy} stroke="#D1D5DB" strokeWidth="1" />
+
+            {/* Stat polygon */}
             <polygon points={statPts} fill="url(#dg)" stroke="#2FB5FF" strokeWidth="2" />
             <circle cx={cx} cy={cy} r={3} fill="#fab005" />
+
+            {/* Labels inside SVG — top (Kecepatan) */}
+            <text x={cx} y={cy - r - 18} textAnchor="middle" style={labelStyle}>Kecepatan</text>
+            <text x={cx} y={cy - r - 4}  textAnchor="middle" style={valueStyle}>{speed}</text>
+
+            {/* Bottom (Kontrol) */}
+            <text x={cx} y={cy + r + 14} textAnchor="middle" style={labelStyle}>Kontrol</text>
+            <text x={cx} y={cy + r + 28} textAnchor="middle" style={valueStyle}>{control}</text>
+
+            {/* Left (Akselerasi) */}
+            <text x={cx - r - 8} y={cy - 6} textAnchor="end" style={labelStyle}>Akselerasi</text>
+            <text x={cx - r - 8} y={cy + 9} textAnchor="end" style={valueStyle}>{acceleration}</text>
+
+            {/* Right (Kekuatan) */}
+            <text x={cx + r + 8} y={cy - 6} textAnchor="start" style={labelStyle}>Kekuatan</text>
+            <text x={cx + r + 8} y={cy + 9} textAnchor="start" style={valueStyle}>{power}</text>
         </svg>
     );
 }
@@ -191,30 +216,12 @@ function CharacterModal({ char, onClose }: { char: Character | null; onClose: ()
                             </tbody>
                         </table>
                         <div className="char-modal__chart">
-                            <div className="char-modal__chart-top">
-                                <span>Kecepatan</span>
-                                <strong>{char.maximumSpeed}</strong>
-                            </div>
-                            <div className="char-modal__chart-mid">
-                                <div className="char-modal__chart-side">
-                                    <span>Akselerasi</span>
-                                    <strong>{char.acceleration}</strong>
-                                </div>
-                                <DiamondChart
-                                    speed={char.maximumSpeed}
-                                    acceleration={char.acceleration}
-                                    power={char.power}
-                                    control={char.control}
-                                />
-                                <div className="char-modal__chart-side char-modal__chart-side--right">
-                                    <span>Kekuatan</span>
-                                    <strong>{char.power}</strong>
-                                </div>
-                            </div>
-                            <div className="char-modal__chart-bottom">
-                                <span>Kontrol</span>
-                                <strong>{char.control}</strong>
-                            </div>
+                            <DiamondChart
+                                speed={char.maximumSpeed}
+                                acceleration={char.acceleration}
+                                power={char.power}
+                                control={char.control}
+                            />
                         </div>
                     </div>
                 </div>
