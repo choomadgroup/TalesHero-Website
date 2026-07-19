@@ -6,20 +6,39 @@ import { GiCrossedSwords, GiSwordman } from 'react-icons/gi';
 import { IoClose, IoSearch } from 'react-icons/io5';
 import { RUNNERS, STORIES, type Character } from '../../Data/Characters';
 
+// ─── Image Helpers ────────────────────────────────────────────────────────────
+
+/** Maps characterNm to actual image filename (for names that differ) */
+const IMAGE_KEY_MAP: Record<string, string> = {
+  'Tifanny': 'Tiffany',
+};
+
+function imgKey(name: string): string {
+  return IMAGE_KEY_MAP[name] ?? name;
+}
+
+function avatarSrc(name: string): string {
+  return `/Image/Karakter/Avatar/${encodeURIComponent(imgKey(name))}.png`;
+}
+
+function artSrc(name: string): string {
+  return `/Image/Karakter/Art/${encodeURIComponent(imgKey(name))}.png`;
+}
+
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
 /** Pick a card color theme based on the character's dominant stat */
 function cardTheme(c: Character): { bg: string; accent: string; label: string } {
     const max = Math.max(c.acceleration, c.maximumSpeed, c.power, c.control);
     if (max === c.power && c.power >= 5)
-        return { bg: 'linear-gradient(135deg,#7f1d1d,#dc2626)', accent: '#fca5a5', label: 'Kekuatan' };
+        return { bg: 'linear-gradient(160deg,#7f1d1d,#dc2626)', accent: '#fca5a5', label: 'Kekuatan' };
     if (max === c.maximumSpeed && c.maximumSpeed >= 5)
-        return { bg: 'linear-gradient(135deg,#1e3a8a,#2563eb)', accent: '#93c5fd', label: 'Kecepatan' };
+        return { bg: 'linear-gradient(160deg,#1e3a8a,#2563eb)', accent: '#93c5fd', label: 'Kecepatan' };
     if (max === c.acceleration && c.acceleration >= 5)
-        return { bg: 'linear-gradient(135deg,#14532d,#16a34a)', accent: '#86efac', label: 'Akselerasi' };
+        return { bg: 'linear-gradient(160deg,#14532d,#16a34a)', accent: '#86efac', label: 'Akselerasi' };
     if (max === c.control && c.control >= 5)
-        return { bg: 'linear-gradient(135deg,#4c1d95,#7c3aed)', accent: '#c4b5fd', label: 'Kontrol' };
-    return { bg: 'linear-gradient(135deg,#78350f,#d97706)', accent: '#fde68a', label: 'Seimbang' };
+        return { bg: 'linear-gradient(160deg,#4c1d95,#7c3aed)', accent: '#c4b5fd', label: 'Kontrol' };
+    return { bg: 'linear-gradient(160deg,#78350f,#d97706)', accent: '#fde68a', label: 'Seimbang' };
 }
 
 /** Mini stat bar — 6 segments */
@@ -48,7 +67,7 @@ function DiamondChart({ speed, acceleration, power, control }: {
         `${cx},${cy - r * f} ${cx + r * f},${cy} ${cx},${cy + r * f} ${cx - r * f},${cy}`;
     const statPts = `${cx},${cy - r * s(speed)} ${cx + r * s(power)},${cy} ${cx},${cy + r * s(control)} ${cx - r * s(acceleration)},${cy}`;
     return (
-        <svg viewBox="0 0 220 220" width="200" height="200" className="char-chart-svg">
+        <svg viewBox="0 0 220 220" width="180" height="180" className="char-chart-svg">
             <defs>
                 <linearGradient id="dg" x1="0%" y1="0%" x2="100%" y2="100%">
                     <stop offset="0%" stopColor="#2FB5FF" stopOpacity="0.5" />
@@ -56,10 +75,10 @@ function DiamondChart({ speed, acceleration, power, control }: {
                 </linearGradient>
             </defs>
             {[0.2, 0.4, 0.6, 0.8, 1.0].map((f, i) => (
-                <polygon key={i} points={gridPts(f)} fill="none" stroke="#D1D5DB" strokeWidth="1" />
+                <polygon key={i} points={gridPts(f)} fill="none" stroke="rgba(255,255,255,0.25)" strokeWidth="1" />
             ))}
-            <line x1={cx} y1={cy - r} x2={cx} y2={cy + r} stroke="#D1D5DB" strokeWidth="1" />
-            <line x1={cx - r} y1={cy} x2={cx + r} y2={cy} stroke="#D1D5DB" strokeWidth="1" />
+            <line x1={cx} y1={cy - r} x2={cx} y2={cy + r} stroke="rgba(255,255,255,0.25)" strokeWidth="1" />
+            <line x1={cx - r} y1={cy} x2={cx + r} y2={cy} stroke="rgba(255,255,255,0.25)" strokeWidth="1" />
             <polygon points={statPts} fill="url(#dg)" stroke="#2FB5FF" strokeWidth="2" />
             <circle cx={cx} cy={cy} r={3} fill="#fab005" />
         </svg>
@@ -82,7 +101,7 @@ function CharacterModal({ char, onClose }: { char: Character | null; onClose: ()
 
     if (!char) return null;
 
-    const { accent } = cardTheme(char);
+    const { bg, accent } = cardTheme(char);
 
     const motionRows = [
         { label: 'Waktu Respawn', value: char.revivalMotion, note: '1' },
@@ -103,15 +122,24 @@ function CharacterModal({ char, onClose }: { char: Character | null; onClose: ()
                 </button>
 
                 {/* Header */}
-                <div className="char-modal__header">
-                    <span className="char-modal__catchphrase">{char.catchPhrase}</span>
-                    <h2 className="char-modal__name">{char.characterNm}</h2>
-                    <p className="char-modal__comments">{char.comments}</p>
+                <div className="char-modal__header" style={{ background: bg }}>
+                    <div className="char-modal__header-text">
+                        <span className="char-modal__catchphrase">{char.catchPhrase}</span>
+                        <h2 className="char-modal__name">{char.characterNm}</h2>
+                        <p className="char-modal__comments">{char.comments}</p>
+                    </div>
+                    <div className="char-modal__header-avatar">
+                        <img
+                            src={avatarSrc(char.characterNm)}
+                            alt={char.characterNm}
+                            className="char-modal__avatar-img"
+                        />
+                    </div>
                 </div>
 
                 {/* Body */}
                 <div className="char-modal__body">
-                    {/* Left */}
+                    {/* Left — stats */}
                     <div className="char-modal__left">
                         <div className="char-modal__section">
                             <h3 className="char-modal__section-title">Statistik Eksklusif</h3>
@@ -148,37 +176,16 @@ function CharacterModal({ char, onClose }: { char: Character | null; onClose: ()
                         </div>
                     </div>
 
-                    {/* Center — stat chart */}
+                    {/* Center — full body art */}
                     <div className="char-modal__center">
-                        <div className="char-modal__chart">
-                            <div className="char-modal__chart-top">
-                                <span>Kecepatan</span>
-                                <strong>{char.maximumSpeed}</strong>
-                            </div>
-                            <div className="char-modal__chart-mid">
-                                <div className="char-modal__chart-side">
-                                    <span>Akselerasi</span>
-                                    <strong>{char.acceleration}</strong>
-                                </div>
-                                <DiamondChart
-                                    speed={char.maximumSpeed}
-                                    acceleration={char.acceleration}
-                                    power={char.power}
-                                    control={char.control}
-                                />
-                                <div className="char-modal__chart-side char-modal__chart-side--right">
-                                    <span>Kekuatan</span>
-                                    <strong>{char.power}</strong>
-                                </div>
-                            </div>
-                            <div className="char-modal__chart-bottom">
-                                <span>Kontrol</span>
-                                <strong>{char.control}</strong>
-                            </div>
-                        </div>
+                        <img
+                            src={artSrc(char.characterNm)}
+                            alt={`${char.characterNm} full art`}
+                            className="char-modal__art"
+                        />
                     </div>
 
-                    {/* Right — profile */}
+                    {/* Right — profile + chart */}
                     <div className="char-modal__right">
                         <h3 className="char-modal__section-title" style={{ padding: '28px 20px 0' }}>Profil</h3>
                         <table className="char-modal__profile">
@@ -192,6 +199,36 @@ function CharacterModal({ char, onClose }: { char: Character | null; onClose: ()
                                 <tr><td>Ulang tahun</td><td>{char.birthDayInfo}</td></tr>
                             </tbody>
                         </table>
+
+                        {/* Stat chart */}
+                        <div className="char-modal__chart-wrap">
+                            <div className="char-modal__chart">
+                                <div className="char-modal__chart-top">
+                                    <span>Kecepatan</span>
+                                    <strong>{char.maximumSpeed}</strong>
+                                </div>
+                                <div className="char-modal__chart-mid">
+                                    <div className="char-modal__chart-side">
+                                        <span>Akselerasi</span>
+                                        <strong>{char.acceleration}</strong>
+                                    </div>
+                                    <DiamondChart
+                                        speed={char.maximumSpeed}
+                                        acceleration={char.acceleration}
+                                        power={char.power}
+                                        control={char.control}
+                                    />
+                                    <div className="char-modal__chart-side char-modal__chart-side--right">
+                                        <span>Kekuatan</span>
+                                        <strong>{char.power}</strong>
+                                    </div>
+                                </div>
+                                <div className="char-modal__chart-bottom">
+                                    <span>Kontrol</span>
+                                    <strong>{char.control}</strong>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -208,6 +245,17 @@ function CharCard({ char, onClick }: { char: Character; onClick: () => void }) {
             <span className="char-card__badge">
                 {char.category === 0 ? 'Pelari' : 'Cerita'}
             </span>
+
+            {/* Avatar image */}
+            <div className="char-card__avatar-wrap">
+                <img
+                    src={avatarSrc(char.characterNm)}
+                    alt={char.characterNm}
+                    className="char-card__avatar"
+                    loading="lazy"
+                />
+            </div>
+
             <div className="char-card__body">
                 <p className="char-card__name">{char.characterNm}</p>
                 <p className="char-card__catch">{char.catchPhrase}</p>

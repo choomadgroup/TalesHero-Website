@@ -1286,9 +1286,9 @@ footer {
   flex-direction: column;
   gap: 0;
   border: none;
-  border-radius: 12px;
+  border-radius: 14px;
   cursor: pointer;
-  padding: 14px 12px 12px;
+  padding: 10px 10px 12px;
   text-align: left;
   transition: transform 0.18s, box-shadow 0.18s;
   position: relative;
@@ -1300,19 +1300,44 @@ footer {
     inset: 0;
     background: rgba(255,255,255,0);
     transition: background 0.18s;
-    border-radius: 12px;
+    border-radius: 14px;
   }
 
   &:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 8px 28px rgba(0,0,0,0.22);
+    transform: translateY(-4px);
+    box-shadow: 0 12px 36px rgba(0,0,0,0.28);
 
     &::after { background: rgba(255,255,255,0.07); }
+
+    .char-card__avatar { transform: scale(1.05); }
   }
 
   &:active { transform: translateY(0); }
 }
 
+// Avatar image inside card
+.char-card__avatar-wrap {
+  width: 100%;
+  height: 110px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  overflow: hidden;
+  margin-bottom: 8px;
+  position: relative;
+
+  @media (max-width: 480px) { height: 90px; }
+}
+
+.char-card__avatar {
+  height: 100%;
+  width: 100%;
+  object-fit: contain;
+  object-position: bottom center;
+  display: block;
+  transition: transform 0.25s ease;
+  filter: drop-shadow(0 4px 8px rgba(0,0,0,0.25));
+}
 
 .char-card__badge {
   font-size: 10px;
@@ -1320,26 +1345,26 @@ footer {
   letter-spacing: 0.8px;
   text-transform: uppercase;
   color: rgba(255,255,255,0.7);
-  margin-bottom: 10px;
+  margin-bottom: 8px;
   display: block;
 }
 
 .char-card__body {
   flex: 1;
-  margin-bottom: 12px;
+  margin-bottom: 10px;
 }
 
 .char-card__name {
-  font-size: 15px;
+  font-size: 14px;
   font-weight: 800;
   color: #fff;
-  margin: 0 0 4px;
+  margin: 0 0 3px;
   line-height: 1.2;
   word-break: keep-all;
 }
 
 .char-card__catch {
-  font-size: 11px;
+  font-size: 10.5px;
   color: rgba(255,255,255,0.65);
   margin: 0;
   line-height: 1.4;
@@ -1462,38 +1487,99 @@ footer {
 }
 
 .char-modal__header {
-  background: linear-gradient(135deg, #f0f9ff 0%, #fefce8 100%);
-  padding: 36px 40px 28px;
-  border-bottom: 1px solid #e8f0f8;
+  padding: 0;
+  border-bottom: 1px solid rgba(255,255,255,0.15);
   border-radius: 16px 16px 0 0;
+  display: flex;
+  align-items: stretch;
+  overflow: hidden;
+  min-height: 160px;
+  position: relative;
 
-  @media (max-width: 768px) { padding: 28px 24px 20px; }
+  // subtle darkening overlay so text stays legible over the gradient bg
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: rgba(0,0,0,0.25);
+    pointer-events: none;
+  }
+
+  @media (max-width: 600px) {
+    flex-direction: column-reverse;
+    min-height: unset;
+  }
+}
+
+.char-modal__header-text {
+  flex: 1;
+  padding: 32px 36px 28px;
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+
+  @media (max-width: 768px) { padding: 24px 20px 20px; }
+  @media (max-width: 600px) { padding: 20px 16px 16px; }
+}
+
+.char-modal__header-avatar {
+  flex: 0 0 160px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  overflow: hidden;
+  position: relative;
+  z-index: 1;
+
+  @media (max-width: 768px) { flex: 0 0 120px; }
+  @media (max-width: 600px) {
+    flex: none;
+    height: 140px;
+    align-self: center;
+  }
+}
+
+.char-modal__avatar-img {
+  height: 150px;
+  width: auto;
+  max-width: 100%;
+  object-fit: contain;
+  object-position: bottom;
+  display: block;
+  filter: drop-shadow(0 -4px 16px rgba(0,0,0,0.3));
+
+  @media (max-width: 768px) { height: 110px; }
+  @media (max-width: 600px) { height: 130px; }
 }
 
 .char-modal__catchphrase {
   display: block;
-  font-size: 16px;
-  color: #475467;
+  font-size: 13px;
+  color: rgba(255,255,255,0.75);
   margin-bottom: 4px;
   font-weight: 500;
+  letter-spacing: 0.3px;
 }
 
 .char-modal__name {
-  font-size: clamp(2rem, 5vw, 3.2rem);
+  font-size: clamp(1.8rem, 5vw, 2.8rem);
   font-weight: 900;
-  color: #2FB5FF;
-  margin: 0 0 12px;
+  color: #fff;
+  margin: 0 0 10px;
   line-height: 1.1;
   letter-spacing: -1px;
+  text-shadow: 0 2px 12px rgba(0,0,0,0.3);
 }
 
 .char-modal__comments {
-  font-size: 14px;
-  color: #555;
+  font-size: 13px;
+  color: rgba(255,255,255,0.8);
   line-height: 1.7;
   margin: 0;
   white-space: pre-line;
-  max-width: 680px;
+  max-width: 560px;
 }
 
 .char-modal__body {
@@ -1527,31 +1613,63 @@ footer {
   display: flex;
   align-items: flex-end;
   justify-content: center;
-  background: linear-gradient(180deg, #f0f9ff 0%, #e0f2fe 100%);
-  padding: 0 16px;
-  min-height: 300px;
+  background: linear-gradient(180deg, #1a1a2e 0%, #16213e 60%, #0f3460 100%);
+  padding: 0 12px;
+  min-height: 320px;
+  overflow: hidden;
+  position: relative;
 
-  @media (max-width: 600px) { min-height: 200px; order: -1; }
+  // subtle shimmer behind the art
+  &::before {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 80%;
+    height: 60%;
+    background: radial-gradient(ellipse at bottom, rgba(47,181,255,0.18) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  @media (max-width: 600px) { min-height: 220px; order: -1; }
 }
 
 .char-modal__art {
-  max-height: 380px;
+  max-height: 400px;
   max-width: 100%;
+  width: auto;
   object-fit: contain;
+  object-position: bottom center;
   display: block;
-  filter: drop-shadow(0 8px 24px rgba(0,0,0,0.15));
+  position: relative;
+  z-index: 1;
+  filter: drop-shadow(0 0 32px rgba(47,181,255,0.25)) drop-shadow(0 8px 20px rgba(0,0,0,0.4));
 
-  @media (max-width: 768px) { max-height: 240px; }
+  @media (max-width: 768px) { max-height: 260px; }
+  @media (max-width: 600px) { max-height: 210px; }
 }
 
 .char-modal__right {
-  padding: 28px 20px;
+  padding: 0 0 20px;
   border-left: 1px solid #f0f0f0;
   display: flex;
   flex-direction: column;
-  gap: 24px;
+  gap: 0;
+  overflow-y: auto;
 
   @media (max-width: 1024px) { border-left: none; border-top: 1px solid #f0f0f0; }
+}
+
+// Diamond chart container inside the right panel
+.char-modal__chart-wrap {
+  padding: 16px 20px 20px;
+  background: linear-gradient(160deg, #1a1a2e 0%, #0f3460 100%);
+  border-radius: 0 0 0 0;
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .char-modal__section {}
@@ -1637,7 +1755,7 @@ footer {
   }
 }
 
-// Stat chart
+// Stat chart (lives on dark background inside .char-modal__chart-wrap)
 .char-modal__chart {
   display: flex;
   flex-direction: column;
@@ -1651,13 +1769,13 @@ footer {
   flex-direction: column;
   align-items: center;
   font-size: 11px;
-  color: #667085;
+  color: rgba(255,255,255,0.65);
   font-weight: 600;
   line-height: 1.2;
   gap: 2px;
   text-align: center;
 
-  strong { font-size: 16px; color: #1a1a1a; font-weight: 800; }
+  strong { font-size: 16px; color: #fff; font-weight: 800; }
 }
 
 .char-modal__chart-mid {
@@ -1671,14 +1789,14 @@ footer {
   flex-direction: column;
   align-items: flex-end;
   font-size: 11px;
-  color: #667085;
+  color: rgba(255,255,255,0.65);
   font-weight: 600;
   line-height: 1.2;
   gap: 2px;
   text-align: right;
-  min-width: 56px;
+  min-width: 52px;
 
-  strong { font-size: 16px; color: #1a1a1a; font-weight: 800; }
+  strong { font-size: 15px; color: #fff; font-weight: 800; }
 
   &--right {
     align-items: flex-start;
