@@ -133,7 +133,6 @@ export default function Download() {
                             initial={{ opacity: 0, y: 30 }}
                             animate={{ opacity: 1, y: -10 }}
                             transition={{ duration: 0.7 }}
-                            style={{ filter: 'drop-shadow(0 16px 40px rgba(0,0,0,0.5))' }}
                         />
                     </div>
                 </div>
@@ -160,7 +159,6 @@ export default function Download() {
                                 viewport={{ once: true }}
                                 transition={{ duration: 0.6, delay: 0.1 }}
                                 animate={{ y: [0, -14, 0] }}
-                                style={{ filter: 'drop-shadow(0 12px 28px rgba(0,0,0,0.45))' }}
                             />
                         </div>
 
