@@ -3,6 +3,7 @@ import { useLocation } from 'wouter';
 import { GiBookmarklet } from 'react-icons/gi';
 import { HiMenuAlt3, HiX, HiChevronDown, HiLogin, HiUserAdd, HiDownload } from 'react-icons/hi';
 import { MdHeadset, MdHeadsetOff } from 'react-icons/md';
+import { useMusic } from '@/Hooks/use-music';
 
 // Nav links route-based
 const NAV_LINKS = [
@@ -24,32 +25,8 @@ const Header = ({ light = false }: { light?: boolean }) => {
     const dropdownRef = useRef<HTMLDivElement>(null);
     const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-    // ── Music ──────────────────────────────────────────────────────
-    const audioRef = useRef<HTMLAudioElement | null>(null);
-    const [musicOn, setMusicOn] = useState(false);
-
-    useEffect(() => {
-        const audio = new Audio('/Sound/BGM Tales Hero Indonesia.mp3');
-        audio.loop   = true;
-        audio.volume = 0.4;
-        audioRef.current = audio;
-
-        // try autoplay on first user interaction
-        const tryPlay = () => {
-            audio.play().then(() => setMusicOn(true)).catch(() => {});
-            window.removeEventListener('pointerdown', tryPlay);
-        };
-        window.addEventListener('pointerdown', tryPlay, { once: true });
-
-        return () => { audio.pause(); audio.src = ''; };
-    }, []);
-
-    const toggleMusic = () => {
-        const audio = audioRef.current;
-        if (!audio) return;
-        if (musicOn) { audio.pause(); setMusicOn(false); }
-        else { audio.play().then(() => setMusicOn(true)).catch(() => {}); }
-    };
+    // ── Music (shared context — persists across navigation) ────────
+    const { musicOn, toggleMusic } = useMusic();
     // ──────────────────────────────────────────────────────────────
 
     useEffect(() => {
