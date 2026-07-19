@@ -329,54 +329,35 @@ section, footer {
   gap: 12px;
 }
 
-// CTA button
-// Login button (outline style)
+// Login — teks link style
 .game-login-btn {
   display: inline-flex;
   align-items: center;
-  gap: 7px;
-  padding: 10px 20px;
-  background: transparent;
-  color: #333;
-  font-size: 14px;
-  font-weight: 700;
-  letter-spacing: 0.4px;
-  border: 1.5px solid rgba(0, 0, 0, 0.2);
-  border-radius: 8px;
+  gap: 6px;
+  padding: 6px 4px;
+  background: none;
+  border: none;
   cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
   white-space: nowrap;
-  transition: background 0.2s ease, border-color 0.2s ease, transform 0.15s ease;
+  transition: opacity 0.2s ease;
+  color: #333;
 
-  &:hover {
-    background: rgba(0, 0, 0, 0.05);
-    border-color: rgba(0, 0, 0, 0.35);
-    transform: translateY(-1px);
-  }
+  .game-header:not(.game-header--light) & { color: #fff; }
 
-  &:active { transform: translateY(0); }
-
-  // Light navbar version (default, white bg)
-  .game-header--light & {
-    color: #333;
-    border-color: rgba(0, 0, 0, 0.2);
-  }
-
-  // Dark navbar version
-  .game-header:not(.game-header--light) & {
-    color: #fff;
-    border-color: rgba(255, 255, 255, 0.35);
-    &:hover { background: rgba(255,255,255,0.08); border-color: rgba(255,255,255,0.6); }
-  }
+  &:hover { opacity: 0.65; }
 
   &--full {
     width: 100%;
     justify-content: center;
-    padding: 13px 22px;
+    padding: 12px;
     font-size: 15px;
+    border: 1.5px solid rgba(0,0,0,0.15);
     border-radius: 10px;
     color: #333;
-    border-color: rgba(0,0,0,0.2);
     margin-bottom: 8px;
+    &:hover { opacity: 1; background: rgba(0,0,0,0.04); }
   }
 
   @media (max-width: 768px) {
@@ -385,27 +366,28 @@ section, footer {
   }
 }
 
+// Daftar — pill button
 .game-cta-btn {
   display: inline-flex;
   align-items: center;
   gap: 7px;
-  padding: 10px 22px;
+  padding: 9px 22px;
   background: linear-gradient(135deg, #fab005 0%, #fd7e14 100%);
   color: #fff;
   font-size: 14px;
   font-weight: 700;
-  letter-spacing: 0.4px;
+  letter-spacing: 0.3px;
   border: none;
-  border-radius: 8px;
+  border-radius: 100px;
   cursor: pointer;
   white-space: nowrap;
-  box-shadow: 0 0 18px rgba(250, 176, 5, 0.35), inset 0 1px 0 rgba(255,255,255,0.15);
-  transition: box-shadow 0.2s ease, transform 0.15s ease, background 0.2s ease;
+  box-shadow: 0 4px 14px rgba(250, 176, 5, 0.4);
+  transition: box-shadow 0.2s ease, transform 0.15s ease, filter 0.2s ease;
 
   &:hover {
-    box-shadow: 0 0 28px rgba(250, 176, 5, 0.6), inset 0 1px 0 rgba(255,255,255,0.2);
+    filter: brightness(1.08);
+    box-shadow: 0 6px 20px rgba(250, 176, 5, 0.55);
     transform: translateY(-1px);
-    background: linear-gradient(135deg, #fcc419 0%, #ff8c00 100%);
   }
 
   &:active { transform: translateY(0); }
@@ -415,12 +397,11 @@ section, footer {
     justify-content: center;
     padding: 13px 22px;
     font-size: 15px;
-    border-radius: 10px;
+    border-radius: 100px;
   }
 
   @media (max-width: 768px) {
     display: none;
-
     &--full { display: inline-flex; }
   }
 }
