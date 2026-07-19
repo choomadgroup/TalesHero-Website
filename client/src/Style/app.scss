@@ -2023,25 +2023,20 @@ section, footer {
     justify-content: center;
     flex-shrink: 0;
     gap: 0;
-    width: 420px;
+    width: 520px;
     max-width: 100%;
 
-    @media (max-width: 900px) { width: 280px; }
+    @media (max-width: 900px) { width: 340px; }
   }
 
   &__char-img {
-    width: 100px;
+    width: 100%;
+    max-width: 520px;
     height: auto;
     object-fit: contain;
-    margin: 0 -10px;
-    filter: drop-shadow(0 16px 32px rgba(0,0,0,0.35));
+    filter: drop-shadow(0 16px 40px rgba(0,0,0,0.5));
 
-    &:nth-child(3) { width: 130px; position: relative; z-index: 2; }
-
-    @media (max-width: 900px) {
-      width: 65px;
-      &:nth-child(3) { width: 85px; }
-    }
+    @media (max-width: 900px) { max-width: 340px; }
   }
 }
 

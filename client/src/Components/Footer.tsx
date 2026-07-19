@@ -1,22 +1,34 @@
-import { FaFacebookF, FaDiscord, FaInstagram } from 'react-icons/fa6';
-import { MdOutlineEmail } from 'react-icons/md';
+import { FaFacebookF, FaDiscord, FaInstagram } from "react-icons/fa6";
+import { MdOutlineEmail } from "react-icons/md";
 
 const SOCIALS = [
-    { icon: <FaFacebookF size={13} />, href: '#', label: 'Facebook'  },
-    { icon: <FaDiscord   size={13} />, href: '#', label: 'Discord'   },
-    { icon: <FaInstagram size={13} />, href: '#', label: 'Instagram' },
-    { icon: <MdOutlineEmail size={15} />, href: 'mailto:support@taleshero.id', label: 'Email' },
+    { icon: <FaFacebookF size={13} />, href: "#", label: "Facebook" },
+    { icon: <FaDiscord size={13} />, href: "#", label: "Discord" },
+    { icon: <FaInstagram size={13} />, href: "#", label: "Instagram" },
+    {
+        icon: <MdOutlineEmail size={15} />,
+        href: "mailto:support@taleshero.id",
+        label: "Email",
+    },
 ];
 
 const Footer = () => (
     <footer className="site-footer">
         <div className="site-footer__inner">
             <p className="site-footer__copy">
-                © 2026 <span className="site-footer__sep">/</span> <strong>THI</strong> Tales Hero Indonesia <span className="site-footer__sep">/</span> Private server sumber Data dan Gambar © Rhaon Entertaiment.
+                © 2026 <span className="site-footer__sep">/</span>{" "}
+                <strong>Tales Hero Indonesia</strong>{" "}
+                <span className="site-footer__sep">/</span> Private server
+                sumber Data dan Gambar © Rhaon Entertaiment.
             </p>
             <div className="site-footer__socials">
-                {SOCIALS.map(s => (
-                    <a key={s.label} href={s.href} aria-label={s.label} className="site-footer__social">
+                {SOCIALS.map((s) => (
+                    <a
+                        key={s.label}
+                        href={s.href}
+                        aria-label={s.label}
+                        className="site-footer__social"
+                    >
                         {s.icon}
                     </a>
                 ))}
