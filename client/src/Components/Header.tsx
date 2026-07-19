@@ -1,14 +1,14 @@
 import { useState, useEffect, useRef } from 'react';
 import { useLocation } from 'wouter';
 import { GiBookmarklet } from 'react-icons/gi';
-import { HiMenuAlt3, HiX, HiChevronDown, HiLogin, HiUserAdd, HiDownload } from 'react-icons/hi';
+import { HiMenuAlt3, HiX, HiChevronDown, HiLogin, HiUserAdd, HiDownload, HiQuestionMarkCircle } from 'react-icons/hi';
 import { MdHeadset, MdHeadsetOff } from 'react-icons/md';
 import { useMusic } from '@/Hooks/use-music';
 
 // Nav links route-based
 const NAV_LINKS = [
-    { label: 'Download', href: '/download' },
-    { label: 'Support',  href: '/support'  },
+    { label: 'Download', href: '/download', icon: <HiDownload size={14} /> },
+    { label: 'Support',  href: '/support',  icon: <HiQuestionMarkCircle size={14} /> },
 ];
 
 // Item dropdown Pengenalan Game
@@ -163,13 +163,13 @@ const Header = ({ light = false }: { light?: boolean }) => {
                             ))}
 
                             {/* Nav links */}
-                            {NAV_LINKS.map(({ label, href }) => (
+                            {NAV_LINKS.map(({ label, href, icon }) => (
                                 <button
                                     key={href}
                                     className="game-drawer__link"
                                     onClick={() => { setLocation(href); setOpened(false); }}
                                 >
-                                    <HiDownload size={14} className="game-drawer__icon" />
+                                    <span className="game-drawer__icon">{icon}</span>
                                     {label}
                                 </button>
                             ))}
