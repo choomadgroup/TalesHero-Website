@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { usePageMeta } from '@/Hooks/use-page-meta';
 import { useLocation } from 'wouter';
 import Header from '../../Components/Header';
 import Footer from '../../Components/Footer';
@@ -7,10 +7,10 @@ import { GiCrossedSwords, GiBookmarklet, GiScrollUnfurled, GiTreasureMap } from 
 export default function GuidesItem() {
     const [, setLocation] = useLocation();
 
-    useEffect(() => {
-        document.title = 'Item & Equipment — Tales Hero Indonesia';
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-    }, []);
+    usePageMeta({
+        title: 'Item & Equipment — Tales Hero Indonesia',
+        description: 'Temukan semua item dan equipment yang bisa kamu gunakan untuk memperkuat hero di Tales Hero Indonesia.',
+    });
 
     return (
         <>

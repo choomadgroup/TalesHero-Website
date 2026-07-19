@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { usePageMeta } from '@/Hooks/use-page-meta';
 import { useLocation } from 'wouter';
 import Header from '../../Components/Header';
 import Footer from '../../Components/Footer';
@@ -7,10 +7,10 @@ import { GiCrossedSwords, GiBookmarklet, GiScrollUnfurled, GiSwordClash } from '
 export default function GuidesCombat() {
     const [, setLocation] = useLocation();
 
-    useEffect(() => {
-        document.title = 'Sistem Pertarungan — Tales Hero Indonesia';
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-    }, []);
+    usePageMeta({
+        title: 'Sistem Pertarungan — Tales Hero Indonesia',
+        description: 'Pelajari sistem pertarungan dan strategi terbaik untuk menang di Tales Hero Indonesia.',
+    });
 
     return (
         <>

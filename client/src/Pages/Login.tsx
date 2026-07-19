@@ -1,7 +1,7 @@
-import { useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useLocation } from 'wouter';
 import { IoHome } from 'react-icons/io5';
+import { usePageMeta } from '@/Hooks/use-page-meta';
 
 const STARS = Array.from({ length: 20 }, (_, i) => ({
     id: i,
@@ -20,9 +20,10 @@ const LOGIN_CHARS = [
 ];
 
 export default function Login() {
-    useEffect(() => {
-        document.title = 'Login — Segera Hadir | Tales Hero Indonesia';
-    }, []);
+    usePageMeta({
+        title: 'Login — Tales Hero Indonesia',
+        description: 'Masuk ke akun Tales Hero Indonesia-mu dan lanjutkan petualanganmu.',
+    });
     const [, setLocation] = useLocation();
 
     return (

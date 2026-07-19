@@ -1,4 +1,5 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
+import { usePageMeta } from '@/Hooks/use-page-meta';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useLocation } from 'wouter';
 import { IoChevronDown, IoLogoDiscord, IoMail, IoLogoWhatsapp, IoSearch } from 'react-icons/io5';
@@ -102,10 +103,10 @@ function FaqItem({ q, a, index }: { q: string; a: string; index: number }) {
 
 export default function Support() {
     const [search, setSearch] = useState('');
-    useEffect(() => {
-        document.title = 'Support — Tales Hero Indonesia';
-        window.scrollTo({ top: 0 });
-    }, []);
+    usePageMeta({
+        title: 'Support — Tales Hero Indonesia',
+        description: 'Butuh bantuan? Hubungi tim support Tales Hero Indonesia atau temukan jawaban di FAQ kami.',
+    });
     const [, setLocation] = useLocation();
 
     const filtered = search.trim()

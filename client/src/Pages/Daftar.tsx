@@ -1,8 +1,8 @@
-import { useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useLocation } from 'wouter';
 import { IoHome } from 'react-icons/io5';
 import { GiPartyPopper } from 'react-icons/gi';
+import { usePageMeta } from '@/Hooks/use-page-meta';
 
 const STARS = Array.from({ length: 20 }, (_, i) => ({
     id: i,
@@ -21,9 +21,10 @@ const DAFTAR_CHARS = [
 ];
 
 export default function Daftar() {
-    useEffect(() => {
-        document.title = 'Daftar — Segera Hadir | Tales Hero Indonesia';
-    }, []);
+    usePageMeta({
+        title: 'Daftar — Tales Hero Indonesia',
+        description: 'Daftarkan hero-mu dan bergabunglah dengan komunitas Tales Hero Indonesia. Gratis!',
+    });
     const [, setLocation] = useLocation();
 
     return (

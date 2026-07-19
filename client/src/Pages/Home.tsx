@@ -1,12 +1,13 @@
-import { useEffect } from 'react';
+import { usePageMeta } from '@/Hooks/use-page-meta';
 import Header from '../Components/Header';
 import HeroBanner from '../Components/HeroBanner';
 import Footer from '../Components/Footer';
 
 export default function Home() {
-    useEffect(() => {
-        document.title = 'Tales Hero Indonesia — Game Online Action Adventure';
-    }, []);
+    usePageMeta({
+        title: 'Tales Hero Indonesia — Game Online Action Adventure',
+        description: 'Tales Hero adalah sebuah game action adventure yang menawarkan petualangan dalam berbagai legenda termashur di dunia. Ayo mainkan bersama teman-temanmu!',
+    });
 
     return (
         <>

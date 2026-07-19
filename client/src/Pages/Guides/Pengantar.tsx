@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { usePageMeta } from '@/Hooks/use-page-meta';
 import { useLocation } from 'wouter';
 import { motion } from 'framer-motion';
 import Header from '../../Components/Header';
@@ -15,10 +15,10 @@ const viewport   = { once: true, amount: 0.25 };
 export default function GuidesPengantar() {
     const [, setLocation] = useLocation();
 
-    useEffect(() => {
-        document.title = 'Pengantar — Tales Hero Indonesia';
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-    }, []);
+    usePageMeta({
+        title: 'Pengantar — Tales Hero Indonesia',
+        description: 'Pelajari dasar-dasar Tales Hero dan mulai perjalananmu di dunia action adventure penuh legenda.',
+    });
 
     return (
         <>

@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { usePageMeta } from '@/Hooks/use-page-meta';
 import { motion } from 'framer-motion';
 import { useLocation } from 'wouter';
 import { IoLogoWindows, IoCheckmark, IoChevronForward, IoDownloadOutline } from 'react-icons/io5';
@@ -92,10 +92,10 @@ const DRIVERS = [
 const FEATURES = ['Gratis Dimainkan', 'Update Rutin', 'Anti-Cheat System', 'Khusus Windows PC', 'Event Mingguan'];
 
 export default function Download() {
-    useEffect(() => {
-        document.title = 'Download — Tales Hero Indonesia';
-        window.scrollTo({ top: 0 });
-    }, []);
+    usePageMeta({
+        title: 'Download — Tales Hero Indonesia',
+        description: 'Unduh Tales Hero Indonesia sekarang dan mulai petualanganmu! Gratis untuk dimainkan di Windows PC.',
+    });
     const [, setLocation] = useLocation();
 
     return (

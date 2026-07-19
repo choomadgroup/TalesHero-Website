@@ -1,4 +1,5 @@
 import { useState, useCallback, useEffect } from 'react';
+import { usePageMeta } from '@/Hooks/use-page-meta';
 import { useLocation } from 'wouter';
 import Header from '../../Components/Header';
 import Footer from '../../Components/Footer';
@@ -293,10 +294,10 @@ export default function GuidesKarakter() {
     const [query, setQuery] = useState('');
     const [selected, setSelected] = useState<Character | null>(null);
 
-    useEffect(() => {
-        document.title = 'Karakter & Hero — Tales Hero Indonesia';
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-    }, []);
+    usePageMeta({
+        title: 'Karakter & Hero — Tales Hero Indonesia',
+        description: 'Temukan semua karakter dan hero yang tersedia di Tales Hero Indonesia. Pilih hero favoritmu!',
+    });
 
     const openModal = useCallback((c: Character) => setSelected(c), []);
     const closeModal = useCallback(() => setSelected(null), []);
