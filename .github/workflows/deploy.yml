@@ -37,6 +37,9 @@ jobs:
         env:
           BASE_PATH: /
 
+      - name: Generate per-route OG HTML
+        run: node scripts/generate-og-html.mjs
+
       - name: Copy 404.html for SPA routing
         run: cp dist/public/index.html dist/public/404.html
 
