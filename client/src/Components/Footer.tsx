@@ -1,24 +1,19 @@
-import { Link } from 'wouter';
-import { FaFacebookF, FaDiscord, FaInstagram, FaTiktok } from 'react-icons/fa6';
+import { FaFacebookF, FaDiscord, FaInstagram } from 'react-icons/fa6';
+import { MdOutlineEmail } from 'react-icons/md';
 
 const SOCIALS = [
-    { icon: <FaFacebookF size={14} />, href: '#', label: 'Facebook' },
-    { icon: <FaDiscord   size={14} />, href: '#', label: 'Discord'  },
-    { icon: <FaInstagram size={14} />, href: '#', label: 'Instagram'},
-    { icon: <FaTiktok    size={14} />, href: '#', label: 'TikTok'   },
+    { icon: <FaFacebookF size={13} />, href: '#', label: 'Facebook'  },
+    { icon: <FaDiscord   size={13} />, href: '#', label: 'Discord'   },
+    { icon: <FaInstagram size={13} />, href: '#', label: 'Instagram' },
+    { icon: <MdOutlineEmail size={15} />, href: 'mailto:support@taleshero.id', label: 'Email' },
 ];
 
 const Footer = () => (
     <footer className="site-footer">
         <div className="site-footer__inner">
-            <span className="site-footer__brand">Tales Hero Indonesia</span>
-
-            <nav className="site-footer__links">
-                <Link href="/">Beranda</Link>
-                <Link href="/download">Download</Link>
-                <Link href="/support">Support</Link>
-            </nav>
-
+            <p className="site-footer__copy">
+                © 2025 <span className="site-footer__sep">/</span> Tales Hero Indonesia <span className="site-footer__sep">/</span> © Rhaon Entertainment. Hak Cipta Dilindungi.
+            </p>
             <div className="site-footer__socials">
                 {SOCIALS.map(s => (
                     <a key={s.label} href={s.href} aria-label={s.label} className="site-footer__social">
@@ -26,10 +21,6 @@ const Footer = () => (
                     </a>
                 ))}
             </div>
-
-            <p className="site-footer__copy">
-                © 2025 Rhaon Entertainment. All rights reserved.
-            </p>
         </div>
     </footer>
 );
