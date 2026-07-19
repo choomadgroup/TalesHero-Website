@@ -50,12 +50,15 @@ const routeMeta = {
 const baseHtml = readFileSync(join(distDir, 'index.html'), 'utf-8');
 
 for (const [route, meta] of Object.entries(routeMeta)) {
+  const fullUrl = `https://taleshero.web.id${route}`;
   const html = baseHtml
     .replace(/(<title>)[^<]*(<\/title>)/, `$1${meta.title}$2`)
     .replace(/(name="description"\s+content=")[^"]*"/, `$1${meta.description}"`)
     .replace(/(property="og:title"\s+content=")[^"]*"/, `$1${meta.title}"`)
     .replace(/(property="og:description"\s+content=")[^"]*"/, `$1${meta.description}"`)
+    .replace(/(property="og:url"\s+content=")[^"]*"/, `$1${fullUrl}"`)
     .replace(/(property="og:image"\s+content=")[^"]*"/, `$1${OG_IMAGE}"`)
+    .replace(/(rel="canonical"\s+href=")[^"]*"/, `$1${fullUrl}"`)
     .replace(/(name="twitter:title"\s+content=")[^"]*"/, `$1${meta.title}"`)
     .replace(/(name="twitter:description"\s+content=")[^"]*"/, `$1${meta.description}"`)
     .replace(/(name="twitter:image"\s+content=")[^"]*"/, `$1${OG_IMAGE}"`);
