@@ -62,7 +62,7 @@ export default function NotFound() {
             <span>4</span>
           </div>
 
-          <h1 className="nf-title">Hero Tersesat!</h1>
+          <h1 className="nf-title">Hero Kamu Tersesat!</h1>
           <p className="nf-desc">
             Halaman yang kamu cari tidak ada di peta dungeon kami.<br />
             Kembali ke base sebelum monster menemukanmu!
@@ -70,10 +70,10 @@ export default function NotFound() {
 
           <div className="nf-actions">
             <button className="btn-yellow nf-btn" onClick={() => setLocation('/')}>
-              🏠 Kembali ke Beranda
+              Kembali ke Beranda
             </button>
             <button className="game-login-btn nf-btn" onClick={() => window.history.back()}>
-              ← Halaman Sebelumnya
+              Halaman Sebelumnya
             </button>
           </div>
         </motion.div>
