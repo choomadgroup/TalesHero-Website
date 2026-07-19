@@ -1,6 +1,10 @@
 name = "taleshero-website"
 compatibility_date = "2024-01-01"
 
+routes = [
+  { pattern = "taleshero.web.id/*", zone_name = "taleshero.web.id" }
+]
+
 [assets]
 directory = "./dist/public"
 not_found_handling = "single-page-application"
