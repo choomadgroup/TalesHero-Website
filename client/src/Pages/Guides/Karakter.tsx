@@ -1,4 +1,5 @@
 import { useState, useCallback, useEffect } from 'react';
+import { asset } from '@/Lib/utils';
 import { usePageMeta } from '@/Hooks/use-page-meta';
 import { useLocation } from 'wouter';
 import Header from '../../Components/Header';
@@ -226,7 +227,7 @@ function CharacterModal({ char, onClose }: { char: Character | null; onClose: ()
                             Website Server Private
                         </p>
                         <img
-                            src="/Image/tales-hero-banner.png"
+                            src={asset("/Image/tales-hero-banner.png")}
                             alt="Tales Hero Indonesia"
                             className="char-modal__logo"
                         />

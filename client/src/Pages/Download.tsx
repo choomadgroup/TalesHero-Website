@@ -1,4 +1,5 @@
 import { usePageMeta } from '@/Hooks/use-page-meta';
+import { asset } from '@/Lib/utils';
 import { motion } from 'framer-motion';
 import { useLocation } from 'wouter';
 import { IoLogoWindows, IoCheckmark, IoChevronForward, IoDownloadOutline } from 'react-icons/io5';
@@ -127,7 +128,7 @@ export default function Download() {
                     </motion.div>
                     <div className="dl-hero__chars">
                         <motion.img
-                            src="/Image/Other/obj-thi-001.png"
+                            src={asset("/Image/Other/obj-thi-001.png")}
                             alt="Tales Hero Indonesia"
                             className="dl-hero__char-img"
                             initial={{ opacity: 0, y: 30 }}
@@ -151,7 +152,7 @@ export default function Download() {
                         {/* characters — left panel */}
                         <div className="dl-banner__chars">
                             <motion.img
-                                src="/Image/Other/obj-thi-001.png"
+                                src={asset("/Image/Other/obj-thi-001.png")}
                                 alt="Tales Hero Indonesia"
                                 className="dl-banner__char dl-banner__char--front"
                                 initial={{ opacity: 0, x: -20 }}

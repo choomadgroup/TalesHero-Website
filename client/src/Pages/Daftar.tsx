@@ -1,4 +1,5 @@
 import { motion } from 'framer-motion';
+import { asset } from '@/Lib/utils';
 import { useLocation } from 'wouter';
 import { IoHome } from 'react-icons/io5';
 import { GiPartyPopper } from 'react-icons/gi';
@@ -77,7 +78,7 @@ export default function Daftar() {
                     Pantau terus media sosial kami untuk info pembukaan pertama! 🎉
                 </p>
 
-                <img src="/Image/tales-hero-banner.png" alt="Tales Hero" className="cs-page__logo" />
+                <img src={asset("/Image/tales-hero-banner.png")} alt="Tales Hero" className="cs-page__logo" />
 
                 <button className="cs-page__btn cs-page__btn--pink" onClick={() => setLocation('/')}>
                     <IoHome size={16} />

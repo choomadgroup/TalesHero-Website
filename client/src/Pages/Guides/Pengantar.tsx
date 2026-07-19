@@ -1,4 +1,5 @@
 import { usePageMeta } from '@/Hooks/use-page-meta';
+import { asset } from '@/Lib/utils';
 import { useLocation } from 'wouter';
 import { motion } from 'framer-motion';
 import Header from '../../Components/Header';
@@ -56,7 +57,7 @@ export default function GuidesPengantar() {
                     variants={fromLeft} initial="hidden" whileInView="show"
                     transition={transition} viewport={viewport}
                 >
-                    <img src="/Image/Pengantar/character1.png" alt="Tales Hero Character" />
+                    <img src={asset("/Image/Pengantar/character1.png")} alt="Tales Hero Character" />
                 </motion.div>
 
                 <motion.div
@@ -86,7 +87,7 @@ export default function GuidesPengantar() {
                     variants={fromRight} initial="hidden" whileInView="show"
                     transition={transition} viewport={viewport}
                 >
-                    <img src="/Image/Pengantar/character2.png" alt="Tales Hero Character" />
+                    <img src={asset("/Image/Pengantar/character2.png")} alt="Tales Hero Character" />
                 </motion.div>
             </section>
 
@@ -118,10 +119,10 @@ export default function GuidesPengantar() {
                         transition={transition} viewport={viewport}
                     >
                         <div className="pengantar-story__circle pengantar-story__circle--lg">
-                            <img src="/Image/Pengantar/obj1_1.png" alt="Dunia Fantasi" />
+                            <img src={asset("/Image/Pengantar/obj1_1.png")} alt="Dunia Fantasi" />
                         </div>
                         <div className="pengantar-story__circle pengantar-story__circle--sm">
-                            <img src="/Image/Pengantar/obj1_2.png" alt="Detail" />
+                            <img src={asset("/Image/Pengantar/obj1_2.png")} alt="Detail" />
                         </div>
                     </motion.div>
                 </section>
@@ -134,10 +135,10 @@ export default function GuidesPengantar() {
                         transition={transition} viewport={viewport}
                     >
                         <div className="pengantar-story__circle pengantar-story__circle--lg">
-                            <img src="/Image/Pengantar/obj2_1.png" alt="Ancaman Kegelapan" />
+                            <img src={asset("/Image/Pengantar/obj2_1.png")} alt="Ancaman Kegelapan" />
                         </div>
                         <div className="pengantar-story__circle pengantar-story__circle--sm">
-                            <img src="/Image/Pengantar/obj2_2.png" alt="Detail" />
+                            <img src={asset("/Image/Pengantar/obj2_2.png")} alt="Detail" />
                         </div>
                     </motion.div>
                     <motion.div
@@ -184,10 +185,10 @@ export default function GuidesPengantar() {
                         transition={transition} viewport={viewport}
                     >
                         <div className="pengantar-story__circle pengantar-story__circle--lg">
-                            <img src="/Image/Pengantar/obj3_1.png" alt="Turnamen Hero" />
+                            <img src={asset("/Image/Pengantar/obj3_1.png")} alt="Turnamen Hero" />
                         </div>
                         <div className="pengantar-story__circle pengantar-story__circle--sm">
-                            <img src="/Image/Pengantar/obj3_2.png" alt="Detail" />
+                            <img src={asset("/Image/Pengantar/obj3_2.png")} alt="Detail" />
                         </div>
                     </motion.div>
                 </section>
@@ -200,10 +201,10 @@ export default function GuidesPengantar() {
                         transition={transition} viewport={viewport}
                     >
                         <div className="pengantar-story__circle pengantar-story__circle--lg">
-                            <img src="/Image/Pengantar/obj4_1.png" alt="Hero dan Kisah Anda" />
+                            <img src={asset("/Image/Pengantar/obj4_1.png")} alt="Hero dan Kisah Anda" />
                         </div>
                         <div className="pengantar-story__circle pengantar-story__circle--sm">
-                            <img src="/Image/Pengantar/obj4_2.png" alt="Detail" />
+                            <img src={asset("/Image/Pengantar/obj4_2.png")} alt="Detail" />
                         </div>
                     </motion.div>
                     <motion.div

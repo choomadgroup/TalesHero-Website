@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
+import { asset } from '@/Lib/utils';
 import { useLocation } from 'wouter';
 import { GiBookmarklet } from 'react-icons/gi';
 import { HiMenuAlt3, HiX, HiChevronDown, HiLogin, HiUserAdd, HiDownload, HiQuestionMarkCircle } from 'react-icons/hi';
@@ -46,7 +47,7 @@ const Header = ({ light = false }: { light?: boolean }) => {
                     {/* Logo */}
                     <a href="/" className="game-header__logo">
                         <img
-                            src="/Image/tales-hero-banner.png"
+                            src={asset("/Image/tales-hero-banner.png")}
                             alt="Tales Hero Indonesia"
                             style={{ objectFit: 'contain' }}
                         />
@@ -145,7 +146,7 @@ const Header = ({ light = false }: { light?: boolean }) => {
                 <div className="game-drawer-overlay" onClick={() => setOpened(false)}>
                     <div className="game-drawer" onClick={e => e.stopPropagation()}>
                         <div className="game-drawer__logo">
-                            <img src="/Image/tales-hero-banner.png" alt="Tales Hero" height={36} />
+                            <img src={asset("/Image/tales-hero-banner.png")} alt="Tales Hero" height={36} />
                         </div>
 
                         <nav className="game-drawer__nav">

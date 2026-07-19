@@ -1,4 +1,5 @@
 import { createContext, useContext, useEffect, useRef, useState, ReactNode } from 'react';
+import { asset } from '@/Lib/utils';
 
 interface MusicCtx {
     musicOn: boolean;
@@ -12,7 +13,7 @@ export function MusicProvider({ children }: { children: ReactNode }) {
     const [musicOn, setMusicOn] = useState(false);
 
     useEffect(() => {
-        const audio = new Audio('/Sound/BGM Tales Hero Indonesia.mp3');
+        const audio = new Audio(asset('/Sound/BGM Tales Hero Indonesia.mp3'));
         audio.loop   = true;
         audio.volume = 0.4;
         audioRef.current = audio;
