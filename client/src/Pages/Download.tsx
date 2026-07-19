@@ -1,8 +1,9 @@
 import { useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useLocation } from 'wouter';
-import { IoLogoWindows, IoLogoAndroid, IoLogoApple, IoCheckmark, IoChevronForward } from 'react-icons/io5';
-import { GiProcessor, GiRam, GiSave, GiVideoCamera } from 'react-icons/gi';
+import { IoLogoWindows, IoCheckmark, IoChevronForward, IoDownloadOutline } from 'react-icons/io5';
+import { GiProcessor, GiRam, GiVideoCamera } from 'react-icons/gi';
+import { MdComputer, MdMemory } from 'react-icons/md';
 import Header from '../Components/Header';
 import Footer from '../Components/Footer';
 
@@ -18,28 +19,6 @@ const PLATFORMS = [
         available: true,
         href: '#',
     },
-    {
-        id: 'android',
-        icon: <IoLogoAndroid size={40} />,
-        label: 'Android',
-        version: 'Versi 1.0.0',
-        size: '650 MB',
-        btn: 'Unduh APK',
-        color: '#3ddc84',
-        available: true,
-        href: '#',
-    },
-    {
-        id: 'ios',
-        icon: <IoLogoApple size={40} />,
-        label: 'iOS / App Store',
-        version: 'Segera Hadir',
-        size: '—',
-        btn: 'Coming Soon',
-        color: '#555',
-        available: false,
-        href: '#',
-    },
 ];
 
 const STEPS = [
@@ -49,13 +28,68 @@ const STEPS = [
 ];
 
 const SPECS = [
-    { icon: <GiProcessor size={20} />, label: 'Prosesor', min: 'Intel Core i3', rec: 'Intel Core i5 / AMD Ryzen 5' },
-    { icon: <GiRam size={20} />, label: 'RAM', min: '4 GB', rec: '8 GB atau lebih' },
-    { icon: <GiSave size={20} />, label: 'Penyimpanan', min: '2 GB tersedia', rec: '5 GB tersedia' },
-    { icon: <GiVideoCamera size={20} />, label: 'VGA', min: 'Intel HD Graphics', rec: 'NVIDIA GTX 950 / AMD RX 560' },
+    {
+        icon: <GiProcessor size={20} />,
+        label: 'CPU',
+        min: 'Core2 Duo atau lebih tinggi',
+        rec: 'Intel i5 3GHz atau Ryzen 5 3GHz atau lebih tinggi',
+    },
+    {
+        icon: <GiVideoCamera size={20} />,
+        label: 'VGA',
+        min: 'Radeon HD 5000 atau lebih tinggi\nGeForce GTS 400 atau lebih tinggi',
+        rec: 'Radeon HD 6000 atau lebih tinggi\nGeForce GTS 700 atau lebih tinggi',
+    },
+    {
+        icon: <GiRam size={20} />,
+        label: 'RAM',
+        min: '4 GB',
+        rec: '8 GB',
+    },
+    {
+        icon: <MdComputer size={20} />,
+        label: 'OS',
+        min: 'Windows 10 atau lebih baru (tidak didukung oleh MAC OS)',
+        rec: 'Windows 10 atau lebih baru (tidak didukung oleh MAC OS)',
+        same: true,
+    },
+    {
+        icon: <MdMemory size={20} />,
+        label: 'DirectX',
+        min: 'DirectX 11 atau lebih tinggi',
+        rec: 'DirectX 11 atau lebih tinggi',
+        same: true,
+    },
 ];
 
-const FEATURES = ['Gratis Dimainkan', 'Update Rutin', 'Anti-Cheat System', 'Cross-Platform (Coming Soon)', 'Event Mingguan'];
+const DRIVERS = [
+    {
+        id: 'nvidia',
+        logo: 'NVIDIA',
+        logoClass: 'dl-driver-card__logo--nvidia',
+        href: 'https://www.nvidia.com/Download/index.aspx',
+    },
+    {
+        id: 'amd',
+        logo: 'AMD',
+        logoClass: 'dl-driver-card__logo--amd',
+        href: 'https://www.amd.com/en/support',
+    },
+    {
+        id: 'intel',
+        logo: 'intel',
+        logoClass: 'dl-driver-card__logo--intel',
+        href: 'https://www.intel.com/content/www/us/en/download-center/home.html',
+    },
+    {
+        id: 'directx',
+        logo: 'DirectX',
+        logoClass: 'dl-driver-card__logo--directx',
+        href: 'https://www.microsoft.com/en-us/download/details.aspx?id=35',
+    },
+];
+
+const FEATURES = ['Gratis Dimainkan', 'Update Rutin', 'Anti-Cheat System', 'Khusus Windows PC', 'Event Mingguan'];
 
 export default function Download() {
     useEffect(() => {
@@ -174,24 +208,66 @@ export default function Download() {
             {/* System requirements */}
             <section className="dl-specs">
                 <div className="dl-section-inner">
-                    <h2 className="dl-section-title">Spesifikasi Sistem</h2>
+                    <h2 className="dl-section-title">Spesifikasi Komputer TalesRunner</h2>
                     <div className="dl-specs-table">
                         <div className="dl-specs-table__head">
-                            <span></span>
-                            <span>Minimum</span>
-                            <span>Rekomendasi</span>
+                            <span>Barang</span>
+                            <span>Spesifikasi Minimum</span>
+                            <span>Spesifikasi yang Direkomendasikan</span>
                         </div>
                         {SPECS.map(s => (
                             <div key={s.label} className="dl-specs-table__row">
                                 <span className="dl-specs-table__label">
                                     {s.icon} {s.label}
                                 </span>
-                                <span>{s.min}</span>
-                                <span className="dl-specs-table__rec">{s.rec}</span>
+                                {s.same ? (
+                                    <span className="dl-specs-table__colspan" style={{ gridColumn: '2 / 4' }}>
+                                        {s.min}
+                                    </span>
+                                ) : (
+                                    <>
+                                        <span style={{ whiteSpace: 'pre-line' }}>{s.min}</span>
+                                        <span className="dl-specs-table__rec" style={{ whiteSpace: 'pre-line' }}>{s.rec}</span>
+                                    </>
+                                )}
                             </div>
                         ))}
                     </div>
-                    <p className="dl-specs-note">* Spesifikasi dapat berubah sesuai update game</p>
+                    <p className="dl-specs-note">* Game ini hanya tersedia untuk Windows PC — tidak mendukung iOS dan Android</p>
+                </div>
+            </section>
+
+            {/* Driver downloads */}
+            <section className="dl-drivers">
+                <div className="dl-section-inner">
+                    <h2 className="dl-section-title">Unduh Driver</h2>
+                    <div className="dl-driver-grid">
+                        {DRIVERS.map((d, i) => (
+                            <motion.a
+                                key={d.id}
+                                href={d.href}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="dl-driver-card"
+                                initial={{ opacity: 0, y: 20 }}
+                                whileInView={{ opacity: 1, y: 0 }}
+                                viewport={{ once: true, amount: 0.3 }}
+                                transition={{ delay: i * 0.1, duration: 0.4 }}
+                            >
+                                <span className={`dl-driver-card__logo ${d.logoClass}`}>{d.logo}</span>
+                                <p className="dl-driver-card__name">{d.logo}</p>
+                                <span className="dl-driver-card__btn">
+                                    <IoDownloadOutline size={14} /> Unduh
+                                </span>
+                            </motion.a>
+                        ))}
+                    </div>
+                    <ul className="dl-driver-notes">
+                        <li>Dengan menginstal driver grafis versi terbaru, Anda dapat menikmati permainan di lingkungan yang lebih baik.</li>
+                        <li>Pastikan untuk memeriksa spesifikasi PC Anda dan sistem operasi serta kartu grafis Anda, lalu instal driver yang sesuai dengan jenis Anda.</li>
+                        <li>Jika Anda mengalami kesalahan selama penginstalan driver, perbarui Kerangka Kerja Microsoft.Net.</li>
+                        <li>Waktu instalasi mungkin tertunda tergantung pada sistem dan lingkungan jaringan Anda.</li>
+                    </ul>
                 </div>
             </section>
 
