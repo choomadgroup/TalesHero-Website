@@ -42,6 +42,19 @@ Website game online action adventure Tales Hero Indonesia — landing page + hal
 - Tidak suka folder/file tambahan yang tidak perlu — jaga struktur seminimal mungkin
 - Tidak suka `.replit-artifact` dan folder sistem muncul di GitHub — sudah di-gitignore
 
+## Deploy ke Cloudflare Pages
+
+Setting di Cloudflare Pages:
+- **Build command:** `pnpm run build`
+- **Output directory:** `dist/public`
+- **Root directory:** (kosongkan / root)
+
+API routes berjalan sebagai **Cloudflare Pages Functions** di folder `functions/`:
+- `functions/api/leaderboard.js` — GET /api/leaderboard
+- `functions/api/contact.js` — POST /api/contact
+
+SPA routing ditangani oleh `public/_redirects` (`/* /index.html 200`) yang otomatis ikut di-copy saat build.
+
 ## Gotchas
 
 - Jangan tambahkan `client` ke `packages` di pnpm-workspace.yaml — client/ bukan workspace package terpisah, root package.json yang handle
