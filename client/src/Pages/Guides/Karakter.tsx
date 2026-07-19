@@ -158,8 +158,13 @@ function CharacterModal({ char, onClose }: { char: Character | null; onClose: ()
                         </div>
                     </div>
 
-                    {/* Center — diamond chart + full body art below */}
+                    {/* Center — full body art (top) + diamond chart (bottom) */}
                     <div className="char-modal__center">
+                        <img
+                            src={artSrc(char.characterNm)}
+                            alt={`${char.characterNm} full art`}
+                            className="char-modal__art"
+                        />
                         <div className="char-modal__chart">
                             <div className="char-modal__chart-top">
                                 <span>Kecepatan</span>
@@ -186,11 +191,6 @@ function CharacterModal({ char, onClose }: { char: Character | null; onClose: ()
                                 <strong>{char.control}</strong>
                             </div>
                         </div>
-                        <img
-                            src={artSrc(char.characterNm)}
-                            alt={`${char.characterNm} full art`}
-                            className="char-modal__art"
-                        />
                     </div>
 
                     {/* Right — profile */}
