@@ -66,10 +66,10 @@ function DiamondChart({ speed, acceleration, power, control }: {
                 </linearGradient>
             </defs>
             {[0.2, 0.4, 0.6, 0.8, 1.0].map((f, i) => (
-                <polygon key={i} points={gridPts(f)} fill="none" stroke="rgba(255,255,255,0.25)" strokeWidth="1" />
+                <polygon key={i} points={gridPts(f)} fill="none" stroke="#D1D5DB" strokeWidth="1" />
             ))}
-            <line x1={cx} y1={cy - r} x2={cx} y2={cy + r} stroke="rgba(255,255,255,0.25)" strokeWidth="1" />
-            <line x1={cx - r} y1={cy} x2={cx + r} y2={cy} stroke="rgba(255,255,255,0.25)" strokeWidth="1" />
+            <line x1={cx} y1={cy - r} x2={cx} y2={cy + r} stroke="#D1D5DB" strokeWidth="1" />
+            <line x1={cx - r} y1={cy} x2={cx + r} y2={cy} stroke="#D1D5DB" strokeWidth="1" />
             <polygon points={statPts} fill="url(#dg)" stroke="#2FB5FF" strokeWidth="2" />
             <circle cx={cx} cy={cy} r={3} fill="#fab005" />
         </svg>
@@ -112,25 +112,16 @@ function CharacterModal({ char, onClose }: { char: Character | null; onClose: ()
                     <IoClose size={22} />
                 </button>
 
-                {/* Header */}
-                <div className="char-modal__header" style={{ background: bg }}>
-                    <div className="char-modal__header-text">
-                        <span className="char-modal__catchphrase">{char.catchPhrase}</span>
-                        <h2 className="char-modal__name">{char.characterNm}</h2>
-                        <p className="char-modal__comments">{char.comments}</p>
-                    </div>
-                    <div className="char-modal__header-avatar">
-                        <img
-                            src={avatarSrc(char.characterNm)}
-                            alt={char.characterNm}
-                            className="char-modal__avatar-img"
-                        />
-                    </div>
+                {/* Header — original light design */}
+                <div className="char-modal__header">
+                    <span className="char-modal__catchphrase">{char.catchPhrase}</span>
+                    <h2 className="char-modal__name">{char.characterNm}</h2>
+                    <p className="char-modal__comments">{char.comments}</p>
                 </div>
 
                 {/* Body */}
                 <div className="char-modal__body">
-                    {/* Left — stats */}
+                    {/* Left — unique ability + motion table */}
                     <div className="char-modal__left">
                         <div className="char-modal__section">
                             <h3 className="char-modal__section-title">Statistik Eksklusif</h3>
@@ -167,8 +158,34 @@ function CharacterModal({ char, onClose }: { char: Character | null; onClose: ()
                         </div>
                     </div>
 
-                    {/* Center — full body art */}
+                    {/* Center — diamond chart + full body art below */}
                     <div className="char-modal__center">
+                        <div className="char-modal__chart">
+                            <div className="char-modal__chart-top">
+                                <span>Kecepatan</span>
+                                <strong>{char.maximumSpeed}</strong>
+                            </div>
+                            <div className="char-modal__chart-mid">
+                                <div className="char-modal__chart-side">
+                                    <span>Akselerasi</span>
+                                    <strong>{char.acceleration}</strong>
+                                </div>
+                                <DiamondChart
+                                    speed={char.maximumSpeed}
+                                    acceleration={char.acceleration}
+                                    power={char.power}
+                                    control={char.control}
+                                />
+                                <div className="char-modal__chart-side char-modal__chart-side--right">
+                                    <span>Kekuatan</span>
+                                    <strong>{char.power}</strong>
+                                </div>
+                            </div>
+                            <div className="char-modal__chart-bottom">
+                                <span>Kontrol</span>
+                                <strong>{char.control}</strong>
+                            </div>
+                        </div>
                         <img
                             src={artSrc(char.characterNm)}
                             alt={`${char.characterNm} full art`}
@@ -176,7 +193,7 @@ function CharacterModal({ char, onClose }: { char: Character | null; onClose: ()
                         />
                     </div>
 
-                    {/* Right — profile + chart */}
+                    {/* Right — profile */}
                     <div className="char-modal__right">
                         <h3 className="char-modal__section-title" style={{ padding: '28px 20px 0' }}>Profil</h3>
                         <table className="char-modal__profile">
@@ -190,36 +207,6 @@ function CharacterModal({ char, onClose }: { char: Character | null; onClose: ()
                                 <tr><td>Ulang tahun</td><td>{char.birthDayInfo}</td></tr>
                             </tbody>
                         </table>
-
-                        {/* Stat chart */}
-                        <div className="char-modal__chart-wrap">
-                            <div className="char-modal__chart">
-                                <div className="char-modal__chart-top">
-                                    <span>Kecepatan</span>
-                                    <strong>{char.maximumSpeed}</strong>
-                                </div>
-                                <div className="char-modal__chart-mid">
-                                    <div className="char-modal__chart-side">
-                                        <span>Akselerasi</span>
-                                        <strong>{char.acceleration}</strong>
-                                    </div>
-                                    <DiamondChart
-                                        speed={char.maximumSpeed}
-                                        acceleration={char.acceleration}
-                                        power={char.power}
-                                        control={char.control}
-                                    />
-                                    <div className="char-modal__chart-side char-modal__chart-side--right">
-                                        <span>Kekuatan</span>
-                                        <strong>{char.power}</strong>
-                                    </div>
-                                </div>
-                                <div className="char-modal__chart-bottom">
-                                    <span>Kontrol</span>
-                                    <strong>{char.control}</strong>
-                                </div>
-                            </div>
-                        </div>
                     </div>
                 </div>
             </div>
