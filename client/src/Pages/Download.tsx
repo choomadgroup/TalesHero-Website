@@ -126,24 +126,15 @@ export default function Download() {
                         </div>
                     </motion.div>
                     <div className="dl-hero__chars">
-                        {[
-                            { src: '/Image/Karakter/Art/Kai.png',     alt: 'Kai',     delay: 0.1, y: 0    },
-                            { src: '/Image/Karakter/Art/Rough.png',   alt: 'Rough',   delay: 0,   y: -20  },
-                            { src: '/Image/Karakter/Art/Wukong.png',  alt: 'Wukong',  delay: 0.2, y: 0    },
-                            { src: '/Image/Karakter/Art/Vera.png',    alt: 'Vera',    delay: 0.15,y: -10  },
-                            { src: '/Image/Karakter/Art/Jaka.png',    alt: 'Jaka',    delay: 0.25,y: 0    },
-                        ].map((c, i) => (
-                            <motion.img
-                                key={c.alt}
-                                src={c.src}
-                                alt={c.alt}
-                                className="dl-hero__char-img"
-                                initial={{ opacity: 0, y: 30 }}
-                                animate={{ opacity: 1, y: c.y }}
-                                transition={{ duration: 0.6, delay: c.delay }}
-                                style={{ filter: 'drop-shadow(0 16px 32px rgba(0,0,0,0.4))' }}
-                            />
-                        ))}
+                        <motion.img
+                            src="/Image/Other/obj-thi-001.png"
+                            alt="Tales Hero Indonesia"
+                            className="dl-hero__char-img"
+                            initial={{ opacity: 0, y: 30 }}
+                            animate={{ opacity: 1, y: -10 }}
+                            transition={{ duration: 0.7 }}
+                            style={{ filter: 'drop-shadow(0 16px 40px rgba(0,0,0,0.5))', maxWidth: '420px' }}
+                        />
                     </div>
                 </div>
             </section>
@@ -161,34 +152,15 @@ export default function Download() {
                         {/* characters — left panel */}
                         <div className="dl-banner__chars">
                             <motion.img
-                                src="/Image/Karakter/Art/Rough.png"
-                                alt="Rough"
-                                className="dl-banner__char dl-banner__char--back"
-                                initial={{ opacity: 0, x: -30 }}
-                                whileInView={{ opacity: 1, x: 0 }}
-                                viewport={{ once: true }}
-                                transition={{ duration: 0.6, delay: 0.1 }}
-                                animate={{ y: [0, -12, 0] }}
-                            />
-                            <motion.img
-                                src="/Image/Karakter/Art/Kai.png"
-                                alt="Kai"
+                                src="/Image/Other/obj-thi-001.png"
+                                alt="Tales Hero Indonesia"
                                 className="dl-banner__char dl-banner__char--front"
                                 initial={{ opacity: 0, x: -20 }}
                                 whileInView={{ opacity: 1, x: 0 }}
                                 viewport={{ once: true }}
-                                transition={{ duration: 0.6, delay: 0.25 }}
-                                animate={{ y: [0, -16, 0] }}
-                            />
-                            <motion.img
-                                src="/Image/Karakter/Art/Vera.png"
-                                alt="Vera"
-                                className="dl-banner__char dl-banner__char--side"
-                                initial={{ opacity: 0, x: -10 }}
-                                whileInView={{ opacity: 1, x: 0 }}
-                                viewport={{ once: true }}
-                                transition={{ duration: 0.6, delay: 0.4 }}
-                                animate={{ y: [0, -9, 0] }}
+                                transition={{ duration: 0.6, delay: 0.1 }}
+                                animate={{ y: [0, -14, 0] }}
+                                style={{ filter: 'drop-shadow(0 12px 28px rgba(0,0,0,0.45))' }}
                             />
                         </div>
 
