@@ -2097,7 +2097,7 @@ section, footer {
     height: 420px;
     background: linear-gradient(160deg, #1a1a2e 0%, #16213e 60%, #0f3460 100%);
     border-radius: 26px 0 0 26px;
-    overflow: visible;
+    overflow: hidden;
 
     @media (max-width: 768px) {
       display: none;
@@ -2109,7 +2109,6 @@ section, footer {
     bottom: 0;
     object-fit: contain;
     pointer-events: none;
-    filter: drop-shadow(0 12px 28px rgba(0,0,0,0.45));
 
     &--back {
       height: 300px;
@@ -2118,8 +2117,10 @@ section, footer {
       z-index: 1;
     }
     &--front {
-      height: 370px;
-      left: 28%;
+      height: 100%;
+      width: 100%;
+      left: 0;
+      object-position: bottom center;
       z-index: 3;
       filter: drop-shadow(0 16px 32px rgba(0,0,0,0.55));
     }
