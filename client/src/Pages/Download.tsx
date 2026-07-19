@@ -150,63 +150,74 @@ export default function Download() {
 
             {/* Download banner */}
             <section className="dl-banner">
-                {/* floating characters — left side */}
-                {[
-                    { src: '/Image/Karakter/Art/Cain.png',  alt: 'Cain',  x: '2%',  delay: 0,    y: [0, -14, 0], duration: 3.2 },
-                    { src: '/Image/Karakter/Art/Luci.png',  alt: 'Luci',  x: '13%', delay: 0.6,  y: [0, -10, 0], duration: 2.8 },
-                    { src: '/Image/Karakter/Art/Haru.png',  alt: 'Haru',  x: '24%', delay: 0.3,  y: [0, -18, 0], duration: 3.6 },
-                ].map(c => (
-                    <motion.img
-                        key={c.alt}
-                        src={c.src}
-                        alt={c.alt}
-                        className="dl-banner__char dl-banner__char--left"
-                        style={{ left: c.x }}
-                        initial={{ opacity: 0, y: 40 }}
-                        whileInView={{ opacity: 1, y: 0 }}
-                        viewport={{ once: true }}
-                        transition={{ duration: 0.7, delay: c.delay }}
-                        animate={{ y: c.y }}
-                    />
-                ))}
-
-                {/* floating characters — right side */}
-                {[
-                    { src: '/Image/Karakter/Art/Miho.png',  alt: 'Miho',  x: '73%', delay: 0.2,  y: [0, -12, 0], duration: 3.0 },
-                    { src: '/Image/Karakter/Art/Vera.png',  alt: 'Vera',  x: '83%', delay: 0.5,  y: [0, -16, 0], duration: 3.4 },
-                    { src: '/Image/Karakter/Art/Wukong.png',alt: 'Wukong',x: '92%', delay: 0.1,  y: [0, -10, 0], duration: 2.6 },
-                ].map(c => (
-                    <motion.img
-                        key={c.alt}
-                        src={c.src}
-                        alt={c.alt}
-                        className="dl-banner__char dl-banner__char--right"
-                        style={{ left: c.x }}
-                        initial={{ opacity: 0, y: 40 }}
-                        whileInView={{ opacity: 1, y: 0 }}
-                        viewport={{ once: true }}
-                        transition={{ duration: 0.7, delay: c.delay }}
-                        animate={{ y: c.y }}
-                    />
-                ))}
-
                 <div className="dl-section-inner">
                     <motion.div
                         className="dl-banner__card"
                         initial={{ opacity: 0, y: 30 }}
                         whileInView={{ opacity: 1, y: 0 }}
-                        viewport={{ once: true, amount: 0.3 }}
-                        transition={{ duration: 0.5 }}
+                        viewport={{ once: true, amount: 0.2 }}
+                        transition={{ duration: 0.55 }}
                     >
-                        <div className="dl-banner__icon">
-                            <IoLogoWindows size={40} />
+                        {/* characters — left panel */}
+                        <div className="dl-banner__chars">
+                            <motion.img
+                                src="/Image/Karakter/Art/Rough.png"
+                                alt="Rough"
+                                className="dl-banner__char dl-banner__char--back"
+                                initial={{ opacity: 0, x: -30 }}
+                                whileInView={{ opacity: 1, x: 0 }}
+                                viewport={{ once: true }}
+                                transition={{ duration: 0.6, delay: 0.1 }}
+                                animate={{ y: [0, -12, 0] }}
+                            />
+                            <motion.img
+                                src="/Image/Karakter/Art/Kai.png"
+                                alt="Kai"
+                                className="dl-banner__char dl-banner__char--front"
+                                initial={{ opacity: 0, x: -20 }}
+                                whileInView={{ opacity: 1, x: 0 }}
+                                viewport={{ once: true }}
+                                transition={{ duration: 0.6, delay: 0.25 }}
+                                animate={{ y: [0, -16, 0] }}
+                            />
+                            <motion.img
+                                src="/Image/Karakter/Art/Vera.png"
+                                alt="Vera"
+                                className="dl-banner__char dl-banner__char--side"
+                                initial={{ opacity: 0, x: -10 }}
+                                whileInView={{ opacity: 1, x: 0 }}
+                                viewport={{ once: true }}
+                                transition={{ duration: 0.6, delay: 0.4 }}
+                                animate={{ y: [0, -9, 0] }}
+                            />
                         </div>
-                        <p className="dl-banner__platform">Windows PC</p>
-                        <h3 className="dl-banner__title">Tales Hero Indonesia</h3>
-                        <p className="dl-banner__sub">Game aksi petualangan — hanya untuk PC</p>
-                        <span className="dl-banner__btn">
-                            🚧 Coming Soon
-                        </span>
+
+                        {/* content — right panel */}
+                        <div className="dl-banner__content">
+                            <span className="dl-banner__eyebrow">
+                                <IoLogoWindows size={14} /> Windows PC Only
+                            </span>
+                            <h3 className="dl-banner__title">
+                                Unduh<br />Tales Hero<br />
+                                <em>Indonesia</em>
+                            </h3>
+                            <p className="dl-banner__sub">
+                                Game aksi petualangan gratis.<br />
+                                Segera hadir untuk PC — stay tuned!
+                            </p>
+                            <div className="dl-banner__btn">
+                                🚧&nbsp; Coming Soon
+                            </div>
+                            {/* decorative dots */}
+                            <div className="dl-banner__dots" aria-hidden>
+                                {Array.from({ length: 12 }).map((_, i) => (
+                                    <span key={i} className="dl-banner__dot" />
+                                ))}
+                            </div>
+                        </div>
+
+                        {/* accent blob */}
+                        <div className="dl-banner__blob" aria-hidden />
                     </motion.div>
                 </div>
             </section>
