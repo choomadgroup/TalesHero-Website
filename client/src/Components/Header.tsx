@@ -1,12 +1,12 @@
 import { useState, useEffect, useRef } from 'react';
 import { useLocation } from 'wouter';
 import { GiBookmarklet } from 'react-icons/gi';
-import { HiMenuAlt3, HiX, HiChevronDown, HiLogin, HiUserAdd, HiDownload, HiSupport } from 'react-icons/hi';
+import { HiMenuAlt3, HiX, HiChevronDown, HiLogin, HiUserAdd, HiDownload } from 'react-icons/hi';
 
 // Nav links route-based
 const NAV_LINKS = [
-    { label: 'Download', href: '/download', icon: <HiDownload size={15} /> },
-    { label: 'Support',  href: '/support',  icon: <HiSupport  size={15} /> },
+    { label: 'Download', href: '/download' },
+    { label: 'Support',  href: '/support'  },
 ];
 
 // Item dropdown Pengenalan Game
@@ -87,14 +87,14 @@ const Header = ({ light = false }: { light?: boolean }) => {
                         </div>
 
                         {/* Nav links biasa */}
-                        {NAV_LINKS.map(({ label, href, icon }) => (
-                            <button
+                        {NAV_LINKS.map(({ label, href }) => (
+                            <span
                                 key={href}
-                                className="game-nav-link game-nav-link--btn"
+                                className="game-nav-link"
                                 onClick={() => setLocation(href)}
                             >
-                                {icon}{label}
-                            </button>
+                                {label}
+                            </span>
                         ))}
                     </nav>
 
@@ -149,13 +149,13 @@ const Header = ({ light = false }: { light?: boolean }) => {
                             ))}
 
                             {/* Nav links */}
-                            {NAV_LINKS.map(({ label, href, icon }) => (
+                            {NAV_LINKS.map(({ label, href }) => (
                                 <button
                                     key={href}
                                     className="game-drawer__link"
                                     onClick={() => { setLocation(href); setOpened(false); }}
                                 >
-                                    <span className="game-drawer__icon">{icon}</span>
+                                    <HiDownload size={14} className="game-drawer__icon" />
                                     {label}
                                 </button>
                             ))}
