@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useLocation } from 'wouter';
 import { GiBookmarklet } from 'react-icons/gi';
 import { HiMenuAlt3, HiX, HiChevronDown, HiLogin, HiUserAdd, HiDownload } from 'react-icons/hi';
+import { MdHeadset, MdHeadsetOff } from 'react-icons/md';
 
 // Nav links route-based
 const NAV_LINKS = [
@@ -22,6 +23,34 @@ const Header = ({ light = false }: { light?: boolean }) => {
     const [, setLocation] = useLocation();
     const dropdownRef = useRef<HTMLDivElement>(null);
     const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+    // ── Music ──────────────────────────────────────────────────────
+    const audioRef = useRef<HTMLAudioElement | null>(null);
+    const [musicOn, setMusicOn] = useState(false);
+
+    useEffect(() => {
+        const audio = new Audio('/Sound/BGM Tales Hero Indonesia.mp3');
+        audio.loop   = true;
+        audio.volume = 0.4;
+        audioRef.current = audio;
+
+        // try autoplay on first user interaction
+        const tryPlay = () => {
+            audio.play().then(() => setMusicOn(true)).catch(() => {});
+            window.removeEventListener('pointerdown', tryPlay);
+        };
+        window.addEventListener('pointerdown', tryPlay, { once: true });
+
+        return () => { audio.pause(); audio.src = ''; };
+    }, []);
+
+    const toggleMusic = () => {
+        const audio = audioRef.current;
+        if (!audio) return;
+        if (musicOn) { audio.pause(); setMusicOn(false); }
+        else { audio.play().then(() => setMusicOn(true)).catch(() => {}); }
+    };
+    // ──────────────────────────────────────────────────────────────
 
     useEffect(() => {
         const onScroll = () => setScrolled(window.scrollY > 20);
@@ -100,6 +129,14 @@ const Header = ({ light = false }: { light?: boolean }) => {
 
                     {/* CTA + burger */}
                     <div className="game-header__actions">
+                        <button
+                            className={`game-music-btn ${musicOn ? 'game-music-btn--on' : ''}`}
+                            onClick={toggleMusic}
+                            aria-label={musicOn ? 'Matikan musik' : 'Nyalakan musik'}
+                            title={musicOn ? 'Matikan musik' : 'Nyalakan musik'}
+                        >
+                            {musicOn ? <MdHeadset size={18} /> : <MdHeadsetOff size={18} />}
+                        </button>
                         <button
                             className="game-login-btn"
                             onClick={() => setLocation('/login')}

@@ -329,6 +329,39 @@ section, footer {
   gap: 12px;
 }
 
+// Headset music toggle
+.game-music-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  border: 1.5px solid rgba(255,255,255,0.2);
+  background: transparent;
+  color: rgba(255,255,255,0.5);
+  cursor: pointer;
+  transition: color 0.2s, border-color 0.2s, background 0.2s;
+  flex-shrink: 0;
+
+  .game-header--light & {
+    border-color: rgba(0,0,0,0.15);
+    color: rgba(0,0,0,0.4);
+  }
+
+  &:hover {
+    color: #fab005;
+    border-color: #fab005;
+    background: rgba(250,176,5,0.08);
+  }
+
+  &--on {
+    color: #fab005;
+    border-color: #fab005;
+    background: rgba(250,176,5,0.1);
+  }
+}
+
 // Login — teks link style
 .game-login-btn {
   display: inline-flex;

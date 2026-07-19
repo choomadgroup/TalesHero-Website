@@ -9,8 +9,6 @@ import GuidesKarakter from '@/Pages/Guides/Karakter';
 import GuidesCombat from '@/Pages/Guides/Combat';
 import GuidesItem from '@/Pages/Guides/Item';
 import NotFound from '@/Pages/Not-Found';
-import MusicPlayer from '@/Components/MusicPlayer';
-
 function Router() {
     return (
         <Switch>
@@ -32,7 +30,6 @@ function App() {
     return (
         <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, '')}>
             <Router />
-            <MusicPlayer />
         </WouterRouter>
     );
 }
