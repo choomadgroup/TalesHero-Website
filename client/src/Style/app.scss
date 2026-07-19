@@ -2679,3 +2679,78 @@ section, footer {
     .game-login-btn { display: inline-flex !important; }
   }
 }
+
+// ─── Music Player ─────────────────────────────────────────────────────────────
+
+@keyframes spin-slow  { to { transform: rotate(360deg); } }
+@keyframes bar-bounce {
+  0%, 100% { transform: scaleY(0.3); }
+  50%       { transform: scaleY(1);   }
+}
+
+.music-btn {
+  position: fixed;
+  bottom: 28px;
+  right: 28px;
+  z-index: 9999;
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  border: none;
+  background: #1a1a2e;
+  color: #fff;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.25);
+  outline: none;
+  padding: 0;
+  transition: background 0.2s;
+
+  &:hover { background: #fab005; }
+
+  // spinning ring visible when playing
+  &__ring {
+    position: absolute;
+    inset: -4px;
+    border-radius: 50%;
+    border: 2px dashed rgba(250,176,5,0.5);
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+
+  &--playing &__ring {
+    opacity: 1;
+    animation: spin-slow 6s linear infinite;
+  }
+
+  &__icon {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  // sound-wave bars shown while playing
+  &__waves {
+    position: absolute;
+    bottom: -18px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    align-items: flex-end;
+    gap: 2px;
+    height: 12px;
+  }
+
+  &__bar {
+    width: 3px;
+    height: 100%;
+    border-radius: 2px;
+    background: #fab005;
+    transform-origin: bottom;
+    animation: bar-bounce 0.7s ease-in-out infinite;
+  }
+}
