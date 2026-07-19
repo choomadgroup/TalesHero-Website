@@ -1,4 +1,3 @@
-import { Link } from 'react-scroll';
 import { MdOutlineArrowDownward } from 'react-icons/md';
 import { useLocation } from 'wouter';
 
@@ -21,11 +20,9 @@ const About = () => {
                 </div>
 
                 <div className="buttons">
-                    <Link to="section-one" smooth duration={500}>
-                        <button className="btn-yellow btn-rounded">
-                            Lihat Fitur <MdOutlineArrowDownward size={16} style={{ verticalAlign: 'middle' }} />
-                        </button>
-                    </Link>
+                    <button className="btn-yellow btn-rounded" onClick={() => setLocation('/download')}>
+                        Download <MdOutlineArrowDownward size={16} style={{ verticalAlign: 'middle' }} />
+                    </button>
                     <button className="btn-default btn-rounded" onClick={() => setLocation('/daftar')}>
                         Daftar Sekarang
                     </button>

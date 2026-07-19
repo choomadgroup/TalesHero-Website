@@ -1,6 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Link } from 'react-scroll';
 import { useLocation } from 'wouter';
 import { GiCrossedSwords, GiScrollUnfurled, GiSwordClash, GiHeartWings, GiWheat, GiParkBench, GiFishingPole } from 'react-icons/gi';
 import { MdOutlineArrowDownward } from 'react-icons/md';
@@ -136,11 +135,9 @@ export default function HeroBanner() {
                             <p className="hero-banner__desc">{slide.desc}</p>
 
                             <div className="hero-banner__actions">
-                                <Link to="section-one" smooth duration={500}>
-                                    <button className="hero-banner__btn-primary" style={{ background: slide.accent }}>
-                                        Lihat Fitur <MdOutlineArrowDownward size={15} style={{ verticalAlign: 'middle' }} />
-                                    </button>
-                                </Link>
+                                <button className="hero-banner__btn-primary" style={{ background: slide.accent }} onClick={() => setLocation('/download')}>
+                                    Download <MdOutlineArrowDownward size={15} style={{ verticalAlign: 'middle' }} />
+                                </button>
                                 <button className="hero-banner__btn-secondary" onClick={() => setLocation('/daftar')}>
                                     Daftar Sekarang
                                 </button>
