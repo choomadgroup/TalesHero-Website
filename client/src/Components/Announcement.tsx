@@ -9,13 +9,8 @@ const ANNOUNCEMENTS = [
 ];
 
 const SLIDES = [
-    '/Image/Home/IMG-H01.png',
-    '/Image/Home/IMG-H02.png',
-    '/Image/Home/IMG-H03.png',
-    '/Image/Home/IMG-H04.png',
-    '/Image/Home/IMG-H05.png',
-    '/Image/Home/IMG-H06.png',
-    '/Image/Home/IMG-H07.png',
+    '/Image/Home/Slide Pictures/obj-sp-001.jpg',
+    '/Image/Home/Slide Pictures/obj-sp-002.png',
 ];
 
 export default function Announcement() {
@@ -148,7 +143,7 @@ export default function Announcement() {
                 {/* ── Slideshow ── */}
                 <div
                     style={{
-                        flex: '0 0 480px',
+                        flex: 1,
                         borderRadius: 12,
                         overflow: 'hidden',
                         position: 'relative',
@@ -204,8 +199,6 @@ export default function Announcement() {
                     </div>
                 </div>
 
-                {/* ── Sisa ruang kanan (untuk fitur lain) ── */}
-                <div style={{ flex: 1 }} />
             </div>
         </section>
     );
