@@ -2,11 +2,11 @@ import { FaFacebookF, FaDiscord, FaInstagram } from "react-icons/fa6";
 import { MdOutlineEmail } from "react-icons/md";
 
 const SOCIALS = [
-    { icon: <FaFacebookF size={13} />, href: "#", label: "Facebook" },
-    { icon: <FaDiscord size={13} />, href: "https://discord.gg/rTyNWEQhxB", label: "Discord" },
-    { icon: <FaInstagram size={13} />, href: "#", label: "Instagram" },
+    { icon: <FaFacebookF size={18} />, href: "#", label: "Facebook" },
+    { icon: <FaDiscord size={18} />, href: "https://discord.gg/rTyNWEQhxB", label: "Discord" },
+    { icon: <FaInstagram size={18} />, href: "#", label: "Instagram" },
     {
-        icon: <MdOutlineEmail size={15} />,
+        icon: <MdOutlineEmail size={20} />,
         href: "mailto:support@taleshero.web.id",
         label: "Email",
     },

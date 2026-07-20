@@ -771,9 +771,9 @@ section, footer {
 // --- Footer -----------------------------------------------------
 
 .site-footer {
-  background: rgb(248, 246, 246);
+  background: transparent;
   border-top: none;
-  padding: 14px 24px;
+  padding: 20px 24px;
 
   &__inner {
     max-width: 1200px;
@@ -806,28 +806,19 @@ section, footer {
 
   &__socials {
     display: flex;
-    gap: 8px;
+    gap: 20px;
     flex-shrink: 0;
+    align-items: center;
   }
 
   &__social {
     display: flex;
     align-items: center;
-    justify-content: center;
-    width: 28px;
-    height: 28px;
-    border-radius: 6px;
-    border: 1px solid #e0e0e0;
     color: #bbb;
     text-decoration: none;
-    background: transparent;
-    transition: color 0.15s, border-color 0.15s, background 0.15s;
+    transition: color 0.2s ease;
 
-    &:hover {
-      color: #fab005;
-      border-color: #fab005;
-      background: rgba(250, 176, 5, 0.06);
-    }
+    &:hover { color: #fab005; }
   }
 }
 
