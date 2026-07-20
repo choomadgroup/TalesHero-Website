@@ -2984,17 +2984,18 @@ section, footer {
   flex-direction: row;
   align-items: center;
   gap: 0;
-  background: linear-gradient(135deg, #0e0e1e 0%, #12091f 60%, #1a1208 100%);
+  background: #e8f4fb;
   border-radius: 14px;
   overflow: hidden;
   position: relative;
   padding: 12px 14px 12px 0;
+  border: 1px solid #cce4f5;
 
   &::before {
     content: '';
     position: absolute;
     inset: 0;
-    background: radial-gradient(ellipse 70% 80% at 20% 100%, rgba(250,176,5,0.1) 0%, transparent 65%);
+    background: radial-gradient(ellipse 70% 80% at 20% 100%, rgba(47,181,255,0.08) 0%, transparent 65%);
     pointer-events: none;
   }
 }
@@ -3018,7 +3019,7 @@ section, footer {
     object-fit: contain;
     object-position: center;
     display: block;
-    filter: drop-shadow(0 0 18px rgba(250,176,5,0.18)) drop-shadow(0 8px 12px rgba(0,0,0,0.55));
+    filter: drop-shadow(0 0 14px rgba(47,181,255,0.18)) drop-shadow(0 8px 12px rgba(0,0,0,0.15));
   }
 }
 
@@ -3028,11 +3029,10 @@ section, footer {
   min-width: 0;
   position: relative;
   z-index: 1;
-  background: rgba(255,255,255,0.06);
-  border: 1px solid rgba(255,255,255,0.1);
+  background: linear-gradient(135deg, #f0f9ff 0%, #fefce8 100%);
+  border: 1px solid #cce4f5;
   border-radius: 14px 14px 14px 4px;
   padding: 11px 13px 10px;
-  backdrop-filter: blur(8px);
   margin-bottom: 4px;
 }
 
@@ -3045,7 +3045,7 @@ section, footer {
   height: 0;
   border-style: solid;
   border-width: 6px 8px 6px 0;
-  border-color: transparent rgba(255,255,255,0.1) transparent transparent;
+  border-color: transparent #cce4f5 transparent transparent;
 }
 
 .cs-hello {
@@ -3053,17 +3053,12 @@ section, footer {
   font-weight: 700;
   letter-spacing: 1px;
   text-transform: uppercase;
-  color: rgba(255,255,255,0.4);
   margin: 0 0 2px;
-
-  // bintang ✦ warna orange
-  &::first-letter,
-  & > span { color: #fab005; }
-
-  background: linear-gradient(90deg, #fab005, rgba(255,255,255,0.4) 20%, rgba(255,255,255,0.4) 80%, #fab005);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  color: #475467;
+  background: none;
+  -webkit-background-clip: unset;
+  -webkit-text-fill-color: unset;
+  background-clip: unset;
 }
 
 // Sama persis dengan .char-modal__name
@@ -3078,7 +3073,7 @@ section, footer {
 
 .cs-quote {
   font-size: 11px;
-  color: rgba(255,255,255,0.55);
+  color: #555;
   line-height: 1.55;
   margin: 0 0 10px;
   font-style: italic;
