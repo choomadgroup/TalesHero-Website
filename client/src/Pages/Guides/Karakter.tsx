@@ -319,7 +319,7 @@ export default function GuidesKarakter() {
             <Header light />
 
             {/* Hero banner */}
-            <section className="guides-hero">
+            <section className="guides-hero" style={{ backgroundImage: "url('/Image/Home/IMG-H03.png')" }}>
                 <div className="guides-hero__inner">
                     <div className="guides-hero__badge">
                         <GiSwordman size={16} />
