@@ -70,9 +70,7 @@ export default function NewsListPage() {
                                 className={`news-filter__tab ${active === f.value ? 'news-filter__tab--active' : ''}`}
                                 onClick={() => setActive(f.value as NewsCategory | 'all')}
                             >
-                                <span className="news-filter__icon">
-                                    {CATEGORY_ICONS[f.value]}
-                                </span>
+                                <span className="news-filter__icon">{CATEGORY_ICONS[f.value]}</span>
                                 {f.label}
                                 <span className="news-filter__count">
                                     {f.value === 'all'
@@ -93,33 +91,44 @@ export default function NewsListPage() {
                         <ul className="news-list">
                             {filtered.map(article => (
                                 <li key={`${article.category}/${article.slug}`} className="news-card">
-                                    <div className="news-card__meta">
-                                        <span
-                                            className="news-card__badge"
-                                            style={{ '--badge-color': CATEGORY_COLORS[article.category] } as React.CSSProperties}
-                                        >
-                                            {CATEGORY_ICONS[article.category]}
-                                            {CATEGORY_LABELS[article.category]}
-                                        </span>
-                                        <time className="news-card__date">{formatDate(article.date)}</time>
-                                    </div>
-                                    <h2 className="news-card__title">
+                                    {/* Cover thumbnail */}
+                                    {article.cover && (
                                         <button
+                                            className="news-card__cover"
+                                            onClick={() => setLocation(`/news/${article.category}/${article.slug}`)}
+                                            tabIndex={-1}
+                                        >
+                                            <img src={article.cover} alt={article.title} />
+                                        </button>
+                                    )}
+
+                                    <div className="news-card__body">
+                                        <div className="news-card__meta">
+                                            <span
+                                                className="news-card__badge"
+                                                style={{ '--badge-color': CATEGORY_COLORS[article.category] } as React.CSSProperties}
+                                            >
+                                                {CATEGORY_ICONS[article.category]}
+                                                {CATEGORY_LABELS[article.category]}
+                                            </span>
+                                            <time className="news-card__date">{formatDate(article.date)}</time>
+                                        </div>
+                                        <h2 className="news-card__title">
+                                            <button onClick={() => setLocation(`/news/${article.category}/${article.slug}`)}>
+                                                {article.title}
+                                            </button>
+                                        </h2>
+                                        {article.excerpt && (
+                                            <p className="news-card__excerpt">{article.excerpt}</p>
+                                        )}
+                                        <button
+                                            className="news-card__readmore"
                                             onClick={() => setLocation(`/news/${article.category}/${article.slug}`)}
                                         >
-                                            {article.title}
+                                            Baca selengkapnya
+                                            <HiChevronRight size={15} />
                                         </button>
-                                    </h2>
-                                    {article.excerpt && (
-                                        <p className="news-card__excerpt">{article.excerpt}</p>
-                                    )}
-                                    <button
-                                        className="news-card__readmore"
-                                        onClick={() => setLocation(`/news/${article.category}/${article.slug}`)}
-                                    >
-                                        Baca selengkapnya
-                                        <HiChevronRight size={15} />
-                                    </button>
+                                    </div>
                                 </li>
                             ))}
                         </ul>

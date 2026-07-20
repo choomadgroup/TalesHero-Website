@@ -1,71 +1,52 @@
-import { marked } from 'marked';
+import { ComponentType } from 'react';
 
 export type NewsCategory = 'update' | 'info' | 'maintenance';
 
 export interface NewsArticle {
-    slug: string;
-    category: NewsCategory;
-    title: string;
-    date: string;
-    excerpt: string;
-    rawContent: string;
+    slug:       string;
+    category:   NewsCategory;
+    title:      string;
+    date:       string;
+    excerpt:    string;
+    cover?:     string;
+    component:  ComponentType;
 }
 
-// ── Frontmatter parser ──────────────────────────────────────────────
-function parseFrontmatter(raw: string): { meta: Record<string, string>; content: string } {
-    const match = raw.match(/^---\r?\n([\s\S]*?)\r?\n---\r?\n([\s\S]*)$/);
-    if (!match) return { meta: {}, content: raw };
-    const meta: Record<string, string> = {};
-    match[1].split('\n').forEach(line => {
-        const colonIdx = line.indexOf(':');
-        if (colonIdx > 0) {
-            const key = line.slice(0, colonIdx).trim();
-            const val = line.slice(colonIdx + 1).trim();
-            meta[key] = val;
-        }
-    });
-    return { meta, content: match[2] };
-}
-
-// ── Folder name → category key mapping ─────────────────────────────
+// ── Folder name → category key ──────────────────────────────────────
 const FOLDER_TO_CATEGORY: Record<string, NewsCategory> = {
     Update:      'update',
     Information: 'info',
     Maintenance: 'maintenance',
 };
 
-// ── Vite glob — eager load all .md files as raw strings ────────────
-const rawFiles = import.meta.glob('../Data/News/**/*.md', {
-    query: '?raw',
-    import: 'default',
-    eager: true,
-}) as Record<string, string>;
+// ── MDX glob — each module exports default (component) + frontmatter ─
+const modules = import.meta.glob('../Data/News/**/*.mdx', { eager: true }) as Record<string, {
+    default:     ComponentType;
+    frontmatter: { title?: string; date?: string; excerpt?: string; cover?: string };
+}>;
 
-// ── Build article list from glob ────────────────────────────────────
+// ── Build article list ───────────────────────────────────────────────
 function buildArticleList(): NewsArticle[] {
     const articles: NewsArticle[] = [];
 
-    for (const [filePath, rawContent] of Object.entries(rawFiles)) {
-        // filePath: ../Data/News/Update/2026-07-20-server-perdana.md
-        const parts = filePath.split('/');
-        const folderName = parts[parts.length - 2];
-        const category = FOLDER_TO_CATEGORY[folderName] ?? (folderName.toLowerCase() as NewsCategory);
-        const fileName = parts[parts.length - 1];
-        const slug = fileName.replace(/\.md$/, '');
-
-        const { meta, content } = parseFrontmatter(rawContent);
+    for (const [filePath, mod] of Object.entries(modules)) {
+        const parts       = filePath.split('/');
+        const folderName  = parts[parts.length - 2];
+        const category    = FOLDER_TO_CATEGORY[folderName] ?? (folderName.toLowerCase() as NewsCategory);
+        const slug        = parts[parts.length - 1].replace(/\.mdx$/, '');
+        const fm          = mod.frontmatter ?? {};
 
         articles.push({
             slug,
             category,
-            title:   meta.title   ?? slug,
-            date:    meta.date    ?? '',
-            excerpt: meta.excerpt ?? '',
-            rawContent: content,
+            title:     fm.title   ?? slug,
+            date:      fm.date    ?? '',
+            excerpt:   fm.excerpt ?? '',
+            cover:     fm.cover,
+            component: mod.default,
         });
     }
 
-    // Sort by date desc
     return articles.sort((a, b) => (a.date < b.date ? 1 : -1));
 }
 
@@ -73,13 +54,6 @@ export const allArticles: NewsArticle[] = buildArticleList();
 
 export function getArticle(category: NewsCategory, slug: string): NewsArticle | undefined {
     return allArticles.find(a => a.category === category && a.slug === slug);
-}
-
-// ── Markdown → HTML ─────────────────────────────────────────────────
-marked.setOptions({ breaks: true });
-
-export function renderMarkdown(content: string): string {
-    return marked.parse(content) as string;
 }
 
 // ── Category helpers ─────────────────────────────────────────────────

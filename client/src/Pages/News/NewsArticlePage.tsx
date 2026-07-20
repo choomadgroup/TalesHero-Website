@@ -4,7 +4,6 @@ import Header from '@/Components/Header';
 import Footer from '@/Components/Footer';
 import {
     getArticle,
-    renderMarkdown,
     CATEGORY_LABELS,
     CATEGORY_COLORS,
     formatDate,
@@ -39,10 +38,7 @@ export default function NewsArticlePage() {
                         <HiNewspaper size={48} />
                         <h2>Artikel tidak ditemukan</h2>
                         <p>Artikel yang kamu cari tidak ada atau sudah dihapus.</p>
-                        <button
-                            className="news-back-btn"
-                            onClick={() => setLocation('/news')}
-                        >
+                        <button className="news-back-btn" onClick={() => setLocation('/news')}>
                             <HiArrowLeft size={16} />
                             Kembali ke News
                         </button>
@@ -53,7 +49,7 @@ export default function NewsArticlePage() {
         );
     }
 
-    const html = renderMarkdown(article.rawContent);
+    const { component: MDXContent, cover } = article;
     const badgeColor = CATEGORY_COLORS[article.category];
 
     return (
@@ -67,19 +63,13 @@ export default function NewsArticlePage() {
                     <div className="news-article__breadcrumb">
                         <button onClick={() => setLocation('/news')}>News</button>
                         <span>/</span>
-                        <span
-                            className="news-article__breadcrumb-cat"
-                            style={{ color: badgeColor }}
-                        >
+                        <span className="news-article__breadcrumb-cat" style={{ color: badgeColor }}>
                             {CATEGORY_LABELS[article.category]}
                         </span>
                     </div>
 
                     {/* Back button */}
-                    <button
-                        className="news-back-btn"
-                        onClick={() => setLocation('/news')}
-                    >
+                    <button className="news-back-btn" onClick={() => setLocation('/news')}>
                         <HiArrowLeft size={16} />
                         Kembali ke News
                     </button>
@@ -97,11 +87,17 @@ export default function NewsArticlePage() {
                         <time className="news-article__date">{formatDate(article.date)}</time>
                     </div>
 
-                    {/* Markdown content */}
-                    <div
-                        className="news-prose"
-                        dangerouslySetInnerHTML={{ __html: html }}
-                    />
+                    {/* Cover image */}
+                    {cover && (
+                        <div className="news-article__cover">
+                            <img src={cover} alt={article.title} />
+                        </div>
+                    )}
+
+                    {/* MDX content */}
+                    <div className="news-prose">
+                        <MDXContent />
+                    </div>
                 </div>
             </div>
 
