@@ -3054,11 +3054,11 @@ section, footer {
   letter-spacing: 1px;
   text-transform: uppercase;
   margin: 0 0 2px;
-  color: #475467;
-  background: none;
-  -webkit-background-clip: unset;
-  -webkit-text-fill-color: unset;
-  background-clip: unset;
+
+  background: linear-gradient(90deg, #fab005, #475467 20%, #475467 80%, #fab005);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
 // Sama persis dengan .char-modal__name
