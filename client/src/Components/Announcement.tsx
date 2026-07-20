@@ -16,7 +16,7 @@ export default function Announcement() {
                     margin: '0 auto',
                     display: 'flex',
                     gap: 20,
-                    alignItems: 'flex-start',
+                    alignItems: 'stretch',
                 }}
             >
                 {/* ── Left panel ── */}
@@ -163,14 +163,12 @@ export default function Announcement() {
                     </div>
                 </div>
 
-                {/* ── Right panel: banner 16:9 ── */}
+                {/* ── Right panel: banner sejajar panel ── */}
                 <div
                     style={{
                         flex: 1,
-                        maxWidth: 480,
                         borderRadius: 12,
                         overflow: 'hidden',
-                        aspectRatio: '16 / 9',
                         background: 'linear-gradient(135deg, #fff8e1 0%, #ffe082 100%)',
                     }}
                 >
