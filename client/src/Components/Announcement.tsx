@@ -9,26 +9,20 @@ const ANNOUNCEMENTS = [
 
 export default function Announcement() {
     return (
-        <section
-            style={{
-                background: '#fff',
-                padding: '1.5rem 60px',
-            }}
-        >
+        <section style={{ background: '#fff', padding: '1.5rem 60px' }}>
             <div
                 style={{
                     maxWidth: 1100,
                     margin: '0 auto',
                     display: 'flex',
-                    gap: 24,
-                    alignItems: 'stretch',
+                    gap: 20,
+                    alignItems: 'flex-start',
                 }}
-                className="announcement-wrapper"
             >
-                {/* ── Left panel: list ── */}
+                {/* ── Left panel ── */}
                 <div
                     style={{
-                        flex: '0 0 260px',
+                        flex: '0 0 400px',
                         background: '#fff',
                         border: '1.5px solid #e8e8e8',
                         borderRadius: 12,
@@ -43,22 +37,22 @@ export default function Announcement() {
                             display: 'flex',
                             alignItems: 'center',
                             justifyContent: 'space-between',
-                            padding: '14px 18px',
+                            padding: '10px 16px',
                             borderBottom: '1.5px solid #f0f0f0',
                         }}
                     >
-                        <span style={{ fontWeight: 700, fontSize: 15, color: '#1a1a2e' }}>
+                        <span style={{ fontWeight: 700, fontSize: 14, color: '#1a1a2e' }}>
                             Pemberitahuan
                         </span>
                         <button
                             style={{
-                                width: 26,
-                                height: 26,
+                                width: 24,
+                                height: 24,
                                 borderRadius: 6,
                                 border: '1.5px solid #ddd',
                                 background: '#fafafa',
                                 cursor: 'pointer',
-                                fontSize: 16,
+                                fontSize: 15,
                                 lineHeight: 1,
                                 color: '#555',
                                 display: 'flex',
@@ -71,15 +65,15 @@ export default function Announcement() {
                     </div>
 
                     {/* List */}
-                    <ul style={{ margin: 0, padding: 0, listStyle: 'none', flex: 1 }}>
+                    <ul style={{ margin: 0, padding: 0, listStyle: 'none' }}>
                         {ANNOUNCEMENTS.map((item, i) => (
                             <li
                                 key={item.id}
                                 style={{
                                     display: 'flex',
                                     alignItems: 'flex-start',
-                                    gap: 10,
-                                    padding: '11px 18px',
+                                    gap: 8,
+                                    padding: '8px 16px',
                                     borderBottom: i < ANNOUNCEMENTS.length - 1 ? '1px solid #f5f5f5' : 'none',
                                     cursor: 'pointer',
                                     transition: 'background 0.15s',
@@ -91,26 +85,24 @@ export default function Announcement() {
                                     style={{
                                         flexShrink: 0,
                                         marginTop: 2,
-                                        padding: '2px 8px',
+                                        padding: '2px 7px',
                                         background: '#e8f5e9',
                                         color: '#2e7d32',
                                         borderRadius: 4,
-                                        fontSize: 11,
+                                        fontSize: 10,
                                         fontWeight: 600,
                                         border: '1px solid #c8e6c9',
+                                        whiteSpace: 'nowrap',
                                     }}
                                 >
                                     {item.tag}
                                 </span>
                                 <span
                                     style={{
-                                        fontSize: 13,
+                                        fontSize: 12,
                                         color: '#333',
-                                        lineHeight: 1.4,
+                                        lineHeight: 1.45,
                                         flex: 1,
-                                        whiteSpace: 'nowrap',
-                                        overflow: 'hidden',
-                                        textOverflow: 'ellipsis',
                                     }}
                                 >
                                     {item.title}
@@ -119,9 +111,9 @@ export default function Announcement() {
                                     <span
                                         style={{
                                             flexShrink: 0,
-                                            marginTop: 2,
-                                            width: 8,
-                                            height: 8,
+                                            marginTop: 5,
+                                            width: 7,
+                                            height: 7,
                                             borderRadius: '50%',
                                             background: '#e53935',
                                             display: 'inline-block',
@@ -133,22 +125,16 @@ export default function Announcement() {
                     </ul>
 
                     {/* Buttons */}
-                    <div
-                        style={{
-                            display: 'flex',
-                            gap: 0,
-                            borderTop: '1.5px solid #f0f0f0',
-                        }}
-                    >
+                    <div style={{ display: 'flex', borderTop: '1.5px solid #f0f0f0' }}>
                         <button
                             style={{
                                 flex: 1,
-                                padding: '12px 0',
+                                padding: '10px 0',
                                 background: '#1565c0',
                                 color: '#fff',
                                 border: 'none',
                                 fontWeight: 700,
-                                fontSize: 13,
+                                fontSize: 12,
                                 cursor: 'pointer',
                                 transition: 'background 0.15s',
                             }}
@@ -160,12 +146,12 @@ export default function Announcement() {
                         <button
                             style={{
                                 flex: 1,
-                                padding: '12px 0',
+                                padding: '10px 0',
                                 background: '#fab005',
                                 color: '#fff',
                                 border: 'none',
                                 fontWeight: 700,
-                                fontSize: 13,
+                                fontSize: 12,
                                 cursor: 'pointer',
                                 transition: 'background 0.15s',
                             }}
@@ -177,28 +163,21 @@ export default function Announcement() {
                     </div>
                 </div>
 
-                {/* ── Right panel: banner ── */}
+                {/* ── Right panel: banner 16:9 ── */}
                 <div
                     style={{
                         flex: 1,
+                        maxWidth: 480,
                         borderRadius: 12,
                         overflow: 'hidden',
-                        minHeight: 160,
+                        aspectRatio: '16 / 9',
                         background: 'linear-gradient(135deg, #fff8e1 0%, #ffe082 100%)',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
                     }}
                 >
                     <img
                         src={asset('/Image/Home/IMG-H01.png')}
                         alt="Banner Pemberitahuan"
-                        style={{
-                            width: '100%',
-                            height: '100%',
-                            objectFit: 'cover',
-                            display: 'block',
-                        }}
+                        style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
                     />
                 </div>
             </div>
