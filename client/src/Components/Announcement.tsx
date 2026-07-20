@@ -143,7 +143,7 @@ export default function Announcement() {
                 {/* ── Slideshow ── */}
                 <div
                     style={{
-                        flex: 1,
+                        flex: '0 0 480px',
                         borderRadius: 12,
                         overflow: 'hidden',
                         position: 'relative',
@@ -199,6 +199,8 @@ export default function Announcement() {
                     </div>
                 </div>
 
+                {/* ── Sisa ruang kanan (untuk fitur lain) ── */}
+                <div style={{ flex: 1 }} />
             </div>
         </section>
     );
