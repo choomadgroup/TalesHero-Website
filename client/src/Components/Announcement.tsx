@@ -124,43 +124,6 @@ export default function Announcement() {
                         ))}
                     </ul>
 
-                    {/* Buttons */}
-                    <div style={{ display: 'flex', borderTop: '1.5px solid #f0f0f0' }}>
-                        <button
-                            style={{
-                                flex: 1,
-                                padding: '10px 0',
-                                background: '#1565c0',
-                                color: '#fff',
-                                border: 'none',
-                                fontWeight: 700,
-                                fontSize: 12,
-                                cursor: 'pointer',
-                                transition: 'background 0.15s',
-                            }}
-                            onMouseEnter={e => ((e.currentTarget as HTMLButtonElement).style.background = '#0d47a1')}
-                            onMouseLeave={e => ((e.currentTarget as HTMLButtonElement).style.background = '#1565c0')}
-                        >
-                            ★ Berita Acara
-                        </button>
-                        <button
-                            style={{
-                                flex: 1,
-                                padding: '10px 0',
-                                background: '#fab005',
-                                color: '#fff',
-                                border: 'none',
-                                fontWeight: 700,
-                                fontSize: 12,
-                                cursor: 'pointer',
-                                transition: 'background 0.15s',
-                            }}
-                            onMouseEnter={e => ((e.currentTarget as HTMLButtonElement).style.background = '#f59f00')}
-                            onMouseLeave={e => ((e.currentTarget as HTMLButtonElement).style.background = '#fab005')}
-                        >
-                            Perbarui Berita
-                        </button>
-                    </div>
                 </div>
 
                 {/* ── Right panel: banner sejajar panel ── */}
