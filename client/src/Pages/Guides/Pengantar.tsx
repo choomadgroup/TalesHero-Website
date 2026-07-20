@@ -26,7 +26,7 @@ export default function GuidesPengantar() {
             <Header light />
 
             {/* Hero banner */}
-            <section className="guides-hero">
+            <section className="guides-hero" style={{ backgroundImage: "url('/Image/Header/IMG-HR-02.png')" }}>
                 <div className="guides-hero__inner">
                     <div className="guides-hero__badge">
                         <GiScrollUnfurled size={16} />
