@@ -19,7 +19,7 @@ export default function Announcement() {
     useEffect(() => {
         const timer = setInterval(() => {
             setCurrent(prev => (prev + 1) % SLIDES.length);
-        }, 3500);
+        }, 8000);
         return () => clearInterval(timer);
     }, []);
 
