@@ -169,13 +169,21 @@ export default function Announcement() {
                         flex: 1,
                         borderRadius: 12,
                         overflow: 'hidden',
+                        position: 'relative',
                         background: 'linear-gradient(135deg, #fff8e1 0%, #ffe082 100%)',
                     }}
                 >
                     <img
                         src={asset('/Image/Home/IMG-H01.png')}
                         alt="Banner Pemberitahuan"
-                        style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
+                        style={{
+                            position: 'absolute',
+                            inset: 0,
+                            width: '100%',
+                            height: '100%',
+                            objectFit: 'cover',
+                            display: 'block',
+                        }}
                     />
                 </div>
             </div>
