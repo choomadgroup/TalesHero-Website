@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react';
 import { asset } from '@/Lib/utils';
 
 const ANNOUNCEMENTS = [
@@ -7,7 +8,26 @@ const ANNOUNCEMENTS = [
     { id: 4, tag: 'Informasi', title: '[Pemberitahuan] Peraturan Baru Anti-Cheat', isNew: false },
 ];
 
+const SLIDES = [
+    '/Image/Home/IMG-H01.png',
+    '/Image/Home/IMG-H02.png',
+    '/Image/Home/IMG-H03.png',
+    '/Image/Home/IMG-H04.png',
+    '/Image/Home/IMG-H05.png',
+    '/Image/Home/IMG-H06.png',
+    '/Image/Home/IMG-H07.png',
+];
+
 export default function Announcement() {
+    const [current, setCurrent] = useState(0);
+
+    useEffect(() => {
+        const timer = setInterval(() => {
+            setCurrent(prev => (prev + 1) % SLIDES.length);
+        }, 3500);
+        return () => clearInterval(timer);
+    }, []);
+
     return (
         <section style={{ background: '#fff', padding: '1.5rem 60px' }}>
             <div
@@ -123,32 +143,69 @@ export default function Announcement() {
                             </li>
                         ))}
                     </ul>
-
                 </div>
 
-                {/* ── Right panel: banner sejajar panel ── */}
+                {/* ── Slideshow ── */}
                 <div
                     style={{
-                        flex: 1,
+                        flex: '0 0 480px',
                         borderRadius: 12,
                         overflow: 'hidden',
                         position: 'relative',
-                        background: 'linear-gradient(135deg, #fff8e1 0%, #ffe082 100%)',
+                        background: '#000',
                     }}
                 >
-                    <img
-                        src={asset('/Image/Home/IMG-H01.png')}
-                        alt="Banner Pemberitahuan"
+                    {SLIDES.map((src, i) => (
+                        <img
+                            key={src}
+                            src={asset(src)}
+                            alt={`Slide ${i + 1}`}
+                            style={{
+                                position: 'absolute',
+                                inset: 0,
+                                width: '100%',
+                                height: '100%',
+                                objectFit: 'cover',
+                                display: 'block',
+                                opacity: i === current ? 1 : 0,
+                                transition: 'opacity 0.7s ease',
+                            }}
+                        />
+                    ))}
+
+                    {/* Dot indicators */}
+                    <div
                         style={{
                             position: 'absolute',
-                            inset: 0,
-                            width: '100%',
-                            height: '100%',
-                            objectFit: 'cover',
-                            display: 'block',
+                            bottom: 8,
+                            left: '50%',
+                            transform: 'translateX(-50%)',
+                            display: 'flex',
+                            gap: 5,
+                            zIndex: 2,
                         }}
-                    />
+                    >
+                        {SLIDES.map((_, i) => (
+                            <button
+                                key={i}
+                                onClick={() => setCurrent(i)}
+                                style={{
+                                    width: i === current ? 18 : 6,
+                                    height: 6,
+                                    borderRadius: 3,
+                                    background: i === current ? '#fff' : 'rgba(255,255,255,0.5)',
+                                    border: 'none',
+                                    padding: 0,
+                                    cursor: 'pointer',
+                                    transition: 'all 0.3s',
+                                }}
+                            />
+                        ))}
+                    </div>
                 </div>
+
+                {/* ── Sisa ruang kanan (untuk fitur lain) ── */}
+                <div style={{ flex: 1 }} />
             </div>
         </section>
     );
