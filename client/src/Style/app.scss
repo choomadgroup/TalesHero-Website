@@ -770,52 +770,81 @@ section, footer {
 
 // --- Footer -----------------------------------------------------
 
+// Override the generic `section, footer` padding for the footer element
+footer.site-footer {
+  padding: 20px 24px;
+}
+
 .site-footer {
   background: transparent;
-  border-top: none;
-  padding: 20px 24px;
 
   &__inner {
-    max-width: 1200px;
+    max-width: 1280px;
     margin: 0 auto;
+    padding: 0 24px;
     display: flex;
     align-items: center;
     justify-content: space-between;
     gap: 16px;
     flex-wrap: wrap;
+    font-size: 13px;
+    font-weight: 500;
 
-    @media (max-width: 600px) {
+    @media (max-width: 768px) {
       flex-direction: column;
       text-align: center;
-      gap: 10px;
+      gap: 12px;
     }
   }
 
-  &__copy {
-    font-size: 12px;
-    color: #aaa;
-    margin: 0;
+  &__copy-group {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    color: #888;
+
+    strong {
+      color: #ddd;
+      font-weight: 600;
+    }
+  }
+
+  &__rights {
     font-style: italic;
+    color: #888;
   }
 
   &__sep {
-    margin: 0 6px;
-    color: #ccc;
+    color: rgba(255, 255, 255, 0.25);
     font-style: normal;
+    font-weight: 400;
+
+    &.hidden-mobile {
+      @media (max-width: 768px) {
+        display: none;
+      }
+    }
   }
 
   &__socials {
     display: flex;
-    gap: 20px;
-    flex-shrink: 0;
     align-items: center;
+    gap: 24px;
+    flex-shrink: 0;
   }
 
   &__social {
     display: flex;
     align-items: center;
-    color: #bbb;
+    color: #888;
     text-decoration: none;
+    transition: color 0.2s ease;
+
+    &:hover {
+      color: #eee;
+    }
   }
 }
 
