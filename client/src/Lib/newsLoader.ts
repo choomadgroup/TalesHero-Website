@@ -27,8 +27,15 @@ function parseFrontmatter(raw: string): { meta: Record<string, string>; content:
     return { meta, content: match[2] };
 }
 
+// ── Folder name → category key mapping ─────────────────────────────
+const FOLDER_TO_CATEGORY: Record<string, NewsCategory> = {
+    Update:      'update',
+    Information: 'info',
+    Maintenance: 'maintenance',
+};
+
 // ── Vite glob — eager load all .md files as raw strings ────────────
-const rawFiles = import.meta.glob('../Data/news/**/*.md', {
+const rawFiles = import.meta.glob('../Data/News/**/*.md', {
     query: '?raw',
     import: 'default',
     eager: true,
@@ -39,9 +46,10 @@ function buildArticleList(): NewsArticle[] {
     const articles: NewsArticle[] = [];
 
     for (const [filePath, rawContent] of Object.entries(rawFiles)) {
-        // filePath: ../Data/news/update/2026-07-20-server-perdana.md
+        // filePath: ../Data/News/Update/2026-07-20-server-perdana.md
         const parts = filePath.split('/');
-        const category = parts[parts.length - 2] as NewsCategory;
+        const folderName = parts[parts.length - 2];
+        const category = FOLDER_TO_CATEGORY[folderName] ?? (folderName.toLowerCase() as NewsCategory);
         const fileName = parts[parts.length - 1];
         const slug = fileName.replace(/\.md$/, '');
 
