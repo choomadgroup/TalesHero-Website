@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { asset } from '@/Lib/utils';
+import CharacterSpotlight from './CharacterSpotlight';
 
 const ANNOUNCEMENTS = [
     { id: 1, tag: 'Informasi', title: 'Pemberitahuan Pemeliharaan Server 21 Juli', isNew: true },
@@ -27,7 +28,7 @@ export default function Announcement() {
         <section style={{ background: '#fff', padding: '1.5rem 60px' }}>
             <div
                 style={{
-                    maxWidth: 1100,
+                    maxWidth: 1320,
                     margin: '0 auto',
                     display: 'flex',
                     gap: 20,
@@ -199,8 +200,8 @@ export default function Announcement() {
                     </div>
                 </div>
 
-                {/* ── Sisa ruang kanan (untuk fitur lain) ── */}
-                <div style={{ flex: 1 }} />
+                {/* ── Character Spotlight ── */}
+                <CharacterSpotlight />
             </div>
         </section>
     );

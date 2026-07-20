@@ -1070,7 +1070,7 @@ section, footer {
   min-height: 320px;
   display: flex;
   align-items: center;
-  background: linear-gradient(135deg, #09090f 0%, #161626 60%, #1a1208 100%);
+  background: url('/Image/Pengantar/Header/obj-ph-001.png') center center / cover no-repeat;
   padding: 100px 40px 60px;
   position: relative;
   overflow: hidden;
@@ -1079,7 +1079,7 @@ section, footer {
     content: '';
     position: absolute;
     inset: 0;
-    background: radial-gradient(ellipse 60% 80% at 20% 50%, rgba(250,176,5,0.08) 0%, transparent 70%);
+    background: linear-gradient(135deg, rgba(9,9,15,0.55) 0%, rgba(22,22,38,0.45) 60%, rgba(26,18,8,0.55) 100%);
     pointer-events: none;
   }
 
@@ -2948,4 +2948,130 @@ section, footer {
   font-size: 0.95rem;
   cursor: pointer;
   border: none;
+}
+
+// ============================================================
+//  Character Spotlight (Announcement sidebar)
+// ============================================================
+
+.cs-wrap {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: stretch;
+}
+
+.cs-card {
+  flex: 1;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 0;
+  background: linear-gradient(135deg, #0e0e1e 0%, #12091f 60%, #1a1208 100%);
+  border-radius: 14px;
+  overflow: hidden;
+  position: relative;
+  padding: 12px 14px 12px 0;
+
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse 70% 80% at 20% 100%, rgba(250,176,5,0.1) 0%, transparent 65%);
+    pointer-events: none;
+  }
+}
+
+// Gambar karakter — kiri, nongol dari bawah
+.cs-img-wrap {
+  flex: 0 0 auto;
+  width: 115px;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  z-index: 1;
+  transform: translateY(-8px);
+
+  img.cs-img {
+    width: 115px;
+    height: auto;
+    max-height: 95%;
+    object-fit: contain;
+    object-position: center;
+    display: block;
+    filter: drop-shadow(0 0 18px rgba(250,176,5,0.18)) drop-shadow(0 8px 12px rgba(0,0,0,0.55));
+  }
+}
+
+// Bubble chat — kanan
+.cs-bubble {
+  flex: 1;
+  min-width: 0;
+  position: relative;
+  z-index: 1;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 14px 14px 14px 4px;
+  padding: 11px 13px 10px;
+  backdrop-filter: blur(8px);
+  margin-bottom: 4px;
+}
+
+// Ekor segitiga bubble
+.cs-bubble__tail {
+  position: absolute;
+  left: -8px;
+  bottom: 14px;
+  width: 0;
+  height: 0;
+  border-style: solid;
+  border-width: 6px 8px 6px 0;
+  border-color: transparent rgba(255,255,255,0.1) transparent transparent;
+}
+
+.cs-hello {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.4);
+  margin: 0 0 2px;
+
+  // bintang ✦ warna orange
+  &::first-letter,
+  & > span { color: #fab005; }
+
+  background: linear-gradient(90deg, #fab005, rgba(255,255,255,0.4) 20%, rgba(255,255,255,0.4) 80%, #fab005);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+// Sama persis dengan .char-modal__name
+.cs-name {
+  font-size: clamp(1.1rem, 2.5vw, 1.5rem);
+  font-weight: 900;
+  color: #2FB5FF;
+  margin: 0 0 6px;
+  line-height: 1.1;
+  letter-spacing: -0.5px;
+}
+
+.cs-quote {
+  font-size: 11px;
+  color: rgba(255,255,255,0.55);
+  line-height: 1.55;
+  margin: 0 0 10px;
+  font-style: italic;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+
+@media (max-width: 900px) {
+  .cs-wrap { display: none; }
 }
