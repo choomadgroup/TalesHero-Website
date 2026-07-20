@@ -12,7 +12,7 @@ export default function Announcement() {
         <section
             style={{
                 background: '#fff',
-                padding: '3rem 60px',
+                padding: '1.5rem 60px',
             }}
         >
             <div
@@ -28,7 +28,7 @@ export default function Announcement() {
                 {/* ── Left panel: list ── */}
                 <div
                     style={{
-                        flex: '0 0 340px',
+                        flex: '0 0 260px',
                         background: '#fff',
                         border: '1.5px solid #e8e8e8',
                         borderRadius: 12,
@@ -183,7 +183,7 @@ export default function Announcement() {
                         flex: 1,
                         borderRadius: 12,
                         overflow: 'hidden',
-                        minHeight: 220,
+                        minHeight: 160,
                         background: 'linear-gradient(135deg, #fff8e1 0%, #ffe082 100%)',
                         display: 'flex',
                         alignItems: 'center',
