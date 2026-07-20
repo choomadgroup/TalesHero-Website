@@ -9,6 +9,8 @@ import GuidesPengantar from '@/Pages/Guides/Pengantar';
 import GuidesKarakter from '@/Pages/Guides/Karakter';
 import GuidesCombat from '@/Pages/Guides/Combat';
 import GuidesItem from '@/Pages/Guides/Item';
+import NewsListPage from '@/Pages/News/NewsListPage';
+import NewsArticlePage from '@/Pages/News/NewsArticlePage';
 import NotFound from '@/Pages/Not-Found';
 
 function Router() {
@@ -23,6 +25,8 @@ function Router() {
             <Route path="/guides/karakter" component={GuidesKarakter} />
             <Route path="/guides/combat" component={GuidesCombat} />
             <Route path="/guides/item" component={GuidesItem} />
+            <Route path="/news" component={NewsListPage} />
+            <Route path="/news/:category/:slug" component={NewsArticlePage} />
             <Route component={NotFound} />
         </Switch>
     );

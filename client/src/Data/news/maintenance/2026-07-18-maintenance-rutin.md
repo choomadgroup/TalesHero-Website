@@ -1,0 +1,40 @@
+---
+title: Maintenance Rutin — 18 Juli 2026
+date: 2026-07-18
+excerpt: Server akan mengalami maintenance rutin pada 18 Juli 2026 pukul 02.00–06.00 WIB. Selama maintenance, server tidak dapat diakses.
+---
+
+## Jadwal Maintenance Rutin
+
+Kami akan melakukan **maintenance rutin** server Tales Hero Indonesia dengan detail sebagai berikut:
+
+| Detail | Keterangan |
+|--------|------------|
+| **Tanggal** | 18 Juli 2026 |
+| **Waktu** | 02.00 – 06.00 WIB |
+| **Durasi** | ±4 jam |
+| **Status Server** | Offline |
+
+### Apa yang Dilakukan?
+
+- Optimasi performa server
+- Perbaikan bug sistem inventory
+- Update database karakter
+- Peningkatan keamanan sistem login
+
+### Yang Perlu Kamu Tahu
+
+- Pastikan kamu **tidak sedang dalam dungeon** sebelum maintenance dimulai
+- Progress yang belum tersimpan otomatis **tidak akan hilang**
+- Setelah maintenance selesai, server akan kembali online secara otomatis
+
+### Kompensasi
+
+Sebagai bentuk apresiasi atas kesabaran kamu, semua pemain aktif akan mendapatkan:
+
+- **100 Hero Coin**
+- **2x EXP Booster** (1 hari)
+
+Kompensasi akan dikirim otomatis ke mailbox dalam game maksimal 1 jam setelah server kembali online.
+
+Terima kasih atas pengertiannya! 🙏

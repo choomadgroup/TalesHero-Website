@@ -2,12 +2,13 @@ import { useState, useEffect, useRef } from 'react';
 import { asset } from '@/Lib/utils';
 import { useLocation } from 'wouter';
 import { GiBookmarklet } from 'react-icons/gi';
-import { HiMenuAlt3, HiX, HiChevronDown, HiLogin, HiUserAdd, HiDownload, HiQuestionMarkCircle } from 'react-icons/hi';
+import { HiMenuAlt3, HiX, HiChevronDown, HiLogin, HiUserAdd, HiDownload, HiQuestionMarkCircle, HiNewspaper } from 'react-icons/hi';
 import { MdHeadset, MdHeadsetOff } from 'react-icons/md';
 import { useMusic } from '@/Hooks/use-music';
 
 // Nav links route-based
 const NAV_LINKS = [
+    { label: 'News',     href: '/news',     icon: <HiNewspaper size={14} /> },
     { label: 'Download', href: '/download', icon: <HiDownload size={14} /> },
     { label: 'Support',  href: '/support',  icon: <HiQuestionMarkCircle size={14} /> },
 ];

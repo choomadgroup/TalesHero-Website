@@ -1,4 +1,10 @@
-import { Youtube, MessageCircle, Instagram, Mail, Facebook } from "lucide-react";
+import {
+    Youtube,
+    MessageCircle,
+    Instagram,
+    Mail,
+    Facebook,
+} from "lucide-react";
 
 const SOCIALS = [
     {
@@ -34,10 +40,10 @@ const Footer = () => (
             <div className="site-footer__copy-group">
                 <span>&copy; {new Date().getFullYear()}</span>
                 <span className="site-footer__sep hidden-mobile">/</span>
-                <strong>Tales Hero Indonesia</strong>
-                <span className="site-footer__sep hidden-mobile">/</span>
+
                 <span className="site-footer__rights">
-                    Private server. Data &amp; gambar &copy; Rhaon Entertainment.
+                    Tales Hero Indonesia Private Server. Semua data, files &amp;
+                    gambar milik &copy; Rhaon Entertainment.
                 </span>
             </div>
             <div className="site-footer__socials">
@@ -46,8 +52,14 @@ const Footer = () => (
                         key={s.label}
                         href={s.href}
                         aria-label={s.label}
-                        target={s.href.startsWith("http") ? "_blank" : undefined}
-                        rel={s.href.startsWith("http") ? "noopener noreferrer" : undefined}
+                        target={
+                            s.href.startsWith("http") ? "_blank" : undefined
+                        }
+                        rel={
+                            s.href.startsWith("http")
+                                ? "noopener noreferrer"
+                                : undefined
+                        }
                         className="site-footer__social"
                     >
                         {s.icon}

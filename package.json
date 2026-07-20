@@ -75,6 +75,7 @@
     "zod": "catalog:"
   },
   "dependencies": {
+    "marked": "^18.0.6",
     "react-scroll": "^1.9.3",
     "sass": "^1.101.0"
   }
