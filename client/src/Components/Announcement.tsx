@@ -9,8 +9,8 @@ const ANNOUNCEMENTS = [
 ];
 
 const SLIDES = [
-    '/Image/Home/Slide Pictures/obj-sp-001.jpg',
-    '/Image/Home/Slide Pictures/obj-sp-002.png',
+    '/Image/Home/Slide%20Pictures/obj-sp-002.png',
+    '/Image/Home/Slide%20Pictures/obj-sp-003.png',
 ];
 
 export default function Announcement() {
