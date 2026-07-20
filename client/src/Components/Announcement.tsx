@@ -9,8 +9,8 @@ const ANNOUNCEMENTS = [
 ];
 
 const SLIDES = [
-    '/Image/Home/Slide%20Pictures/obj-sp-002.png',
-    '/Image/Home/Slide%20Pictures/obj-sp-003.png',
+    '/Image/Home/Slideshow/obj-sp-001.png',
+    '/Image/Home/Slideshow/obj-sp-002.png',
 ];
 
 export default function Announcement() {
@@ -147,7 +147,7 @@ export default function Announcement() {
                         borderRadius: 12,
                         overflow: 'hidden',
                         position: 'relative',
-                        background: '#000',
+                        background: 'transparent',
                     }}
                 >
                     {SLIDES.map((src, i) => (
@@ -160,7 +160,7 @@ export default function Announcement() {
                                 inset: 0,
                                 width: '100%',
                                 height: '100%',
-                                objectFit: 'cover',
+                                objectFit: 'contain',
                                 display: 'block',
                                 opacity: i === current ? 1 : 0,
                                 transition: 'opacity 0.7s ease',
