@@ -147,7 +147,7 @@ export default function Announcement() {
                         borderRadius: 12,
                         overflow: 'hidden',
                         position: 'relative',
-                        background: 'transparent',
+                        background: '#000',
                     }}
                 >
                     {SLIDES.map((src, i) => (
@@ -160,7 +160,7 @@ export default function Announcement() {
                                 inset: 0,
                                 width: '100%',
                                 height: '100%',
-                                objectFit: 'contain',
+                                objectFit: 'cover',
                                 display: 'block',
                                 opacity: i === current ? 1 : 0,
                                 transition: 'opacity 0.7s ease',
