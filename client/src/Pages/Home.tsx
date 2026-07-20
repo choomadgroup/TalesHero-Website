@@ -1,6 +1,7 @@
 import { usePageMeta } from '@/Hooks/use-page-meta';
 import Header from '../Components/Header';
 import HeroBanner from '../Components/HeroBanner';
+import Announcement from '../Components/Announcement';
 import Footer from '../Components/Footer';
 
 export default function Home() {
@@ -13,6 +14,7 @@ export default function Home() {
         <>
             <Header light />
             <HeroBanner />
+            <Announcement />
             <Footer />
         </>
     );
