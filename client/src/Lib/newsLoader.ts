@@ -9,6 +9,7 @@ export interface NewsArticle {
     date:       string;
     excerpt:    string;
     cover?:     string;
+    readTime?:  number;
     component:  ComponentType;
 }
 
@@ -22,7 +23,7 @@ const FOLDER_TO_CATEGORY: Record<string, NewsCategory> = {
 // ── MDX glob — each module exports default (component) + frontmatter ─
 const modules = import.meta.glob('../Data/News/**/*.mdx', { eager: true }) as Record<string, {
     default:     ComponentType;
-    frontmatter: { title?: string; date?: string; excerpt?: string; cover?: string };
+    frontmatter: { title?: string; date?: string; excerpt?: string; cover?: string; readTime?: string };
 }>;
 
 // ── Build article list ───────────────────────────────────────────────
@@ -39,10 +40,11 @@ function buildArticleList(): NewsArticle[] {
         articles.push({
             slug,
             category,
-            title:     fm.title   ?? slug,
-            date:      fm.date    ?? '',
-            excerpt:   fm.excerpt ?? '',
+            title:     fm.title    ?? slug,
+            date:      fm.date     ?? '',
+            excerpt:   fm.excerpt  ?? '',
             cover:     fm.cover,
+            readTime:  fm.readTime ? Number(fm.readTime) : undefined,
             component: mod.default,
         });
     }
