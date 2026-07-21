@@ -1,13 +1,18 @@
 import { useEffect, useState } from 'react';
+import { useLocation } from 'wouter';
 import { asset } from '@/Lib/utils';
+import { allArticles, CATEGORY_LABELS } from '@/Lib/newsLoader';
 import CharacterSpotlight from './CharacterSpotlight';
 
-const ANNOUNCEMENTS = [
-    { id: 1, tag: 'Informasi', title: 'Pemberitahuan Pemeliharaan Server 21 Juli', isNew: true },
-    { id: 2, tag: 'Informasi', title: 'Update Patch 1.4.2 — Fitur Guild War Baru', isNew: true },
-    { id: 3, tag: 'Informasi', title: '[Event] Double XP Weekend 19–21 Juli 2026', isNew: false },
-    { id: 4, tag: 'Informasi', title: '[Pemberitahuan] Peraturan Baru Anti-Cheat', isNew: false },
-];
+// Ambil 4 artikel terbaru dari News, tandai isNew jika ≤ 7 hari
+const now = Date.now();
+const ANNOUNCEMENTS = allArticles.slice(0, 4).map((a) => ({
+    slug:    a.slug,
+    category: a.category,
+    tag:     CATEGORY_LABELS[a.category],
+    title:   a.title,
+    isNew:   a.date ? (now - new Date(a.date).getTime()) / 86_400_000 <= 7 : false,
+}));
 
 const SLIDES = [
     '/Image/Home/Slideshow/obj-sp-001.png',
@@ -16,6 +21,7 @@ const SLIDES = [
 
 export default function Announcement() {
     const [current, setCurrent] = useState(0);
+    const [, navigate] = useLocation();
 
     useEffect(() => {
         const timer = setInterval(() => {
@@ -84,7 +90,8 @@ export default function Announcement() {
                     <ul style={{ margin: 0, padding: 0, listStyle: 'none' }}>
                         {ANNOUNCEMENTS.map((item, i) => (
                             <li
-                                key={item.id}
+                                key={item.slug}
+                                onClick={() => navigate(`/news/${item.category}/${item.slug}`)}
                                 style={{
                                     display: 'flex',
                                     alignItems: 'flex-start',
