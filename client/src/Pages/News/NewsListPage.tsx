@@ -206,19 +206,18 @@ export default function NewsListPage() {
                                                 )}
                                             </div>
                                             <div className="nc-card__body">
-                                                <span
-                                                    className="nc-cat-badge nc-cat-badge--sm"
-                                                    style={{ '--badge-color': CATEGORY_COLORS[a.category] } as React.CSSProperties}
-                                                >
-                                                    {CATEGORY_ICONS[a.category]}
-                                                    {CATEGORY_LABELS[a.category]}
-                                                </span>
                                                 <h3 className="nc-card__title">{a.title}</h3>
                                                 {a.excerpt && (
                                                     <p className="nc-card__excerpt">{a.excerpt}</p>
                                                 )}
                                                 <div className="nc-card__footer">
-                                                    <time className="nc-card__date">{formatDate(a.date)}</time>
+                                                    <span
+                                                        className="nc-cat-badge nc-cat-badge--sm"
+                                                        style={{ '--badge-color': CATEGORY_COLORS[a.category] } as React.CSSProperties}
+                                                    >
+                                                        {CATEGORY_ICONS[a.category]}
+                                                        {CATEGORY_LABELS[a.category]}
+                                                    </span>
                                                     <span className="nc-card__readmore">
                                                         Baca <HiChevronRight size={13} />
                                                     </span>
