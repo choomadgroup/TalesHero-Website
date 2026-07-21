@@ -64,7 +64,7 @@ const CONTACTS = [
         desc: 'Respon cepat untuk pertanyaan umum',
         value: 'Chat Sekarang',
         color: '#25d366',
-        href: '#',
+        href: 'https://chat.whatsapp.com/J5VqVXiX4q7FVZUxugMVpm',
     },
 ];
 
