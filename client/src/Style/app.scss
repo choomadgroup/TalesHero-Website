@@ -3529,21 +3529,27 @@ footer.site-footer {
 }
 
 // ============================================================
-//  News List Page — editorial dark theme (nl-* / nc-*)
+//  News List Page — editorial light theme (nl-* / nc-*)
 //  Font: Playfair Display (serif) + Inter (sans)
 // ============================================================
 
-$nl-bg:       #0d1117;
-$nl-surface:  #161b27;
-$nl-border:   rgba(255,255,255,0.07);
+$nl-bg:       #f7f7f8;
+$nl-surface:  #ffffff;
+$nl-border:   rgba(0,0,0,0.08);
 $nl-gold:     #fab005;
-$nl-fg:       #f0f4ff;
-$nl-muted:    rgba(240,244,255,0.45);
+$nl-fg:       #1a1a2e;
+$nl-muted:    #6b7280;
 $nl-serif:    'Playfair Display', Georgia, serif;
 $nl-sans:     'Inter', -apple-system, sans-serif;
 
-.nl-page {
+.nl-root {
+  display: flex;
+  flex-direction: column;
   min-height: 100vh;
+}
+
+.nl-page {
+  flex: 1;
   background: $nl-bg;
   font-family: $nl-sans;
 }
@@ -3614,14 +3620,14 @@ $nl-sans:     'Inter', -apple-system, sans-serif;
     left: 16px;
     top: 50%;
     transform: translateY(-50%);
-    color: rgba(240,244,255,0.3);
+    color: rgba(0,0,0,0.3);
     pointer-events: none;
   }
 
   &__input {
     width: 100%;
     padding: 13px 44px 13px 44px;
-    background: rgba(255,255,255,0.05);
+    background: #fff;
     border: 1.5px solid $nl-border;
     border-radius: 14px;
     font-family: $nl-sans;
@@ -3629,12 +3635,12 @@ $nl-sans:     'Inter', -apple-system, sans-serif;
     color: $nl-fg;
     outline: none;
     box-sizing: border-box;
-    transition: border-color 0.2s, background 0.2s;
+    transition: border-color 0.2s, box-shadow 0.2s;
 
-    &::placeholder { color: rgba(240,244,255,0.3); }
+    &::placeholder { color: rgba(0,0,0,0.3); }
     &:focus {
       border-color: rgba(250,176,5,0.5);
-      background: rgba(255,255,255,0.07);
+      box-shadow: 0 0 0 3px rgba(250,176,5,0.1);
     }
   }
 
@@ -3649,14 +3655,14 @@ $nl-sans:     'Inter', -apple-system, sans-serif;
     width: 24px;
     height: 24px;
     border-radius: 50%;
-    background: rgba(255,255,255,0.1);
+    background: rgba(0,0,0,0.06);
     border: none;
     color: $nl-muted;
     cursor: pointer;
     transition: background 0.18s;
     padding: 0;
 
-    &:hover { background: rgba(255,255,255,0.18); color: $nl-fg; }
+    &:hover { background: rgba(0,0,0,0.12); color: $nl-fg; }
   }
 }
 
@@ -3673,7 +3679,7 @@ $nl-sans:     'Inter', -apple-system, sans-serif;
   align-items: center;
   gap: 6px;
   padding: 7px 16px;
-  background: rgba(255,255,255,0.05);
+  background: #fff;
   border: 1.5px solid $nl-border;
   border-radius: 100px;
   font-family: $nl-sans;
@@ -3684,24 +3690,24 @@ $nl-sans:     'Inter', -apple-system, sans-serif;
   transition: all 0.18s ease;
 
   &:hover {
-    background: rgba(255,255,255,0.09);
-    border-color: rgba(255,255,255,0.15);
+    background: #f0f0f0;
+    border-color: rgba(0,0,0,0.2);
     color: $nl-fg;
   }
 
   &--active {
     background: $nl-gold;
     border-color: $nl-gold;
-    color: #0d1117;
+    color: #1a1a2e;
 
     .nl-filter-pill__count {
-      background: rgba(0,0,0,0.18);
-      color: #0d1117;
+      background: rgba(0,0,0,0.15);
+      color: #1a1a2e;
     }
   }
 
   &__count {
-    background: rgba(255,255,255,0.1);
+    background: rgba(0,0,0,0.07);
     color: $nl-muted;
     font-size: 10px;
     font-weight: 700;
