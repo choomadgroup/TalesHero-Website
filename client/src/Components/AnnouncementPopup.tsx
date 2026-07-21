@@ -56,7 +56,7 @@ export default function AnnouncementPopup() {
                     aria-label="Tutup pengumuman"
                     style={{
                         position: 'absolute',
-                        top: 10,
+                        top: 12,
                         right: 10,
                         width: 32,
                         height: 32,
