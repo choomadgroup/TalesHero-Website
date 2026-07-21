@@ -1549,6 +1549,11 @@ footer.site-footer {
   justify-content: center;
   padding: 20px;
   overflow-y: auto;
+
+  @media (max-width: 768px) {
+    padding: 64px 12px 20px; // 64px clears the 56px mobile header + buffer
+    align-items: flex-start;
+  }
 }
 
 .char-modal {
@@ -1563,7 +1568,7 @@ footer.site-footer {
   animation: modalIn 0.2s ease;
 
   @media (max-width: 768px) {
-    max-height: 95vh;
+    max-height: calc(100svh - 84px); // full height minus overlay top padding + bottom
     border-radius: 12px;
   }
 }
