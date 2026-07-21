@@ -71,9 +71,9 @@ export default function NewsArticlePage() {
             <div className="news-page">
                 <div className="news-article">
 
-                    {/* Back button */}
-                    <button className="news-back-btn" onClick={() => setLocation('/news')}>
-                        <HiArrowLeft size={16} />
+                    {/* Back link */}
+                    <button className="news-back-link" onClick={() => setLocation('/news')}>
+                        <HiArrowLeft size={15} />
                         Kembali ke News
                     </button>
 
