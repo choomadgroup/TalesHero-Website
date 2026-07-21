@@ -23,7 +23,7 @@ const Header = ({ light = false }: { light?: boolean }) => {
     const [opened, setOpened] = useState(false);
     const [scrolled, setScrolled] = useState(false);
     const [dropdownOpen, setDropdownOpen] = useState(false);
-    const [, setLocation] = useLocation();
+    const [location, setLocation] = useLocation();
     const dropdownRef = useRef<HTMLDivElement>(null);
     const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -151,28 +151,28 @@ const Header = ({ light = false }: { light?: boolean }) => {
                         </div>
 
                         <nav className="game-drawer__nav">
+                            {/* Nav links */}
+                            {NAV_LINKS.map(({ label, href, icon }) => (
+                                <button
+                                    key={href}
+                                    className={`game-drawer__link${location === href ? ' game-drawer__link--active' : ''}`}
+                                    onClick={() => { setLocation(href); setOpened(false); }}
+                                >
+                                    <span className="game-drawer__icon">{icon}</span>
+                                    {label}
+                                </button>
+                            ))}
+
                             {/* Pengenalan Game di mobile */}
                             <div className="game-drawer__section-label">Pengenalan Game</div>
                             {PENGENALAN_ITEMS.map(item => (
                                 <button
                                     key={item.href}
-                                    className="game-drawer__link game-drawer__link--sub"
+                                    className={`game-drawer__link game-drawer__link--sub${location.startsWith(item.href) ? ' game-drawer__link--active' : ''}`}
                                     onClick={() => { setLocation(item.href); setOpened(false); }}
                                 >
                                     <GiBookmarklet size={14} className="game-drawer__icon" />
                                     {item.label}
-                                </button>
-                            ))}
-
-                            {/* Nav links */}
-                            {NAV_LINKS.map(({ label, href, icon }) => (
-                                <button
-                                    key={href}
-                                    className="game-drawer__link"
-                                    onClick={() => { setLocation(href); setOpened(false); }}
-                                >
-                                    <span className="game-drawer__icon">{icon}</span>
-                                    {label}
                                 </button>
                             ))}
                         </nav>
