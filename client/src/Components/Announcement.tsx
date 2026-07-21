@@ -101,8 +101,8 @@ export default function Announcement() {
                                 style={{
                                     display: 'flex',
                                     alignItems: 'center',
-                                    gap: 8,
-                                    padding: '8px 16px',
+                                    gap: 10,
+                                    padding: '14px 16px',
                                     borderBottom: i < ANNOUNCEMENTS.length - 1 ? '1px solid #f5f5f5' : 'none',
                                     cursor: 'pointer',
                                     transition: 'background 0.15s',
@@ -111,17 +111,15 @@ export default function Announcement() {
                                 onMouseEnter={e => (e.currentTarget.style.background = '#fafaf8')}
                                 onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
                             >
-                                {/* Tag — warna sesuai kategori, lebar tetap supaya judul sejajar */}
+                                {/* Tag — warna sesuai kategori */}
                                 <span
                                     style={{
                                         flexShrink: 0,
-                                        width: 84,
-                                        textAlign: 'center',
-                                        padding: '2px 0',
+                                        padding: '3px 10px',
                                         background: bgLight,
                                         color: accent,
                                         borderRadius: 4,
-                                        fontSize: 10,
+                                        fontSize: 12,
                                         fontWeight: 600,
                                         border: `1px solid ${border}`,
                                         whiteSpace: 'nowrap',
@@ -132,7 +130,7 @@ export default function Announcement() {
 
                                 {/* Judul — marquee saat hover kalau teks kepanjangan */}
                                 <span className="ann-title">
-                                    <span style={{ fontSize: 12, color: '#333', lineHeight: 1.45 }}>
+                                    <span style={{ fontSize: 13, color: '#333', lineHeight: 1.45 }}>
                                         {item.title}
                                     </span>
                                 </span>
