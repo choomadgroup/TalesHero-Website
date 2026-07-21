@@ -16,14 +16,12 @@ import {
     HiClock,
     HiChevronRight,
     HiX,
-    HiArrowRight,
 } from 'react-icons/hi';
 import {
     MdUpdate,
     MdInfoOutline,
     MdBuildCircle,
     MdGridView,
-    MdBookmark,
 } from 'react-icons/md';
 import { BsNewspaper } from 'react-icons/bs';
 
@@ -63,10 +61,6 @@ export default function NewsListPage() {
         return result;
     }, [activeCategory, query]);
 
-    const isFiltering    = !!activeCategory || !!query.trim();
-    const featuredPost   = isFiltering ? undefined : filtered[0];
-    const remainingPosts = isFiltering ? filtered : filtered.slice(1);
-
     const categoryCounts = useMemo(() => {
         const counts: Partial<Record<NewsCategory, number>> = {};
         allArticles.forEach(a => { counts[a.category] = (counts[a.category] ?? 0) + 1; });
@@ -77,26 +71,25 @@ export default function NewsListPage() {
         <div className="nl-root">
             <Header light />
 
+            {/* ── Hero Banner ── */}
+            <section
+                className="guides-hero"
+                style={{ backgroundImage: "url('/Image/Header/IMG-HR-01.png')" }}
+            >
+                <div className="guides-hero__inner">
+                    <div className="guides-hero__badge">
+                        <MdGridView size={14} />
+                        News
+                    </div>
+                    <h1 className="guides-hero__title">Berita &amp; Pengumuman</h1>
+                    <p className="guides-hero__sub">
+                        Update terbaru, informasi server, dan jadwal maintenance Tales Hero Indonesia.
+                    </p>
+                </div>
+            </section>
+
             <div className="nl-page">
                 <main className="nl-main">
-
-                    {/* ── Header ── */}
-                    <motion.header
-                        className="nl-header"
-                        variants={fadeUp}
-                        initial="hidden"
-                        animate="show"
-                        transition={{ duration: 0.55 }}
-                    >
-                        <div className="nl-eyebrow">
-                            <MdGridView size={12} />
-                            News
-                        </div>
-                        <h1 className="nl-title">Berita &amp; Pengumuman</h1>
-                        <p className="nl-desc">
-                            Update terbaru, informasi server, dan jadwal maintenance Tales Hero Indonesia.
-                        </p>
-                    </motion.header>
 
                     {/* ── Search ── */}
                     <motion.div
@@ -168,96 +161,23 @@ export default function NewsListPage() {
                                 animate="show"
                             >
                                 <div className="nl-empty__icon">
-                                    {isFiltering ? <HiSearch size={28} /> : <BsNewspaper size={28} />}
+                                    <BsNewspaper size={28} />
                                 </div>
-                                {isFiltering ? (
-                                    <>
-                                        <p className="nl-empty__title">Tidak ada hasil ditemukan</p>
-                                        <p className="nl-empty__hint">Coba kata kunci atau kategori yang berbeda.</p>
-                                        <button
-                                            className="nl-empty__reset"
-                                            onClick={() => { setQuery(''); setActiveCat(null); }}
-                                        >
-                                            Hapus filter
-                                        </button>
-                                    </>
-                                ) : (
-                                    <>
-                                        <p className="nl-empty__title">Belum ada artikel</p>
-                                        <p className="nl-empty__hint">Pantau terus untuk update terbaru.</p>
-                                    </>
-                                )}
+                                <p className="nl-empty__title">Tidak ada hasil ditemukan</p>
+                                <p className="nl-empty__hint">Coba kata kunci atau kategori yang berbeda.</p>
+                                <button
+                                    className="nl-empty__reset"
+                                    onClick={() => { setQuery(''); setActiveCat(null); }}
+                                >
+                                    Hapus filter
+                                </button>
                             </motion.div>
                         )}
 
-                        {/* ── Featured post ── */}
-                        {featuredPost && (
-                            <motion.article
-                                className="nc-featured"
-                                variants={fadeUp}
-                                initial="hidden"
-                                animate="show"
-                                transition={{ duration: 0.55, delay: 0.18 }}
-                                onClick={() => go(featuredPost.category, featuredPost.slug)}
-                            >
-                                {featuredPost.cover ? (
-                                    <img
-                                        src={featuredPost.cover}
-                                        alt={featuredPost.title}
-                                        className="nc-featured__bg"
-                                    />
-                                ) : (
-                                    <div className="nc-featured__bg-placeholder" />
-                                )}
-
-                                <div className="nc-featured__overlay" />
-
-                                <div className="nc-featured__top-left">
-                                    <span className="nc-featured__badge">
-                                        <MdBookmark size={11} /> Featured
-                                    </span>
-                                </div>
-
-                                {featuredPost.readTime && (
-                                    <div className="nc-featured__top-right">
-                                        <span className="nc-featured__time">
-                                            <HiClock size={11} />
-                                            {featuredPost.readTime} menit baca
-                                        </span>
-                                    </div>
-                                )}
-
-                                <div className="nc-featured__body">
-                                    <span
-                                        className="nc-cat-badge"
-                                        style={{ '--badge-color': CATEGORY_COLORS[featuredPost.category] } as React.CSSProperties}
-                                    >
-                                        {CATEGORY_ICONS[featuredPost.category]}
-                                        {CATEGORY_LABELS[featuredPost.category]}
-                                    </span>
-                                    <h2 className="nc-featured__title">{featuredPost.title}</h2>
-                                    {featuredPost.excerpt && (
-                                        <p className="nc-featured__excerpt">{featuredPost.excerpt}</p>
-                                    )}
-                                    <div className="nc-featured__footer">
-                                        <time className="nc-featured__date">{formatDate(featuredPost.date)}</time>
-                                        <span className="nc-featured__readmore">
-                                            Baca selengkapnya <HiArrowRight size={13} />
-                                        </span>
-                                    </div>
-                                </div>
-                            </motion.article>
-                        )}
-
-                        {/* ── Divider ── */}
-                        {!isFiltering && remainingPosts.length > 0 && (
-                            <div className="nl-divider"><span>Artikel Lainnya</span></div>
-                        )}
-
-                        {/* ── Grid ── */}
-                        {remainingPosts.length > 0 && (
+                        {/* ── Article grid ── */}
+                        {filtered.length > 0 && (
                             <ul className="nl-grid">
-                                {remainingPosts.map((a, i) => (
+                                {filtered.map((a, i) => (
                                     <motion.li
                                         key={`${a.category}/${a.slug}`}
                                         variants={fadeUp}

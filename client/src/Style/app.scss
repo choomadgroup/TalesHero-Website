@@ -3563,13 +3563,7 @@ $nl-sans:     'Inter', -apple-system, sans-serif;
   @media (max-width: 768px) { padding: 0 20px; }
 }
 
-// ── Page header ───────────────────────────────────────────────
-.nl-header {
-  padding: 96px 0 0;
-
-  @media (max-width: 768px) { padding: 80px 0 0; }
-}
-
+// ── Search & content top spacing (no more nl-header — hero handles top) ──
 .nl-eyebrow {
   display: inline-flex;
   align-items: center;
