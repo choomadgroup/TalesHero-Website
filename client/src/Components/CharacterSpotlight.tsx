@@ -78,12 +78,13 @@ export default function CharacterSpotlight() {
 
                 {/* Gambar karakter — kiri, center vertikal */}
                 <div className="cs-img-wrap">
-                    <AnimatePresence mode="wait">
+                    <AnimatePresence mode="sync">
                         <motion.img
                             key={`img-${idx}`}
                             src={asset(`/Image/Karakter/Art/${char.file}`)}
                             alt={char.name}
                             className="cs-img"
+                            style={{ position: 'absolute' }}
                             initial={{ opacity: 0, y: 16 }}
                             animate={{ opacity: 1, y: 0 }}
                             exit={{ opacity: 0, y: 10 }}

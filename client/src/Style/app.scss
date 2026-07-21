@@ -2994,7 +2994,7 @@ footer.site-footer {
 .cs-img-wrap {
   flex: 0 0 auto;
   width: 115px;
-  height: 100%;
+  height: 130px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -3003,9 +3003,10 @@ footer.site-footer {
   transform: translateY(-8px);
 
   img.cs-img {
+    position: absolute;
     width: 115px;
     height: auto;
-    max-height: 95%;
+    max-height: 130px;
     object-fit: contain;
     object-position: center;
     display: block;
