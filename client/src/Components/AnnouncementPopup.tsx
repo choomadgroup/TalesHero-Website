@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { asset } from '@/Lib/utils';
 
 // Ganti path ini dengan nama file gambar yang kamu taruh di public/Image/
@@ -6,6 +6,22 @@ const POPUP_IMAGE = '/Image/Home/Popup/IMG-POPUP-01.png';
 
 export default function AnnouncementPopup() {
     const [open, setOpen] = useState(true);
+
+    // Cegah layout shift (scrollbar hilang/muncul) saat popup terbuka
+    useEffect(() => {
+        if (open) {
+            const w = window.innerWidth - document.documentElement.clientWidth;
+            document.body.style.overflow = 'hidden';
+            document.body.style.paddingRight = `${w}px`;
+        } else {
+            document.body.style.overflow = '';
+            document.body.style.paddingRight = '';
+        }
+        return () => {
+            document.body.style.overflow = '';
+            document.body.style.paddingRight = '';
+        };
+    }, [open]);
 
     if (!open) return null;
 
