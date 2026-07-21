@@ -3628,21 +3628,21 @@ $nl-sans:     'Inter', -apple-system, sans-serif;
 
   &__input {
     width: 100%;
-    padding: 13px 44px 13px 44px;
+    padding: 12px 44px 12px 44px;
     background: #fff;
-    border: 1.5px solid $nl-border;
-    border-radius: 14px;
+    border: 1.5px solid #e0e0e0;
+    border-radius: 100px;
     font-family: $nl-sans;
     font-size: 14px;
     color: $nl-fg;
     outline: none;
     box-sizing: border-box;
-    transition: border-color 0.2s, box-shadow 0.2s;
+    transition: border-color 0.15s, box-shadow 0.15s;
 
-    &::placeholder { color: rgba(0,0,0,0.3); }
+    &::placeholder { color: #aaa; }
     &:focus {
       border-color: rgba(250,176,5,0.5);
-      box-shadow: 0 0 0 3px rgba(250,176,5,0.1);
+      box-shadow: 0 0 0 3px rgba(250,176,5,0.12);
     }
   }
 
