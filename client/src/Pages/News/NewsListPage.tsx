@@ -39,7 +39,7 @@ const fadeUp = {
 export default function NewsListPage() {
     usePageMeta({
         title: 'News — Tales Hero Indonesia',
-        description: 'Update terbaru, informasi, dan jadwal maintenance server Tales Hero Indonesia.',
+        description: 'Semua berita Update terbaru, informasi, dan jadwal maintenance server Tales Hero Indonesia.',
     });
 
     const [, setLocation] = useLocation();
@@ -74,7 +74,7 @@ export default function NewsListPage() {
             {/* ── Hero Banner ── */}
             <section
                 className="guides-hero guides-hero--tall"
-                style={{ backgroundImage: "url('/Image/Header/IMG-HR-01.png')" }}
+                style={{ backgroundImage: "url('/Image/Header/IMG-HR-03.png')" }}
             >
                 <div className="guides-hero__inner">
                     <div className="guides-hero__badge">
@@ -83,7 +83,7 @@ export default function NewsListPage() {
                     </div>
                     <h1 className="guides-hero__title">Berita &amp; Pengumuman</h1>
                     <p className="guides-hero__sub">
-                        Update terbaru, informasi server, dan jadwal maintenance Tales Hero Indonesia.
+                        Semua informasi tentang Tales Hero Indonesia akan di beritahukan dan ditampilkan di Halaman ini.
                     </p>
                 </div>
             </section>
