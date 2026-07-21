@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { asset } from '@/Lib/utils';
 
 // Ganti path ini dengan nama file gambar yang kamu taruh di public/Image/
-const POPUP_IMAGE = '/Image/popup-announcement.png';
+const POPUP_IMAGE = '/Image/Home/Popup/IMG_POPUP-001.png';
 
 export default function AnnouncementPopup() {
     const [open, setOpen] = useState(true);
