@@ -1,5 +1,6 @@
 import { Route, Switch, Router as WouterRouter } from 'wouter';
 import { MusicProvider } from '@/Hooks/use-music';
+import AnnouncementPopup from '@/Components/AnnouncementPopup';
 import Home from '@/Pages/Home';
 import Login from '@/Pages/Login';
 import Daftar from '@/Pages/Daftar';
@@ -35,6 +36,7 @@ function Router() {
 function App() {
     return (
         <MusicProvider>
+            <AnnouncementPopup />
             <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, '')}>
                 <Router />
             </WouterRouter>
