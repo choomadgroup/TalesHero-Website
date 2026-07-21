@@ -2993,20 +2993,20 @@ footer.site-footer {
 // Gambar karakter — kiri, nongol dari bawah
 .cs-img-wrap {
   flex: 0 0 auto;
-  width: 115px;
-  height: 130px;
+  width: 160px;
+  height: 180px;
   display: flex;
   align-items: center;
   justify-content: center;
   position: relative;
   z-index: 1;
-  transform: translateY(-8px);
+  transform: translateY(-10px);
 
   img.cs-img {
     position: absolute;
-    width: 115px;
+    width: 160px;
     height: auto;
-    max-height: 130px;
+    max-height: 180px;
     object-fit: contain;
     object-position: center;
     display: block;
@@ -3054,7 +3054,7 @@ footer.site-footer {
 
 // Sama persis dengan .char-modal__name
 .cs-name {
-  font-size: clamp(1.1rem, 2.5vw, 1.5rem);
+  font-size: clamp(1.4rem, 2.5vw, 1.9rem);
   font-weight: 900;
   color: #2FB5FF;
   margin: 0 0 6px;
@@ -3063,7 +3063,7 @@ footer.site-footer {
 }
 
 .cs-quote {
-  font-size: 11px;
+  font-size: 13px;
   color: #555;
   line-height: 1.55;
   margin: 0 0 10px;
