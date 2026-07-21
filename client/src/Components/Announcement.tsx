@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useLocation } from 'wouter';
 import { asset } from '@/Lib/utils';
-import { allArticles, CATEGORY_LABELS } from '@/Lib/newsLoader';
+import { allArticles, CATEGORY_LABELS, CATEGORY_COLORS } from '@/Lib/newsLoader';
 import CharacterSpotlight from './CharacterSpotlight';
 
 // Ambil 4 artikel terbaru dari News, tandai isNew jika ≤ 7 hari
@@ -67,6 +67,7 @@ export default function Announcement() {
                             Pemberitahuan
                         </span>
                         <button
+                            onClick={() => navigate('/news')}
                             style={{
                                 width: 24,
                                 height: 24,
@@ -88,63 +89,56 @@ export default function Announcement() {
 
                     {/* List */}
                     <ul style={{ margin: 0, padding: 0, listStyle: 'none' }}>
-                        {ANNOUNCEMENTS.map((item, i) => (
+                        {ANNOUNCEMENTS.map((item, i) => {
+                            const accent = CATEGORY_COLORS[item.category];
+                            const bgLight = `${accent}18`;
+                            const border  = `${accent}55`;
+                            return (
                             <li
                                 key={item.slug}
+                                className="ann-row"
                                 onClick={() => navigate(`/news/${item.category}/${item.slug}`)}
                                 style={{
                                     display: 'flex',
-                                    alignItems: 'flex-start',
+                                    alignItems: 'center',
                                     gap: 8,
                                     padding: '8px 16px',
                                     borderBottom: i < ANNOUNCEMENTS.length - 1 ? '1px solid #f5f5f5' : 'none',
                                     cursor: 'pointer',
                                     transition: 'background 0.15s',
+                                    overflow: 'hidden',
                                 }}
                                 onMouseEnter={e => (e.currentTarget.style.background = '#fafaf8')}
                                 onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
                             >
+                                {/* Tag — warna sesuai kategori, lebar tetap supaya judul sejajar */}
                                 <span
                                     style={{
                                         flexShrink: 0,
-                                        marginTop: 2,
-                                        padding: '2px 7px',
-                                        background: '#e8f5e9',
-                                        color: '#2e7d32',
+                                        width: 84,
+                                        textAlign: 'center',
+                                        padding: '2px 0',
+                                        background: bgLight,
+                                        color: accent,
                                         borderRadius: 4,
                                         fontSize: 10,
                                         fontWeight: 600,
-                                        border: '1px solid #c8e6c9',
+                                        border: `1px solid ${border}`,
                                         whiteSpace: 'nowrap',
                                     }}
                                 >
                                     {item.tag}
                                 </span>
-                                <span
-                                    style={{
-                                        fontSize: 12,
-                                        color: '#333',
-                                        lineHeight: 1.45,
-                                        flex: 1,
-                                    }}
-                                >
-                                    {item.title}
+
+                                {/* Judul — marquee saat hover kalau teks kepanjangan */}
+                                <span className="ann-title">
+                                    <span style={{ fontSize: 12, color: '#333', lineHeight: 1.45 }}>
+                                        {item.title}
+                                    </span>
                                 </span>
-                                {item.isNew && (
-                                    <span
-                                        style={{
-                                            flexShrink: 0,
-                                            marginTop: 5,
-                                            width: 7,
-                                            height: 7,
-                                            borderRadius: '50%',
-                                            background: '#e53935',
-                                            display: 'inline-block',
-                                        }}
-                                    />
-                                )}
                             </li>
-                        ))}
+                            );
+                        })}
                     </ul>
                 </div>
 

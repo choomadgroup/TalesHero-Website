@@ -61,7 +61,7 @@ export function getArticle(category: NewsCategory, slug: string): NewsArticle | 
 // ── Category helpers ─────────────────────────────────────────────────
 export const CATEGORY_LABELS: Record<NewsCategory, string> = {
     update:      'Update',
-    info:        'Info',
+    info:        'Information',
     maintenance: 'Maintenance',
 };
 

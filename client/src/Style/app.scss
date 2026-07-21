@@ -3658,6 +3658,31 @@ $nl-sans:     'Inter', -apple-system, sans-serif;
   font-family: $nl-sans;
 }
 
+// ── Announcement list marquee ──────────────────────────────────
+@keyframes ann-marquee {
+  0%        { transform: translateX(0); }
+  10%       { transform: translateX(0); }
+  90%       { transform: translateX(var(--ann-scroll, -60%)); }
+  100%      { transform: translateX(var(--ann-scroll, -60%)); }
+}
+
+.ann-title {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  flex: 1;
+  min-width: 0;
+
+  span {
+    display: inline-block;
+  }
+}
+
+.ann-row:hover .ann-title span {
+  animation: ann-marquee 3.5s ease-in-out infinite alternate;
+  text-overflow: clip;
+}
+
 // ── Inner wrapper ─────────────────────────────────────────────
 .nl-main {
   max-width: 1020px;
