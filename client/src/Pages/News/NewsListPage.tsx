@@ -73,7 +73,7 @@ export default function NewsListPage() {
 
             {/* ── Hero Banner ── */}
             <section
-                className="guides-hero"
+                className="guides-hero guides-hero--tall"
                 style={{ backgroundImage: "url('/Image/Header/IMG-HR-01.png')" }}
             >
                 <div className="guides-hero__inner">

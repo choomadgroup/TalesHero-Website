@@ -3563,6 +3563,13 @@ $nl-sans:     'Inter', -apple-system, sans-serif;
   @media (max-width: 768px) { padding: 0 20px; }
 }
 
+// ── News hero — taller to match pages that have a CTA button ─────────────
+.guides-hero--tall {
+  min-height: 420px;
+  padding-top: 110px;
+  padding-bottom: 80px;
+}
+
 // ── Search & content top spacing (no more nl-header — hero handles top) ──
 .nl-eyebrow {
   display: inline-flex;
