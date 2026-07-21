@@ -543,6 +543,19 @@ section, footer {
     padding: 16px 16px 24px;
     border-top: 1px solid rgba(255, 255, 255, 0.06);
     flex-shrink: 0;
+
+    // Login button needs light colours inside the dark drawer
+    .game-login-btn {
+      color: rgba(255, 255, 255, 0.75);
+      border-color: rgba(255, 255, 255, 0.18);
+
+      &:hover {
+        background: rgba(255, 255, 255, 0.07);
+        border-color: rgba(255, 255, 255, 0.35);
+        color: #fff;
+        transform: none;
+      }
+    }
   }
 
   &__email {
@@ -565,7 +578,7 @@ section, footer {
   min-height: 100svh;
   display: flex;
   align-items: center;
-  overflow: hidden;
+  overflow-x: hidden;
 
   &__bg {
     position: absolute;
@@ -3689,6 +3702,98 @@ $nl-sans:     'Poppins', -apple-system, sans-serif;
   flex: 1;
   background: $nl-bg;
   font-family: $nl-sans;
+}
+
+// ── Announcement section ──────────────────────────────────────
+.ann-section {
+  background: #fff;
+  padding: 1.5rem 60px;
+
+  @media (max-width: 768px) { padding: 1.25rem 16px; }
+}
+
+.ann-grid {
+  max-width: 1320px;
+  margin: 0 auto;
+  display: flex;
+  gap: 20px;
+  align-items: stretch;
+
+  @media (max-width: 960px) {
+    flex-direction: column;
+    gap: 14px;
+  }
+}
+
+.ann-box {
+  border-radius: 12px;
+  overflow: hidden;
+
+  &--list {
+    flex: 0 0 400px;
+    background: #fff;
+    border: 1.5px solid #e8e8e8;
+    display: flex;
+    flex-direction: column;
+
+    @media (max-width: 960px) { flex: none; width: 100%; }
+  }
+
+  &--slideshow {
+    flex: 0 0 480px;
+    position: relative;
+    background: #111;
+    min-height: 220px;
+
+    @media (max-width: 960px) { flex: none; width: 100%; height: 220px; }
+  }
+
+  &__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 16px;
+    border-bottom: 1.5px solid #f0f0f0;
+  }
+
+  &__title {
+    font-weight: 700;
+    font-size: 14px;
+    color: #1a1a2e;
+  }
+
+  &__more {
+    width: 24px;
+    height: 24px;
+    border-radius: 6px;
+    border: 1.5px solid #ddd;
+    background: #fafafa;
+    cursor: pointer;
+    font-size: 15px;
+    color: #555;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+    transition: background 0.15s;
+
+    &:hover { background: #f0f0f0; }
+  }
+}
+
+.ann-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.ann-tag {
+  flex-shrink: 0;
+  padding: 3px 10px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
 }
 
 // ── Announcement list marquee ──────────────────────────────────

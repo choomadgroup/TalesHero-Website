@@ -7,11 +7,11 @@ import CharacterSpotlight from './CharacterSpotlight';
 // Ambil 4 artikel terbaru dari News, tandai isNew jika ≤ 7 hari
 const now = Date.now();
 const ANNOUNCEMENTS = allArticles.slice(0, 4).map((a) => ({
-    slug:    a.slug,
+    slug:     a.slug,
     category: a.category,
-    tag:     CATEGORY_LABELS[a.category],
-    title:   a.title,
-    isNew:   a.date ? (now - new Date(a.date).getTime()) / 86_400_000 <= 7 : false,
+    tag:      CATEGORY_LABELS[a.category],
+    title:    a.title,
+    isNew:    a.date ? (now - new Date(a.date).getTime()) / 86_400_000 <= 7 : false,
 }));
 
 const SLIDES = [
@@ -31,125 +31,52 @@ export default function Announcement() {
     }, []);
 
     return (
-        <section style={{ background: '#fff', padding: '1.5rem 60px' }}>
-            <div
-                style={{
-                    maxWidth: 1320,
-                    margin: '0 auto',
-                    display: 'flex',
-                    gap: 20,
-                    alignItems: 'stretch',
-                }}
-            >
-                {/* ── Left panel ── */}
-                <div
-                    style={{
-                        flex: '0 0 400px',
-                        background: '#fff',
-                        border: '1.5px solid #e8e8e8',
-                        borderRadius: 12,
-                        overflow: 'hidden',
-                        display: 'flex',
-                        flexDirection: 'column',
-                    }}
-                >
-                    {/* Header */}
-                    <div
-                        style={{
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'space-between',
-                            padding: '10px 16px',
-                            borderBottom: '1.5px solid #f0f0f0',
-                        }}
-                    >
-                        <span style={{ fontWeight: 700, fontSize: 14, color: '#1a1a2e' }}>
-                            Pemberitahuan
-                        </span>
+        <section className="ann-section">
+            <div className="ann-grid">
+
+                {/* ── Pemberitahuan list ── */}
+                <div className="ann-box ann-box--list">
+                    <div className="ann-box__header">
+                        <span className="ann-box__title">Pemberitahuan</span>
                         <button
+                            className="ann-box__more"
                             onClick={() => navigate('/news')}
-                            style={{
-                                width: 24,
-                                height: 24,
-                                borderRadius: 6,
-                                border: '1.5px solid #ddd',
-                                background: '#fafafa',
-                                cursor: 'pointer',
-                                fontSize: 15,
-                                lineHeight: 1,
-                                color: '#555',
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                            }}
+                            aria-label="Lihat semua berita"
                         >
                             +
                         </button>
                     </div>
 
-                    {/* List */}
-                    <ul style={{ margin: 0, padding: 0, listStyle: 'none' }}>
-                        {ANNOUNCEMENTS.map((item, i) => {
-                            const accent = CATEGORY_COLORS[item.category];
+                    <ul className="ann-list">
+                        {ANNOUNCEMENTS.map((item) => {
+                            const accent  = CATEGORY_COLORS[item.category];
                             const bgLight = `${accent}18`;
                             const border  = `${accent}55`;
                             return (
-                            <li
-                                key={item.slug}
-                                className="ann-row"
-                                onClick={() => navigate(`/news/${item.category}/${item.slug}`)}
-                                style={{
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    gap: 10,
-                                    padding: '14px 16px',
-                                    borderBottom: i < ANNOUNCEMENTS.length - 1 ? '1px solid #f5f5f5' : 'none',
-                                    cursor: 'pointer',
-                                    transition: 'background 0.15s',
-                                    overflow: 'hidden',
-                                }}
-                                onMouseEnter={e => (e.currentTarget.style.background = '#fafaf8')}
-                                onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
-                            >
-                                {/* Tag — warna sesuai kategori */}
-                                <span
-                                    style={{
-                                        flexShrink: 0,
-                                        padding: '3px 10px',
-                                        background: bgLight,
-                                        color: accent,
-                                        borderRadius: 4,
-                                        fontSize: 12,
-                                        fontWeight: 600,
-                                        border: `1px solid ${border}`,
-                                        whiteSpace: 'nowrap',
-                                    }}
+                                <li
+                                    key={item.slug}
+                                    className="ann-row"
+                                    onClick={() => navigate(`/news/${item.category}/${item.slug}`)}
                                 >
-                                    {item.tag}
-                                </span>
-
-                                {/* Judul — marquee saat hover kalau teks kepanjangan */}
-                                <span className="ann-title">
-                                    <span style={{ fontSize: 13, color: '#333', lineHeight: 1.45 }}>
-                                        {item.title}
+                                    <span
+                                        className="ann-tag"
+                                        style={{ background: bgLight, color: accent, border: `1px solid ${border}` }}
+                                    >
+                                        {item.tag}
                                     </span>
-                                </span>
-                            </li>
+                                    <span className="ann-title">
+                                        <span style={{ fontSize: 13, color: '#333', lineHeight: 1.45 }}>
+                                            {item.title}
+                                        </span>
+                                    </span>
+                                </li>
                             );
                         })}
                     </ul>
                 </div>
 
                 {/* ── Slideshow ── */}
-                <div
-                    style={{
-                        flex: '0 0 480px',
-                        borderRadius: 12,
-                        overflow: 'hidden',
-                        position: 'relative',
-                        background: '#000',
-                    }}
-                >
+                <div className="ann-box ann-box--slideshow">
                     {SLIDES.map((src, i) => (
                         <img
                             key={src}
@@ -169,17 +96,15 @@ export default function Announcement() {
                     ))}
 
                     {/* Dot indicators */}
-                    <div
-                        style={{
-                            position: 'absolute',
-                            bottom: 8,
-                            left: '50%',
-                            transform: 'translateX(-50%)',
-                            display: 'flex',
-                            gap: 5,
-                            zIndex: 2,
-                        }}
-                    >
+                    <div style={{
+                        position: 'absolute',
+                        bottom: 8,
+                        left: '50%',
+                        transform: 'translateX(-50%)',
+                        display: 'flex',
+                        gap: 5,
+                        zIndex: 2,
+                    }}>
                         {SLIDES.map((_, i) => (
                             <button
                                 key={i}
@@ -201,6 +126,7 @@ export default function Announcement() {
 
                 {/* ── Character Spotlight ── */}
                 <CharacterSpotlight />
+
             </div>
         </section>
     );

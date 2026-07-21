@@ -103,15 +103,7 @@ export default function HeroBanner() {
     const slide = SLIDES[current];
 
     return (
-        <section
-            id="about"
-            style={{
-                padding: 0,
-                minHeight: "100vh",
-                display: "flex",
-                alignItems: "center",
-            }}
-        >
+        <section id="about" style={{ padding: 0 }}>
             <div className="hero-banner">
                 {/* Background transition */}
                 <AnimatePresence mode="sync">
