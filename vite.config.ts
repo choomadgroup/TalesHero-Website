@@ -5,6 +5,7 @@ import { defineConfig } from 'vite';
 import mdx from '@mdx-js/rollup';
 import remarkFrontmatter from 'remark-frontmatter';
 import remarkMdxFrontmatter from 'remark-mdx-frontmatter';
+import remarkGfm from 'remark-gfm';
 
 import runtimeErrorOverlay from '@replit/vite-plugin-runtime-error-modal';
 
@@ -90,6 +91,7 @@ export default defineConfig({
         remarkPlugins: [
           remarkFrontmatter,
           [remarkMdxFrontmatter, { name: 'frontmatter' }],
+          remarkGfm,
         ],
       }),
     },

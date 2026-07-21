@@ -79,6 +79,7 @@
     "marked": "^18.0.6",
     "react-scroll": "^1.9.3",
     "remark-frontmatter": "^5.0.0",
+    "remark-gfm": "^4.0.1",
     "remark-mdx-frontmatter": "^5.2.0",
     "sass": "^1.101.0"
   }

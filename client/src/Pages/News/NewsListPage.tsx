@@ -13,19 +13,11 @@ import {
 import { HiSearch, HiClock, HiChevronRight } from 'react-icons/hi';
 import { MdUpdate, MdInfoOutline, MdBuildCircle, MdGridView } from 'react-icons/md';
 
-const CATEGORY_ICONS: Record<NewsCategory | 'all', React.ReactNode> = {
-    all:         <MdGridView size={13} />,
+const CATEGORY_ICONS: Record<NewsCategory, React.ReactNode> = {
     update:      <MdUpdate size={13} />,
     info:        <MdInfoOutline size={13} />,
     maintenance: <MdBuildCircle size={13} />,
 };
-
-const FILTERS = [
-    { value: 'all',         label: 'Semua' },
-    { value: 'update',      label: 'Update' },
-    { value: 'info',        label: 'Info' },
-    { value: 'maintenance', label: 'Maintenance' },
-] as const;
 
 /* ── card helpers ── */
 function CoverImg({ src, alt, readTime }: { src?: string; alt: string; readTime?: number }) {
@@ -52,20 +44,16 @@ export default function NewsListPage() {
     });
 
     const [, setLocation] = useLocation();
-    const [active, setActive] = useState<NewsCategory | 'all'>('all');
-    const [query,  setQuery]  = useState('');
+    const [query, setQuery] = useState('');
 
     const filtered = useMemo(() => {
-        let list = active === 'all' ? allArticles : allArticles.filter(a => a.category === active);
-        if (query.trim()) {
-            const q = query.toLowerCase();
-            list = list.filter(a =>
-                a.title.toLowerCase().includes(q) ||
-                a.excerpt.toLowerCase().includes(q),
-            );
-        }
-        return list;
-    }, [active, query]);
+        if (!query.trim()) return allArticles;
+        const q = query.toLowerCase();
+        return allArticles.filter(a =>
+            a.title.toLowerCase().includes(q) ||
+            a.excerpt.toLowerCase().includes(q),
+        );
+    }, [query]);
 
     const [featured, ...rest] = filtered;
     const go = (cat: string, slug: string) => setLocation(`/news/${cat}/${slug}`);
@@ -97,18 +85,6 @@ export default function NewsListPage() {
                         />
                     </div>
 
-                    <div className="nl-filters">
-                        {FILTERS.map(f => (
-                            <button
-                                key={f.value}
-                                className={`nl-filters__pill ${active === f.value ? 'nl-filters__pill--active' : ''}`}
-                                onClick={() => setActive(f.value as NewsCategory | 'all')}
-                            >
-                                {CATEGORY_ICONS[f.value]}
-                                {f.label}
-                            </button>
-                        ))}
-                    </div>
                 </div>
 
                 <div className="nl-content">
