@@ -1,0 +1,18 @@
+{
+  "name": "Tales Hero Indonesia",
+  "short_name": "Tales Hero",
+  "description": "Game online action adventure — berpetualangan dalam berbagai legenda termashur di dunia.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#1a1a2e",
+  "theme_color": "#5691f0",
+  "lang": "id",
+  "icons": [
+    {
+      "src": "/favicon.png",
+      "sizes": "any",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
