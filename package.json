@@ -47,6 +47,7 @@
     "@types/node": "catalog:",
     "@types/react": "catalog:",
     "@types/react-dom": "catalog:",
+    "@types/react-google-recaptcha": "^2.1.9",
     "@types/react-scroll": "^1.8.10",
     "@vitejs/plugin-react": "catalog:",
     "class-variance-authority": "catalog:",
@@ -77,6 +78,7 @@
   "dependencies": {
     "@mdx-js/rollup": "^3.1.1",
     "marked": "^18.0.6",
+    "react-google-recaptcha": "^3.1.0",
     "react-scroll": "^1.9.3",
     "remark-frontmatter": "^5.0.0",
     "remark-gfm": "^4.0.1",
