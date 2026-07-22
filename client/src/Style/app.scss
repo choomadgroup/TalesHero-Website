@@ -3016,6 +3016,13 @@ footer.site-footer {
   min-width: 0;
   display: flex;
   align-items: stretch;
+
+  // Di mobile grid stacking (column), flex-basis:0 bikin tinggi collapse ke 0
+  // Override jadi flex:none supaya elemen ambil tinggi natural dari kontennya
+  @media (max-width: 768px) {
+    flex: none;
+    width: 100%;
+  }
 }
 
 .cs-card {
