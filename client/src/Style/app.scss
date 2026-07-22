@@ -3125,7 +3125,9 @@ footer.site-footer {
 }
 
 
-@media (max-width: 900px) {
+// cs-wrap hanya disembunyikan saat lebar sedang (antara stacking dan desktop penuh)
+// Di mobile (≤960px) grid sudah stacking — spotlight tetap tampil sebagai baris penuh
+@media (min-width: 769px) and (max-width: 960px) {
   .cs-wrap { display: none; }
 }
 
