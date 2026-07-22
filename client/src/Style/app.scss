@@ -3050,20 +3050,20 @@ footer.site-footer {
 // Gambar karakter — kiri, nongol dari bawah
 .cs-img-wrap {
   flex: 0 0 auto;
-  width: 160px;
-  height: 180px;
+  width: 120px;
+  height: 145px;
   display: flex;
   align-items: center;
   justify-content: center;
   position: relative;
   z-index: 1;
-  transform: translateY(-10px);
+  transform: translateY(-8px);
 
   img.cs-img {
     position: absolute;
-    width: 160px;
+    width: 120px;
     height: auto;
-    max-height: 180px;
+    max-height: 145px;
     object-fit: contain;
     object-position: center;
     display: block;
@@ -3114,12 +3114,14 @@ footer.site-footer {
 
 // Sama persis dengan .char-modal__name
 .cs-name {
-  font-size: clamp(1.4rem, 2.5vw, 1.9rem);
+  font-size: clamp(1.1rem, 1.6vw, 1.45rem);
   font-weight: 900;
   color: #2FB5FF;
   margin: 0 0 6px;
-  line-height: 1.1;
-  letter-spacing: -0.5px;
+  line-height: 1.15;
+  letter-spacing: -0.3px;
+  word-break: break-word;
+  overflow-wrap: anywhere;
 }
 
 .cs-quote {
