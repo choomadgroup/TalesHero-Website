@@ -3050,8 +3050,8 @@ footer.site-footer {
 // Gambar karakter — kiri, nongol dari bawah
 .cs-img-wrap {
   flex: 0 0 auto;
-  width: 120px;
-  height: 145px;
+  width: 148px;
+  height: 175px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -3061,9 +3061,9 @@ footer.site-footer {
 
   img.cs-img {
     position: absolute;
-    width: 120px;
+    width: 148px;
     height: auto;
-    max-height: 145px;
+    max-height: 175px;
     object-fit: contain;
     object-position: center;
     display: block;
