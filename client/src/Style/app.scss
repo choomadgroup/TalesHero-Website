@@ -3015,10 +3015,9 @@ footer.site-footer {
   flex: 1;
   min-width: 0;
   display: flex;
-  align-items: stretch;
+  align-items: center;
+  justify-content: center;
 
-  // Di mobile grid stacking (column), flex-basis:0 bikin tinggi collapse ke 0
-  // Override jadi flex:none supaya elemen ambil tinggi natural dari kontennya
   @media (max-width: 768px) {
     flex: none;
     width: 100%;
@@ -3026,22 +3025,23 @@ footer.site-footer {
 }
 
 .cs-card {
-  flex: 1;
+  width: 100%;
   display: flex;
   flex-direction: row;
-  align-items: stretch;
+  align-items: center;
   gap: 0;
   background: #e8f4fb;
   border-radius: 14px;
-  overflow: hidden;
+  overflow: visible;
   position: relative;
-  padding: 12px 14px 12px 0;
+  padding: 10px 14px 10px 0;
   border: 1px solid #cce4f5;
 
   &::before {
     content: '';
     position: absolute;
     inset: 0;
+    border-radius: 14px;
     background: radial-gradient(ellipse 70% 80% at 20% 100%, rgba(47,181,255,0.08) 0%, transparent 65%);
     pointer-events: none;
   }
