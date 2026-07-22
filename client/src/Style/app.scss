@@ -3029,7 +3029,7 @@ footer.site-footer {
   flex: 1;
   display: flex;
   flex-direction: row;
-  align-items: center;
+  align-items: stretch;
   gap: 0;
   background: #e8f4fb;
   border-radius: 14px;
@@ -3082,6 +3082,9 @@ footer.site-footer {
   border-radius: 14px 14px 14px 4px;
   padding: 11px 13px 10px;
   margin-bottom: 4px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
 
 // Ekor segitiga bubble
@@ -3120,15 +3123,11 @@ footer.site-footer {
 }
 
 .cs-quote {
-  font-size: 13px;
+  font-size: 11px;
   color: #555;
   line-height: 1.55;
-  margin: 0 0 10px;
+  margin: 0;
   font-style: italic;
-  display: -webkit-box;
-  -webkit-line-clamp: 3;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
 }
 
 

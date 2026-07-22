@@ -4,9 +4,9 @@ import { asset } from '@/Lib/utils';
 import { allArticles, CATEGORY_LABELS, CATEGORY_COLORS } from '@/Lib/newsLoader';
 import CharacterSpotlight from './CharacterSpotlight';
 
-// Ambil 3 artikel terbaru saja — artikel ke-4 dst otomatis tidak tampil
+// Ambil 4 terbaru — kalau ada artikel baru, yang paling lama otomatis keluar
 const now = Date.now();
-const ANNOUNCEMENTS = allArticles.slice(0, 3).map((a) => ({
+const ANNOUNCEMENTS = allArticles.slice(0, 4).map((a) => ({
     slug:     a.slug,
     category: a.category,
     tag:      CATEGORY_LABELS[a.category],
