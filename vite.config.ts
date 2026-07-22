@@ -70,6 +70,10 @@ const routeMeta: Record<string, { title: string; description: string }> = {
     title: 'Website Tales Hero Indonesia — Masih Dalam Pengerjaan — Tales Hero Indonesia',
     description: 'Website resmi Tales Hero Indonesia sedang dalam tahap pengembangan aktif. Pantau terus untuk informasi terbaru seputar peluncuran server dan fitur-fitur yang akan hadir.',
   },
+  '/news/info/2026-07-22-open-beta': {
+    title: 'Open Beta Tales Hero Indonesia Akan Segera Dibuka! — Tales Hero Indonesia',
+    description: 'Open Beta Tales Hero Indonesia akan segera hadir. Daftarkan akunmu sekarang dan jadilah yang pertama merasakan petualangan epik bersama teman-temanmu.',
+  },
 };
 
 function injectRouteMeta(html: string, url: string): string {

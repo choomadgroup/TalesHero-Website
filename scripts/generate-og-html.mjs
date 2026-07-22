@@ -45,6 +45,28 @@ const routeMeta = {
     title: 'Item & Equipment — Tales Hero Indonesia',
     description: 'Temukan semua item dan equipment yang bisa kamu gunakan untuk memperkuat hero di Tales Hero Indonesia.',
   },
+
+  // ── News routes — WAJIB ada agar GitHub Pages sajikan 200, bukan 404 ──
+  '/news': {
+    title: 'News — Tales Hero Indonesia',
+    description: 'Berita terbaru seputar Tales Hero Indonesia: update server, informasi game, dan jadwal maintenance.',
+  },
+  '/news/info/2026-07-15-tentang-tales-hero': {
+    title: 'Apa Itu Tales Hero Indonesia? — Tales Hero Indonesia',
+    description: 'Tales Hero Indonesia adalah game online action adventure yang mengajak kamu berpetualangan dalam berbagai legenda termashur di dunia. Kenali lebih jauh gamenya di sini.',
+  },
+  '/news/maintenance/2026-07-18-maintenance-rutin': {
+    title: 'Maintenance Rutin — 18 Juli 2026 — Tales Hero Indonesia',
+    description: 'Server akan mengalami maintenance rutin pada 18 Juli 2026 pukul 02.00–06.00 WIB. Selama maintenance, server tidak dapat diakses.',
+  },
+  '/news/update/2026-07-20-server-perdana': {
+    title: 'Website Tales Hero Indonesia — Masih Dalam Pengerjaan — Tales Hero Indonesia',
+    description: 'Website resmi Tales Hero Indonesia sedang dalam tahap pengembangan aktif. Pantau terus untuk informasi terbaru seputar peluncuran server dan fitur-fitur yang akan hadir.',
+  },
+  '/news/info/2026-07-22-open-beta': {
+    title: 'Open Beta Tales Hero Indonesia Akan Segera Dibuka! — Tales Hero Indonesia',
+    description: 'Open Beta Tales Hero Indonesia akan segera hadir. Daftarkan akunmu sekarang dan jadilah yang pertama merasakan petualangan epik bersama teman-temanmu.',
+  },
 };
 
 const baseHtml = readFileSync(join(distDir, 'index.html'), 'utf-8');
