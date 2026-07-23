@@ -1903,7 +1903,20 @@ footer.site-footer {
   overflow: hidden;
   padding: 40px 20px;
 
-  &--login { background: linear-gradient(135deg, #fff8e1 0%, #fffde7 50%, #fff3cd 100%); }
+  &--login {
+    background: url('/Image/Home/IMG-H06.png') center center / cover no-repeat;
+    align-items: flex-start;
+    padding-top: 100px;
+    padding-bottom: 60px;
+
+    &::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: rgba(10, 10, 30, 0.55);
+      z-index: 0;
+    }
+  }
   &--daftar {
     background: url('/Image/Header/IMG-HR-02.png') center center / cover no-repeat;
     align-items: flex-start;
@@ -2287,6 +2300,89 @@ footer.site-footer {
   transition: color 0.15s;
 
   &:hover { color: #555; }
+}
+
+// ── Login page ────────────────────────────────────────────────
+.login-form-card {
+  max-width: 460px;
+  gap: 0;
+}
+
+.login-logo-wrap {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+
+.login-logo {
+  height: 52px;
+  width: auto;
+  object-fit: contain;
+  filter: drop-shadow(0 4px 16px rgba(0,0,0,0.35));
+}
+
+.login-form-wrap {
+  width: 100%;
+  background: #fff;
+  border-radius: 20px;
+  padding: 28px 28px 24px;
+  box-shadow: 0 8px 48px rgba(0,0,0,0.22), 0 2px 8px rgba(0,0,0,0.08);
+  text-align: left;
+
+  @media (max-width: 480px) { padding: 22px 18px 20px; }
+
+  &__title {
+    font-size: 1.5rem;
+    font-weight: 900;
+    color: #1a1a2e;
+    margin: 0 0 4px;
+    letter-spacing: -0.4px;
+  }
+
+  &__sub {
+    font-size: 13px;
+    color: #888;
+    margin: 0 0 20px;
+  }
+}
+
+.login-api-error {
+  background: #fff0f3;
+  border: 1px solid #ffb3c1;
+  color: #c0002a;
+  font-size: 13px;
+  padding: 10px 14px;
+  border-radius: 10px;
+  margin-bottom: 16px;
+}
+
+.login-form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.login-forgot {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: -6px;
+
+  &__link {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 12px;
+    color: #e91e63;
+    padding: 0;
+    font-weight: 600;
+    transition: opacity 0.15s;
+
+    &:hover { opacity: 0.75; }
+  }
+}
+
+.login-submit {
+  margin-top: 4px;
 }
 
 // ── Success state ─────────────────────────────────────────────
