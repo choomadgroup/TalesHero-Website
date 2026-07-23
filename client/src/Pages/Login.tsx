@@ -1,17 +1,18 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { useLocation } from 'wouter';
 import { usePageMeta } from '@/Hooks/use-page-meta';
 import Header from '@/Components/Header';
 import Footer from '@/Components/Footer';
+import ReCAPTCHA from 'react-google-recaptcha';
 import {
     IoEye, IoEyeOff, IoPersonOutline, IoLockClosedOutline,
 } from 'react-icons/io5';
 import { GiCrossedSwords } from 'react-icons/gi';
-import { asset } from '@/Lib/utils';
 
 // ── Ganti dengan endpoint API game ─────────────────────────────
 const LOGIN_API = 'https://api.taleshero.web.id/auth/login';
+const RECAPTCHA_SITE_KEY = '6LeK3mEtAAAAAN5u4fTLNlfuUgwlPPB2dxcw3orE';
 // ──────────────────────────────────────────────────────────────
 
 const STARS = Array.from({ length: 18 }, (_, i) => ({
@@ -30,15 +31,18 @@ interface FormData {
 interface FormErrors {
     username?: string;
     password?: string;
+    captcha?: string;
     api?: string;
 }
 
-function validate(data: FormData): FormErrors {
+function validate(data: FormData, captchaToken: string | null): FormErrors {
     const errors: FormErrors = {};
     if (!data.username.trim())
         errors.username = 'Username atau email wajib diisi.';
     if (!data.password)
         errors.password = 'Kata sandi wajib diisi.';
+    if (!captchaToken)
+        errors.captcha = 'Harap selesaikan verifikasi CAPTCHA.';
     return errors;
 }
 
@@ -49,10 +53,13 @@ export default function Login() {
     });
 
     const [, setLocation] = useLocation();
-    const [form, setForm]         = useState<FormData>({ username: '', password: '' });
-    const [errors, setErrors]     = useState<FormErrors>({});
-    const [showPass, setShowPass] = useState(false);
-    const [loading, setLoading]   = useState(false);
+    const captchaRef = useRef<ReCAPTCHA>(null);
+
+    const [form, setForm]               = useState<FormData>({ username: '', password: '' });
+    const [errors, setErrors]           = useState<FormErrors>({});
+    const [showPass, setShowPass]       = useState(false);
+    const [loading, setLoading]         = useState(false);
+    const [captchaToken, setCaptchaToken] = useState<string | null>(null);
 
     const set = (key: keyof FormData) => (e: React.ChangeEvent<HTMLInputElement>) => {
         setForm(f => ({ ...f, [key]: e.target.value }));
@@ -61,7 +68,7 @@ export default function Login() {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        const errs = validate(form);
+        const errs = validate(form, captchaToken);
         if (Object.keys(errs).length > 0) { setErrors(errs); return; }
 
         setLoading(true);
@@ -74,17 +81,22 @@ export default function Login() {
                 body: JSON.stringify({
                     username: form.username.trim(),
                     password: form.password,
+                    captcha:  captchaToken,
                 }),
             });
 
             if (!res.ok) {
                 const data = await res.json().catch(() => ({}));
                 setErrors({ api: data?.message ?? 'Username/email atau kata sandi salah.' });
+                captchaRef.current?.reset();
+                setCaptchaToken(null);
             } else {
                 setLocation('/');
             }
         } catch {
             setErrors({ api: 'Tidak dapat terhubung ke server. Periksa koneksi internet kamu.' });
+            captchaRef.current?.reset();
+            setCaptchaToken(null);
         } finally {
             setLoading(false);
         }
@@ -112,20 +124,6 @@ export default function Login() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.55, ease: 'easeOut' }}
             >
-                {/* Logo */}
-                <motion.div
-                    className="login-logo-wrap"
-                    initial={{ opacity: 0, scale: 0.85 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    transition={{ delay: 0.15, duration: 0.45, ease: 'easeOut' }}
-                >
-                    <img
-                        src={asset('/Image/tales-hero-banner.png')}
-                        alt="Tales Hero Indonesia"
-                        className="login-logo"
-                    />
-                </motion.div>
-
                 {/* Form card */}
                 <div className="login-form-wrap">
                     <h1 className="login-form-wrap__title">Masuk ke Akunmu</h1>
@@ -189,6 +187,20 @@ export default function Login() {
                             >
                                 Lupa kata sandi?
                             </button>
+                        </div>
+
+                        {/* reCAPTCHA */}
+                        <div className="daftar-captcha">
+                            <ReCAPTCHA
+                                ref={captchaRef}
+                                sitekey={RECAPTCHA_SITE_KEY}
+                                onChange={token => {
+                                    setCaptchaToken(token);
+                                    if (errors.captcha) setErrors(e => ({ ...e, captcha: undefined }));
+                                }}
+                                onExpired={() => setCaptchaToken(null)}
+                            />
+                            {errors.captcha && <p className="daftar-field__error">{errors.captcha}</p>}
                         </div>
 
                         {/* Submit */}
