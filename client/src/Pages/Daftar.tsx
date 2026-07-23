@@ -1,12 +1,14 @@
 import { useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { asset } from '@/Lib/utils';
 import { useLocation } from 'wouter';
 import ReCAPTCHA from 'react-google-recaptcha';
 import { usePageMeta } from '@/Hooks/use-page-meta';
+import Header from '@/Components/Header';
+import Footer from '@/Components/Footer';
 import {
     IoHome, IoEye, IoEyeOff, IoCheckmarkCircle,
     IoPersonOutline, IoMailOutline, IoLockClosedOutline,
+    IoShieldCheckmarkOutline,
 } from 'react-icons/io5';
 import { GiCrossedSwords } from 'react-icons/gi';
 
@@ -24,26 +26,29 @@ const STARS = Array.from({ length: 20 }, (_, i) => ({
     size: `${4 + (i % 5)}px`,
 }));
 
-const DAFTAR_CHARS = [
-    { src: '/Image/Karakter/Art/Rina.png',  alt: 'Rina',  delay: 0.2,  dur: 2.4 },
-    { src: '/Image/Karakter/Art/LaLa.png',  alt: 'LaLa',  delay: 0,    dur: 2.8 },
-    { src: '/Image/Karakter/Art/Chloe.png', alt: 'Chloe', delay: 0.35, dur: 2.2 },
-    { src: '/Image/Karakter/Art/Miho.png',  alt: 'Miho',  delay: 0.5,  dur: 3.1 },
+const SECURITY_QUESTIONS = [
+    'Nama hewan kesayangan kamu?',
+    'Warna apa yang kamu suka?',
+    'Apa nama panggilan kamu?',
 ];
 
 interface FormData {
-    username: string;
-    email:    string;
-    password: string;
-    confirm:  string;
+    username:   string;
+    email:      string;
+    password:   string;
+    confirm:    string;
+    secQuestion: string;
+    secAnswer:  string;
 }
 interface FormErrors {
-    username?: string;
-    email?:    string;
-    password?: string;
-    confirm?:  string;
-    captcha?:  string;
-    api?:      string;
+    username?:   string;
+    email?:      string;
+    password?:   string;
+    confirm?:    string;
+    secQuestion?: string;
+    secAnswer?:  string;
+    captcha?:    string;
+    api?:        string;
 }
 
 function validate(data: FormData, captchaToken: string | null): FormErrors {
@@ -71,6 +76,12 @@ function validate(data: FormData, captchaToken: string | null): FormErrors {
     else if (data.confirm !== data.password)
         errors.confirm = 'Kata sandi tidak cocok.';
 
+    if (!data.secQuestion)
+        errors.secQuestion = 'Pilih pertanyaan keamanan.';
+
+    if (!data.secAnswer.trim())
+        errors.secAnswer = 'Jawaban pertanyaan keamanan wajib diisi.';
+
     if (!captchaToken)
         errors.captcha = 'Harap selesaikan verifikasi CAPTCHA.';
 
@@ -86,7 +97,7 @@ export default function Daftar() {
     const [, setLocation] = useLocation();
     const captchaRef = useRef<ReCAPTCHA>(null);
 
-    const [form, setForm]             = useState<FormData>({ username: '', email: '', password: '', confirm: '' });
+    const [form, setForm]             = useState<FormData>({ username: '', email: '', password: '', confirm: '', secQuestion: '', secAnswer: '' });
     const [errors, setErrors]         = useState<FormErrors>({});
     const [showPass, setShowPass]     = useState(false);
     const [showConfirm, setShowConfirm] = useState(false);
@@ -112,10 +123,12 @@ export default function Daftar() {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    username: form.username.trim(),
-                    email:    form.email.trim(),
-                    password: form.password,
-                    captcha:  captchaToken,
+                    username:     form.username.trim(),
+                    email:        form.email.trim(),
+                    password:     form.password,
+                    secQuestion:  form.secQuestion,
+                    secAnswer:    form.secAnswer.trim(),
+                    captcha:      captchaToken,
                 }),
             });
 
@@ -137,6 +150,8 @@ export default function Daftar() {
     };
 
     return (
+        <>
+        <Header />
         <div className="cs-page cs-page--daftar">
             {/* Stars bg */}
             <div className="cs-page__bg">
@@ -156,20 +171,6 @@ export default function Daftar() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.55, ease: 'easeOut' }}
             >
-                {/* Karakter floating */}
-                <div className="cs-page__chars">
-                    {DAFTAR_CHARS.map((c, i) => (
-                        <motion.img
-                            key={c.alt}
-                            src={asset(c.src)}
-                            alt={c.alt}
-                            className="cs-page__char-multi"
-                            animate={{ y: [0, -14, 0], rotate: [0, 2, 0, -2, 0] }}
-                            transition={{ duration: c.dur, delay: c.delay, repeat: Infinity, ease: 'easeInOut' }}
-                            style={{ zIndex: i === 1 ? 2 : 1 }}
-                        />
-                    ))}
-                </div>
 
                 <AnimatePresence mode="wait">
                     {success ? (
@@ -291,6 +292,54 @@ export default function Daftar() {
                                     {errors.confirm && <p className="daftar-field__error">{errors.confirm}</p>}
                                 </div>
 
+                                {/* Pertanyaan Keamanan */}
+                                <div className="daftar-security-divider">
+                                    <IoShieldCheckmarkOutline size={14} />
+                                    <span>Pertanyaan Keamanan</span>
+                                    <small>Digunakan untuk memulihkan akun jika lupa sandi atau email</small>
+                                </div>
+
+                                <div className={`daftar-field${errors.secQuestion ? ' daftar-field--error' : ''}`}>
+                                    <label className="daftar-field__label">Pilih Pertanyaan</label>
+                                    <div className="daftar-field__input-wrap">
+                                        <IoShieldCheckmarkOutline className="daftar-field__icon" />
+                                        <select
+                                            className="daftar-field__input daftar-field__select"
+                                            value={form.secQuestion}
+                                            onChange={e => {
+                                                setForm(f => ({ ...f, secQuestion: e.target.value }));
+                                                if (errors.secQuestion) setErrors(err => ({ ...err, secQuestion: undefined }));
+                                            }}
+                                        >
+                                            <option value="">— Pilih pertanyaan —</option>
+                                            {SECURITY_QUESTIONS.map(q => (
+                                                <option key={q} value={q}>{q}</option>
+                                            ))}
+                                        </select>
+                                    </div>
+                                    {errors.secQuestion && <p className="daftar-field__error">{errors.secQuestion}</p>}
+                                </div>
+
+                                <div className={`daftar-field${errors.secAnswer ? ' daftar-field--error' : ''}`}>
+                                    <label className="daftar-field__label">Jawaban</label>
+                                    <div className="daftar-field__input-wrap">
+                                        <IoShieldCheckmarkOutline className="daftar-field__icon" />
+                                        <input
+                                            type="text"
+                                            className="daftar-field__input"
+                                            placeholder="Ketik jawabanmu"
+                                            value={form.secAnswer}
+                                            onChange={e => {
+                                                setForm(f => ({ ...f, secAnswer: e.target.value }));
+                                                if (errors.secAnswer) setErrors(err => ({ ...err, secAnswer: undefined }));
+                                            }}
+                                            autoComplete="off"
+                                            maxLength={64}
+                                        />
+                                    </div>
+                                    {errors.secAnswer && <p className="daftar-field__error">{errors.secAnswer}</p>}
+                                </div>
+
                                 {/* reCAPTCHA */}
                                 <div className="daftar-captcha">
                                     <ReCAPTCHA
@@ -335,5 +384,7 @@ export default function Daftar() {
                 </AnimatePresence>
             </motion.div>
         </div>
+        <Footer />
+        </>
     );
 }
