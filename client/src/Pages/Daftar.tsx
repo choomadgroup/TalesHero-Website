@@ -12,7 +12,7 @@ import { GiCrossedSwords } from 'react-icons/gi';
 
 // ── Ganti dengan endpoint API game kamu ───────────────────────
 const REGISTER_API = 'https://api.taleshero.web.id/auth/register';
-const RECAPTCHA_SITE_KEY = '6Lc2b18tAAAAAAKO6XT4Vq0aZxxo4b9QJ5xScEyA';
+const RECAPTCHA_SITE_KEY = '6LeK3mEtAAAAAN5u4fTLNlfuUgwlPPB2dxcw3orE';
 // ─────────────────────────────────────────────────────────────
 
 const STARS = Array.from({ length: 20 }, (_, i) => ({
