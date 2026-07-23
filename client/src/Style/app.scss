@@ -1904,7 +1904,17 @@ footer.site-footer {
   padding: 40px 20px;
 
   &--login { background: linear-gradient(135deg, #fff8e1 0%, #fffde7 50%, #fff3cd 100%); }
-  &--daftar { background: linear-gradient(135deg, #fce4ec 0%, #fdf1f5 50%, #f8bbd0 100%); }
+  &--daftar {
+    background: url('/Image/Header/IMG-HR-02.png') center center / cover no-repeat;
+
+    &::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.45);
+      z-index: 0;
+    }
+  }
 }
 
 .cs-page__bg {
@@ -2157,7 +2167,7 @@ footer.site-footer {
 .daftar-captcha {
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
+  align-items: center;
   gap: 6px;
   margin-top: 2px;
 }
