@@ -84,7 +84,7 @@
     "bcryptjs": "^3.0.3",
     "express": "^5.2.1",
     "marked": "^18.0.6",
-    "mysql": "^2.18.1",
+    "mysql2": "^3.23.1",
     "react-google-recaptcha": "^3.1.0",
     "react-scroll": "^1.9.3",
     "remark-frontmatter": "^5.0.0",

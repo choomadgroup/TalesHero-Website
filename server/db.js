@@ -3,7 +3,7 @@
 //  Isi nilai di bawah sesuai konfigurasi database kamu.
 // ============================================================
 
-import mysql from 'mysql';
+import mysql from 'mysql2';
 
 // ── CONFIG — dibaca dari environment secrets ─────────────────
 const pool = mysql.createPool({
