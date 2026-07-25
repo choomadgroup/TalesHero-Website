@@ -1,0 +1,6 @@
+# Cloudflare Pages — Tales Hero Indonesia
+# Docs: https://developers.cloudflare.com/pages/functions/wrangler-configuration/
+
+name = "tales-hero"
+pages_build_output_dir = "dist/public"
+compatibility_date = "2026-07-25"

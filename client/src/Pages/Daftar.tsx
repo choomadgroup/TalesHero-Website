@@ -53,8 +53,8 @@ function validate(data: FormData, captchaToken: string | null): FormErrors {
 
     if (!data.username.trim())
         errors.username = 'Username wajib diisi.';
-    else if (data.username.trim().length < 3)
-        errors.username = 'Username minimal 3 karakter.';
+    else if (data.username.trim().length < 5)
+        errors.username = 'Username minimal 5 karakter.';
     else if (!/^[a-zA-Z0-9_]+$/.test(data.username.trim()))
         errors.username = 'Username hanya boleh huruf, angka, dan underscore.';
 
@@ -209,7 +209,7 @@ export default function Daftar() {
                                         <input
                                             type="text"
                                             className="daftar-field__input"
-                                            placeholder="Nama pengguna"
+                                            placeholder="Username"
                                             value={form.username}
                                             onChange={set('username')}
                                             autoComplete="username"

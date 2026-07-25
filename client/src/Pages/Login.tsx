@@ -130,13 +130,13 @@ export default function Login() {
 
                         {/* Username / Email */}
                         <div className={`daftar-field${errors.username ? ' daftar-field--error' : ''}`}>
-                            <label className="daftar-field__label">Username Game</label>
+                            <label className="daftar-field__label">Username</label>
                             <div className="daftar-field__input-wrap">
                                 <IoPersonOutline className="daftar-field__icon" />
                                 <input
                                     type="text"
                                     className="daftar-field__input"
-                                    placeholder="Username game kamu"
+                                    placeholder="Username"
                                     value={form.username}
                                     onChange={set('username')}
                                     autoComplete="username"
@@ -154,7 +154,7 @@ export default function Login() {
                                 <input
                                     type={showPass ? 'text' : 'password'}
                                     className="daftar-field__input"
-                                    placeholder="Kata sandi kamu"
+                                    placeholder="Kata Sandi"
                                     value={form.password}
                                     onChange={set('password')}
                                     autoComplete="current-password"
