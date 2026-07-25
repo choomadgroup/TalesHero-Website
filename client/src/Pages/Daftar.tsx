@@ -189,7 +189,7 @@ export default function Daftar() {
                                 Akun kamu telah dibuat. Silakan cek email untuk verifikasi.
                             </p>
                             <button className="cs-page__btn cs-page__btn--pink" onClick={() => setLocation('/login')}>
-                                <GiCrossedSwords size={16} /> Masuk Sekarang
+                                Masuk Sekarang
                             </button>
                             <button className="daftar-success__home" onClick={() => setLocation('/')}>
                                 <IoHome size={14} /> Kembali ke Beranda
@@ -215,7 +215,7 @@ export default function Daftar() {
                                         <input
                                             type="text"
                                             className="daftar-field__input"
-                                            placeholder="contoh: HeroKu123"
+                                            placeholder="Nama pengguna"
                                             value={form.username}
                                             onChange={set('username')}
                                             autoComplete="username"
@@ -233,7 +233,7 @@ export default function Daftar() {
                                         <input
                                             type="email"
                                             className="daftar-field__input"
-                                            placeholder="email@kamu.com"
+                                            placeholder="Email"
                                             value={form.email}
                                             onChange={set('email')}
                                             autoComplete="email"
@@ -363,7 +363,7 @@ export default function Daftar() {
                                     {loading ? (
                                         <span className="daftar-submit__spinner" />
                                     ) : (
-                                        <><GiCrossedSwords size={16} /> Daftar Sekarang</>
+                                        <>Daftar Sekarang</>
                                     )}
                                 </button>
 

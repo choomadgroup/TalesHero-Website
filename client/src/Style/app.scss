@@ -1328,6 +1328,7 @@ footer.site-footer {
 // ─── Character Page ─────────────────────────────────────────────────────────
 
 .char-page {
+  width: 100%;
   max-width: 1160px;
   margin: 0 auto;
   padding: 40px 40px 40px;
@@ -1472,7 +1473,7 @@ footer.site-footer {
   height: 110px;
   display: flex;
   align-items: flex-end;
-  justify-content: flex-start;
+  justify-content: center;
   overflow: hidden;
   margin-bottom: 8px;
   position: relative;
@@ -1503,7 +1504,7 @@ footer.site-footer {
 .char-card__body {
   flex: 1;
   margin-bottom: 10px;
-  text-align: left;
+  text-align: center;
 }
 
 .char-card__name {
