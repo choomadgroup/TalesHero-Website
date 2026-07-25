@@ -17,24 +17,18 @@ const pool = mysql.createPool({
   waitForConnections: true,
 });
 
-// ── Log status koneksi saat pool pertama kali digunakan ─────
-pool.on('connection', (connection) => {
-  console.log(`[db] Terhubung ke MySQL — thread #${connection.threadId}`);
-});
-
 pool.on('error', (err) => {
   console.error('[db] ❌ Koneksi MySQL error:', err.message);
 });
 
-// ── Ping saat server start ───────────────────────────────────
-pool.getConnection()
-  .then((conn) => {
-    console.log(`[db] ✅ MySQL terhubung ke ${process.env.DB_HOST} (${process.env.DB_NAME ?? 'tr_game_db'})`);
-    conn.release();
-  })
-  .catch((err) => {
-    console.error(`[db] ❌ Gagal konek ke MySQL: ${err.message}`);
-  });
+/**
+ * Ping koneksi MySQL — dipanggil dari Vite plugin saat server start.
+ * @returns {Promise<void>}
+ */
+async function ping() {
+  const conn = await pool.getConnection();
+  conn.release();
+}
 // ────────────────────────────────────────────────────────────
 
 /**
@@ -48,4 +42,4 @@ async function query(sql, params = []) {
   return results;
 }
 
-export { pool, query };
+export { pool, query, ping };

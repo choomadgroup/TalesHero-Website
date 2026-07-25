@@ -8,6 +8,7 @@ import remarkMdxFrontmatter from 'remark-mdx-frontmatter';
 import remarkGfm from 'remark-gfm';
 import register from './server/auth/register.js';
 import login from './server/auth/login.js';
+import { ping } from './server/db.js';
 
 import runtimeErrorOverlay from '@replit/vite-plugin-runtime-error-modal';
 
@@ -134,7 +135,16 @@ function addJsonResponseHelpers(res: any) {
 
 const apiPlugin = {
   name: 'tales-hero-api',
-  configureServer(server: any) {
+  async configureServer(server: any) {
+    const host = process.env.DB_HOST ?? '?';
+    const db   = process.env.DB_NAME ?? 'tr_game_db';
+    try {
+      await ping();
+      server.config.logger.info(`  \x1b[32m➜\x1b[0m  MySQL: \x1b[36m${host}\x1b[0m (${db})`);
+    } catch (err: any) {
+      server.config.logger.error(`  MySQL: ❌ gagal konek — ${err.message}`);
+    }
+
     server.middlewares.use('/auth/register', async (req: any, res: any, next: any) => {
       if (req.method !== 'POST') { next(); return; }
       try {
