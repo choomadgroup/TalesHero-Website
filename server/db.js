@@ -7,11 +7,11 @@ const mysql = require('mysql');
 
 // ── CONFIG — ganti sesuai server MySQL kamu ─────────────────
 const pool = mysql.createPool({
-  host:               'localhost',   // host / IP server MySQL
+  host:               '0u4uxu16.andralutfir.net',   // host / IP server MySQL
   port:               3306,          // port MySQL (default 3306)
   user:               'root',        // username database
-  password:           '',            // password database
-  database:           'taleshero',   // nama database (lihat schema.sql)
+  password:           '44MNwplUy4H537v5',            // password database
+  database:           'tr_game_db',   // nama database (lihat schema.sql)
   charset:            'utf8mb4',
   connectionLimit:    10,
   waitForConnections: true,
