@@ -1472,7 +1472,7 @@ footer.site-footer {
   height: 110px;
   display: flex;
   align-items: flex-end;
-  justify-content: center;
+  justify-content: flex-start;
   overflow: hidden;
   margin-bottom: 8px;
   position: relative;
@@ -1503,7 +1503,7 @@ footer.site-footer {
 .char-card__body {
   flex: 1;
   margin-bottom: 10px;
-  text-align: center;
+  text-align: left;
 }
 
 .char-card__name {

@@ -91,7 +91,7 @@ function validate(data: FormData, captchaToken: string | null): FormErrors {
 export default function Daftar() {
     usePageMeta({
         title: 'Daftar — Tales Hero Indonesia',
-        description: 'Daftarkan hero-mu dan bergabunglah dengan komunitas Tales Hero Indonesia. Gratis!',
+        description: 'Daftarkan akun-mu dan bergabunglah dengan komunitas Tales Hero Indonesia.',
     });
 
     const [, setLocation] = useLocation();
