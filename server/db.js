@@ -5,13 +5,13 @@
 
 import mysql from 'mysql';
 
-// ── CONFIG — ganti sesuai server MySQL kamu ─────────────────
+// ── CONFIG — dibaca dari environment secrets ─────────────────
 const pool = mysql.createPool({
-  host:               '0u4uxu16.andralutfir.net',   // host / IP server MySQL
-  port:               3306,          // port MySQL (default 3306)
-  user:               'root',        // username database
-  password:           '44MNwplUy4H537v5',            // password database
-  database:           'tr_game_db',   // nama database (lihat schema.sql)
+  host:               process.env.DB_HOST     ?? 'localhost',
+  port:               Number(process.env.DB_PORT ?? 3306),
+  user:               process.env.DB_USER     ?? 'root',
+  password:           process.env.DB_PASSWORD ?? '',
+  database:           process.env.DB_NAME     ?? 'taleshero',
   charset:            'utf8mb4',
   connectionLimit:    10,
   waitForConnections: true,

@@ -45,6 +45,7 @@
     "@tailwindcss/vite": "catalog:",
     "@tanstack/react-query": "catalog:",
     "@types/bcryptjs": "^3.0.0",
+    "@types/express": "^5.0.6",
     "@types/mysql": "^2.15.27",
     "@types/node": "catalog:",
     "@types/react": "catalog:",
@@ -81,6 +82,7 @@
   "dependencies": {
     "@mdx-js/rollup": "^3.1.1",
     "bcryptjs": "^3.0.3",
+    "express": "^5.2.1",
     "marked": "^18.0.6",
     "mysql": "^2.18.1",
     "react-google-recaptcha": "^3.1.0",
