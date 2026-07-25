@@ -1,19 +1,12 @@
-import { useState, useRef } from 'react';
+import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useLocation } from 'wouter';
 import { usePageMeta } from '@/Hooks/use-page-meta';
 import Header from '@/Components/Header';
 import Footer from '@/Components/Footer';
-import ReCAPTCHA from 'react-google-recaptcha';
 import {
     IoEye, IoEyeOff, IoPersonOutline, IoLockClosedOutline,
 } from 'react-icons/io5';
-import { GiCrossedSwords } from 'react-icons/gi';
-
-// ── Ganti dengan endpoint API game ─────────────────────────────
-const LOGIN_API = '/api/auth/login';
-const RECAPTCHA_SITE_KEY = '6LeK3mEtAAAAAN5u4fTLNlfuUgwlPPB2dxcw3orE';
-// ──────────────────────────────────────────────────────────────
 
 const STARS = Array.from({ length: 18 }, (_, i) => ({
     id: i,
@@ -31,18 +24,14 @@ interface FormData {
 interface FormErrors {
     username?: string;
     password?: string;
-    captcha?: string;
-    api?: string;
 }
 
-function validate(data: FormData, captchaToken: string | null): FormErrors {
+function validate(data: FormData): FormErrors {
     const errors: FormErrors = {};
     if (!data.username.trim())
         errors.username = 'Username atau email wajib diisi.';
     if (!data.password)
         errors.password = 'Kata sandi wajib diisi.';
-    if (!captchaToken)
-        errors.captcha = 'Harap selesaikan verifikasi CAPTCHA.';
     return errors;
 }
 
@@ -53,53 +42,21 @@ export default function Login() {
     });
 
     const [, setLocation] = useLocation();
-    const captchaRef = useRef<ReCAPTCHA>(null);
 
-    const [form, setForm]               = useState<FormData>({ username: '', password: '' });
-    const [errors, setErrors]           = useState<FormErrors>({});
-    const [showPass, setShowPass]       = useState(false);
-    const [loading, setLoading]         = useState(false);
-    const [captchaToken, setCaptchaToken] = useState<string | null>(null);
+    const [form, setForm]   = useState<FormData>({ username: '', password: '' });
+    const [errors, setErrors] = useState<FormErrors>({});
+    const [showPass, setShowPass] = useState(false);
 
     const set = (key: keyof FormData) => (e: React.ChangeEvent<HTMLInputElement>) => {
         setForm(f => ({ ...f, [key]: e.target.value }));
         if (errors[key]) setErrors(err => ({ ...err, [key]: undefined }));
     };
 
-    const handleSubmit = async (e: React.FormEvent) => {
+    const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        const errs = validate(form, captchaToken);
+        const errs = validate(form);
         if (Object.keys(errs).length > 0) { setErrors(errs); return; }
-
-        setLoading(true);
-        setErrors({});
-
-        try {
-            const res = await fetch(LOGIN_API, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    username: form.username.trim(),
-                    password: form.password,
-                    captcha:  captchaToken,
-                }),
-            });
-
-            if (!res.ok) {
-                const data = await res.json().catch(() => ({}));
-                setErrors({ api: data?.message ?? 'Username/email atau kata sandi salah.' });
-                captchaRef.current?.reset();
-                setCaptchaToken(null);
-            } else {
-                setLocation('/');
-            }
-        } catch {
-            setErrors({ api: 'Tidak dapat terhubung ke server. Periksa koneksi internet kamu.' });
-            captchaRef.current?.reset();
-            setCaptchaToken(null);
-        } finally {
-            setLoading(false);
-        }
+        setLocation('/');
     };
 
     return (
@@ -124,14 +81,9 @@ export default function Login() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.55, ease: 'easeOut' }}
             >
-                {/* Form card */}
                 <div className="login-form-wrap">
                     <h1 className="login-form-wrap__title">Masuk ke Akunmu</h1>
                     <p className="login-form-wrap__sub">Selamat datang kembali, Hero!</p>
-
-                    {errors.api && (
-                        <div className="login-api-error">{errors.api}</div>
-                    )}
 
                     <form className="login-form" onSubmit={handleSubmit} noValidate>
 
@@ -189,31 +141,9 @@ export default function Login() {
                             </button>
                         </div>
 
-                        {/* reCAPTCHA */}
-                        <div className="daftar-captcha">
-                            <ReCAPTCHA
-                                ref={captchaRef}
-                                sitekey={RECAPTCHA_SITE_KEY}
-                                onChange={token => {
-                                    setCaptchaToken(token);
-                                    if (errors.captcha) setErrors(e => ({ ...e, captcha: undefined }));
-                                }}
-                                onExpired={() => setCaptchaToken(null)}
-                            />
-                            {errors.captcha && <p className="daftar-field__error">{errors.captcha}</p>}
-                        </div>
-
                         {/* Submit */}
-                        <button
-                            type="submit"
-                            className="daftar-submit login-submit"
-                            disabled={loading}
-                        >
-                            {loading ? (
-                                <span className="daftar-submit__spinner" />
-                            ) : (
-                                <>Masuk Sekarang</>
-                            )}
+                        <button type="submit" className="daftar-submit login-submit">
+                            Masuk Sekarang
                         </button>
 
                     </form>

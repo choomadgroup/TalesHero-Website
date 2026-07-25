@@ -1,7 +1,6 @@
-import { useState, useRef } from 'react';
+import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useLocation } from 'wouter';
-import ReCAPTCHA from 'react-google-recaptcha';
 import { usePageMeta } from '@/Hooks/use-page-meta';
 import Header from '@/Components/Header';
 import Footer from '@/Components/Footer';
@@ -10,11 +9,6 @@ import {
     IoPersonOutline, IoMailOutline, IoLockClosedOutline,
     IoShieldCheckmarkOutline,
 } from 'react-icons/io5';
-
-// ── Ganti dengan endpoint API game kamu ───────────────────────
-const REGISTER_API = '/api/auth/register';
-const RECAPTCHA_SITE_KEY = '6LeK3mEtAAAAAN5u4fTLNlfuUgwlPPB2dxcw3orE';
-// ─────────────────────────────────────────────────────────────
 
 const STARS = Array.from({ length: 20 }, (_, i) => ({
     id: i,
@@ -46,11 +40,9 @@ interface FormErrors {
     confirm?:    string;
     secQuestion?: string;
     secAnswer?:  string;
-    captcha?:    string;
-    api?:        string;
 }
 
-function validate(data: FormData, captchaToken: string | null): FormErrors {
+function validate(data: FormData): FormErrors {
     const errors: FormErrors = {};
 
     if (!data.username.trim())
@@ -81,9 +73,6 @@ function validate(data: FormData, captchaToken: string | null): FormErrors {
     if (!data.secAnswer.trim())
         errors.secAnswer = 'Jawaban pertanyaan keamanan wajib diisi.';
 
-    if (!captchaToken)
-        errors.captcha = 'Harap selesaikan verifikasi CAPTCHA.';
-
     return errors;
 }
 
@@ -94,14 +83,11 @@ export default function Daftar() {
     });
 
     const [, setLocation] = useLocation();
-    const captchaRef = useRef<ReCAPTCHA>(null);
 
     const [form, setForm]             = useState<FormData>({ username: '', email: '', password: '', confirm: '', secQuestion: '', secAnswer: '' });
     const [errors, setErrors]         = useState<FormErrors>({});
     const [showPass, setShowPass]     = useState(false);
     const [showConfirm, setShowConfirm] = useState(false);
-    const [captchaToken, setCaptchaToken] = useState<string | null>(null);
-    const [loading, setLoading]       = useState(false);
     const [success, setSuccess]       = useState(false);
 
     const set = (key: keyof FormData) => (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -109,43 +95,11 @@ export default function Daftar() {
         if (errors[key]) setErrors(err => ({ ...err, [key]: undefined }));
     };
 
-    const handleSubmit = async (e: React.FormEvent) => {
+    const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        const errs = validate(form, captchaToken);
+        const errs = validate(form);
         if (Object.keys(errs).length > 0) { setErrors(errs); return; }
-
-        setLoading(true);
-        setErrors({});
-
-        try {
-            const res = await fetch(REGISTER_API, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    username:     form.username.trim(),
-                    email:        form.email.trim(),
-                    password:     form.password,
-                    secQuestion:  form.secQuestion,
-                    secAnswer:    form.secAnswer.trim(),
-                    captcha:      captchaToken,
-                }),
-            });
-
-            if (!res.ok) {
-                const data = await res.json().catch(() => ({}));
-                setErrors({ api: data?.message ?? 'Pendaftaran gagal. Coba lagi nanti.' });
-                captchaRef.current?.reset();
-                setCaptchaToken(null);
-            } else {
-                setSuccess(true);
-            }
-        } catch {
-            setErrors({ api: 'Tidak dapat terhubung ke server. Periksa koneksi internet kamu.' });
-            captchaRef.current?.reset();
-            setCaptchaToken(null);
-        } finally {
-            setLoading(false);
-        }
+        setSuccess(true);
     };
 
     return (
@@ -199,10 +153,6 @@ export default function Daftar() {
                         <motion.div key="form" className="daftar-form-wrap">
                             <h1 className="daftar-form-wrap__title">Buat Akun Baru</h1>
                             <p className="daftar-form-wrap__sub">Bergabunglah dan jadilah hero legendaris!</p>
-
-                            {errors.api && (
-                                <div className="daftar-api-error">{errors.api}</div>
-                            )}
 
                             <form className="daftar-form" onSubmit={handleSubmit} noValidate>
 
@@ -339,31 +289,9 @@ export default function Daftar() {
                                     {errors.secAnswer && <p className="daftar-field__error">{errors.secAnswer}</p>}
                                 </div>
 
-                                {/* reCAPTCHA */}
-                                <div className="daftar-captcha">
-                                    <ReCAPTCHA
-                                        ref={captchaRef}
-                                        sitekey={RECAPTCHA_SITE_KEY}
-                                        onChange={token => {
-                                            setCaptchaToken(token);
-                                            if (errors.captcha) setErrors(e => ({ ...e, captcha: undefined }));
-                                        }}
-                                        onExpired={() => setCaptchaToken(null)}
-                                    />
-                                    {errors.captcha && <p className="daftar-field__error">{errors.captcha}</p>}
-                                </div>
-
                                 {/* Submit */}
-                                <button
-                                    type="submit"
-                                    className="daftar-submit"
-                                    disabled={loading}
-                                >
-                                    {loading ? (
-                                        <span className="daftar-submit__spinner" />
-                                    ) : (
-                                        <>Daftar Sekarang</>
-                                    )}
+                                <button type="submit" className="daftar-submit">
+                                    Daftar Sekarang
                                 </button>
 
                             </form>
