@@ -1,14 +1,16 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useLocation } from 'wouter';
 import { usePageMeta } from '@/Hooks/use-page-meta';
 import { useAuth } from '@/Hooks/use-auth';
+import { asset } from '@/Lib/utils';
 import Header from '@/Components/Header';
 import Footer from '@/Components/Footer';
 import {
     IoPersonCircleOutline, IoMailOutline, IoShieldCheckmarkOutline,
     IoLogOutOutline, IoLockClosedOutline, IoEye, IoEyeOff,
     IoCheckmarkCircle, IoGameControllerOutline,
+    IoCashOutline, IoCreateOutline,
 } from 'react-icons/io5';
 
 const CHANGE_PASS_API = '/auth/change-password';
@@ -39,7 +41,7 @@ export default function Akun() {
         description: 'Informasi akun game Tales Hero Indonesia-mu.',
     });
 
-    const { user, logout } = useAuth();
+    const { user, logout, updateUser } = useAuth();
     const [, setLocation]  = useLocation();
 
     const [showForm,     setShowForm]     = useState(false);
@@ -49,6 +51,14 @@ export default function Akun() {
     const [passChanged,  setPassChanged]  = useState(false);
     const [form,         setForm]         = useState<ChangeForm>({ secAnswer: '', newPassword: '', confirm: '' });
     const [errors,       setErrors]       = useState<ChangeErrors>({});
+    const [profileForm, setProfileForm] = useState({ username: '', email: '' });
+    const [profileLoading, setProfileLoading] = useState(false);
+    const [profileMessage, setProfileMessage] = useState('');
+    const [profileError, setProfileError] = useState('');
+
+    useEffect(() => {
+        if (user) setProfileForm({ username: user.username, email: user.email });
+    }, [user?.username, user?.email]);
 
     // Redirect ke login kalau belum login
     if (!user) {
@@ -86,7 +96,34 @@ export default function Akun() {
         );
     }
 
-    const initial = user.username?.[0]?.toUpperCase() ?? '?';
+    const handleProfileSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setProfileLoading(true);
+        setProfileMessage('');
+        setProfileError('');
+        try {
+            const res = await fetch('/auth/update-profile', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    currentUsername: user.username,
+                    username: profileForm.username.trim(),
+                    email: profileForm.email.trim(),
+                }),
+            });
+            const data = await res.json().catch(() => ({}));
+            if (!res.ok) {
+                setProfileError(data?.message ?? 'Profil gagal diperbarui.');
+                return;
+            }
+            updateUser({ username: profileForm.username.trim(), email: profileForm.email.trim() });
+            setProfileMessage(data?.message ?? 'Profil berhasil diperbarui.');
+        } catch {
+            setProfileError('Tidak dapat terhubung ke server.');
+        } finally {
+            setProfileLoading(false);
+        }
+    };
 
     const set = (key: keyof ChangeForm) => (e: React.ChangeEvent<HTMLInputElement>) => {
         setForm(f => ({ ...f, [key]: e.target.value }));
@@ -148,11 +185,24 @@ export default function Akun() {
             >
                 <div className="akun-card">
                     {/* Avatar */}
-                    <div className="akun-avatar">{initial}</div>
+                    <div className="akun-avatar">
+                        <img src={asset('/Image/Account/IMG-DEFAULT-01.png')} alt="Avatar akun" />
+                    </div>
                     <h1 className="akun-username">{user.username}</h1>
                     <p className="akun-gameid">Akun Game Tales Hero Indonesia</p>
 
                     {/* Info rows */}
+                    <div className="akun-balance-grid">
+                        <div className="akun-balance-card akun-balance-card--cash">
+                            <span className="akun-balance-card__label"><IoCashOutline size={14} /> Cash</span>
+                            <strong>{Number(user.cash ?? 0).toLocaleString('id-ID')}</strong>
+                        </div>
+                        <div className="akun-balance-card akun-balance-card--tr">
+                            <span className="akun-balance-card__label"><IoGameControllerOutline size={14} /> TR</span>
+                            <strong>{Number(user.tr ?? 0).toLocaleString('id-ID')}</strong>
+                        </div>
+                    </div>
+
                     <div className="akun-info">
                         {user.email && (
                             <div className="akun-info__row">
@@ -173,6 +223,33 @@ export default function Akun() {
                             </div>
                         )}
                     </div>
+
+                    <form className="akun-profile-form" onSubmit={handleProfileSubmit}>
+                        <p className="akun-section-title"><IoCreateOutline size={14} /> Edit Profil</p>
+                        {profileError && <p className="akun-inline-error">{profileError}</p>}
+                        {profileMessage && <p className="akun-inline-success"><IoCheckmarkCircle size={14} /> {profileMessage}</p>}
+                        <label className="akun-input-label" htmlFor="akun-username">Username</label>
+                        <input
+                            id="akun-username"
+                            className="akun-input"
+                            value={profileForm.username}
+                            onChange={e => setProfileForm(form => ({ ...form, username: e.target.value }))}
+                            maxLength={50}
+                            autoComplete="username"
+                        />
+                        <label className="akun-input-label" htmlFor="akun-email">Email</label>
+                        <input
+                            id="akun-email"
+                            className="akun-input"
+                            type="email"
+                            value={profileForm.email}
+                            onChange={e => setProfileForm(form => ({ ...form, email: e.target.value }))}
+                            autoComplete="email"
+                        />
+                        <button className="akun-btn akun-btn--pink" type="submit" disabled={profileLoading}>
+                            {profileLoading ? 'Menyimpan...' : 'Simpan Profil'}
+                        </button>
+                    </form>
 
                     {/* Password changed notice */}
                     <AnimatePresence>

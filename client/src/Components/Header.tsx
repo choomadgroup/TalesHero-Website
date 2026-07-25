@@ -25,8 +25,10 @@ const Header = ({ light = false }: { light?: boolean }) => {
     const [opened, setOpened] = useState(false);
     const [scrolled, setScrolled] = useState(false);
     const [dropdownOpen, setDropdownOpen] = useState(false);
+    const [accountOpen, setAccountOpen] = useState(false);
     const [location, setLocation] = useLocation();
     const dropdownRef = useRef<HTMLDivElement>(null);
+    const accountRef = useRef<HTMLDivElement>(null);
     const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
     // ── Music (shared context — persists across navigation) ────────
@@ -40,6 +42,24 @@ const Header = ({ light = false }: { light?: boolean }) => {
         window.addEventListener('scroll', onScroll, { passive: true });
         return () => window.removeEventListener('scroll', onScroll);
     }, []);
+
+    useEffect(() => {
+        if (!accountOpen) return;
+        const closeOnOutside = (event: MouseEvent) => {
+            if (accountRef.current && !accountRef.current.contains(event.target as Node)) {
+                setAccountOpen(false);
+            }
+        };
+        const closeOnEscape = (event: KeyboardEvent) => {
+            if (event.key === 'Escape') setAccountOpen(false);
+        };
+        document.addEventListener('mousedown', closeOnOutside);
+        document.addEventListener('keydown', closeOnEscape);
+        return () => {
+            document.removeEventListener('mousedown', closeOnOutside);
+            document.removeEventListener('keydown', closeOnEscape);
+        };
+    }, [accountOpen]);
 
     const openDropdown  = () => { if (closeTimer.current) clearTimeout(closeTimer.current); setDropdownOpen(true); };
     const closeDropdown = () => { closeTimer.current = setTimeout(() => setDropdownOpen(false), 120); };
@@ -121,23 +141,42 @@ const Header = ({ light = false }: { light?: boolean }) => {
                             {musicOn ? <MdHeadset size={18} /> : <MdHeadsetOff size={18} />}
                         </button>
                         {user ? (
-                            <>
+                            <div className="game-account-menu" ref={accountRef}>
                                 <button
-                                    className="game-login-btn game-user-btn"
-                                    onClick={() => setLocation('/akun')}
-                                    title="Lihat info akun"
+                                    className="game-account-avatar-btn"
+                                    onClick={() => setAccountOpen(open => !open)}
+                                    aria-expanded={accountOpen}
+                                    aria-haspopup="menu"
+                                    aria-label={`Buka menu akun ${user.username}`}
+                                    title={`Halo ${user.username}`}
                                 >
-                                    <IoPersonCircleOutline size={17} />
-                                    {user.username}
+                                    <img src={asset('/Image/Account/IMG-DEFAULT-01.png')} alt="" />
                                 </button>
-                                <button
-                                    className="game-login-btn game-logout-btn"
-                                    onClick={() => { logout(); setLocation('/'); }}
-                                    title="Keluar"
-                                >
-                                    <IoLogOutOutline size={17} />
-                                </button>
-                            </>
+                                {accountOpen && (
+                                    <div className="game-account-dropdown" role="menu">
+                                        <div className="game-account-dropdown__greeting">
+                                            <span>Halo,</span>
+                                            <strong>{user.username}</strong>
+                                        </div>
+                                        <button
+                                            className="game-account-dropdown__item"
+                                            onClick={() => { setLocation('/akun'); setAccountOpen(false); }}
+                                            role="menuitem"
+                                        >
+                                            <IoPersonCircleOutline size={17} />
+                                            Info Akun
+                                        </button>
+                                        <button
+                                            className="game-account-dropdown__item game-account-dropdown__item--logout"
+                                            onClick={() => { logout(); setLocation('/'); setAccountOpen(false); }}
+                                            role="menuitem"
+                                        >
+                                            <IoLogOutOutline size={17} />
+                                            Logout
+                                        </button>
+                                    </div>
+                                )}
+                            </div>
                         ) : (
                             <>
                                 <button
@@ -211,7 +250,7 @@ const Header = ({ light = false }: { light?: boolean }) => {
                                         onClick={() => { setLocation('/akun'); setOpened(false); }}
                                     >
                                         <IoPersonCircleOutline size={16} />
-                                        {user.username}
+                                        Halo {user.username}
                                     </button>
                                     <button
                                         className="game-login-btn game-login-btn--full"

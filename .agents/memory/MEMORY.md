@@ -1,2 +1,3 @@
 - [Tales Hero project layout](taleshero-layout.md) — root = workspace package; client/ is src only, not a separate pnpm package
 - [Tales Hero database runtime](taleshero-database.md) — auth uses external MySQL secrets; Vite middleware needs a Node response adapter
+- [Tales Hero account data](taleshero-account-data.md) — Cash is fdCash; TR/game money is userinfogame.fdGameMoney via userinfo

@@ -9,6 +9,7 @@ import remarkGfm from 'remark-gfm';
 import register from './server/auth/register.js';
 import login from './server/auth/login.js';
 import changePassword from './server/auth/change-password.js';
+import updateProfile from './server/auth/update-profile.js';
 import { ping, migrate } from './server/db.js';
 
 import runtimeErrorOverlay from '@replit/vite-plugin-runtime-error-modal';
@@ -177,6 +178,18 @@ const apiPlugin = {
         addJsonResponseHelpers(res);
         req.body = await parseBody(req);
         await changePassword(req, res);
+      } catch (e) {
+        res.statusCode = 500;
+        res.setHeader('Content-Type', 'application/json');
+        res.end(JSON.stringify({ message: 'Server error' }));
+      }
+    });
+    server.middlewares.use('/auth/update-profile', async (req: any, res: any, next: any) => {
+      if (req.method !== 'POST') { next(); return; }
+      try {
+        addJsonResponseHelpers(res);
+        req.body = await parseBody(req);
+        await updateProfile(req, res);
       } catch (e) {
         res.statusCode = 500;
         res.setHeader('Content-Type', 'application/json');

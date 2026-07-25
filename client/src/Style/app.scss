@@ -4872,6 +4872,13 @@ $nl-sans:     'Poppins', -apple-system, sans-serif;
   font-weight: 900;
   color: #fff;
   box-shadow: 0 6px 20px rgba(233,30,99,0.35);
+  overflow: hidden;
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
 }
 
 .akun-username {
@@ -4896,6 +4903,108 @@ $nl-sans:     'Poppins', -apple-system, sans-serif;
   margin-bottom: 20px;
   text-align: left;
 }
+
+.akun-balance-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  margin-bottom: 16px;
+  text-align: left;
+}
+
+.akun-balance-card {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  padding: 13px 14px;
+  border-radius: 13px;
+  background: #fff8fb;
+  border: 1px solid #f5d5e0;
+
+  &--tr {
+    background: #fffaf0;
+    border-color: #f8dfaa;
+  }
+
+  &__label {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    color: #a4a4ad;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: .7px;
+    text-transform: uppercase;
+  }
+
+  strong {
+    color: #1a1a2e;
+    font-size: 17px;
+    line-height: 1;
+  }
+}
+
+.akun-profile-form {
+  margin: 0 0 16px;
+  padding: 17px 18px;
+  border-radius: 16px;
+  background: #fafafd;
+  border: 1px solid #ececf2;
+  text-align: left;
+}
+
+.akun-section-title {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0 0 13px;
+  color: #1a1a2e;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.akun-input-label {
+  display: block;
+  margin: 10px 0 5px;
+  color: #8f8f9b;
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.akun-input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 10px 12px;
+  border: 1px solid #dedee7;
+  border-radius: 9px;
+  background: #fff;
+  color: #1a1a2e;
+  font: inherit;
+  font-size: 13px;
+  outline: none;
+
+  &:focus {
+    border-color: #e91e63;
+    box-shadow: 0 0 0 3px rgba(233, 30, 99, .1);
+  }
+}
+
+.akun-profile-form .akun-btn {
+  margin-top: 14px;
+}
+
+.akun-inline-error,
+.akun-inline-success {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin: 0 0 10px;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.akun-inline-error { color: #c62828; }
+.akun-inline-success { color: #2e7d32; }
 
 .akun-info__row {
   display: flex;
@@ -5001,17 +5110,105 @@ $nl-sans:     'Poppins', -apple-system, sans-serif;
   }
 }
 
-// Header — user logged-in buttons
-.game-user-btn {
-  max-width: 160px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+// Header — logged-in account avatar and dropdown
+.game-account-menu {
+  position: relative;
 }
 
-.game-logout-btn {
-  padding: 8px 10px !important;
-  min-width: unset !important;
+.game-account-avatar-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  padding: 0;
+  border: 2px solid rgba(0, 0, 0, .18);
+  border-radius: 50%;
+  background: #fff;
+  cursor: pointer;
+  overflow: hidden;
+  transition: border-color .2s ease, transform .15s ease, box-shadow .2s ease;
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  &:hover,
+  &[aria-expanded='true'] {
+    border-color: #e91e63;
+    box-shadow: 0 4px 14px rgba(233, 30, 99, .22);
+    transform: translateY(-1px);
+  }
+}
+
+.game-account-dropdown {
+  position: absolute;
+  top: calc(100% + 12px);
+  right: 0;
+  width: 214px;
+  padding: 8px;
+  border: 1px solid rgba(0, 0, 0, .08);
+  border-radius: 15px;
+  background: #fff;
+  box-shadow: 0 16px 36px rgba(28, 24, 50, .16);
+  animation: account-dropdown-in .16s ease-out;
+  z-index: 10004;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: -6px;
+    right: 14px;
+    width: 11px;
+    height: 11px;
+    background: #fff;
+    border-left: 1px solid rgba(0, 0, 0, .08);
+    border-top: 1px solid rgba(0, 0, 0, .08);
+    transform: rotate(45deg);
+  }
+
+  &__greeting {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding: 10px 11px 11px;
+    border-bottom: 1px solid #f0f0f4;
+    color: #9898a4;
+    font-size: 11px;
+
+    strong {
+      color: #1a1a2e;
+      font-size: 14px;
+    }
+  }
+
+  &__item {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    width: 100%;
+    margin-top: 4px;
+    padding: 10px 11px;
+    border: none;
+    border-radius: 9px;
+    background: transparent;
+    color: #444451;
+    cursor: pointer;
+    font: inherit;
+    font-size: 13px;
+    font-weight: 700;
+    text-align: left;
+
+    &:hover { background: #fff1f6; color: #e91e63; }
+    &--logout:hover { background: #fff3f3; color: #c62828; }
+  }
+}
+
+@keyframes account-dropdown-in {
+  from { opacity: 0; transform: translateY(-4px) scale(.98); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
 }
 
 // ── Proteksi konten — production only ────────────────────────

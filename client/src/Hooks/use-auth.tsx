@@ -4,6 +4,7 @@ export interface AuthUser {
   username:    string;
   gameId:      string | null;
   cash:        number;
+  tr:          number;
   email:       string;
   secQuestion: string;
 }
@@ -11,6 +12,7 @@ export interface AuthUser {
 interface AuthContextType {
   user:   AuthUser | null;
   login:  (user: AuthUser) => void;
+  updateUser: (updates: Partial<AuthUser>) => void;
   logout: () => void;
 }
 
@@ -38,8 +40,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(null);
   };
 
+  const updateUser = (updates: Partial<AuthUser>) => {
+    setUser(current => {
+      if (!current) return current;
+      const next = { ...current, ...updates };
+      localStorage.setItem(AUTH_KEY, JSON.stringify(next));
+      return next;
+    });
+  };
+
   return (
-    <AuthContext.Provider value={{ user, login, logout }}>
+    <AuthContext.Provider value={{ user, login, updateUser, logout }}>
       {children}
     </AuthContext.Provider>
   );
