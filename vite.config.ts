@@ -120,12 +120,25 @@ function parseBody(req: any): Promise<any> {
   });
 }
 
+function addJsonResponseHelpers(res: any) {
+  res.status = (statusCode: number) => {
+    res.statusCode = statusCode;
+    return res;
+  };
+  res.json = (payload: any) => {
+    res.setHeader('Content-Type', 'application/json');
+    res.end(JSON.stringify(payload));
+    return res;
+  };
+}
+
 const apiPlugin = {
   name: 'tales-hero-api',
   configureServer(server: any) {
     server.middlewares.use('/auth/register', async (req: any, res: any, next: any) => {
       if (req.method !== 'POST') { next(); return; }
       try {
+        addJsonResponseHelpers(res);
         req.body = await parseBody(req);
         await register(req, res);
       } catch (e) {
@@ -137,6 +150,7 @@ const apiPlugin = {
     server.middlewares.use('/auth/login', async (req: any, res: any, next: any) => {
       if (req.method !== 'POST') { next(); return; }
       try {
+        addJsonResponseHelpers(res);
         req.body = await parseBody(req);
         await login(req, res);
       } catch (e) {

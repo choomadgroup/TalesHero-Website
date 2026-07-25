@@ -33,13 +33,9 @@ pool.on('error', (err) => {
  * @param {any[]}  params - Nilai untuk placeholder
  * @returns {Promise<any>}
  */
-function query(sql, params = []) {
-  return new Promise((resolve, reject) => {
-    pool.query(sql, params, (err, results) => {
-      if (err) reject(err);
-      else resolve(results);
-    });
-  });
+async function query(sql, params = []) {
+  const [results] = await pool.query(sql, params);
+  return results;
 }
 
 export { pool, query };
