@@ -10,10 +10,8 @@
 //    app.post('/auth/register', express.json(), register);
 // ============================================================
 
-import bcrypt from 'bcryptjs';
+import crypto from 'node:crypto';
 import { query } from '../db.js';
-
-const SALT_ROUNDS = 12;
 
 const ALLOWED_QUESTIONS = [
   'Nama hewan kesayangan kamu?',
@@ -29,16 +27,16 @@ const ALLOWED_QUESTIONS = [
 function validate(body) {
   const { username, email, password, secQuestion, secAnswer } = body;
 
-  if (!username || username.trim().length < 3 || username.trim().length > 24)
-    return 'Username harus antara 3–24 karakter.';
+  if (!username || username.trim().length < 3 || username.trim().length > 50)
+    return 'Username harus antara 3–50 karakter.';
   if (!/^[a-zA-Z0-9_]+$/.test(username.trim()))
     return 'Username hanya boleh huruf, angka, dan underscore.';
 
   if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim()))
     return 'Format email tidak valid.';
 
-  if (!password || password.length < 8)
-    return 'Kata sandi minimal 8 karakter.';
+  if (!password || password.length < 8 || password.length > 50)
+    return 'Kata sandi harus antara 8–50 karakter.';
 
   if (!secQuestion || !ALLOWED_QUESTIONS.includes(secQuestion))
     return 'Pertanyaan keamanan tidak valid.';
@@ -47,6 +45,10 @@ function validate(body) {
     return 'Jawaban pertanyaan keamanan wajib diisi.';
 
   return null;
+}
+
+function gamePassword(password) {
+  return crypto.createHash('md5').update(password, 'utf8').digest('hex');
 }
 
 /**
@@ -62,36 +64,26 @@ async function register(req, res) {
       return res.status(400).json({ message: validationError });
     }
 
-    // ── 2. Cek username & email sudah terdaftar ───────────
+    // ── 2. Cek username sudah terdaftar di akun game ──────
     const existing = await query(
-      'SELECT id FROM users WHERE username = ? OR email = ? LIMIT 1',
-      [username.trim(), email.trim().toLowerCase()]
+      'SELECT fdUserID FROM userinfofrompublisher WHERE fdUserID = ? LIMIT 1',
+      [username.trim()]
     );
     if (existing.length > 0) {
-      return res.status(409).json({ message: 'Username atau email sudah terdaftar.' });
+      return res.status(409).json({ message: 'Username sudah terdaftar di game.' });
     }
 
-    // ── 3. Hash password & jawaban keamanan ───────────────
-    const [passwordHash, secAnswerHash] = await Promise.all([
-      bcrypt.hash(password, SALT_ROUNDS),
-      bcrypt.hash(secAnswer.trim().toLowerCase(), SALT_ROUNDS),
-    ]);
-
-    // ── 4. Simpan ke database ─────────────────────────────
+    // ── 3. Simpan langsung ke tabel publisher game ────────
+    // The game server expects a lowercase MD5 digest in fdPassword.
     await query(
-      `INSERT INTO users (username, email, password_hash, sec_question, sec_answer)
-       VALUES (?, ?, ?, ?, ?)`,
-      [
-        username.trim(),
-        email.trim().toLowerCase(),
-        passwordHash,
-        secQuestion,
-        secAnswerHash,
-      ]
+      `INSERT INTO userinfofrompublisher (fdUserID, fdGameID, fdPassword)
+       VALUES (?, NULL, ?)`,
+      [username.trim(), gamePassword(password)]
     );
 
-    // ── 5. Berhasil ───────────────────────────────────────
-    return res.status(201).json({ message: 'Akun berhasil dibuat.' });
+    // Email and security-question fields remain in the website form for UX
+    // compatibility, but are not columns in the game publisher table.
+    return res.status(201).json({ message: 'Akun game berhasil dibuat.' });
 
   } catch (err) {
     console.error('[register] error:', err);

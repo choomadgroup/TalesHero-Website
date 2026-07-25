@@ -11,15 +11,17 @@ Website game online action adventure Tales Hero Indonesia — landing page + hal
 
 - pnpm workspaces, Node.js 20, TypeScript
 - Frontend: React 19 + Vite 7, wouter (routing), react-scroll (smooth scroll), react-icons, Sass
-- API routes: inline Vite middleware di `vite.config.ts` (dev only)
-- No database saat ini — data leaderboard hardcoded, form contact validasi saja
+- API routes: Express production server di `server/index.js` dan Vite middleware saat development
+- Auth memakai MySQL eksternal milik game (`tr_game_db.userinfofrompublisher`)
 
 ## Where things live
 
 - `client/src/Pages/` — halaman: Home.tsx, Daftar.tsx, Not-Found.tsx
 - `client/src/Components/` — Header.tsx, Footer.tsx, About.tsx
 - `client/src/Style/app.scss` — semua custom styles (warna, layout, komponen)
-- `vite.config.ts` — Vite config + API middleware (/api/contact, /api/leaderboard)
+- `vite.config.ts` — Vite config + API middleware saat development
+- `server/index.js` — server production untuk Railway (static frontend + auth API)
+- `server/auth/` — register/login ke tabel akun game
 - `public/` — assets statis: favicon.png, Image/tales-hero-banner.png, robots.txt
 - `index.html` — entry point HTML dengan meta tags SEO
 - `client/.replit-artifact/artifact.toml` — konfigurasi artifact Replit
@@ -34,7 +36,8 @@ Website game online action adventure Tales Hero Indonesia — landing page + hal
 
 - Landing page (/) dengan hero section, navigasi smooth scroll, footer
 - Halaman daftar (/daftar) — form registrasi hero dengan validasi email + password
-- API /api/contact — validasi form pendaftaran
+- API /auth/register — menyimpan akun baru ke `tr_game_db.userinfofrompublisher`
+- API /auth/login — memeriksa username dan MD5 password game
 - API /api/leaderboard — data 10 besar pemain (mock)
 
 ## User preferences
@@ -59,7 +62,8 @@ SPA routing ditangani oleh `public/_redirects` (`/* /index.html 200`) yang otoma
 
 - Jangan tambahkan `client` ke `packages` di pnpm-workspace.yaml — client/ bukan workspace package terpisah, root package.json yang handle
 - Workflow command: `pnpm --include-workspace-root --filter @workspace/taleshero run dev` — ini jalankan script `dev` dari root package.json
-- API middleware hanya berjalan di dev mode — untuk production perlu server terpisah (lihat task #3)
+- Railway menjalankan `pnpm run start`, bukan static server, agar endpoint auth tetap aktif
+- Akun baru masuk ke `userinfofrompublisher`; tabel `userinfo`, `userinfogame`, dan `userinfologin` dibuat game server saat login pertama
 
 ## Pointers
 

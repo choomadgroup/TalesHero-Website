@@ -180,7 +180,7 @@ export default function Daftar() {
                             <h2 className="daftar-success__title">Pendaftaran Berhasil!</h2>
                             <p className="daftar-success__desc">
                                 Selamat datang, <strong>{form.username}</strong>!<br />
-                                Akun kamu telah dibuat. Silakan cek email untuk verifikasi.
+                                Akun game kamu sudah tersimpan dan siap dicoba di game.
                             </p>
                             <button className="cs-page__btn cs-page__btn--pink" onClick={() => setLocation('/login')}>
                                 Masuk Sekarang
@@ -213,7 +213,7 @@ export default function Daftar() {
                                             value={form.username}
                                             onChange={set('username')}
                                             autoComplete="username"
-                                            maxLength={24}
+                                            maxLength={50}
                                         />
                                     </div>
                                     {errors.username && <p className="daftar-field__error">{errors.username}</p>}

@@ -74,8 +74,8 @@ export default function Login() {
             const res = await fetch(LOGIN_API, {
                 method:  'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    username: form.username.trim(),
+                    body: JSON.stringify({
+                        username: form.username.trim(),
                     password: form.password,
                 }),
             });
@@ -130,13 +130,13 @@ export default function Login() {
 
                         {/* Username / Email */}
                         <div className={`daftar-field${errors.username ? ' daftar-field--error' : ''}`}>
-                            <label className="daftar-field__label">Username atau Email</label>
+                            <label className="daftar-field__label">Username Game</label>
                             <div className="daftar-field__input-wrap">
                                 <IoPersonOutline className="daftar-field__icon" />
                                 <input
                                     type="text"
                                     className="daftar-field__input"
-                                    placeholder="Username atau email kamu"
+                                    placeholder="Username game kamu"
                                     value={form.username}
                                     onChange={set('username')}
                                     autoComplete="username"
@@ -204,7 +204,7 @@ export default function Login() {
                     </form>
 
                     <p className="daftar-login-hint">
-                        Belum punya akun?{' '}
+                        Belum punya akun game?{' '}
                         <button className="daftar-login-hint__link" onClick={() => setLocation('/daftar')}>
                             Daftar di sini
                         </button>

@@ -11,7 +11,7 @@
 //    app.post('/auth/login', express.json(), login);
 // ============================================================
 
-import bcrypt from 'bcryptjs';
+import crypto from 'node:crypto';
 import { query } from '../db.js';
 
 /**
@@ -29,22 +29,23 @@ async function login(req, res) {
       return res.status(400).json({ message: 'Kata sandi wajib diisi.' });
     }
 
-    // ── 2. Cari user berdasarkan username atau email ──────
+    // ── 2. Cari user pada tabel akun publisher game ────────
     const rows = await query(
-      'SELECT id, username, email, password_hash FROM users WHERE username = ? OR email = ? LIMIT 1',
-      [username.trim(), username.trim().toLowerCase()]
+      'SELECT fdUserID, fdGameID, fdPassword, fdCash FROM userinfofrompublisher WHERE fdUserID = ? LIMIT 1',
+      [username.trim()]
     );
 
     if (rows.length === 0) {
-      return res.status(401).json({ message: 'Username/email atau kata sandi salah.' });
+      return res.status(401).json({ message: 'Username game atau kata sandi salah.' });
     }
 
     const user = rows[0];
+    const incomingHash = crypto.createHash('md5').update(password, 'utf8').digest('hex');
 
-    // ── 3. Verifikasi password ────────────────────────────
-    const passwordMatch = await bcrypt.compare(password, user.password_hash);
+    // ── 3. Verifikasi format password yang dipakai game ────
+    const passwordMatch = incomingHash === user.fdPassword;
     if (!passwordMatch) {
-      return res.status(401).json({ message: 'Username/email atau kata sandi salah.' });
+      return res.status(401).json({ message: 'Username game atau kata sandi salah.' });
     }
 
     // ── 4. Berhasil — kembalikan info user ────────────────
@@ -52,9 +53,9 @@ async function login(req, res) {
     return res.status(200).json({
       message: 'Login berhasil.',
       user: {
-        id:       user.id,
-        username: user.username,
-        email:    user.email,
+        username: user.fdUserID,
+        gameId:   user.fdGameID,
+        cash:     user.fdCash,
       },
     });
 

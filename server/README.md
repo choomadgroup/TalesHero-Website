@@ -1,58 +1,52 @@
 # Tales Hero — Server Auth (MySQL)
 
-File-file ini adalah backend Node.js/Express untuk sistem daftar & login. Tinggal deploy di server kamu dan hubungkan ke MySQL.
+Backend auth ini menyimpan akun website langsung ke database game Tales Runner.
 
 ## Struktur
 
 ```
 server/
-├── db.js               ← konfigurasi koneksi MySQL
+├── db.js               ← connection pool MySQL
+├── index.js             ← production server untuk Railway
 ├── auth/
 │   ├── register.js     ← handler POST /auth/register
 │   └── login.js        ← handler POST /auth/login
 └── README.md
 
 sql/
-└── schema.sql          ← skema tabel database
+└── schema.sql          ← skema kompatibilitas `userinfofrompublisher`
 ```
 
 ## Langkah Setup
 
-### 1. Buat database
-Jalankan `sql/schema.sql` di MySQL/MariaDB kamu:
+### 1. Gunakan database game
+Database harus memiliki `tr_game_db.userinfofrompublisher`. Untuk instalasi baru, jalankan:
 ```bash
 mysql -u root -p < sql/schema.sql
 ```
 
-### 2. Isi config MySQL
-Buka `server/db.js` dan isi:
-```js
-host:     'localhost',   // host MySQL
-user:     'root',        // username
-password: '',            // password
-database: 'taleshero',   // nama database
+### 2. Isi environment variables
+Set nilai berikut di Railway atau Replit Secrets:
+```text
+DB_HOST
+DB_PORT=3306
+DB_USER
+DB_PASSWORD
+DB_NAME=tr_game_db
 ```
 
-### 3. Pasang di Express server kamu
-```js
-const express  = require('express');
-const register = require('./auth/register');
-const login    = require('./auth/login');
-
-const app = express();
-app.use(express.json());
-
-app.post('/auth/register', register);
-app.post('/auth/login',    login);
-
-app.listen(3000);
+### 3. Build dan jalankan server
+```bash
+pnpm run build
+pnpm run start
 ```
 
 ## Dependensi yang sudah diinstall
-- `mysql` — driver MySQL untuk Node.js
-- `bcryptjs` — hashing password & jawaban keamanan
+- `mysql2` — driver MySQL untuk Node.js
+- `express` — production server dan auth routes
 
 ## Catatan
-- Password dan jawaban keamanan di-hash dengan **bcrypt** (salt rounds: 12) — tidak pernah disimpan plain text.
-- Field `username` di form login menerima username **atau** email.
-- Kolom `is_verified` sudah disiapkan untuk verifikasi email di masa depan (default `0`).
+- Password disimpan sebagai lowercase **MD5 hex** karena itu format yang diminta oleh game server lama.
+- Email dan pertanyaan keamanan tetap divalidasi di website, tetapi tidak disimpan karena tabel game tidak memiliki kolom tersebut.
+- Field `username` di form login adalah `fdUserID`.
+- Akun baru masuk ke `userinfofrompublisher`; game server membuat record `userinfo`, `userinfogame`, dan `userinfologin` saat login game pertama.

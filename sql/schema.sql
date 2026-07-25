@@ -1,28 +1,24 @@
 -- ============================================================
---  Tales Hero Indonesia — Database Schema
+--  Tales Hero Indonesia — Game Account Schema
 --  Engine: MySQL 5.7+ / MariaDB 10.3+
+--
+--  The imported game database already contains this table.
+--  The website writes new registrations here so the game can
+--  use the same account. The game server creates rows in
+--  userinfo/userinfogame/userinfologin on first game login.
 -- ============================================================
 
-CREATE DATABASE IF NOT EXISTS taleshero
-  CHARACTER SET utf8mb4
-  COLLATE utf8mb4_unicode_ci;
+CREATE DATABASE IF NOT EXISTS tr_game_db
+  CHARACTER SET tis620
+  COLLATE tis620_thai_ci;
 
-USE taleshero;
+USE tr_game_db;
 
--- ── Tabel Pengguna ───────────────────────────────────────────
-CREATE TABLE IF NOT EXISTS users (
-  id            INT UNSIGNED    NOT NULL AUTO_INCREMENT,
-  username      VARCHAR(24)     NOT NULL,
-  email         VARCHAR(255)    NOT NULL,
-  password_hash VARCHAR(60)     NOT NULL,          -- bcrypt hash
-  sec_question  VARCHAR(255)    NOT NULL,           -- pertanyaan keamanan
-  sec_answer    VARCHAR(60)     NOT NULL,           -- bcrypt hash jawaban
-  is_verified   TINYINT(1)      NOT NULL DEFAULT 0, -- 0=belum, 1=sudah verifikasi email
-  created_at    DATETIME        NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  updated_at    DATETIME        NOT NULL DEFAULT CURRENT_TIMESTAMP
-                                ON UPDATE CURRENT_TIMESTAMP,
-
-  PRIMARY KEY (id),
-  UNIQUE KEY uq_username (username),
-  UNIQUE KEY uq_email    (email)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+CREATE TABLE IF NOT EXISTS userinfofrompublisher (
+  fdUserID   VARCHAR(50) NOT NULL,
+  fdGameID   VARCHAR(50) DEFAULT NULL,
+  fdPassword VARCHAR(50) NOT NULL, -- lowercase MD5 hex, required by game server
+  fdCash     INT DEFAULT 100000,
+  PRIMARY KEY (fdUserID),
+  UNIQUE KEY fdUserID (fdUserID)
+) ENGINE=InnoDB DEFAULT CHARSET=tis620;
