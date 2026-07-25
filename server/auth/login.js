@@ -11,8 +11,8 @@
 //    app.post('/auth/login', express.json(), login);
 // ============================================================
 
-const bcrypt = require('bcryptjs');
-const { query } = require('../db');
+import bcrypt from 'bcryptjs';
+import { query } from '../db.js';
 
 /**
  * Express route handler untuk login.
@@ -64,4 +64,4 @@ async function login(req, res) {
   }
 }
 
-module.exports = login;
+export default login;

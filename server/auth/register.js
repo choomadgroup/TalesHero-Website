@@ -10,8 +10,8 @@
 //    app.post('/auth/register', express.json(), register);
 // ============================================================
 
-const bcrypt = require('bcryptjs');
-const { query } = require('../db');
+import bcrypt from 'bcryptjs';
+import { query } from '../db.js';
 
 const SALT_ROUNDS = 12;
 
@@ -99,4 +99,4 @@ async function register(req, res) {
   }
 }
 
-module.exports = register;
+export default register;

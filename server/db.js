@@ -3,7 +3,7 @@
 //  Isi nilai di bawah sesuai konfigurasi database kamu.
 // ============================================================
 
-const mysql = require('mysql');
+import mysql from 'mysql';
 
 // ── CONFIG — ganti sesuai server MySQL kamu ─────────────────
 const pool = mysql.createPool({
@@ -42,4 +42,4 @@ function query(sql, params = []) {
   });
 }
 
-module.exports = { pool, query };
+export { pool, query };
