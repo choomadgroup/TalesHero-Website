@@ -127,7 +127,7 @@ export default function Login() {
                 {/* Form card */}
                 <div className="login-form-wrap">
                     <h1 className="login-form-wrap__title">Masuk ke Akunmu</h1>
-                    <p className="login-form-wrap__sub">Selamat datang kembali, Hero! ⚔️</p>
+                    <p className="login-form-wrap__sub">Selamat datang kembali, Hero!</p>
 
                     {errors.api && (
                         <div className="login-api-error">{errors.api}</div>
@@ -212,7 +212,7 @@ export default function Login() {
                             {loading ? (
                                 <span className="daftar-submit__spinner" />
                             ) : (
-                                <><GiCrossedSwords size={16} /> Masuk Sekarang</>
+                                <>Masuk Sekarang</>
                             )}
                         </button>
 

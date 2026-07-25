@@ -297,7 +297,7 @@ export default function GuidesKarakter() {
 
     usePageMeta({
         title: 'Karakter & Hero — Tales Hero Indonesia',
-        description: 'Temukan semua karakter dan hero yang tersedia di Tales Hero Indonesia. Pilih hero favoritmu!',
+        description: 'Temukan semua karakter dan hero yang tersedia di Tales Hero Indonesia.',
     });
 
     const openModal = useCallback((c: Character) => setSelected(c), []);
@@ -330,7 +330,6 @@ export default function GuidesKarakter() {
                         Kenali semua karakter Tales Hero — statistik, kemampuan unik, dan latar belakang mereka.
                     </p>
                     <button className="game-cta-btn" onClick={() => setLocation('/daftar')}>
-                        <GiCrossedSwords size={16} />
                         Daftar &amp; Main Sekarang
                     </button>
                 </div>

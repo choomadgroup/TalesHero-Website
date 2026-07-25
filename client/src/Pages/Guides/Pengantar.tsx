@@ -10,7 +10,7 @@ const fromLeft  = { hidden: { opacity: 0, x: -60 }, show: { opacity: 1, x: 0 } }
 const fromRight = { hidden: { opacity: 0, x:  60 }, show: { opacity: 1, x: 0 } };
 const fromBelow = { hidden: { opacity: 0, y:  40 }, show: { opacity: 1, y: 0 } };
 
-const transition = { duration: 0.6, ease: 'easeOut' };
+const transition = { duration: 0.6, ease: 'easeOut' } as const;
 const viewport   = { once: true, amount: 0.25 };
 
 export default function GuidesPengantar() {
@@ -37,7 +37,6 @@ export default function GuidesPengantar() {
                         Pelajari dasar-dasar dunia Tales Hero Indonesia dan mulai petualanganmu sebagai hero legendaris.
                     </p>
                     <button className="game-cta-btn" onClick={() => setLocation('/daftar')}>
-                        <GiCrossedSwords size={16} />
                         Daftar &amp; Main Sekarang
                     </button>
                 </div>
