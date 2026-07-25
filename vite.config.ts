@@ -149,6 +149,15 @@ export default defineConfig({
   build: {
     outDir: path.resolve(import.meta.dirname, 'dist/public'),
     emptyOutDir: true,
+    sourcemap: false,         // jangan bocorkan source map di production
+    minify: 'terser',         // obfuscasi + minify lebih agresif dari default esbuild
+    terserOptions: {
+      compress: {
+        drop_console: false,  // console copyright tetap jalan
+        drop_debugger: true,  // hapus debugger statement
+      },
+      mangle: true,           // rename variabel & fungsi jadi nama pendek/acak
+    },
   },
   server: {
     port,

@@ -4841,3 +4841,31 @@ $nl-sans:     'Poppins', -apple-system, sans-serif;
     &:hover { text-decoration: underline; }
   }
 }
+
+
+// ── Proteksi konten — production only ────────────────────────
+// Teks & gambar tidak bisa diseleksi atau di-drag
+img {
+  -webkit-user-drag: none;
+  user-drag: none;
+  pointer-events: none; // blokir klik kanan pada gambar
+}
+
+// Konten utama tidak bisa diseleksi
+main,
+.guides-hero,
+.char-page,
+.news-page,
+.cs-page,
+.home-section,
+footer {
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+// Input & textarea tetap bisa dipilih
+input, textarea, select {
+  user-select: text !important;
+  -webkit-user-select: text !important;
+  pointer-events: auto !important;
+}

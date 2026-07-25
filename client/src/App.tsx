@@ -1,5 +1,6 @@
 import { Route, Switch, Router as WouterRouter } from 'wouter';
 import { MusicProvider } from '@/Hooks/use-music';
+import { useProtection } from '@/Hooks/use-protection';
 import AnnouncementPopup from '@/Components/AnnouncementPopup';
 import Home from '@/Pages/Home';
 import Login from '@/Pages/Login';
@@ -34,6 +35,7 @@ function Router() {
 }
 
 function App() {
+    useProtection();
     return (
         <MusicProvider>
             <AnnouncementPopup />
