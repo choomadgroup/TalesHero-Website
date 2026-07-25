@@ -10,7 +10,6 @@ import {
     IoPersonOutline, IoMailOutline, IoLockClosedOutline,
     IoShieldCheckmarkOutline,
 } from 'react-icons/io5';
-import { GiCrossedSwords } from 'react-icons/gi';
 
 // ── Ganti dengan endpoint API game kamu ───────────────────────
 const REGISTER_API = 'https://api.taleshero.web.id/auth/register';

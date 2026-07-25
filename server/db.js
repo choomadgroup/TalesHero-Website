@@ -16,6 +16,15 @@ const pool = mysql.createPool({
   connectionLimit:    10,
   waitForConnections: true,
 });
+
+// ── Log status koneksi saat pool pertama kali digunakan ─────
+pool.on('connection', (connection) => {
+  console.log(`[db] ✅ Terhubung ke MySQL — thread #${connection.threadId}`);
+});
+
+pool.on('error', (err) => {
+  console.error('[db] ❌ Koneksi MySQL error:', err.message);
+});
 // ────────────────────────────────────────────────────────────
 
 /**
