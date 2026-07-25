@@ -19,7 +19,7 @@ const pool = mysql.createPool({
 
 // ── Log status koneksi saat pool pertama kali digunakan ─────
 pool.on('connection', (connection) => {
-  console.log(`[db] ✅ Terhubung ke MySQL — thread #${connection.threadId}`);
+  console.log(`Terhubung ke MySQL — thread #${connection.threadId}`);
 });
 
 pool.on('error', (err) => {

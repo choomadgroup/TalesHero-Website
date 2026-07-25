@@ -10,6 +10,7 @@ import {
 } from 'react-icons/io5';
 
 const RECAPTCHA_SITE_KEY = '6LeK3mEtAAAAAN5u4fTLNlfuUgwlPPB2dxcw3orE';
+const LOGIN_API          = '/auth/login';
 
 const STARS = Array.from({ length: 18 }, (_, i) => ({
     id: i,
@@ -28,6 +29,7 @@ interface FormErrors {
     username?: string;
     password?: string;
     captcha?:  string;
+    api?:      string;
 }
 
 function validate(data: FormData, captchaToken: string | null): FormErrors {
@@ -54,17 +56,44 @@ export default function Login() {
     const [errors, setErrors]           = useState<FormErrors>({});
     const [showPass, setShowPass]       = useState(false);
     const [captchaToken, setCaptchaToken] = useState<string | null>(null);
+    const [loading, setLoading]         = useState(false);
 
     const set = (key: keyof FormData) => (e: React.ChangeEvent<HTMLInputElement>) => {
         setForm(f => ({ ...f, [key]: e.target.value }));
         if (errors[key]) setErrors(err => ({ ...err, [key]: undefined }));
     };
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         const errs = validate(form, captchaToken);
         if (Object.keys(errs).length > 0) { setErrors(errs); return; }
-        setLocation('/');
+
+        setLoading(true);
+        setErrors({});
+        try {
+            const res = await fetch(LOGIN_API, {
+                method:  'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    username: form.username.trim(),
+                    password: form.password,
+                }),
+            });
+            if (!res.ok) {
+                const data = await res.json().catch(() => ({}));
+                setErrors({ api: data?.message ?? 'Username/email atau kata sandi salah.' });
+                captchaRef.current?.reset();
+                setCaptchaToken(null);
+            } else {
+                setLocation('/');
+            }
+        } catch {
+            setErrors({ api: 'Tidak dapat terhubung ke server.' });
+            captchaRef.current?.reset();
+            setCaptchaToken(null);
+        } finally {
+            setLoading(false);
+        }
     };
 
     return (
@@ -92,6 +121,10 @@ export default function Login() {
                 <div className="login-form-wrap">
                     <h1 className="login-form-wrap__title">Masuk ke Akunmu</h1>
                     <p className="login-form-wrap__sub">Selamat datang kembali, Hero!</p>
+
+                    {errors.api && (
+                        <div className="login-api-error">{errors.api}</div>
+                    )}
 
                     <form className="login-form" onSubmit={handleSubmit} noValidate>
 
@@ -164,7 +197,7 @@ export default function Login() {
                         </div>
 
                         {/* Submit */}
-                        <button type="submit" className="daftar-submit login-submit">
+                        <button type="submit" className="daftar-submit login-submit" disabled={loading}>
                             Masuk Sekarang
                         </button>
 

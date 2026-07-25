@@ -6,6 +6,8 @@ import mdx from '@mdx-js/rollup';
 import remarkFrontmatter from 'remark-frontmatter';
 import remarkMdxFrontmatter from 'remark-mdx-frontmatter';
 import remarkGfm from 'remark-gfm';
+import register from './server/auth/register.js';
+import login from './server/auth/login.js';
 
 import runtimeErrorOverlay from '@replit/vite-plugin-runtime-error-modal';
 
@@ -102,6 +104,50 @@ const metaInjectorPlugin = {
 };
 
 
+function parseBody(req: any): Promise<any> {
+  return new Promise((resolve, reject) => {
+    if (req.body !== undefined) { resolve(req.body); return; }
+    let raw = '';
+    req.resume();
+    req.setEncoding('utf8');
+    req.on('data', (chunk: any) => { raw += chunk; });
+    req.on('end', () => {
+      try { resolve(raw ? JSON.parse(raw) : {}); }
+      catch { reject(new Error('Invalid JSON')); }
+    });
+    req.on('error', reject);
+    setTimeout(() => reject(new Error('Body read timeout')), 5000);
+  });
+}
+
+const apiPlugin = {
+  name: 'tales-hero-api',
+  configureServer(server: any) {
+    server.middlewares.use('/auth/register', async (req: any, res: any, next: any) => {
+      if (req.method !== 'POST') { next(); return; }
+      try {
+        req.body = await parseBody(req);
+        await register(req, res);
+      } catch (e) {
+        res.statusCode = 500;
+        res.setHeader('Content-Type', 'application/json');
+        res.end(JSON.stringify({ message: 'Server error' }));
+      }
+    });
+    server.middlewares.use('/auth/login', async (req: any, res: any, next: any) => {
+      if (req.method !== 'POST') { next(); return; }
+      try {
+        req.body = await parseBody(req);
+        await login(req, res);
+      } catch (e) {
+        res.statusCode = 500;
+        res.setHeader('Content-Type', 'application/json');
+        res.end(JSON.stringify({ message: 'Server error' }));
+      }
+    });
+  },
+};
+
 export default defineConfig({
   base: basePath,
   plugins: [
@@ -119,6 +165,7 @@ export default defineConfig({
     tailwindcss(),
     runtimeErrorOverlay(),
     metaInjectorPlugin,
+    apiPlugin,
     ...(process.env.NODE_ENV !== 'production' &&
     process.env.REPL_ID !== undefined
       ? [

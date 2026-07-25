@@ -12,6 +12,7 @@ import {
 } from 'react-icons/io5';
 
 const RECAPTCHA_SITE_KEY = '6LeK3mEtAAAAAN5u4fTLNlfuUgwlPPB2dxcw3orE';
+const REGISTER_API       = '/auth/register';
 
 const STARS = Array.from({ length: 20 }, (_, i) => ({
     id: i,
@@ -37,13 +38,14 @@ interface FormData {
     secAnswer:  string;
 }
 interface FormErrors {
-    username?:   string;
-    email?:      string;
-    password?:   string;
-    confirm?:    string;
+    username?:    string;
+    email?:       string;
+    password?:    string;
+    confirm?:     string;
     secQuestion?: string;
-    secAnswer?:  string;
-    captcha?:    string;
+    secAnswer?:   string;
+    captcha?:     string;
+    api?:         string;
 }
 
 function validate(data: FormData, captchaToken: string | null): FormErrors {
@@ -97,6 +99,7 @@ export default function Daftar() {
     const [showPass, setShowPass]       = useState(false);
     const [showConfirm, setShowConfirm] = useState(false);
     const [captchaToken, setCaptchaToken] = useState<string | null>(null);
+    const [loading, setLoading]         = useState(false);
     const [success, setSuccess]         = useState(false);
 
     const set = (key: keyof FormData) => (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -104,11 +107,40 @@ export default function Daftar() {
         if (errors[key]) setErrors(err => ({ ...err, [key]: undefined }));
     };
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         const errs = validate(form, captchaToken);
         if (Object.keys(errs).length > 0) { setErrors(errs); return; }
-        setSuccess(true);
+
+        setLoading(true);
+        setErrors({});
+        try {
+            const res = await fetch(REGISTER_API, {
+                method:  'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    username:    form.username.trim(),
+                    email:       form.email.trim(),
+                    password:    form.password,
+                    secQuestion: form.secQuestion,
+                    secAnswer:   form.secAnswer.trim(),
+                }),
+            });
+            if (!res.ok) {
+                const data = await res.json().catch(() => ({}));
+                setErrors({ api: data?.message ?? 'Pendaftaran gagal. Coba lagi nanti.' });
+                captchaRef.current?.reset();
+                setCaptchaToken(null);
+            } else {
+                setSuccess(true);
+            }
+        } catch {
+            setErrors({ api: 'Tidak dapat terhubung ke server.' });
+            captchaRef.current?.reset();
+            setCaptchaToken(null);
+        } finally {
+            setLoading(false);
+        }
     };
 
     return (
@@ -162,6 +194,10 @@ export default function Daftar() {
                         <motion.div key="form" className="daftar-form-wrap">
                             <h1 className="daftar-form-wrap__title">Buat Akun Baru</h1>
                             <p className="daftar-form-wrap__sub">Bergabunglah dan jadilah hero legendaris!</p>
+
+                            {errors.api && (
+                                <div className="daftar-api-error">{errors.api}</div>
+                            )}
 
                             <form className="daftar-form" onSubmit={handleSubmit} noValidate>
 
@@ -313,8 +349,8 @@ export default function Daftar() {
                                 </div>
 
                                 {/* Submit */}
-                                <button type="submit" className="daftar-submit">
-                                    Daftar Sekarang
+                                <button type="submit" className="daftar-submit" disabled={loading}>
+                                    {loading ? <span className="daftar-submit__spinner" /> : 'Daftar Sekarang'}
                                 </button>
 
                             </form>
