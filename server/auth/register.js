@@ -13,6 +13,10 @@
 import crypto from 'node:crypto';
 import { query } from '../db.js';
 
+function sha256(str) {
+  return crypto.createHash('sha256').update(str, 'utf8').digest('hex');
+}
+
 const ALLOWED_QUESTIONS = [
   'Nama hewan kesayangan kamu?',
   'Warna apa yang kamu suka?',
@@ -81,8 +85,22 @@ async function register(req, res) {
       [username.trim(), gamePassword(password)]
     );
 
-    // Email and security-question fields remain in the website form for UX
-    // compatibility, but are not columns in the game publisher table.
+    // ── 4. Simpan data website (email, pertanyaan keamanan) ──
+    await query(
+      `INSERT INTO tales_hero_web_users (username, email, sec_question, sec_answer_hash)
+       VALUES (?, ?, ?, ?)
+       ON DUPLICATE KEY UPDATE
+         email           = VALUES(email),
+         sec_question    = VALUES(sec_question),
+         sec_answer_hash = VALUES(sec_answer_hash)`,
+      [
+        username.trim(),
+        email.trim(),
+        secQuestion,
+        sha256(secAnswer.trim().toLowerCase()),
+      ],
+    );
+
     return res.status(201).json({ message: 'Akun game berhasil dibuat.' });
 
   } catch (err) {

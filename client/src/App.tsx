@@ -1,10 +1,12 @@
 import { Route, Switch, Router as WouterRouter } from 'wouter';
 import { MusicProvider } from '@/Hooks/use-music';
+import { AuthProvider } from '@/Hooks/use-auth';
 import { useProtection } from '@/Hooks/use-protection';
 import AnnouncementPopup from '@/Components/AnnouncementPopup';
 import Home from '@/Pages/Home';
 import Login from '@/Pages/Login';
 import Daftar from '@/Pages/Daftar';
+import Akun from '@/Pages/Akun';
 import Download from '@/Pages/Download';
 import Support from '@/Pages/Support';
 import GuidesPengantar from '@/Pages/Guides/Pengantar';
@@ -21,6 +23,7 @@ function Router() {
             <Route path="/" component={Home} />
             <Route path="/login" component={Login} />
             <Route path="/daftar" component={Daftar} />
+            <Route path="/akun" component={Akun} />
             <Route path="/download" component={Download} />
             <Route path="/support" component={Support} />
             <Route path="/guides/pengantar" component={GuidesPengantar} />
@@ -37,12 +40,14 @@ function Router() {
 function App() {
     useProtection();
     return (
-        <MusicProvider>
-            <AnnouncementPopup />
-            <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, '')}>
-                <Router />
-            </WouterRouter>
-        </MusicProvider>
+        <AuthProvider>
+            <MusicProvider>
+                <AnnouncementPopup />
+                <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, '')}>
+                    <Router />
+                </WouterRouter>
+            </MusicProvider>
+        </AuthProvider>
     );
 }
 

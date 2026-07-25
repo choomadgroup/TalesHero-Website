@@ -29,9 +29,13 @@ async function login(req, res) {
       return res.status(400).json({ message: 'Kata sandi wajib diisi.' });
     }
 
-    // ── 2. Cari user pada tabel akun publisher game ────────
+    // ── 2. Cari user + data website (email, pertanyaan keamanan) ──
     const rows = await query(
-      'SELECT fdUserID, fdGameID, fdPassword, fdCash FROM userinfofrompublisher WHERE fdUserID = ? LIMIT 1',
+      `SELECT g.fdUserID, g.fdGameID, g.fdPassword, g.fdCash,
+              w.email, w.sec_question AS secQuestion
+       FROM userinfofrompublisher g
+       LEFT JOIN tales_hero_web_users w ON w.username = g.fdUserID
+       WHERE g.fdUserID = ? LIMIT 1`,
       [username.trim()]
     );
 
@@ -49,13 +53,14 @@ async function login(req, res) {
     }
 
     // ── 4. Berhasil — kembalikan info user ────────────────
-    //  Tambahkan session / JWT di sini sesuai kebutuhan server kamu.
     return res.status(200).json({
       message: 'Login berhasil.',
       user: {
-        username: user.fdUserID,
-        gameId:   user.fdGameID,
-        cash:     user.fdCash,
+        username:    user.fdUserID,
+        gameId:      user.fdGameID,
+        cash:        user.fdCash,
+        email:       user.email       ?? '',
+        secQuestion: user.secQuestion ?? '',
       },
     });
 

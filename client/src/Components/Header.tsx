@@ -4,7 +4,9 @@ import { useLocation } from 'wouter';
 import { GiBookmarklet } from 'react-icons/gi';
 import { HiMenuAlt3, HiX, HiChevronDown, HiLogin, HiUserAdd, HiDownload, HiQuestionMarkCircle, HiNewspaper } from 'react-icons/hi';
 import { MdHeadset, MdHeadsetOff } from 'react-icons/md';
+import { IoPersonCircleOutline, IoLogOutOutline } from 'react-icons/io5';
 import { useMusic } from '@/Hooks/use-music';
+import { useAuth } from '@/Hooks/use-auth';
 
 // Nav links route-based
 const NAV_LINKS = [
@@ -29,7 +31,9 @@ const Header = ({ light = false }: { light?: boolean }) => {
 
     // ── Music (shared context — persists across navigation) ────────
     const { musicOn, toggleMusic } = useMusic();
-    // ──────────────────────────────────────────────────────────────
+    // ── Auth ────────────────────────────────────────────────────────
+    const { user, logout } = useAuth();
+    // ───────────────────────────────────────────────────────────────
 
     useEffect(() => {
         const onScroll = () => setScrolled(window.scrollY > 20);
@@ -116,20 +120,42 @@ const Header = ({ light = false }: { light?: boolean }) => {
                         >
                             {musicOn ? <MdHeadset size={18} /> : <MdHeadsetOff size={18} />}
                         </button>
-                        <button
-                            className="game-login-btn"
-                            onClick={() => setLocation('/login')}
-                        >
-                            <HiLogin size={16} />
-                            Login
-                        </button>
-                        <button
-                            className="game-cta-btn"
-                            onClick={() => setLocation('/daftar')}
-                        >
-                            <HiUserAdd size={16} />
-                            Daftar
-                        </button>
+                        {user ? (
+                            <>
+                                <button
+                                    className="game-login-btn game-user-btn"
+                                    onClick={() => setLocation('/akun')}
+                                    title="Lihat info akun"
+                                >
+                                    <IoPersonCircleOutline size={17} />
+                                    {user.username}
+                                </button>
+                                <button
+                                    className="game-login-btn game-logout-btn"
+                                    onClick={() => { logout(); setLocation('/'); }}
+                                    title="Keluar"
+                                >
+                                    <IoLogOutOutline size={17} />
+                                </button>
+                            </>
+                        ) : (
+                            <>
+                                <button
+                                    className="game-login-btn"
+                                    onClick={() => setLocation('/login')}
+                                >
+                                    <HiLogin size={16} />
+                                    Login
+                                </button>
+                                <button
+                                    className="game-cta-btn"
+                                    onClick={() => setLocation('/daftar')}
+                                >
+                                    <HiUserAdd size={16} />
+                                    Daftar
+                                </button>
+                            </>
+                        )}
 
                         <button
                             className="game-burger"
@@ -178,20 +204,42 @@ const Header = ({ light = false }: { light?: boolean }) => {
                         </nav>
 
                         <div className="game-drawer__footer">
-                            <button
-                                className="game-login-btn game-login-btn--full"
-                                onClick={() => { setLocation('/login'); setOpened(false); }}
-                            >
-                                <HiLogin size={16} />
-                                Login
-                            </button>
-                            <button
-                                className="game-cta-btn game-cta-btn--full"
-                                onClick={() => { setLocation('/daftar'); setOpened(false); }}
-                            >
-                                <HiUserAdd size={16} />
-                                Daftar
-                            </button>
+                            {user ? (
+                                <>
+                                    <button
+                                        className="game-login-btn game-login-btn--full"
+                                        onClick={() => { setLocation('/akun'); setOpened(false); }}
+                                    >
+                                        <IoPersonCircleOutline size={16} />
+                                        {user.username}
+                                    </button>
+                                    <button
+                                        className="game-login-btn game-login-btn--full"
+                                        style={{ opacity: 0.7 }}
+                                        onClick={() => { logout(); setLocation('/'); setOpened(false); }}
+                                    >
+                                        <IoLogOutOutline size={16} />
+                                        Keluar
+                                    </button>
+                                </>
+                            ) : (
+                                <>
+                                    <button
+                                        className="game-login-btn game-login-btn--full"
+                                        onClick={() => { setLocation('/login'); setOpened(false); }}
+                                    >
+                                        <HiLogin size={16} />
+                                        Login
+                                    </button>
+                                    <button
+                                        className="game-cta-btn game-cta-btn--full"
+                                        onClick={() => { setLocation('/daftar'); setOpened(false); }}
+                                    >
+                                        <HiUserAdd size={16} />
+                                        Daftar
+                                    </button>
+                                </>
+                            )}
                             <a href="mailto:support@taleshero.web.id" className="game-drawer__email">
                                 support@taleshero.web.id
                             </a>

@@ -8,7 +8,8 @@ import remarkMdxFrontmatter from 'remark-mdx-frontmatter';
 import remarkGfm from 'remark-gfm';
 import register from './server/auth/register.js';
 import login from './server/auth/login.js';
-import { ping } from './server/db.js';
+import changePassword from './server/auth/change-password.js';
+import { ping, migrate } from './server/db.js';
 
 import runtimeErrorOverlay from '@replit/vite-plugin-runtime-error-modal';
 
@@ -141,6 +142,7 @@ const apiPlugin = {
     try {
       await ping();
       server.config.logger.info(`  \x1b[32m➜\x1b[0m  MySQL: \x1b[36m${host}\x1b[0m (${db})`);
+      await migrate();
     } catch (err: any) {
       server.config.logger.error(`  MySQL: ❌ gagal konek — ${err.message}`);
     }
@@ -163,6 +165,18 @@ const apiPlugin = {
         addJsonResponseHelpers(res);
         req.body = await parseBody(req);
         await login(req, res);
+      } catch (e) {
+        res.statusCode = 500;
+        res.setHeader('Content-Type', 'application/json');
+        res.end(JSON.stringify({ message: 'Server error' }));
+      }
+    });
+    server.middlewares.use('/auth/change-password', async (req: any, res: any, next: any) => {
+      if (req.method !== 'POST') { next(); return; }
+      try {
+        addJsonResponseHelpers(res);
+        req.body = await parseBody(req);
+        await changePassword(req, res);
       } catch (e) {
         res.statusCode = 500;
         res.setHeader('Content-Type', 'application/json');

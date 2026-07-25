@@ -146,7 +146,7 @@ export default function Daftar() {
     return (
         <>
         <Header />
-        <div className="cs-page cs-page--daftar">
+        <div className={`cs-page cs-page--daftar${success ? ' cs-page--centered' : ''}`}>
             {/* Stars bg */}
             <div className="cs-page__bg">
                 {STARS.map(s => (
@@ -332,20 +332,6 @@ export default function Daftar() {
                                         />
                                     </div>
                                     {errors.secAnswer && <p className="daftar-field__error">{errors.secAnswer}</p>}
-                                </div>
-
-                                {/* reCAPTCHA */}
-                                <div className="daftar-captcha">
-                                    <ReCAPTCHA
-                                        ref={captchaRef}
-                                        sitekey={RECAPTCHA_SITE_KEY}
-                                        onChange={token => {
-                                            setCaptchaToken(token);
-                                            if (errors.captcha) setErrors(e => ({ ...e, captcha: undefined }));
-                                        }}
-                                        onExpired={() => setCaptchaToken(null)}
-                                    />
-                                    {errors.captcha && <p className="daftar-field__error">{errors.captcha}</p>}
                                 </div>
 
                                 {/* Submit */}

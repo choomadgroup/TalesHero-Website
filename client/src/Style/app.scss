@@ -4843,6 +4843,177 @@ $nl-sans:     'Poppins', -apple-system, sans-serif;
 }
 
 
+// ─── Daftar success centering ────────────────────────────────
+.cs-page--daftar.cs-page--centered {
+  align-items: center;
+}
+
+// ─── Akun Page ───────────────────────────────────────────────
+.akun-card {
+  background: #fff;
+  border-radius: 20px;
+  padding: 36px 28px 28px;
+  box-shadow: 0 8px 40px rgba(0,0,0,0.18), 0 2px 8px rgba(0,0,0,0.08);
+  width: 100%;
+  max-width: 440px;
+  text-align: center;
+}
+
+.akun-avatar {
+  width: 76px;
+  height: 76px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #e91e63 0%, #ff9800 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 14px;
+  font-size: 2rem;
+  font-weight: 900;
+  color: #fff;
+  box-shadow: 0 6px 20px rgba(233,30,99,0.35);
+}
+
+.akun-username {
+  font-size: 1.55rem;
+  font-weight: 900;
+  color: #1a1a2e;
+  margin: 0 0 4px;
+  letter-spacing: -0.4px;
+}
+
+.akun-gameid {
+  font-size: 12px;
+  color: #aaa;
+  margin: 0 0 22px;
+  font-weight: 500;
+}
+
+.akun-info {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 20px;
+  text-align: left;
+}
+
+.akun-info__row {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding: 11px 14px;
+  background: #f9f9fc;
+  border-radius: 12px;
+  border-left: 3px solid #e91e63;
+}
+
+.akun-info__label {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 10px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.7px;
+  color: #bbb;
+}
+
+.akun-info__value {
+  font-size: 13.5px;
+  color: #1a1a2e;
+  font-weight: 600;
+  word-break: break-all;
+}
+
+.akun-success-notice {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 10px 16px;
+  background: #e8f5e9;
+  color: #2e7d32;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 700;
+  margin-bottom: 16px;
+}
+
+.akun-change-pass {
+  background: #fff8fb;
+  border: 1.5px solid #f5c0d0;
+  border-radius: 16px;
+  padding: 18px 18px 14px;
+  margin-bottom: 16px;
+  text-align: left;
+
+  &__title {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    font-weight: 800;
+    color: #1a1a2e;
+    margin: 0 0 14px;
+  }
+}
+
+.akun-form-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+
+  .akun-btn { flex: 1; }
+}
+
+.akun-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.akun-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  padding: 12px 20px;
+  border-radius: 100px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  border: none;
+  width: 100%;
+
+  &--pink {
+    background: #e91e63;
+    color: #fff;
+    &:hover { filter: brightness(1.1); transform: translateY(-1px); }
+    &:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+  }
+
+  &--outline {
+    background: transparent;
+    border: 2px solid #e0e0e0;
+    color: #777;
+    &:hover { border-color: #e91e63; color: #e91e63; }
+  }
+}
+
+// Header — user logged-in buttons
+.game-user-btn {
+  max-width: 160px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.game-logout-btn {
+  padding: 8px 10px !important;
+  min-width: unset !important;
+}
+
 // ── Proteksi konten — production only ────────────────────────
 // Teks & gambar tidak bisa diseleksi atau di-drag
 img {

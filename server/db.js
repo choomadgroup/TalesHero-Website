@@ -42,4 +42,22 @@ async function query(sql, params = []) {
   return results;
 }
 
-export { pool, query, ping };
+/**
+ * Buat tabel website supplemental jika belum ada.
+ * Dipanggil sekali saat server start.
+ */
+async function migrate() {
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS tales_hero_web_users (
+      id             INT AUTO_INCREMENT PRIMARY KEY,
+      username       VARCHAR(50)  NOT NULL UNIQUE,
+      email          VARCHAR(100) NOT NULL DEFAULT '',
+      sec_question   VARCHAR(200) NOT NULL DEFAULT '',
+      sec_answer_hash CHAR(64)   NOT NULL DEFAULT '',
+      created_at     DATETIME     DEFAULT CURRENT_TIMESTAMP,
+      INDEX idx_username (username)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+  `);
+}
+
+export { pool, query, ping, migrate };

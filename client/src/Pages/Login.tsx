@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { useLocation } from 'wouter';
 import ReCAPTCHA from 'react-google-recaptcha';
 import { usePageMeta } from '@/Hooks/use-page-meta';
+import { useAuth } from '@/Hooks/use-auth';
 import Header from '@/Components/Header';
 import Footer from '@/Components/Footer';
 import {
@@ -49,6 +50,7 @@ export default function Login() {
         description: 'Masuk ke akun Tales Hero Indonesia-mu dan lanjutkan petualanganmu.',
     });
 
+    const { login } = useAuth();
     const [, setLocation] = useLocation();
     const captchaRef = useRef<ReCAPTCHA>(null);
 
@@ -85,7 +87,15 @@ export default function Login() {
                 captchaRef.current?.reset();
                 setCaptchaToken(null);
             } else {
-                setLocation('/');
+                const data = await res.json().catch(() => ({}));
+                login({
+                    username:    data.user?.username    ?? form.username.trim(),
+                    gameId:      data.user?.gameId      ?? null,
+                    cash:        data.user?.cash        ?? 0,
+                    email:       data.user?.email       ?? '',
+                    secQuestion: data.user?.secQuestion ?? '',
+                });
+                setLocation('/akun');
             }
         } catch {
             setErrors({ api: 'Tidak dapat terhubung ke server.' });
@@ -180,20 +190,6 @@ export default function Login() {
                             >
                                 Lupa kata sandi?
                             </button>
-                        </div>
-
-                        {/* reCAPTCHA */}
-                        <div className="daftar-captcha">
-                            <ReCAPTCHA
-                                ref={captchaRef}
-                                sitekey={RECAPTCHA_SITE_KEY}
-                                onChange={token => {
-                                    setCaptchaToken(token);
-                                    if (errors.captcha) setErrors(e => ({ ...e, captcha: undefined }));
-                                }}
-                                onExpired={() => setCaptchaToken(null)}
-                            />
-                            {errors.captcha && <p className="daftar-field__error">{errors.captcha}</p>}
                         </div>
 
                         {/* Submit */}
