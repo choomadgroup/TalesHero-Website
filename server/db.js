@@ -19,12 +19,22 @@ const pool = mysql.createPool({
 
 // ── Log status koneksi saat pool pertama kali digunakan ─────
 pool.on('connection', (connection) => {
-  console.log(`Terhubung ke MySQL — thread #${connection.threadId}`);
+  console.log(`[db] Terhubung ke MySQL — thread #${connection.threadId}`);
 });
 
 pool.on('error', (err) => {
   console.error('[db] ❌ Koneksi MySQL error:', err.message);
 });
+
+// ── Ping saat server start ───────────────────────────────────
+pool.getConnection()
+  .then((conn) => {
+    console.log(`[db] ✅ MySQL terhubung ke ${process.env.DB_HOST} (${process.env.DB_NAME ?? 'tr_game_db'})`);
+    conn.release();
+  })
+  .catch((err) => {
+    console.error(`[db] ❌ Gagal konek ke MySQL: ${err.message}`);
+  });
 // ────────────────────────────────────────────────────────────
 
 /**
