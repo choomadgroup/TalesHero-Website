@@ -5,6 +5,7 @@ import { useProtection } from '@/Hooks/use-protection';
 import AnnouncementPopup from '@/Components/AnnouncementPopup';
 import Home from '@/Pages/Home';
 import Login from '@/Pages/Login';
+import ForgotPassword from '@/Pages/ForgotPassword';
 import Daftar from '@/Pages/Daftar';
 import Akun from '@/Pages/Akun';
 import Download from '@/Pages/Download';
@@ -22,6 +23,7 @@ function Router() {
         <Switch>
             <Route path="/" component={Home} />
             <Route path="/login" component={Login} />
+            <Route path="/forgot-password" component={ForgotPassword} />
             <Route path="/daftar" component={Daftar} />
             <Route path="/akun" component={Akun} />
             <Route path="/download" component={Download} />

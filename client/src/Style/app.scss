@@ -4983,11 +4983,42 @@ $nl-sans:     'Poppins', -apple-system, sans-serif;
   font-size: 13px;
   outline: none;
 
+  &:disabled {
+    background: #f0f0f4;
+    color: #888894;
+    cursor: not-allowed;
+  }
+
   &:focus {
     border-color: #e91e63;
     box-shadow: 0 0 0 3px rgba(233, 30, 99, .1);
   }
 }
+
+.akun-locked-value {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  min-height: 38px;
+  padding: 10px 12px;
+  box-sizing: border-box;
+  border-radius: 9px;
+  background: #f0f0f4;
+  color: #555563;
+  font-size: 13px;
+  font-weight: 600;
+  word-break: break-all;
+}
+
+.akun-lock-note,
+.akun-form-hint {
+  margin: 6px 0 0;
+  color: #9b9ba6;
+  font-size: 11px;
+  line-height: 1.45;
+}
+
+.akun-form-hint { margin: -5px 0 10px; }
 
 .akun-profile-form .akun-btn {
   margin-top: 14px;
@@ -5209,6 +5240,89 @@ $nl-sans:     'Poppins', -apple-system, sans-serif;
 @keyframes account-dropdown-in {
   from { opacity: 0; transform: translateY(-4px) scale(.98); }
   to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.reset-form-wrap { position: relative; }
+
+.reset-back,
+.reset-secondary {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  border: none;
+  background: transparent;
+  color: #9999a5;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.reset-back {
+  align-self: flex-start;
+  padding: 0;
+  margin-bottom: 16px;
+  &:hover { color: #e91e63; }
+}
+
+.reset-secondary {
+  justify-content: center;
+  width: 100%;
+  margin-top: 12px;
+  &:hover { color: #e91e63; }
+}
+
+.reset-heading-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 52px;
+  height: 52px;
+  margin: 0 auto 12px;
+  border-radius: 50%;
+  background: #fff1f6;
+  color: #e91e63;
+}
+
+.reset-account-chip {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 12px;
+  padding: 10px 12px;
+  border-radius: 9px;
+  background: #fafafd;
+  border: 1px solid #ececf2;
+  color: #9999a5;
+  font-size: 11px;
+
+  strong { color: #1a1a2e; font-size: 13px; }
+}
+
+.reset-question-box {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 11px 12px;
+  border: 1px solid #f3c3d2;
+  border-radius: 9px;
+  background: #fff8fb;
+  color: #5a2e3d;
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1.4;
+}
+
+.reset-question-box svg {
+  flex-shrink: 0;
+  color: #e91e63;
+}
+
+.reset-success {
+  text-align: center;
+  color: #2e9b58;
+  svg { margin-bottom: 10px; }
+  .login-form-wrap__title { color: #1a1a2e; }
 }
 
 // ── Proteksi konten — production only ────────────────────────

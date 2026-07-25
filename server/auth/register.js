@@ -12,16 +12,11 @@
 
 import crypto from 'node:crypto';
 import { query } from '../db.js';
+import { ALLOWED_SECURITY_QUESTIONS } from './security-questions.js';
 
 function sha256(str) {
   return crypto.createHash('sha256').update(str, 'utf8').digest('hex');
 }
-
-const ALLOWED_QUESTIONS = [
-  'Nama hewan kesayangan kamu?',
-  'Warna apa yang kamu suka?',
-  'Apa nama panggilan kamu?',
-];
 
 /**
  * Validasi sederhana di sisi server.
@@ -42,7 +37,7 @@ function validate(body) {
   if (!password || password.length < 8 || password.length > 50)
     return 'Kata sandi harus antara 8–50 karakter.';
 
-  if (!secQuestion || !ALLOWED_QUESTIONS.includes(secQuestion))
+  if (!secQuestion || !ALLOWED_SECURITY_QUESTIONS.includes(secQuestion))
     return 'Pertanyaan keamanan tidak valid.';
 
   if (!secAnswer || secAnswer.trim().length === 0)

@@ -14,6 +14,11 @@ import {
 } from 'react-icons/io5';
 
 const CHANGE_PASS_API = '/auth/change-password';
+const SECURITY_QUESTIONS = [
+    'Nama hewan kesayangan kamu?',
+    'Warna apa yang kamu suka?',
+    'Apa nama panggilan kamu?',
+];
 
 const STARS = Array.from({ length: 16 }, (_, i) => ({
     id: i,
@@ -52,9 +57,15 @@ export default function Akun() {
     const [form,         setForm]         = useState<ChangeForm>({ secAnswer: '', newPassword: '', confirm: '' });
     const [errors,       setErrors]       = useState<ChangeErrors>({});
     const [profileForm, setProfileForm] = useState({ username: '', email: '' });
+    const [profilePassword, setProfilePassword] = useState('');
     const [profileLoading, setProfileLoading] = useState(false);
     const [profileMessage, setProfileMessage] = useState('');
     const [profileError, setProfileError] = useState('');
+    const [securityForm, setSecurityForm] = useState({ question: '', answer: '' });
+    const [securityPassword, setSecurityPassword] = useState('');
+    const [securityLoading, setSecurityLoading] = useState(false);
+    const [securityMessage, setSecurityMessage] = useState('');
+    const [securityError, setSecurityError] = useState('');
 
     useEffect(() => {
         if (user) setProfileForm({ username: user.username, email: user.email });
@@ -107,7 +118,8 @@ export default function Akun() {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     currentUsername: user.username,
-                    username: profileForm.username.trim(),
+                    currentPassword: profilePassword,
+                    username: user.username,
                     email: profileForm.email.trim(),
                 }),
             });
@@ -116,12 +128,47 @@ export default function Akun() {
                 setProfileError(data?.message ?? 'Profil gagal diperbarui.');
                 return;
             }
-            updateUser({ username: profileForm.username.trim(), email: profileForm.email.trim() });
+            updateUser({ username: user.username, email: data.user?.email ?? profileForm.email.trim(), secQuestion: data.user?.secQuestion ?? user.secQuestion });
+            setProfilePassword('');
             setProfileMessage(data?.message ?? 'Profil berhasil diperbarui.');
         } catch {
             setProfileError('Tidak dapat terhubung ke server.');
         } finally {
             setProfileLoading(false);
+        }
+    };
+
+    const handleSecuritySubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setSecurityLoading(true);
+        setSecurityMessage('');
+        setSecurityError('');
+        try {
+            const res = await fetch('/auth/update-profile', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    currentUsername: user.username,
+                    currentPassword: securityPassword,
+                    username: user.username,
+                    email: user.email,
+                    secQuestion: securityForm.question,
+                    secAnswer: securityForm.answer,
+                }),
+            });
+            const data = await res.json().catch(() => ({}));
+            if (!res.ok) {
+                setSecurityError(data?.message ?? 'Pertanyaan keamanan gagal disimpan.');
+                return;
+            }
+            updateUser({ secQuestion: data.user?.secQuestion ?? securityForm.question });
+            setSecurityForm({ question: '', answer: '' });
+            setSecurityPassword('');
+            setSecurityMessage(data?.message ?? 'Pertanyaan keamanan berhasil disimpan.');
+        } catch {
+            setSecurityError('Tidak dapat terhubung ke server.');
+        } finally {
+            setSecurityLoading(false);
         }
     };
 
@@ -233,23 +280,87 @@ export default function Akun() {
                             id="akun-username"
                             className="akun-input"
                             value={profileForm.username}
-                            onChange={e => setProfileForm(form => ({ ...form, username: e.target.value }))}
-                            maxLength={50}
-                            autoComplete="username"
+                            disabled
+                            readOnly
                         />
-                        <label className="akun-input-label" htmlFor="akun-email">Email</label>
-                        <input
-                            id="akun-email"
-                            className="akun-input"
-                            type="email"
-                            value={profileForm.email}
-                            onChange={e => setProfileForm(form => ({ ...form, email: e.target.value }))}
-                            autoComplete="email"
-                        />
-                        <button className="akun-btn akun-btn--pink" type="submit" disabled={profileLoading}>
-                            {profileLoading ? 'Menyimpan...' : 'Simpan Profil'}
-                        </button>
+                        <p className="akun-lock-note">Username tidak dapat diubah setelah akun didaftarkan.</p>
+                        {user.email ? (
+                            <>
+                                <label className="akun-input-label">Email</label>
+                                <div className="akun-locked-value"><IoMailOutline size={14} /> {user.email}</div>
+                                <p className="akun-lock-note">Email sudah terdaftar dan tidak dapat diubah.</p>
+                            </>
+                        ) : (
+                            <>
+                                <label className="akun-input-label" htmlFor="akun-email">Email</label>
+                                <input
+                                    id="akun-email"
+                                    className="akun-input"
+                                    type="email"
+                                    value={profileForm.email}
+                                    onChange={e => setProfileForm(form => ({ ...form, email: e.target.value }))}
+                                    autoComplete="email"
+                                    placeholder="Masukkan email kamu"
+                                />
+                                <label className="akun-input-label" htmlFor="akun-email-password">Kata Sandi Saat Ini</label>
+                                <input
+                                    id="akun-email-password"
+                                    className="akun-input"
+                                    type="password"
+                                    value={profilePassword}
+                                    onChange={e => setProfilePassword(e.target.value)}
+                                    placeholder="Untuk konfirmasi keamanan"
+                                    autoComplete="current-password"
+                                />
+                                <button className="akun-btn akun-btn--pink" type="submit" disabled={profileLoading || !profileForm.email.trim()}>
+                                    {profileLoading ? 'Menyimpan...' : 'Simpan Email'}
+                                </button>
+                            </>
+                        )}
                     </form>
+
+                    {!user.secQuestion && (
+                        <form className="akun-profile-form" onSubmit={handleSecuritySubmit}>
+                            <p className="akun-section-title"><IoShieldCheckmarkOutline size={14} /> Atur Pertanyaan Keamanan</p>
+                            <p className="akun-form-hint">Pertanyaan ini hanya dapat diatur satu kali dan akan digunakan untuk reset kata sandi.</p>
+                            {securityError && <p className="akun-inline-error">{securityError}</p>}
+                            {securityMessage && <p className="akun-inline-success"><IoCheckmarkCircle size={14} /> {securityMessage}</p>}
+                            <label className="akun-input-label" htmlFor="akun-security-question">Pilih Pertanyaan</label>
+                            <select
+                                id="akun-security-question"
+                                className="akun-input"
+                                value={securityForm.question}
+                                onChange={e => setSecurityForm(form => ({ ...form, question: e.target.value }))}
+                                required
+                            >
+                                <option value="">— Pilih pertanyaan —</option>
+                                {SECURITY_QUESTIONS.map(question => <option key={question} value={question}>{question}</option>)}
+                            </select>
+                            <label className="akun-input-label" htmlFor="akun-security-answer">Jawaban</label>
+                            <input
+                                id="akun-security-answer"
+                                className="akun-input"
+                                value={securityForm.answer}
+                                onChange={e => setSecurityForm(form => ({ ...form, answer: e.target.value }))}
+                                placeholder="Masukkan jawaban kamu"
+                                required
+                            />
+                            <label className="akun-input-label" htmlFor="akun-security-password">Kata Sandi Saat Ini</label>
+                            <input
+                                id="akun-security-password"
+                                className="akun-input"
+                                type="password"
+                                value={securityPassword}
+                                onChange={e => setSecurityPassword(e.target.value)}
+                                placeholder="Untuk konfirmasi keamanan"
+                                autoComplete="current-password"
+                                required
+                            />
+                            <button className="akun-btn akun-btn--pink" type="submit" disabled={securityLoading}>
+                                {securityLoading ? 'Menyimpan...' : 'Simpan Pertanyaan'}
+                            </button>
+                        </form>
+                    )}
 
                     {/* Password changed notice */}
                     <AnimatePresence>

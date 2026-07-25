@@ -5,6 +5,8 @@ import register from './auth/register.js';
 import login from './auth/login.js';
 import changePassword from './auth/change-password.js';
 import updateProfile from './auth/update-profile.js';
+import securityQuestion from './auth/security-question.js';
+import resetPassword from './auth/reset-password.js';
 import { migrate } from './db.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -23,6 +25,8 @@ app.post('/auth/register', register);
 app.post('/auth/login', login);
 app.post('/auth/change-password', changePassword);
 app.post('/auth/update-profile', updateProfile);
+app.post('/auth/security-question', securityQuestion);
+app.post('/auth/reset-password', resetPassword);
 
 app.use(express.static(publicDir, { index: 'index.html' }));
 

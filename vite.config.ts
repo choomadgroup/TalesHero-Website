@@ -10,6 +10,8 @@ import register from './server/auth/register.js';
 import login from './server/auth/login.js';
 import changePassword from './server/auth/change-password.js';
 import updateProfile from './server/auth/update-profile.js';
+import securityQuestion from './server/auth/security-question.js';
+import resetPassword from './server/auth/reset-password.js';
 import { ping, migrate } from './server/db.js';
 
 import runtimeErrorOverlay from '@replit/vite-plugin-runtime-error-modal';
@@ -38,6 +40,10 @@ const routeMeta: Record<string, { title: string; description: string }> = {
   '/login': {
     title: 'Login — Tales Hero Indonesia',
     description: 'Masuk ke akun Tales Hero Indonesia-mu dan lanjutkan petualanganmu.',
+  },
+  '/forgot-password': {
+    title: 'Reset Kata Sandi — Tales Hero Indonesia',
+    description: 'Atur ulang kata sandi akun Tales Hero Indonesia menggunakan pertanyaan keamanan.',
   },
   '/support': {
     title: 'Support — Tales Hero Indonesia',
@@ -190,6 +196,30 @@ const apiPlugin = {
         addJsonResponseHelpers(res);
         req.body = await parseBody(req);
         await updateProfile(req, res);
+      } catch (e) {
+        res.statusCode = 500;
+        res.setHeader('Content-Type', 'application/json');
+        res.end(JSON.stringify({ message: 'Server error' }));
+      }
+    });
+    server.middlewares.use('/auth/security-question', async (req: any, res: any, next: any) => {
+      if (req.method !== 'POST') { next(); return; }
+      try {
+        addJsonResponseHelpers(res);
+        req.body = await parseBody(req);
+        await securityQuestion(req, res);
+      } catch (e) {
+        res.statusCode = 500;
+        res.setHeader('Content-Type', 'application/json');
+        res.end(JSON.stringify({ message: 'Server error' }));
+      }
+    });
+    server.middlewares.use('/auth/reset-password', async (req: any, res: any, next: any) => {
+      if (req.method !== 'POST') { next(); return; }
+      try {
+        addJsonResponseHelpers(res);
+        req.body = await parseBody(req);
+        await resetPassword(req, res);
       } catch (e) {
         res.statusCode = 500;
         res.setHeader('Content-Type', 'application/json');
