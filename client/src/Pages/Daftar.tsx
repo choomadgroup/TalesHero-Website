@@ -48,6 +48,8 @@ interface FormErrors {
     api?:         string;
 }
 
+const IS_DEV = import.meta.env.DEV;
+
 function validate(data: FormData, captchaToken: string | null): FormErrors {
     const errors: FormErrors = {};
 
@@ -79,7 +81,7 @@ function validate(data: FormData, captchaToken: string | null): FormErrors {
     if (!data.secAnswer.trim())
         errors.secAnswer = 'Jawaban pertanyaan keamanan wajib diisi.';
 
-    if (!captchaToken)
+    if (!IS_DEV && !captchaToken)
         errors.captcha = 'Harap selesaikan verifikasi CAPTCHA.';
 
     return errors;

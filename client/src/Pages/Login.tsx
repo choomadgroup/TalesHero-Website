@@ -33,13 +33,15 @@ interface FormErrors {
     api?:      string;
 }
 
+const IS_DEV = import.meta.env.DEV;
+
 function validate(data: FormData, captchaToken: string | null): FormErrors {
     const errors: FormErrors = {};
     if (!data.username.trim())
         errors.username = 'Username atau email wajib diisi.';
     if (!data.password)
         errors.password = 'Kata sandi wajib diisi.';
-    if (!captchaToken)
+    if (!IS_DEV && !captchaToken)
         errors.captcha = 'Harap selesaikan verifikasi CAPTCHA.';
     return errors;
 }
