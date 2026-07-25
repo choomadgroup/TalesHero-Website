@@ -43,7 +43,7 @@ const Footer = () => (
 
                 <span className="site-footer__rights">
                     Tales Hero Indonesia Private Server. Semua data, files &amp;
-                    gambar milik &copy; Rhaon Entertainment.
+                    gambar milik &copy; Rhaon Entertainment. Design by Choiril Ahmad.
                 </span>
             </div>
             <div className="site-footer__socials">
