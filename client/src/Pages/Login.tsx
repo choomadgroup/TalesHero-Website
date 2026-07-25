@@ -11,7 +11,7 @@ import {
 import { GiCrossedSwords } from 'react-icons/gi';
 
 // ── Ganti dengan endpoint API game ─────────────────────────────
-const LOGIN_API = 'https://api.taleshero.web.id/auth/login';
+const LOGIN_API = '/api/auth/login';
 const RECAPTCHA_SITE_KEY = '6LeK3mEtAAAAAN5u4fTLNlfuUgwlPPB2dxcw3orE';
 // ──────────────────────────────────────────────────────────────
 

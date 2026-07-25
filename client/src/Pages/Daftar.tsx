@@ -12,7 +12,7 @@ import {
 } from 'react-icons/io5';
 
 // ── Ganti dengan endpoint API game kamu ───────────────────────
-const REGISTER_API = 'https://api.taleshero.web.id/auth/register';
+const REGISTER_API = '/api/auth/register';
 const RECAPTCHA_SITE_KEY = '6LeK3mEtAAAAAN5u4fTLNlfuUgwlPPB2dxcw3orE';
 // ─────────────────────────────────────────────────────────────
 
