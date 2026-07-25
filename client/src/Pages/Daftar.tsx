@@ -1,6 +1,7 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useLocation } from 'wouter';
+import ReCAPTCHA from 'react-google-recaptcha';
 import { usePageMeta } from '@/Hooks/use-page-meta';
 import Header from '@/Components/Header';
 import Footer from '@/Components/Footer';
@@ -9,6 +10,8 @@ import {
     IoPersonOutline, IoMailOutline, IoLockClosedOutline,
     IoShieldCheckmarkOutline,
 } from 'react-icons/io5';
+
+const RECAPTCHA_SITE_KEY = '6LeK3mEtAAAAAN5u4fTLNlfuUgwlPPB2dxcw3orE';
 
 const STARS = Array.from({ length: 20 }, (_, i) => ({
     id: i,
@@ -40,9 +43,10 @@ interface FormErrors {
     confirm?:    string;
     secQuestion?: string;
     secAnswer?:  string;
+    captcha?:    string;
 }
 
-function validate(data: FormData): FormErrors {
+function validate(data: FormData, captchaToken: string | null): FormErrors {
     const errors: FormErrors = {};
 
     if (!data.username.trim())
@@ -73,6 +77,9 @@ function validate(data: FormData): FormErrors {
     if (!data.secAnswer.trim())
         errors.secAnswer = 'Jawaban pertanyaan keamanan wajib diisi.';
 
+    if (!captchaToken)
+        errors.captcha = 'Harap selesaikan verifikasi CAPTCHA.';
+
     return errors;
 }
 
@@ -83,12 +90,14 @@ export default function Daftar() {
     });
 
     const [, setLocation] = useLocation();
+    const captchaRef = useRef<ReCAPTCHA>(null);
 
-    const [form, setForm]             = useState<FormData>({ username: '', email: '', password: '', confirm: '', secQuestion: '', secAnswer: '' });
-    const [errors, setErrors]         = useState<FormErrors>({});
-    const [showPass, setShowPass]     = useState(false);
+    const [form, setForm]               = useState<FormData>({ username: '', email: '', password: '', confirm: '', secQuestion: '', secAnswer: '' });
+    const [errors, setErrors]           = useState<FormErrors>({});
+    const [showPass, setShowPass]       = useState(false);
     const [showConfirm, setShowConfirm] = useState(false);
-    const [success, setSuccess]       = useState(false);
+    const [captchaToken, setCaptchaToken] = useState<string | null>(null);
+    const [success, setSuccess]         = useState(false);
 
     const set = (key: keyof FormData) => (e: React.ChangeEvent<HTMLInputElement>) => {
         setForm(f => ({ ...f, [key]: e.target.value }));
@@ -97,7 +106,7 @@ export default function Daftar() {
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        const errs = validate(form);
+        const errs = validate(form, captchaToken);
         if (Object.keys(errs).length > 0) { setErrors(errs); return; }
         setSuccess(true);
     };
@@ -287,6 +296,20 @@ export default function Daftar() {
                                         />
                                     </div>
                                     {errors.secAnswer && <p className="daftar-field__error">{errors.secAnswer}</p>}
+                                </div>
+
+                                {/* reCAPTCHA */}
+                                <div className="daftar-captcha">
+                                    <ReCAPTCHA
+                                        ref={captchaRef}
+                                        sitekey={RECAPTCHA_SITE_KEY}
+                                        onChange={token => {
+                                            setCaptchaToken(token);
+                                            if (errors.captcha) setErrors(e => ({ ...e, captcha: undefined }));
+                                        }}
+                                        onExpired={() => setCaptchaToken(null)}
+                                    />
+                                    {errors.captcha && <p className="daftar-field__error">{errors.captcha}</p>}
                                 </div>
 
                                 {/* Submit */}
