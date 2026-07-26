@@ -88,9 +88,15 @@ export default function Login() {
             });
             if (!res.ok) {
                 const data = await res.json().catch(() => ({}));
-                setErrors({ api: data?.message ?? 'Username/email atau kata sandi salah.' });
-                captchaRef.current?.reset();
-                setCaptchaToken(null);
+                const msg = data?.message ?? 'Username/email atau kata sandi salah.';
+                setErrors({ api: msg });
+                // Hanya reset captcha jika server memang menolak token captcha-nya.
+                // Untuk error lain (salah password, server error), captcha tetap
+                // tercentang agar user tidak perlu solve ulang setiap retry.
+                if (msg === 'Harap selesaikan verifikasi CAPTCHA.') {
+                    captchaRef.current?.reset();
+                    setCaptchaToken(null);
+                }
             } else {
                 const data = await res.json().catch(() => ({}));
                 login({
@@ -106,8 +112,8 @@ export default function Login() {
             }
         } catch {
             setErrors({ api: 'Tidak dapat terhubung ke server.' });
-            captchaRef.current?.reset();
-            setCaptchaToken(null);
+            // Network error: request tidak sampai ke server, token belum dikonsumsi,
+            // jadi tidak perlu reset captcha.
         } finally {
             setLoading(false);
         }
