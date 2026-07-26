@@ -13,7 +13,7 @@
     "start": "node server/index.js",
     "serve": "vite preview --config vite.config.ts --host 0.0.0.0",
     "typecheck": "tsc -p tsconfig.json --noEmit",
-    "deploy:cloudflare": "pnpm run build && npx wrangler pages deploy dist/public --project-name tales-hero"
+    "deploy:cloudflare": "pnpm run build && npx --yes wrangler@3.114.17 pages deploy dist/public --project-name tales-hero"
   },
   "devDependencies": {
     "@hookform/resolvers": "^3.10.0",
