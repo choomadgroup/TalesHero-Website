@@ -13,7 +13,6 @@ const AUTO_INTERVAL = 4000;
 export default function AnnouncementPopup() {
     const [open, setOpen]       = useState(true);
     const [current, setCurrent] = useState(0);
-    const [paused, setPaused]   = useState(false);
 
     const total = POPUP_IMAGES.length;
     const prev  = () => setCurrent(i => (i - 1 + total) % total);
@@ -21,10 +20,10 @@ export default function AnnouncementPopup() {
 
     // Auto-rotate
     useEffect(() => {
-        if (!open || paused || total <= 1) return;
+        if (!open || total <= 1) return;
         const id = setInterval(() => setCurrent(i => (i + 1) % total), AUTO_INTERVAL);
         return () => clearInterval(id);
-    }, [open, paused, total]);
+    }, [open, total]);
 
     // Cegah layout shift (scrollbar hilang/muncul) saat popup terbuka
     useEffect(() => {
@@ -60,8 +59,6 @@ export default function AnnouncementPopup() {
 
             {/* Popup */}
             <div
-                onMouseEnter={() => setPaused(true)}
-                onMouseLeave={() => setPaused(false)}
                 style={{
                     position: 'fixed',
                     top: '50%',

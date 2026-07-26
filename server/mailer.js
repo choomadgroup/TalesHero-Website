@@ -6,7 +6,7 @@ import { Resend } from 'resend';
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
-const FROM  = 'Tales Hero Indonesia <noreply@taleshero.web.id>';
+const FROM  = '<noreply@taleshero.web.id>';
 const BASE  = 'https://taleshero.web.id';
 const LOGO  = `${BASE}/Image/tales-hero-banner.png`;
 
@@ -77,7 +77,7 @@ export async function sendPasswordResetEmail(toEmail, toUsername, token) {
   ].join('\n');
 
   const { error } = await resend.emails.send({
-    from: FROM,
+    from: `"Tales Hero Indonesia" <${FROM}>`,
     to: toEmail,
     subject: 'Reset Kata Sandi Tales Hero Indonesia',
     text: plainText,
@@ -122,7 +122,7 @@ export async function sendSecurityQuestionEmail(toEmail, toUsername, secQuestion
   ].join('\n');
 
   const { error } = await resend.emails.send({
-    from: FROM,
+    from: `"Tales Hero Indonesia" <${FROM}>`,
     to: toEmail,
     subject: 'Pemulihan Akun Tales Hero Indonesia',
     text: plainText,
