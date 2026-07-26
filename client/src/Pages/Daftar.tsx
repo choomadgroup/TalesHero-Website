@@ -1,8 +1,7 @@
-import { useState, useRef } from 'react';
+import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import FormSkeleton from '@/Components/FormSkeleton';
 import { useLocation } from 'wouter';
-import ReCAPTCHA from 'react-google-recaptcha';
 import { usePageMeta } from '@/Hooks/use-page-meta';
 import Header from '@/Components/Header';
 import Footer from '@/Components/Footer';
@@ -12,8 +11,7 @@ import {
     IoShieldCheckmarkOutline, IoCloseCircleOutline, IoEllipseOutline,
 } from 'react-icons/io5';
 
-const RECAPTCHA_SITE_KEY = '6LeK3mEtAAAAAN5u4fTLNlfuUgwlPPB2dxcw3orE';
-const REGISTER_API       = '/auth/register';
+const REGISTER_API = '/auth/register';
 
 const STARS = Array.from({ length: 20 }, (_, i) => ({
     id: i,
@@ -45,13 +43,10 @@ interface FormErrors {
     confirm?:     string;
     secQuestion?: string;
     secAnswer?:   string;
-    captcha?:     string;
     api?:         string;
 }
 
-const IS_DEV = import.meta.env.DEV;
-
-function validate(data: FormData, captchaToken: string | null): FormErrors {
+function validate(data: FormData): FormErrors {
     const errors: FormErrors = {};
 
     if (!data.username.trim())
@@ -88,9 +83,6 @@ function validate(data: FormData, captchaToken: string | null): FormErrors {
     if (!data.secAnswer.trim())
         errors.secAnswer = 'Jawaban pertanyaan keamanan wajib diisi.';
 
-    if (!IS_DEV && !captchaToken)
-        errors.captcha = 'Harap selesaikan verifikasi CAPTCHA.';
-
     return errors;
 }
 
@@ -101,13 +93,11 @@ export default function Daftar() {
     });
 
     const [, setLocation] = useLocation();
-    const captchaRef = useRef<ReCAPTCHA>(null);
 
     const [form, setForm]               = useState<FormData>({ username: '', email: '', password: '', confirm: '', secQuestion: '', secAnswer: '' });
     const [errors, setErrors]           = useState<FormErrors>({});
     const [showPass, setShowPass]       = useState(false);
     const [showConfirm, setShowConfirm] = useState(false);
-    const [captchaToken, setCaptchaToken] = useState<string | null>(null);
     const [loading, setLoading]         = useState(false);
     const [success, setSuccess]         = useState(false);
     const passwordRules = [
@@ -127,7 +117,7 @@ export default function Daftar() {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        const errs = validate(form, captchaToken);
+        const errs = validate(form);
         if (Object.keys(errs).length > 0) { setErrors(errs); return; }
 
         setLoading(true);
@@ -142,21 +132,16 @@ export default function Daftar() {
                     password:    form.password,
                     secQuestion: form.secQuestion,
                     secAnswer:   form.secAnswer.trim(),
-                    captcha:     captchaToken,
                 }),
             });
             if (!res.ok) {
                 const data = await res.json().catch(() => ({}));
                 setErrors({ api: data?.message ?? 'Pendaftaran gagal. Coba lagi nanti.' });
-                captchaRef.current?.reset();
-                setCaptchaToken(null);
             } else {
                 setSuccess(true);
             }
         } catch {
             setErrors({ api: 'Tidak dapat terhubung ke server.' });
-            captchaRef.current?.reset();
-            setCaptchaToken(null);
         } finally {
             setLoading(false);
         }
@@ -375,20 +360,6 @@ export default function Daftar() {
                                         />
                                     </div>
                                     {errors.secAnswer && <p className="daftar-field__error">{errors.secAnswer}</p>}
-                                </div>
-
-                                {/* reCAPTCHA */}
-                                <div className="daftar-captcha">
-                                    <ReCAPTCHA
-                                        ref={captchaRef}
-                                        sitekey={RECAPTCHA_SITE_KEY}
-                                        onChange={token => {
-                                            setCaptchaToken(token);
-                                            if (errors.captcha) setErrors(e => ({ ...e, captcha: undefined }));
-                                        }}
-                                        onExpired={() => setCaptchaToken(null)}
-                                    />
-                                    {errors.captcha && <p className="daftar-field__error">{errors.captcha}</p>}
                                 </div>
 
                                 {/* Submit */}

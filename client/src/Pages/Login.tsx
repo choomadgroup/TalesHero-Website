@@ -1,8 +1,7 @@
-import { useState, useRef } from 'react';
+import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useLocation } from 'wouter';
 import FormSkeleton from '@/Components/FormSkeleton';
-import ReCAPTCHA from 'react-google-recaptcha';
 import { usePageMeta } from '@/Hooks/use-page-meta';
 import { useAuth } from '@/Hooks/use-auth';
 import Header from '@/Components/Header';
@@ -11,8 +10,7 @@ import {
     IoEye, IoEyeOff, IoPersonOutline, IoLockClosedOutline,
 } from 'react-icons/io5';
 
-const RECAPTCHA_SITE_KEY = '6LeK3mEtAAAAAN5u4fTLNlfuUgwlPPB2dxcw3orE';
-const LOGIN_API          = '/auth/login';
+const LOGIN_API = '/auth/login';
 
 const STARS = Array.from({ length: 18 }, (_, i) => ({
     id: i,
@@ -30,20 +28,15 @@ interface FormData {
 interface FormErrors {
     username?: string;
     password?: string;
-    captcha?:  string;
     api?:      string;
 }
 
-const IS_DEV = import.meta.env.DEV;
-
-function validate(data: FormData, captchaToken: string | null): FormErrors {
+function validate(data: FormData): FormErrors {
     const errors: FormErrors = {};
     if (!data.username.trim())
         errors.username = 'Username atau email wajib diisi.';
     if (!data.password)
         errors.password = 'Kata sandi wajib diisi.';
-    if (!IS_DEV && !captchaToken)
-        errors.captcha = 'Harap selesaikan verifikasi CAPTCHA.';
     return errors;
 }
 
@@ -55,13 +48,11 @@ export default function Login() {
 
     const { login } = useAuth();
     const [, setLocation] = useLocation();
-    const captchaRef = useRef<ReCAPTCHA>(null);
 
-    const [form, setForm]               = useState<FormData>({ username: '', password: '' });
-    const [errors, setErrors]           = useState<FormErrors>({});
-    const [showPass, setShowPass]       = useState(false);
-    const [captchaToken, setCaptchaToken] = useState<string | null>(null);
-    const [loading, setLoading]         = useState(false);
+    const [form, setForm]     = useState<FormData>({ username: '', password: '' });
+    const [errors, setErrors] = useState<FormErrors>({});
+    const [showPass, setShowPass] = useState(false);
+    const [loading, setLoading]   = useState(false);
 
     const set = (key: keyof FormData) => (e: React.ChangeEvent<HTMLInputElement>) => {
         setForm(f => ({ ...f, [key]: e.target.value }));
@@ -70,7 +61,7 @@ export default function Login() {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        const errs = validate(form, captchaToken);
+        const errs = validate(form);
         if (Object.keys(errs).length > 0) { setErrors(errs); return; }
 
         setLoading(true);
@@ -82,23 +73,12 @@ export default function Login() {
                 headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
                         username: form.username.trim(),
-                    password: form.password,
-                    captcha: captchaToken,
-                }),
+                        password: form.password,
+                    }),
             });
             if (!res.ok) {
                 const data = await res.json().catch(() => ({}));
-                const msg = data?.message ?? 'Username/email atau kata sandi salah.';
-                // Jangan tampilkan error captcha kalau penyebabnya bukan captcha
-                // (misal salah password) — tampilkan pesan error yang sebenarnya.
-                const displayMsg = msg === 'Harap selesaikan verifikasi CAPTCHA.'
-                    ? msg
-                    : msg;
-                setErrors({ api: displayMsg });
-                // Selalu reset token karena token reCAPTCHA single-use —
-                // setelah dikirim ke Google (berhasil atau tidak), token hangus.
-                captchaRef.current?.reset();
-                setCaptchaToken(null);
+                setErrors({ api: data?.message ?? 'Username/email atau kata sandi salah.' });
             } else {
                 const data = await res.json().catch(() => ({}));
                 login({
@@ -114,8 +94,6 @@ export default function Login() {
             }
         } catch {
             setErrors({ api: 'Tidak dapat terhubung ke server.' });
-            captchaRef.current?.reset();
-            setCaptchaToken(null);
         } finally {
             setLoading(false);
         }
@@ -210,20 +188,6 @@ export default function Login() {
                             >
                                 Lupa kata sandi?
                             </button>
-                        </div>
-
-                        {/* reCAPTCHA */}
-                        <div className="daftar-captcha">
-                            <ReCAPTCHA
-                                ref={captchaRef}
-                                sitekey={RECAPTCHA_SITE_KEY}
-                                onChange={token => {
-                                    setCaptchaToken(token);
-                                    if (errors.captcha) setErrors(err => ({ ...err, captcha: undefined }));
-                                }}
-                                onExpired={() => setCaptchaToken(null)}
-                            />
-                            {errors.captcha && <p className="daftar-field__error">{errors.captcha}</p>}
                         </div>
 
                         {/* Submit */}
