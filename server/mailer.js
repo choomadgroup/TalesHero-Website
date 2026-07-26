@@ -99,11 +99,11 @@ export async function sendPasswordResetEmail(toEmail, toUsername, token) {
   const plainText = `Reset Kata Sandi — Tales Hero Indonesia\n\nHalo ${toUsername},\n\nKlik link berikut untuk mereset kata sandimu:\n${link}\n\nLink berlaku 1 jam. Jika kamu tidak meminta reset, abaikan email ini.\n\n© ${new Date().getFullYear()} Tales Hero Indonesia`;
 
   await transporter.sendMail({
-    from:    FROM,
-    to:      toEmail,
+    from: FROM,
+    to: toEmail,
     subject: 'Reset Kata Sandi Tales Hero Indonesia',
-    text:    plainText,
-    html:    emailShell(bodyHtml),
+    text: plainText,
+    html: emailShell(bodyHtml),
     headers: { 'List-Unsubscribe': UNSUBSCRIBE },
     attachments: [logoAttachment()],
   });
