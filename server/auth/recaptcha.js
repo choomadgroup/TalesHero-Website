@@ -30,6 +30,7 @@ async function verifyRecaptcha(token, remoteIp) {
     if (!response.ok) return false;
 
     const result = await response.json();
+    console.log('[recaptcha] Google response:', JSON.stringify(result));
     return result.success === true;
   } catch (error) {
     console.error('[recaptcha] verification error:', error.message);
