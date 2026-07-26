@@ -5460,6 +5460,51 @@ $nl-sans:     'Poppins', -apple-system, sans-serif;
   .login-form-wrap__title { color: #1a1a2e; }
 }
 
+.reset-email-divider {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 20px 0 14px;
+  color: #b0b0be;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: .04em;
+  &::before, &::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: #ececf2;
+  }
+}
+
+.reset-email-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.reset-email-btn {
+  width: 100%;
+  padding: 10px 14px;
+  border-radius: 9px;
+  border: 1.5px solid #e91e63;
+  background: transparent;
+  color: #e91e63;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background .18s, color .18s;
+  &:hover:not(:disabled) { background: #e91e63; color: #fff; }
+  &:disabled { opacity: .45; cursor: default; }
+
+  &--secondary {
+    border-color: #7c3aed;
+    color: #7c3aed;
+    &:hover:not(:disabled) { background: #7c3aed; color: #fff; }
+  }
+}
+
 // ── Proteksi konten — production only ────────────────────────
 // Teks & gambar tidak bisa diseleksi atau di-drag
 img {
