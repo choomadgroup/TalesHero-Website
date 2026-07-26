@@ -155,8 +155,8 @@ const Header = ({ light = false }: { light?: boolean }) => {
                                 {accountOpen && (
                                     <div className="game-account-dropdown" role="menu">
                                         <div className="game-account-dropdown__greeting">
-                                            <span>Halo,</span>
-                                            <strong>{user.username}</strong>
+                                            <p className="akun-greeting">✦ Halo! Aku ✦</p>
+                                            <strong>{user.nickname || "Belum ada nickname"}</strong>
                                         </div>
                                         <button
                                             className="game-account-dropdown__item"

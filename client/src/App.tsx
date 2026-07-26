@@ -6,6 +6,8 @@ import AnnouncementPopup from '@/Components/AnnouncementPopup';
 import Home from '@/Pages/Home';
 import Login from '@/Pages/Login';
 import ForgotPassword from '@/Pages/ForgotPassword';
+import ResetPasswordEmail from '@/Pages/ResetPasswordEmail';
+import ResetSecurityQuestion from '@/Pages/ResetSecurityQuestion';
 import Daftar from '@/Pages/Daftar';
 import Akun from '@/Pages/Akun';
 import Download from '@/Pages/Download';
@@ -24,6 +26,8 @@ function Router() {
             <Route path="/" component={Home} />
             <Route path="/login" component={Login} />
             <Route path="/forgot-password" component={ForgotPassword} />
+            <Route path="/reset-password" component={ResetPasswordEmail} />
+            <Route path="/reset-security-question" component={ResetSecurityQuestion} />
             <Route path="/daftar" component={Daftar} />
             <Route path="/akun" component={Akun} />
             <Route path="/download" component={Download} />

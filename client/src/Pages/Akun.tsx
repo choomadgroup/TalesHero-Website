@@ -237,8 +237,8 @@ export default function Akun() {
                                 <img src={asset('/Image/Account/IMG-DEFAULT-01.png')} alt="Avatar akun" />
                             </div>
                             <div className="akun-identity__copy">
-                                <p className="akun-greeting">✦ Halo! Aku ✦</p>
-                                <h1 className="akun-username">{user.nickname || user.username}</h1>
+                                    <p className="akun-greeting">✦ Halo! Aku ✦</p>
+                                    <h1 className="akun-username">{user.nickname || "Belum ada nickname"}</h1>
                                 <p className="akun-gameid">Nickname dalam game</p>
                             </div>
                         </div>

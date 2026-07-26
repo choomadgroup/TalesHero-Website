@@ -7,6 +7,10 @@ import changePassword from './auth/change-password.js';
 import updateProfile from './auth/update-profile.js';
 import securityQuestion from './auth/security-question.js';
 import resetPassword from './auth/reset-password.js';
+import forgotPassword from './auth/forgot-password.js';
+import emailResetPassword from './auth/email-reset-password.js';
+import forgotSecurityQuestion from './auth/forgot-security-question.js';
+import emailResetSecurity from './auth/email-reset-security.js';
 import { migrate } from './db.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -27,6 +31,10 @@ app.post('/auth/change-password', changePassword);
 app.post('/auth/update-profile', updateProfile);
 app.post('/auth/security-question', securityQuestion);
 app.post('/auth/reset-password', resetPassword);
+app.post('/auth/forgot-password', forgotPassword);
+app.post('/auth/email-reset-password', emailResetPassword);
+app.post('/auth/forgot-security-question', forgotSecurityQuestion);
+app.post('/auth/email-reset-security', emailResetSecurity);
 
 app.use(express.static(publicDir, { index: 'index.html' }));
 

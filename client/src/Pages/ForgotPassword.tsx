@@ -10,8 +10,10 @@ import {
     IoShieldCheckmarkOutline,
 } from 'react-icons/io5';
 
-const QUESTION_API = '/auth/security-question';
-const RESET_API = '/auth/reset-password';
+const QUESTION_API              = '/auth/security-question';
+const RESET_API                 = '/auth/reset-password';
+const FORGOT_PASSWORD_EMAIL_API = '/auth/forgot-password';
+const FORGOT_SECURITY_EMAIL_API = '/auth/forgot-security-question';
 
 interface ResetErrors {
     identifier?: string;
@@ -38,6 +40,9 @@ export default function ForgotPassword() {
     const [loading, setLoading] = useState(false);
     const [step, setStep] = useState<'lookup' | 'reset' | 'success'>('lookup');
     const [errors, setErrors] = useState<ResetErrors>({});
+    const [emailSent, setEmailSent] = useState<'password' | 'security' | null>(null);
+    const [emailIdentifier, setEmailIdentifier] = useState('');
+    const [emailLoading, setEmailLoading] = useState(false);
 
     const lookupQuestion = async (event: React.FormEvent) => {
         event.preventDefault();
@@ -66,6 +71,25 @@ export default function ForgotPassword() {
             setErrors({ api: 'Tidak dapat terhubung ke server.' });
         } finally {
             setLoading(false);
+        }
+    };
+
+    const sendEmailReset = async (type: 'password' | 'security') => {
+        if (!emailIdentifier.trim()) return;
+        setEmailLoading(true);
+        try {
+            const api = type === 'password' ? FORGOT_PASSWORD_EMAIL_API : FORGOT_SECURITY_EMAIL_API;
+            await fetch(api, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ identifier: emailIdentifier.trim() }),
+            });
+            setEmailSent(type);
+        } catch {
+            // tetap tampilkan pesan sukses agar tidak bisa digunakan mendeteksi akun
+            setEmailSent(type);
+        } finally {
+            setEmailLoading(false);
         }
     };
 
@@ -113,7 +137,22 @@ export default function ForgotPassword() {
                     transition={{ duration: 0.55, ease: 'easeOut' }}
                 >
                     <div className="login-form-wrap reset-form-wrap">
-                        {step === 'success' ? (
+                        {emailSent ? (
+                            <div className="reset-success">
+                                <IoCheckmarkCircle size={54} />
+                                <h1 className="login-form-wrap__title">Email Terkirim!</h1>
+                                <p className="login-form-wrap__sub">
+                                    Jika email kamu terdaftar, link {emailSent === 'password' ? 'reset kata sandi' : 'reset pertanyaan keamanan'} sudah dikirim.<br />
+                                    Periksa kotak masuk atau folder spam kamu.
+                                </p>
+                                <button className="daftar-submit" onClick={() => setLocation('/login')}>
+                                    Kembali ke Login
+                                </button>
+                                <button type="button" className="reset-secondary" onClick={() => { setEmailSent(null); setEmailIdentifier(''); }}>
+                                    Coba lagi
+                                </button>
+                            </div>
+                        ) : step === 'success' ? (
                             <div className="reset-success">
                                 <IoCheckmarkCircle size={54} />
                                 <h1 className="login-form-wrap__title">Kata Sandi Berhasil Diubah</h1>
@@ -162,6 +201,42 @@ export default function ForgotPassword() {
                                         <button className="daftar-submit" type="submit" disabled={loading}>
                                             {loading ? 'Mencari...' : 'Lanjutkan'}
                                         </button>
+
+                                        {/* ── Alternatif via Email ── */}
+                                        <div className="reset-email-divider">
+                                            <span>atau reset via email</span>
+                                        </div>
+                                        <div className="daftar-field">
+                                            <div className="daftar-field__input-wrap">
+                                                <IoPersonOutline className="daftar-field__icon" />
+                                                <input
+                                                    type="text"
+                                                    className="daftar-field__input"
+                                                    placeholder="Username atau email untuk link reset"
+                                                    value={emailIdentifier}
+                                                    onChange={e => setEmailIdentifier(e.target.value)}
+                                                    autoComplete="username"
+                                                />
+                                            </div>
+                                        </div>
+                                        <div className="reset-email-actions">
+                                            <button
+                                                type="button"
+                                                className="reset-email-btn"
+                                                disabled={emailLoading || !emailIdentifier.trim()}
+                                                onClick={() => sendEmailReset('password')}
+                                            >
+                                                {emailLoading ? 'Mengirim...' : '✉ Kirim Link Reset Kata Sandi'}
+                                            </button>
+                                            <button
+                                                type="button"
+                                                className="reset-email-btn reset-email-btn--secondary"
+                                                disabled={emailLoading || !emailIdentifier.trim()}
+                                                onClick={() => sendEmailReset('security')}
+                                            >
+                                                {emailLoading ? 'Mengirim...' : '🛡 Kirim Link Reset Pertanyaan Keamanan'}
+                                            </button>
+                                        </div>
                                     </form>
                                 ) : (
                                     <form className="login-form" onSubmit={resetPassword} noValidate>
