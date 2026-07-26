@@ -4,7 +4,15 @@ import { useLocation } from 'wouter';
 import { usePageMeta } from '@/Hooks/use-page-meta';
 import Header from '@/Components/Header';
 import Footer from '@/Components/Footer';
-import { IoArrowBack, IoCheckmarkCircle, IoEye, IoEyeOff, IoLockClosedOutline } from 'react-icons/io5';
+import {
+    IoArrowBack,
+    IoCheckmarkCircle,
+    IoCloseCircleOutline,
+    IoEllipseOutline,
+    IoEye,
+    IoEyeOff,
+    IoLockClosedOutline,
+} from 'react-icons/io5';
 
 const RESET_API = '/auth/email-reset-password';
 
@@ -22,6 +30,15 @@ export default function ResetPasswordEmail() {
     const [loading, setLoading]         = useState(false);
     const [success, setSuccess]         = useState(false);
     const [error, setError]             = useState('');
+    const passwordRules = [
+        { label: 'Minimal 8 karakter', valid: newPassword.length >= 8 },
+        { label: 'Mengandung huruf besar (A–Z)', valid: /[A-Z]/.test(newPassword) },
+        { label: 'Mengandung huruf kecil (a–z)', valid: /[a-z]/.test(newPassword) },
+        { label: 'Mengandung angka (0–9)', valid: /[0-9]/.test(newPassword) },
+        { label: 'Mengandung tanda khusus (!@#$...)', valid: /[^A-Za-z0-9]/.test(newPassword) },
+        { label: 'Ulangi kata sandi harus sama', valid: Boolean(confirm) && confirm === newPassword },
+    ];
+    const passwordStarted = Boolean(newPassword || confirm);
     useEffect(() => {
         const params = new URLSearchParams(window.location.search);
         const t = params.get('token') ?? '';
@@ -31,7 +48,16 @@ export default function ResetPasswordEmail() {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (newPassword.length < 8) { setError('Kata sandi minimal 8 karakter.'); return; }
+        if (
+            newPassword.length < 8 ||
+            !/[A-Z]/.test(newPassword) ||
+            !/[a-z]/.test(newPassword) ||
+            !/[0-9]/.test(newPassword) ||
+            !/[^A-Za-z0-9]/.test(newPassword)
+        ) {
+            setError('Kata sandi belum memenuhi semua syarat.');
+            return;
+        }
         if (newPassword !== confirm)  { setError('Konfirmasi kata sandi tidak cocok.'); return; }
         setLoading(true);
         setError('');
@@ -113,6 +139,24 @@ export default function ResetPasswordEmail() {
                                                     onChange={e => setConfirm(e.target.value)}
                                                     autoComplete="new-password"
                                                 />
+                                            </div>
+                                        </div>
+                                        <div className="password-rules" aria-live="polite">
+                                            <p className="password-rules__title">Syarat kata sandi</p>
+                                            <div className="password-rules__grid">
+                                                {passwordRules.map(rule => {
+                                                    const state = !passwordStarted ? 'idle' : rule.valid ? 'valid' : 'invalid';
+                                                    return (
+                                                        <span key={rule.label} className={`password-rule password-rule--${state}`}>
+                                                            {state === 'valid'
+                                                                ? <IoCheckmarkCircle size={14} />
+                                                                : state === 'invalid'
+                                                                    ? <IoCloseCircleOutline size={14} />
+                                                                    : <IoEllipseOutline size={12} />}
+                                                            {rule.label}
+                                                        </span>
+                                                    );
+                                                })}
                                             </div>
                                         </div>
                                         <button className="daftar-submit" type="submit" disabled={loading || !token}>

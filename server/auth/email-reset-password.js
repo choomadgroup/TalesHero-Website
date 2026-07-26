@@ -11,8 +11,15 @@ async function emailResetPassword(req, res) {
     if (!token || !newPassword) {
       return res.status(400).json({ message: 'Token dan kata sandi baru wajib diisi.' });
     }
-    if (newPassword.length < 8 || newPassword.length > 50) {
-      return res.status(400).json({ message: 'Kata sandi baru harus 8–50 karakter.' });
+    if (
+      newPassword.length < 8 ||
+      newPassword.length > 50 ||
+      !/[A-Z]/.test(newPassword) ||
+      !/[a-z]/.test(newPassword) ||
+      !/[0-9]/.test(newPassword) ||
+      !/[^A-Za-z0-9]/.test(newPassword)
+    ) {
+      return res.status(400).json({ message: 'Kata sandi belum memenuhi semua syarat.' });
     }
     if (!await verifyRecaptcha(captcha, req.ip)) return captchaError(res);
 
