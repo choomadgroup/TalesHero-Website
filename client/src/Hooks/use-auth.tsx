@@ -2,6 +2,7 @@ import { createContext, useContext, useState, type ReactNode } from 'react';
 
 export interface AuthUser {
   username:    string;
+  nickname:    string;
   gameId:      string | null;
   cash:        number;
   tr:          number;

@@ -4884,6 +4884,25 @@ $nl-sans:     'Poppins', -apple-system, sans-serif;
   padding: 8px 6px 0;
 }
 
+.akun-identity {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.akun-identity__copy {
+  min-width: 0;
+}
+
+.akun-greeting {
+  margin: 0 0 4px;
+  color: #e91e63;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: .3px;
+}
+
 .akun-settings {
   min-width: 0;
 }
@@ -4911,16 +4930,18 @@ $nl-sans:     'Poppins', -apple-system, sans-serif;
 }
 
 .akun-card--landscape .akun-avatar {
-  margin-left: 0;
-  margin-right: 0;
+  flex: 0 0 auto;
+  margin: 0;
 }
 
 .akun-card--landscape .akun-username {
   text-align: left;
+  margin-bottom: 2px;
 }
 
 .akun-card--landscape .akun-gameid {
   text-align: left;
+  margin-bottom: 0;
 }
 
 .akun-card--landscape .akun-profile-form:last-child {
@@ -5208,11 +5229,18 @@ $nl-sans:     'Poppins', -apple-system, sans-serif;
     padding: 0;
   }
 
-  .akun-card--landscape .akun-avatar,
+  .akun-card--landscape .akun-identity {
+    justify-content: center;
+  }
+
   .akun-card--landscape .akun-username,
   .akun-card--landscape .akun-gameid {
     margin-left: auto;
     margin-right: auto;
+    text-align: center;
+  }
+
+  .akun-card--landscape .akun-greeting {
     text-align: center;
   }
 }
@@ -5225,6 +5253,15 @@ $nl-sans:     'Poppins', -apple-system, sans-serif;
 
   .akun-card--landscape .akun-actions {
     flex-direction: column;
+  }
+
+  .akun-identity {
+    gap: 12px;
+  }
+
+  .akun-card--landscape .akun-avatar {
+    width: 66px;
+    height: 66px;
   }
 }
 

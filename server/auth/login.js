@@ -32,6 +32,7 @@ async function login(req, res) {
     // ── 2. Cari user + data website (email, pertanyaan keamanan) ──
     const rows = await query(
       `SELECT g.fdUserID, g.fdGameID, g.fdPassword, g.fdCash,
+               i.fdNickname,
                ig.fdGameMoney,
               w.email, w.sec_question AS secQuestion
        FROM userinfofrompublisher g
@@ -60,6 +61,7 @@ async function login(req, res) {
       message: 'Login berhasil.',
       user: {
         username:    user.fdUserID,
+        nickname:    user.fdNickname ?? '',
         gameId:      user.fdGameID,
         cash:        user.fdCash,
         tr:          user.fdGameMoney ?? 0,

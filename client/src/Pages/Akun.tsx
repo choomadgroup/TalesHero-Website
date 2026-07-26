@@ -232,12 +232,16 @@ export default function Akun() {
             >
                 <div className="akun-card akun-card--landscape">
                     <div className="akun-summary">
-                        {/* Avatar */}
-                        <div className="akun-avatar">
-                            <img src={asset('/Image/Account/IMG-DEFAULT-01.png')} alt="Avatar akun" />
+                        <div className="akun-identity">
+                            <div className="akun-avatar">
+                                <img src={asset('/Image/Account/IMG-DEFAULT-01.png')} alt="Avatar akun" />
+                            </div>
+                            <div className="akun-identity__copy">
+                                <p className="akun-greeting">✦ Halo! Aku ✦</p>
+                                <h1 className="akun-username">{user.nickname || user.username}</h1>
+                                <p className="akun-gameid">Nickname dalam game</p>
+                            </div>
                         </div>
-                        <h1 className="akun-username">{user.username}</h1>
-                        <p className="akun-gameid">Akun Game Tales Hero Indonesia</p>
 
                         {/* Info rows */}
                         <div className="akun-balance-grid">
