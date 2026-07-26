@@ -8,6 +8,8 @@ import updateProfile from './auth/update-profile.js';
 import forgotPassword from './auth/forgot-password.js';
 import emailResetPassword from './auth/email-reset-password.js';
 import forgotSecurityQuestion from './auth/forgot-security-question.js';
+import me from './auth/me.js';
+import logout from './auth/logout.js';
 import { migrate } from './db.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -24,6 +26,8 @@ app.get('/healthz', (_req, res) => {
 
 app.post('/auth/register', register);
 app.post('/auth/login', login);
+app.get('/auth/me', me);
+app.post('/auth/logout', logout);
 app.post('/auth/change-password', changePassword);
 app.post('/auth/update-profile', updateProfile);
 app.post('/auth/forgot-password', forgotPassword);

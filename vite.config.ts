@@ -13,6 +13,8 @@ import updateProfile from './server/auth/update-profile.js';
 import forgotPassword from './server/auth/forgot-password.js';
 import emailResetPassword from './server/auth/email-reset-password.js';
 import forgotSecurityQuestion from './server/auth/forgot-security-question.js';
+import me from './server/auth/me.js';
+import logout from './server/auth/logout.js';
 import { ping, migrate } from './server/db.js';
 
 import runtimeErrorOverlay from '@replit/vite-plugin-runtime-error-modal';
@@ -181,6 +183,28 @@ const apiPlugin = {
         addJsonResponseHelpers(res);
         req.body = await parseBody(req);
         await login(req, res);
+      } catch (e) {
+        res.statusCode = 500;
+        res.setHeader('Content-Type', 'application/json');
+        res.end(JSON.stringify({ message: 'Server error' }));
+      }
+    });
+    server.middlewares.use('/auth/me', async (req: any, res: any, next: any) => {
+      if (req.method !== 'GET') { next(); return; }
+      try {
+        addJsonResponseHelpers(res);
+        await me(req, res);
+      } catch (e) {
+        res.statusCode = 500;
+        res.setHeader('Content-Type', 'application/json');
+        res.end(JSON.stringify({ message: 'Server error' }));
+      }
+    });
+    server.middlewares.use('/auth/logout', async (req: any, res: any, next: any) => {
+      if (req.method !== 'POST') { next(); return; }
+      try {
+        addJsonResponseHelpers(res);
+        await logout(req, res);
       } catch (e) {
         res.statusCode = 500;
         res.setHeader('Content-Type', 'application/json');

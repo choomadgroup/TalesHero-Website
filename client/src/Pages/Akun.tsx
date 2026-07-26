@@ -47,7 +47,7 @@ export default function Akun() {
         description: 'Informasi akun game Tales Hero Indonesia-mu.',
     });
 
-    const { user, logout, updateUser } = useAuth();
+    const { user, loading: authLoading, logout, updateUser } = useAuth();
     const [, setLocation]  = useLocation();
 
     const [showForm,     setShowForm]     = useState(false);
@@ -71,6 +71,20 @@ export default function Akun() {
     useEffect(() => {
         if (user) setProfileForm({ username: user.username, email: user.email });
     }, [user?.username, user?.email]);
+
+    if (authLoading) {
+        return (
+            <>
+            <Header />
+            <div className="cs-page cs-page--login">
+                <div className="cs-page__card cs-page__card--account">
+                    <FormSkeleton rows={3} label="Memeriksa sesi..." />
+                </div>
+            </div>
+            <Footer />
+            </>
+        );
+    }
 
     // Redirect ke login kalau belum login
     if (!user) {
@@ -116,11 +130,10 @@ export default function Akun() {
         try {
             const res = await fetch('/auth/update-profile', {
                 method: 'POST',
+                credentials: 'include',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    currentUsername: user.username,
                     currentPassword: profilePassword,
-                    username: user.username,
                     email: profileForm.email.trim(),
                 }),
             });
@@ -147,11 +160,10 @@ export default function Akun() {
         try {
             const res = await fetch('/auth/update-profile', {
                 method: 'POST',
+                credentials: 'include',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    currentUsername: user.username,
                     currentPassword: securityPassword,
-                    username: user.username,
                     email: user.email,
                     secQuestion: securityForm.question,
                     secAnswer: securityForm.answer,
@@ -188,8 +200,9 @@ export default function Akun() {
         try {
             const res = await fetch(CHANGE_PASS_API, {
                 method:  'POST',
+                credentials: 'include',
                 headers: { 'Content-Type': 'application/json' },
-                body:    JSON.stringify({ username: user.username, secAnswer: form.secAnswer, newPassword: form.newPassword }),
+                body:    JSON.stringify({ secAnswer: form.secAnswer, newPassword: form.newPassword }),
             });
             const data = await res.json().catch(() => ({}));
             if (!res.ok) {

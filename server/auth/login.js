@@ -13,6 +13,7 @@
 
 import crypto from 'node:crypto';
 import { query } from '../db.js';
+import { createSession } from './session.js';
 
 /**
  * Express route handler untuk login.
@@ -57,7 +58,8 @@ async function login(req, res) {
       return res.status(401).json({ message: 'Username game atau kata sandi salah.' });
     }
 
-    // ── 4. Berhasil — kembalikan info user ────────────────
+    // ── 4. Berhasil — buat sesi server dan kembalikan info user ─
+    await createSession(res, user.fdUserID);
     return res.status(200).json({
       message: 'Login berhasil.',
       user: {

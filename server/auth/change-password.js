@@ -8,6 +8,7 @@
 
 import crypto from 'node:crypto';
 import { query } from '../db.js';
+import { getSessionUsername } from './session.js';
 
 function sha256(str) {
   return crypto.createHash('sha256').update(str, 'utf8').digest('hex');
@@ -15,9 +16,12 @@ function sha256(str) {
 
 async function changePassword(req, res) {
   try {
-    const { username, secAnswer, newPassword } = req.body ?? {};
+    const { secAnswer, newPassword } = req.body ?? {};
+    const username = await getSessionUsername(req);
 
-    if (!username || !secAnswer || !newPassword)
+    if (!username)
+      return res.status(401).json({ message: 'Silakan login terlebih dahulu.' });
+    if (!secAnswer || !newPassword)
       return res.status(400).json({ message: 'Semua field wajib diisi.' });
 
     if (newPassword.length < 8 || newPassword.length > 50)

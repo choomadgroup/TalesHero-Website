@@ -73,6 +73,17 @@ async function migrate() {
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
   `);
 
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS tales_hero_sessions (
+      token_hash CHAR(64) NOT NULL PRIMARY KEY,
+      username   VARCHAR(50) NOT NULL,
+      expires_at DATETIME   NOT NULL,
+      created_at DATETIME   DEFAULT CURRENT_TIMESTAMP,
+      INDEX idx_session_username (username),
+      INDEX idx_session_expires (expires_at)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+  `);
+
   // Email recovery addresses are one-time identifiers for website accounts.
   // Keep startup alive for legacy databases that already contain duplicates;
   // registration still rejects duplicates transactionally.

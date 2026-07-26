@@ -2,7 +2,7 @@
 // Tales Hero Indonesia — Update Profil Akun
 // POST /auth/update-profile
 //
-// Body JSON: { currentUsername, username, email }
+// Body JSON: { currentPassword, email, secQuestion, secAnswer }
 // Username is the game account key, so both game and website
 // records are renamed together inside one transaction.
 // ============================================================
@@ -10,6 +10,7 @@
 import { pool } from '../db.js';
 import crypto from 'node:crypto';
 import { ALLOWED_SECURITY_QUESTIONS } from './security-questions.js';
+import { getSessionUsername } from './session.js';
 
 function sha256(value) {
   return crypto.createHash('sha256').update(value, 'utf8').digest('hex');
@@ -24,23 +25,18 @@ function validEmail(email) {
 }
 
 async function updateProfile(req, res) {
-  const { currentUsername, currentPassword, username, email, secQuestion, secAnswer } = req.body ?? {};
-  const current = currentUsername?.trim();
-  const requestedUsername = username?.trim();
+  const { currentPassword, email, secQuestion, secAnswer } = req.body ?? {};
+  const current = await getSessionUsername(req);
   const requestedEmail = email?.trim();
   const requestedQuestion = secQuestion?.trim();
   const requestedAnswer = secAnswer?.trim();
 
   if (!current) {
-    return res.status(400).json({ message: 'Username saat ini wajib diisi.' });
+    return res.status(401).json({ message: 'Silakan login terlebih dahulu.' });
   }
   if (!currentPassword) {
     return res.status(400).json({ message: 'Kata sandi saat ini wajib diisi.' });
   }
-  if (requestedUsername && requestedUsername !== current) {
-    return res.status(400).json({ message: 'Username tidak dapat diubah.' });
-  }
-
   const conn = await pool.getConnection();
   try {
     await conn.beginTransaction();

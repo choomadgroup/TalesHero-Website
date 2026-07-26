@@ -41,6 +41,17 @@ pnpm run build
 pnpm run start
 ```
 
+### Sesi login
+
+- `POST /auth/login` memverifikasi password di server dan membuat sesi acak di tabel
+  `tales_hero_sessions`.
+- Sesi dikirim sebagai cookie `HttpOnly` `taleshero_session`; identitas akun tidak
+  lagi dipercaya dari `localStorage` atau field username dari browser.
+- `GET /auth/me` mengambil profil dari sesi aktif, sedangkan `POST /auth/logout`
+  menghapus sesi server.
+- Endpoint profil dan ubah password wajib memiliki sesi aktif. Endpoint daftar,
+  login, dan pemulihan akun memang publik agar bisa digunakan sebelum login.
+
 ## Dependensi yang sudah diinstall
 - `mysql2` — driver MySQL untuk Node.js
 - `express` — production server dan auth routes

@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, type ReactNode } from 'react';
+import { createContext, useContext, useEffect, useState, type ReactNode } from 'react';
 
 export interface AuthUser {
   username:    string;
@@ -12,46 +12,45 @@ export interface AuthUser {
 
 interface AuthContextType {
   user:   AuthUser | null;
+  loading: boolean;
   login:  (user: AuthUser) => void;
   updateUser: (updates: Partial<AuthUser>) => void;
-  logout: () => void;
-}
-
-const AUTH_KEY = 'taleshero_user';
-
-function loadUser(): AuthUser | null {
-  try {
-    const raw = localStorage.getItem(AUTH_KEY);
-    return raw ? (JSON.parse(raw) as AuthUser) : null;
-  } catch { return null; }
+  logout: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | null>(null);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<AuthUser | null>(loadUser);
+  const [user, setUser] = useState<AuthUser | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    window.localStorage.removeItem('taleshero_user');
+    fetch('/auth/me', { credentials: 'include' })
+      .then(async response => response.ok ? response.json() : null)
+      .then(data => setUser(data?.user ?? null))
+      .catch(() => setUser(null))
+      .finally(() => setLoading(false));
+  }, []);
 
   const login = (userData: AuthUser) => {
-    localStorage.setItem(AUTH_KEY, JSON.stringify(userData));
     setUser(userData);
   };
 
-  const logout = () => {
-    localStorage.removeItem(AUTH_KEY);
+  const logout = async () => {
+    await fetch('/auth/logout', { method: 'POST', credentials: 'include' }).catch(() => undefined);
     setUser(null);
   };
 
   const updateUser = (updates: Partial<AuthUser>) => {
     setUser(current => {
       if (!current) return current;
-      const next = { ...current, ...updates };
-      localStorage.setItem(AUTH_KEY, JSON.stringify(next));
-      return next;
+      return { ...current, ...updates };
     });
   };
 
   return (
-    <AuthContext.Provider value={{ user, login, updateUser, logout }}>
+    <AuthContext.Provider value={{ user, loading, login, updateUser, logout }}>
       {children}
     </AuthContext.Provider>
   );
