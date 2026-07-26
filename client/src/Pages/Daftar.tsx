@@ -142,6 +142,7 @@ export default function Daftar() {
                     password:    form.password,
                     secQuestion: form.secQuestion,
                     secAnswer:   form.secAnswer.trim(),
+                    captcha:     captchaToken,
                 }),
             });
             if (!res.ok) {
@@ -374,6 +375,20 @@ export default function Daftar() {
                                         />
                                     </div>
                                     {errors.secAnswer && <p className="daftar-field__error">{errors.secAnswer}</p>}
+                                </div>
+
+                                {/* reCAPTCHA */}
+                                <div className="daftar-captcha">
+                                    <ReCAPTCHA
+                                        ref={captchaRef}
+                                        sitekey={RECAPTCHA_SITE_KEY}
+                                        onChange={token => {
+                                            setCaptchaToken(token);
+                                            if (errors.captcha) setErrors(e => ({ ...e, captcha: undefined }));
+                                        }}
+                                        onExpired={() => setCaptchaToken(null)}
+                                    />
+                                    {errors.captcha && <p className="daftar-field__error">{errors.captcha}</p>}
                                 </div>
 
                                 {/* Submit */}

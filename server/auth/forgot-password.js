@@ -4,6 +4,7 @@
 import crypto from 'node:crypto';
 import { query } from '../db.js';
 import { sendPasswordResetEmail } from '../mailer.js';
+import { captchaError, verifyRecaptcha } from './recaptcha.js';
 
 function maskEmail(email) {
   const [local, domain] = email.split('@');
@@ -13,10 +14,11 @@ function maskEmail(email) {
 
 async function forgotPassword(req, res) {
   try {
-    const { identifier } = req.body ?? {};
+    const { identifier, captcha } = req.body ?? {};
     const id = identifier?.trim();
     const emailId = id?.toLowerCase();
     if (!id) return res.status(400).json({ message: 'Username atau email wajib diisi.' });
+    if (!await verifyRecaptcha(captcha, req.ip)) return captchaError(res);
 
     // Cari user berdasarkan username atau email
     const rows = await query(

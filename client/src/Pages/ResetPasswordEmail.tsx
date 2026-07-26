@@ -1,12 +1,15 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { useLocation } from 'wouter';
 import { usePageMeta } from '@/Hooks/use-page-meta';
 import Header from '@/Components/Header';
 import Footer from '@/Components/Footer';
+import ReCAPTCHA from 'react-google-recaptcha';
 import { IoArrowBack, IoCheckmarkCircle, IoEye, IoEyeOff, IoLockClosedOutline } from 'react-icons/io5';
 
 const RESET_API = '/auth/email-reset-password';
+const RECAPTCHA_SITE_KEY = '6LeK3mEtAAAAAN5u4fTLNlfuUgwlPPB2dxcw3orE';
+const IS_DEV = import.meta.env.DEV;
 
 export default function ResetPasswordEmail() {
     usePageMeta({
@@ -22,6 +25,9 @@ export default function ResetPasswordEmail() {
     const [loading, setLoading]         = useState(false);
     const [success, setSuccess]         = useState(false);
     const [error, setError]             = useState('');
+    const [captchaToken, setCaptchaToken] = useState<string | null>(null);
+    const [captchaErrorMessage, setCaptchaErrorMessage] = useState('');
+    const captchaRef = useRef<ReCAPTCHA>(null);
 
     useEffect(() => {
         const params = new URLSearchParams(window.location.search);
@@ -34,20 +40,32 @@ export default function ResetPasswordEmail() {
         e.preventDefault();
         if (newPassword.length < 8) { setError('Kata sandi minimal 8 karakter.'); return; }
         if (newPassword !== confirm)  { setError('Konfirmasi kata sandi tidak cocok.'); return; }
+        if (!IS_DEV && !captchaToken) {
+            setCaptchaErrorMessage('Harap selesaikan verifikasi CAPTCHA.');
+            return;
+        }
 
         setLoading(true);
         setError('');
+        setCaptchaErrorMessage('');
         try {
             const res = await fetch(RESET_API, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ token, newPassword }),
+                body: JSON.stringify({ token, newPassword, captcha: captchaToken }),
             });
             const data = await res.json().catch(() => ({}));
-            if (!res.ok) { setError(data?.message ?? 'Gagal mereset kata sandi.'); return; }
+            if (!res.ok) {
+                setError(data?.message ?? 'Gagal mereset kata sandi.');
+                captchaRef.current?.reset();
+                setCaptchaToken(null);
+                return;
+            }
             setSuccess(true);
         } catch {
             setError('Tidak dapat terhubung ke server.');
+            captchaRef.current?.reset();
+            setCaptchaToken(null);
         } finally {
             setLoading(false);
         }
@@ -113,6 +131,18 @@ export default function ResetPasswordEmail() {
                                                     autoComplete="new-password"
                                                 />
                                             </div>
+                                        </div>
+                                        <div className="daftar-captcha">
+                                            <ReCAPTCHA
+                                                ref={captchaRef}
+                                                sitekey={RECAPTCHA_SITE_KEY}
+                                                onChange={token => {
+                                                    setCaptchaToken(token);
+                                                    setCaptchaErrorMessage('');
+                                                }}
+                                                onExpired={() => setCaptchaToken(null)}
+                                            />
+                                            {captchaErrorMessage && <p className="daftar-field__error">{captchaErrorMessage}</p>}
                                         </div>
                                         <button className="daftar-submit" type="submit" disabled={loading || !token}>
                                             {loading ? 'Menyimpan...' : 'Simpan Kata Sandi Baru'}

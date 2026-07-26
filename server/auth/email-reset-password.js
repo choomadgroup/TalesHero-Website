@@ -3,16 +3,18 @@
 
 import crypto from 'node:crypto';
 import { query } from '../db.js';
+import { captchaError, verifyRecaptcha } from './recaptcha.js';
 
 async function emailResetPassword(req, res) {
   try {
-    const { token, newPassword } = req.body ?? {};
+    const { token, newPassword, captcha } = req.body ?? {};
     if (!token || !newPassword) {
       return res.status(400).json({ message: 'Token dan kata sandi baru wajib diisi.' });
     }
     if (newPassword.length < 8 || newPassword.length > 50) {
       return res.status(400).json({ message: 'Kata sandi baru harus 8–50 karakter.' });
     }
+    if (!await verifyRecaptcha(captcha, req.ip)) return captchaError(res);
 
     // Cari token yang valid
     const rows = await query(

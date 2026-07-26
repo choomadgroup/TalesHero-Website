@@ -83,6 +83,7 @@ export default function Login() {
                     body: JSON.stringify({
                         username: form.username.trim(),
                     password: form.password,
+                    captcha: captchaToken,
                 }),
             });
             if (!res.ok) {
@@ -201,6 +202,20 @@ export default function Login() {
                             >
                                 Lupa kata sandi?
                             </button>
+                        </div>
+
+                        {/* reCAPTCHA */}
+                        <div className="daftar-captcha">
+                            <ReCAPTCHA
+                                ref={captchaRef}
+                                sitekey={RECAPTCHA_SITE_KEY}
+                                onChange={token => {
+                                    setCaptchaToken(token);
+                                    if (errors.captcha) setErrors(err => ({ ...err, captcha: undefined }));
+                                }}
+                                onExpired={() => setCaptchaToken(null)}
+                            />
+                            {errors.captcha && <p className="daftar-field__error">{errors.captcha}</p>}
                         </div>
 
                         {/* Submit */}

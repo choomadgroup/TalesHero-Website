@@ -3,6 +3,7 @@
 
 import { query } from '../db.js';
 import { sendSecurityQuestionEmail } from '../mailer.js';
+import { captchaError, verifyRecaptcha } from './recaptcha.js';
 
 function maskEmail(email) {
   const [local, domain] = email.split('@');
@@ -12,10 +13,11 @@ function maskEmail(email) {
 
 async function forgotSecurityQuestion(req, res) {
   try {
-    const { identifier } = req.body ?? {};
+    const { identifier, captcha } = req.body ?? {};
     const id = identifier?.trim();
     const emailId = id?.toLowerCase();
     if (!id) return res.status(400).json({ message: 'Username atau email wajib diisi.' });
+    if (!await verifyRecaptcha(captcha, req.ip)) return captchaError(res);
 
     const rows = await query(
       `SELECT g.fdUserID AS username, w.email, w.sec_question AS secQuestion, w.sec_answer AS secAnswer

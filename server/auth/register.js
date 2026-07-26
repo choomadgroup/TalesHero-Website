@@ -13,6 +13,7 @@
 import crypto from 'node:crypto';
 import { pool } from '../db.js';
 import { ALLOWED_SECURITY_QUESTIONS } from './security-questions.js';
+import { captchaError, verifyRecaptcha } from './recaptcha.js';
 
 function sha256(str) {
   return crypto.createHash('sha256').update(str, 'utf8').digest('hex');
@@ -62,9 +63,9 @@ function gamePassword(password) {
  * Express route handler untuk registrasi akun baru.
  */
 async function register(req, res) {
-  const conn = await pool.getConnection();
+  let conn;
   try {
-    const { username, email, password, secQuestion, secAnswer } = req.body ?? {};
+    const { username, email, password, secQuestion, secAnswer, captcha } = req.body ?? {};
     const normalizedEmail = email?.trim().toLowerCase();
 
     // ── 1. Validasi input ─────────────────────────────────
@@ -72,6 +73,9 @@ async function register(req, res) {
     if (validationError) {
       return res.status(400).json({ message: validationError });
     }
+    if (!await verifyRecaptcha(captcha, req.ip)) return captchaError(res);
+
+    conn = await pool.getConnection();
 
     // ── 2. Cek username sudah terdaftar di akun game ──────
     await conn.beginTransaction();

@@ -4,6 +4,7 @@ import { useLocation } from 'wouter';
 import { usePageMeta } from '@/Hooks/use-page-meta';
 import Header from '@/Components/Header';
 import Footer from '@/Components/Footer';
+import ReCAPTCHA from 'react-google-recaptcha';
 import {
     IoArrowBack,
     IoCheckmarkCircle,
@@ -15,6 +16,8 @@ import {
 
 const FORGOT_PASSWORD_EMAIL_API = '/auth/forgot-password';
 const FORGOT_SECURITY_EMAIL_API = '/auth/forgot-security-question';
+const RECAPTCHA_SITE_KEY = '6LeK3mEtAAAAAN5u4fTLNlfuUgwlPPB2dxcw3orE';
+const IS_DEV = import.meta.env.DEV;
 
 type EmailType = 'password' | 'security';
 
@@ -33,6 +36,9 @@ export default function ForgotPassword() {
     const [sendCount, setSendCount] = useState(0);
     const [nextAllowedAt, setNextAllowedAt] = useState<number | null>(null);
     const [countdown, setCountdown] = useState('');
+    const [captchaToken, setCaptchaToken] = useState<string | null>(null);
+    const [captchaErrorMessage, setCaptchaErrorMessage] = useState('');
+    const captchaRef = useRef<ReCAPTCHA>(null);
     const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
     useEffect(() => {
@@ -62,21 +68,28 @@ export default function ForgotPassword() {
             setError('Username atau email wajib diisi.');
             return;
         }
+        if (!IS_DEV && !captchaToken) {
+            setCaptchaErrorMessage('Harap selesaikan verifikasi CAPTCHA.');
+            return;
+        }
 
         setLoading(type);
         setError('');
+        setCaptchaErrorMessage('');
         try {
             const response = await fetch(
                 type === 'password' ? FORGOT_PASSWORD_EMAIL_API : FORGOT_SECURITY_EMAIL_API,
                 {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ identifier: value }),
+                    body: JSON.stringify({ identifier: value, captcha: captchaToken }),
                 },
             );
             const data = await response.json().catch(() => ({}));
             if (!response.ok) {
                 setError(data?.message ?? 'Email pemulihan gagal dikirim. Coba lagi nanti.');
+                captchaRef.current?.reset();
+                setCaptchaToken(null);
                 return;
             }
 
@@ -91,9 +104,13 @@ export default function ForgotPassword() {
                 setNextAllowedAt(Date.now() + 60 * 60 * 1000);
             }
 
+            captchaRef.current?.reset();
+            setCaptchaToken(null);
             setEmailSent(type);
         } catch {
             setError('Tidak dapat terhubung ke server.');
+            captchaRef.current?.reset();
+            setCaptchaToken(null);
         } finally {
             setLoading(null);
         }
@@ -169,6 +186,20 @@ export default function ForgotPassword() {
                                             autoComplete="username"
                                         />
                                     </div>
+                                </div>
+
+                                {/* reCAPTCHA */}
+                                <div className="daftar-captcha">
+                                    <ReCAPTCHA
+                                        ref={captchaRef}
+                                        sitekey={RECAPTCHA_SITE_KEY}
+                                        onChange={token => {
+                                            setCaptchaToken(token);
+                                            setCaptchaErrorMessage('');
+                                        }}
+                                        onExpired={() => setCaptchaToken(null)}
+                                    />
+                                    {captchaErrorMessage && <p className="daftar-field__error">{captchaErrorMessage}</p>}
                                 </div>
 
                                 <div className="reset-recovery-actions">

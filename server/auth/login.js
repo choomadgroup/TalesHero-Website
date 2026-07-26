@@ -14,13 +14,14 @@
 import crypto from 'node:crypto';
 import { query } from '../db.js';
 import { createSession } from './session.js';
+import { captchaError, verifyRecaptcha } from './recaptcha.js';
 
 /**
  * Express route handler untuk login.
  */
 async function login(req, res) {
   try {
-    const { username, password } = req.body ?? {};
+    const { username, password, captcha } = req.body ?? {};
     const identifier = username?.trim();
 
     // ── 1. Validasi input dasar ───────────────────────────
@@ -30,6 +31,7 @@ async function login(req, res) {
     if (!password) {
       return res.status(400).json({ message: 'Kata sandi wajib diisi.' });
     }
+    if (!await verifyRecaptcha(captcha, req.ip)) return captchaError(res);
 
     // ── 2. Cari user + data website (email, pertanyaan keamanan) ──
     const rows = await query(
