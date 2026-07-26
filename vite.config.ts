@@ -146,12 +146,20 @@ const apiPlugin = {
   async configureServer(server: any) {
     const host = process.env.DB_HOST ?? '?';
     const db   = process.env.DB_NAME ?? 'tr_game_db';
-    try {
-      await ping();
-      server.config.logger.info(`  \x1b[32m➜\x1b[0m  MySQL: \x1b[36m${host}\x1b[0m (${db})`);
-      await migrate();
-    } catch (err: any) {
-      server.config.logger.error(`  MySQL: ❌ gagal konek — ${err.message}`);
+    const hasDatabaseConfig = Boolean(
+      process.env.DB_HOST &&
+      process.env.DB_USER &&
+      process.env.DB_PASSWORD,
+    );
+
+    if (hasDatabaseConfig) {
+      try {
+        await ping();
+        server.config.logger.info(`  \x1b[32m➜\x1b[0m  MySQL: \x1b[36m${host}\x1b[0m (${db})`);
+        await migrate();
+      } catch (err: any) {
+        server.config.logger.error(`  MySQL: ❌ gagal konek — ${err.message}`);
+      }
     }
 
     server.middlewares.use('/auth/register', async (req: any, res: any, next: any) => {
