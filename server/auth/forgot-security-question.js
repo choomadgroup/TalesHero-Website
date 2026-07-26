@@ -13,19 +13,24 @@ function maskEmail(email) {
 
 async function forgotSecurityQuestion(req, res) {
   try {
-    const { identifier, captcha } = req.body ?? {};
-    const id = identifier?.trim();
-    const emailId = id?.toLowerCase();
-    if (!id) return res.status(400).json({ message: 'Username atau email wajib diisi.' });
+    const { username: requestedUsername, email: requestedEmail, captcha } = req.body ?? {};
+    const usernameValue = requestedUsername?.trim();
+    const emailValue = requestedEmail?.trim()?.toLowerCase();
+    if (!usernameValue || !emailValue) {
+      return res.status(400).json({ message: 'Username game dan email wajib diisi.' });
+    }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailValue)) {
+      return res.status(400).json({ message: 'Format email tidak valid.' });
+    }
     if (!await verifyRecaptcha(captcha, req.ip)) return captchaError(res);
 
     const rows = await query(
       `SELECT g.fdUserID AS username, w.email, w.sec_question AS secQuestion, w.sec_answer AS secAnswer
        FROM userinfofrompublisher g
        LEFT JOIN tales_hero_web_users w ON w.username = g.fdUserID
-       WHERE g.fdUserID = ? OR w.email = ?
+       WHERE g.fdUserID = ? AND LOWER(w.email) = ?
        LIMIT 1`,
-      [id, emailId],
+      [usernameValue, emailValue],
     );
 
     if (rows.length === 0 || !rows[0].email || !rows[0].secQuestion) {

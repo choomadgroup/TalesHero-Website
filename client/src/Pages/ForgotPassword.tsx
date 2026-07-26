@@ -25,7 +25,8 @@ export default function ForgotPassword() {
     });
 
     const [, setLocation] = useLocation();
-    const [identifier, setIdentifier] = useState('');
+    const [username, setUsername] = useState('');
+    const [email, setEmail] = useState('');
     const [emailSent, setEmailSent] = useState<EmailType | null>(null);
     const [loading, setLoading] = useState<EmailType | null>(null);
     const [error, setError] = useState('');
@@ -57,9 +58,14 @@ export default function ForgotPassword() {
     const sendRecoveryEmail = async (type: EmailType) => {
         if (nextAllowedAt && nextAllowedAt > Date.now()) return;
 
-        const value = identifier.trim();
-        if (!value) {
-            setError('Username atau email wajib diisi.');
+        const usernameValue = username.trim();
+        const emailValue = email.trim().toLowerCase();
+        if (!usernameValue || !emailValue) {
+            setError('Username game dan email wajib diisi.');
+            return;
+        }
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailValue)) {
+            setError('Format email tidak valid.');
             return;
         }
         setLoading(type);
@@ -70,7 +76,7 @@ export default function ForgotPassword() {
                 {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ identifier: value }),
+                    body: JSON.stringify({ username: usernameValue, email: emailValue }),
                 },
             );
             const data = await response.json().catch(() => ({}));
@@ -147,22 +153,25 @@ export default function ForgotPassword() {
                                 </div>
                                 <h1 className="login-form-wrap__title">Pemulihan Akun</h1>
                                 <p className="login-form-wrap__sub">
-                                    Masukkan username atau email yang sudah terdaftar.
+                                    Masukkan username game dan email yang sudah terdaftar.
                                 </p>
 
                                 {error && <div className="login-api-error">{error}</div>}
 
                                 <div className="daftar-field">
-                                    <label className="daftar-field__label">Username atau Email</label>
+                                    <label className="daftar-field__label" htmlFor="recovery-username">
+                                        Username Game
+                                    </label>
                                     <div className="daftar-field__input-wrap">
                                         <IoPersonOutline className="daftar-field__icon" />
                                         <input
+                                            id="recovery-username"
                                             type="text"
                                             className="daftar-field__input"
-                                            placeholder="Username atau email"
-                                            value={identifier}
+                                            placeholder="Masukkan username game"
+                                            value={username}
                                             onChange={event => {
-                                                setIdentifier(event.target.value);
+                                                setUsername(event.target.value);
                                                 if (error) setError('');
                                             }}
                                             autoComplete="username"
@@ -170,31 +179,56 @@ export default function ForgotPassword() {
                                     </div>
                                 </div>
 
-                                <div className="reset-recovery-actions">
-                                    <button
-                                        type="button"
-                                        className="reset-recovery-btn"
-                                        disabled={loading !== null}
-                                        onClick={() => sendRecoveryEmail('password')}
-                                    >
-                                        <IoMailOutline size={17} />
-                                        {loading === 'password' ? 'Mengirim...' : 'Kirim Link Reset Kata Sandi'}
-                                    </button>
-                                    <button
-                                        type="button"
-                                        className="reset-recovery-btn reset-recovery-btn--secondary"
-                                        disabled={loading !== null}
-                                        onClick={() => sendRecoveryEmail('security')}
-                                    >
-                                        <IoShieldCheckmarkOutline size={17} />
-                                        {loading === 'security' ? 'Mengirim...' : 'Lupa Pertanyaan Keamanan?'}
-                                    </button>
+                                <div className="daftar-field">
+                                    <label className="daftar-field__label" htmlFor="recovery-email">
+                                        Email Terdaftar
+                                    </label>
+                                    <div className="daftar-field__input-wrap">
+                                        <IoMailOutline className="daftar-field__icon" />
+                                        <input
+                                            id="recovery-email"
+                                            type="email"
+                                            className="daftar-field__input"
+                                            placeholder="Masukkan email saat pendaftaran"
+                                            value={email}
+                                            onChange={event => {
+                                                setEmail(event.target.value);
+                                                if (error) setError('');
+                                            }}
+                                            autoComplete="email"
+                                        />
+                                    </div>
                                 </div>
 
-                                <p className="reset-recovery-note">
-                                    Pertanyaan keamanan tidak direset atau diubah. Jika lupa, pertanyaan yang tersimpan
-                                    akan dikirim ke email yang digunakan saat pendaftaran.
-                                </p>
+                                {username.trim() && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim()) && (
+                                    <>
+                                        <div className="reset-recovery-actions">
+                                            <button
+                                                type="button"
+                                                className="reset-recovery-btn"
+                                                disabled={loading !== null}
+                                                onClick={() => sendRecoveryEmail('password')}
+                                            >
+                                                <IoMailOutline size={17} />
+                                                {loading === 'password' ? 'Mengirim...' : 'Kirim Link Reset Kata Sandi'}
+                                            </button>
+                                            <button
+                                                type="button"
+                                                className="reset-recovery-btn reset-recovery-btn--secondary"
+                                                disabled={loading !== null}
+                                                onClick={() => sendRecoveryEmail('security')}
+                                            >
+                                                <IoShieldCheckmarkOutline size={17} />
+                                                {loading === 'security' ? 'Mengirim...' : 'Lupa Pertanyaan Keamanan?'}
+                                            </button>
+                                        </div>
+
+                                        <p className="reset-recovery-note">
+                                            Pertanyaan keamanan tidak direset atau diubah. Jika lupa, pertanyaan yang tersimpan
+                                            akan dikirim ke email yang digunakan saat pendaftaran.
+                                        </p>
+                                    </>
+                                )}
                             </>
                         )}
                     </div>
