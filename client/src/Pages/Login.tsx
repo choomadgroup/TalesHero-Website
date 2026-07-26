@@ -185,7 +185,7 @@ export default function Login() {
                             {errors.password && <p className="daftar-field__error">{errors.password}</p>}
                         </div>
 
-                        {/* Forgot password */}
+                        {/* Account recovery */}
                         <div className="login-forgot">
                             <button
                                 type="button"
@@ -193,6 +193,13 @@ export default function Login() {
                                 onClick={() => setLocation('/forgot-password')}
                             >
                                 Lupa kata sandi?
+                            </button>
+                            <button
+                                type="button"
+                                className="login-forgot__link"
+                                onClick={() => setLocation('/forgot-password')}
+                            >
+                                Lupa Pertanyaan Keamanan?
                             </button>
                         </div>
 

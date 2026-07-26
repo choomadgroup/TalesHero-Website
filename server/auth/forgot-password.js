@@ -9,6 +9,7 @@ async function forgotPassword(req, res) {
   try {
     const { identifier } = req.body ?? {};
     const id = identifier?.trim();
+    const emailId = id?.toLowerCase();
     if (!id) return res.status(400).json({ message: 'Username atau email wajib diisi.' });
 
     // Cari user berdasarkan username atau email
@@ -18,7 +19,7 @@ async function forgotPassword(req, res) {
        LEFT JOIN tales_hero_web_users w ON w.username = g.fdUserID
        WHERE g.fdUserID = ? OR w.email = ?
        LIMIT 1`,
-      [id, id],
+      [id, emailId],
     );
 
     // Selalu kembalikan 200 agar tidak bisa digunakan untuk mencari akun

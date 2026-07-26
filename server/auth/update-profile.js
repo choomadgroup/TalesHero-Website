@@ -81,7 +81,19 @@ async function updateProfile(req, res) {
         await conn.rollback();
         return res.status(400).json({ message: 'Format email tidak valid.' });
       }
-      nextEmail = requestedEmail;
+      nextEmail = requestedEmail.toLowerCase();
+
+      const [emailRows] = await conn.query(
+        `SELECT username
+         FROM tales_hero_web_users
+         WHERE email = ? AND username <> ?
+         LIMIT 1`,
+        [nextEmail, current],
+      );
+      if (emailRows.length > 0) {
+        await conn.rollback();
+        return res.status(409).json({ message: 'Email sudah terdaftar dan tidak dapat digunakan kembali.' });
+      }
     }
 
     let nextQuestion = existingQuestion;
@@ -131,7 +143,7 @@ async function updateProfile(req, res) {
   } catch (error) {
     try { await conn.rollback(); } catch { /* connection cleanup follows */ }
     if (error?.code === 'ER_DUP_ENTRY') {
-      return res.status(409).json({ message: 'Username tersebut sudah digunakan.' });
+      return res.status(409).json({ message: 'Email sudah terdaftar dan tidak dapat digunakan kembali.' });
     }
     console.error('[update-profile] error:', error);
     return res.status(500).json({ message: 'Profil gagal diperbarui.' });

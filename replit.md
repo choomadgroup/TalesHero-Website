@@ -38,6 +38,7 @@ Website game online action adventure Tales Hero Indonesia — landing page + hal
 - Halaman daftar (/daftar) — form registrasi hero dengan validasi email + password
 - API /auth/register — menyimpan akun baru ke `tr_game_db.userinfofrompublisher`
 - API /auth/login — memeriksa username dan MD5 password game
+- API recovery email — reset kata sandi memakai link email, atau mengirim pertanyaan keamanan yang tersimpan ke email tanpa mengubahnya
 - API /api/leaderboard — data 10 besar pemain (mock)
 
 ## User preferences

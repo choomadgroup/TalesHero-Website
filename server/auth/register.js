@@ -57,6 +57,7 @@ async function register(req, res) {
   const conn = await pool.getConnection();
   try {
     const { username, email, password, secQuestion, secAnswer } = req.body ?? {};
+    const normalizedEmail = email?.trim().toLowerCase();
 
     // ── 1. Validasi input ─────────────────────────────────
     const validationError = validate(req.body ?? {});
@@ -74,6 +75,15 @@ async function register(req, res) {
     if (existing.length > 0) {
       await conn.rollback();
       return res.status(409).json({ message: 'Username sudah terdaftar di game.' });
+    }
+
+    const [existingEmail] = await conn.query(
+      'SELECT username FROM tales_hero_web_users WHERE email = ? LIMIT 1',
+      [normalizedEmail],
+    );
+    if (existingEmail.length > 0) {
+      await conn.rollback();
+      return res.status(409).json({ message: 'Email sudah terdaftar dan tidak dapat digunakan kembali.' });
     }
 
     // ── 3. Simpan langsung ke tabel publisher game ────────
@@ -94,7 +104,7 @@ async function register(req, res) {
          sec_answer_hash = VALUES(sec_answer_hash)`,
       [
         username.trim(),
-        email.trim(),
+        normalizedEmail,
         secQuestion,
         sha256(secAnswer.trim().toLowerCase()),
       ],
@@ -107,6 +117,9 @@ async function register(req, res) {
 
   } catch (err) {
     try { await conn.rollback(); } catch { /* connection cleanup follows */ }
+    if (err?.code === 'ER_DUP_ENTRY') {
+      return res.status(409).json({ message: 'Email sudah terdaftar dan tidak dapat digunakan kembali.' });
+    }
     console.error('[register] error:', err);
     return res.status(500).json({ message: 'Terjadi kesalahan server. Coba lagi nanti.' });
   } finally {

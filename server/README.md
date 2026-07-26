@@ -47,6 +47,6 @@ pnpm run start
 
 ## Catatan
 - Password disimpan sebagai lowercase **MD5 hex** karena itu format yang diminta oleh game server lama.
-- Email dan pertanyaan keamanan tetap divalidasi di website, tetapi tidak disimpan karena tabel game tidak memiliki kolom tersebut.
+- Email dan pertanyaan keamanan website disimpan di tabel supplemental; email bersifat unik dan pertanyaan keamanan hanya dikirim kembali melalui email jika pengguna lupa.
 - Field `username` di form login adalah `fdUserID`.
 - Akun baru masuk ke `userinfofrompublisher`; game server membuat record `userinfo`, `userinfogame`, dan `userinfologin` saat login game pertama.

@@ -72,6 +72,18 @@ async function migrate() {
       INDEX idx_username (username)
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
   `);
+
+  // Email recovery addresses are one-time identifiers for website accounts.
+  // Keep startup alive for legacy databases that already contain duplicates;
+  // registration still rejects duplicates transactionally.
+  try {
+    await pool.query(`
+      ALTER TABLE tales_hero_web_users
+      ADD UNIQUE KEY uq_tales_hero_web_users_email (email)
+    `);
+  } catch (error) {
+    if (!['ER_DUP_KEYNAME', 'ER_DUP_ENTRY'].includes(error?.code)) throw error;
+  }
 }
 
 export { pool, query, ping, migrate };

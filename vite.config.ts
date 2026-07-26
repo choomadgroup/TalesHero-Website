@@ -10,8 +10,9 @@ import register from './server/auth/register.js';
 import login from './server/auth/login.js';
 import changePassword from './server/auth/change-password.js';
 import updateProfile from './server/auth/update-profile.js';
-import securityQuestion from './server/auth/security-question.js';
-import resetPassword from './server/auth/reset-password.js';
+import forgotPassword from './server/auth/forgot-password.js';
+import emailResetPassword from './server/auth/email-reset-password.js';
+import forgotSecurityQuestion from './server/auth/forgot-security-question.js';
 import { ping, migrate } from './server/db.js';
 
 import runtimeErrorOverlay from '@replit/vite-plugin-runtime-error-modal';
@@ -42,8 +43,8 @@ const routeMeta: Record<string, { title: string; description: string }> = {
     description: 'Masuk ke akun Tales Hero Indonesia-mu dan lanjutkan petualanganmu.',
   },
   '/forgot-password': {
-    title: 'Reset Kata Sandi — Tales Hero Indonesia',
-    description: 'Atur ulang kata sandi akun Tales Hero Indonesia menggunakan pertanyaan keamanan.',
+    title: 'Pemulihan Akun — Tales Hero Indonesia',
+    description: 'Kirim link reset kata sandi atau pertanyaan keamanan ke email terdaftar.',
   },
   '/support': {
     title: 'Support — Tales Hero Indonesia',
@@ -210,30 +211,27 @@ const apiPlugin = {
         res.end(JSON.stringify({ message: 'Server error' }));
       }
     });
-    server.middlewares.use('/auth/security-question', async (req: any, res: any, next: any) => {
-      if (req.method !== 'POST') { next(); return; }
-      try {
-        addJsonResponseHelpers(res);
-        req.body = await parseBody(req);
-        await securityQuestion(req, res);
-      } catch (e) {
-        res.statusCode = 500;
-        res.setHeader('Content-Type', 'application/json');
-        res.end(JSON.stringify({ message: 'Server error' }));
-      }
-    });
-    server.middlewares.use('/auth/reset-password', async (req: any, res: any, next: any) => {
-      if (req.method !== 'POST') { next(); return; }
-      try {
-        addJsonResponseHelpers(res);
-        req.body = await parseBody(req);
-        await resetPassword(req, res);
-      } catch (e) {
-        res.statusCode = 500;
-        res.setHeader('Content-Type', 'application/json');
-        res.end(JSON.stringify({ message: 'Server error' }));
-      }
-    });
+
+    const emailRecoveryRoutes = [
+      ['/auth/forgot-password', forgotPassword],
+      ['/auth/email-reset-password', emailResetPassword],
+      ['/auth/forgot-security-question', forgotSecurityQuestion],
+    ] as const;
+
+    for (const [route, handler] of emailRecoveryRoutes) {
+      server.middlewares.use(route, async (req: any, res: any, next: any) => {
+        if (req.method !== 'POST') { next(); return; }
+        try {
+          addJsonResponseHelpers(res);
+          req.body = await parseBody(req);
+          await handler(req, res);
+        } catch (e) {
+          res.statusCode = 500;
+          res.setHeader('Content-Type', 'application/json');
+          res.end(JSON.stringify({ message: 'Server error' }));
+        }
+      });
+    }
   },
 };
 
