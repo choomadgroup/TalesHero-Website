@@ -130,14 +130,14 @@ async function register(req, res) {
     });
 
   } catch (err) {
-    try { await conn.rollback(); } catch { /* connection cleanup follows */ }
+    if (conn) { try { await conn.rollback(); } catch { /* ignore */ } }
     if (err?.code === 'ER_DUP_ENTRY') {
       return res.status(409).json({ message: 'Email sudah terdaftar dan tidak dapat digunakan kembali.' });
     }
     console.error('[register] error:', err);
     return res.status(500).json({ message: 'Terjadi kesalahan server. Coba lagi nanti.' });
   } finally {
-    conn.release();
+    if (conn) conn.release();
   }
 }
 
