@@ -52,6 +52,8 @@ Setting di Cloudflare Pages:
 - **Build command:** `pnpm run build`
 - **Output directory:** `dist/public`
 - **Root directory:** (kosongkan / root)
+- Jangan gunakan `npx wrangler deploy` — itu adalah command untuk Workers dan akan memicu error deteksi workspace.
+- Jika memakai deploy command manual, gunakan `pnpm run deploy:cloudflare` atau `npx wrangler pages deploy dist/public --project-name tales-hero`.
 
 API routes berjalan sebagai **Cloudflare Pages Functions** di folder `functions/`:
 - `functions/api/leaderboard.js` — GET /api/leaderboard

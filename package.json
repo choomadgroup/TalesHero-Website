@@ -12,7 +12,8 @@
     "build": "vite build --config vite.config.ts",
     "start": "node server/index.js",
     "serve": "vite preview --config vite.config.ts --host 0.0.0.0",
-    "typecheck": "tsc -p tsconfig.json --noEmit"
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "deploy:cloudflare": "pnpm run build && npx wrangler pages deploy dist/public --project-name tales-hero"
   },
   "devDependencies": {
     "@hookform/resolvers": "^3.10.0",

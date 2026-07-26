@@ -25,7 +25,7 @@ app.get('/healthz', (_req, res) => {
 });
 
 const blockedPublicPath = /^\/(?:client\/src|server|attached_assets|\.local|\.agents|node_modules)(?:\/|$)|^\/(?:vite\.config\.ts|package\.json|pnpm-lock\.yaml|tsconfig(?:\.[^/]+)?|\.env(?:\.[^/]*)?)$/i;
-const privatePagePath = /^\/(?:login|daftar|forgot-password|reset-password|akun)(?:\/|$)/i;
+const privatePagePath = /^\/(?:forgot-password|reset-password|akun)(?:\/|$)/i;
 
 // Never let source, backend modules, workspace metadata, or environment files
 // reach the public production server, even through the SPA fallback.

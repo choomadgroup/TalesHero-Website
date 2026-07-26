@@ -59,6 +59,7 @@ export default function AnnouncementPopup() {
                 <img
                     src={asset(POPUP_IMAGE)}
                     alt="Pengumuman"
+                    decoding="async"
                     style={{
                         display: 'block',
                         width: '100%',

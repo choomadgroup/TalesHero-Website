@@ -39,12 +39,10 @@ const routeMeta: Record<string, { title: string; description: string; robots?: s
   '/daftar': {
     title: 'Daftar — Tales Hero Indonesia',
     description: 'Daftarkan hero-mu dan bergabunglah dengan komunitas Tales Hero Indonesia. Gratis!',
-    robots: 'noindex, nofollow',
   },
   '/login': {
     title: 'Login — Tales Hero Indonesia',
     description: 'Masuk ke akun Tales Hero Indonesia-mu dan lanjutkan petualanganmu.',
-    robots: 'noindex, nofollow',
   },
   '/forgot-password': {
     title: 'Pemulihan Akun — Tales Hero Indonesia',

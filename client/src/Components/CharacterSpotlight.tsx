@@ -83,6 +83,8 @@ export default function CharacterSpotlight() {
                             key={`img-${idx}`}
                             src={asset(`/Image/Karakter/Art/${char.file}`)}
                             alt={char.name}
+                            loading="lazy"
+                            decoding="async"
                             className="cs-img"
                             style={{ position: 'absolute' }}
                             initial={{ opacity: 0, y: 16 }}

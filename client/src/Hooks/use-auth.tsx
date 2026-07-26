@@ -26,11 +26,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     window.localStorage.removeItem('taleshero_user');
-    fetch('/auth/me', { credentials: 'include' })
+    const controller = new AbortController();
+    const timeout = window.setTimeout(() => controller.abort(), 5000);
+
+    fetch('/auth/me', { credentials: 'include', signal: controller.signal })
       .then(async response => response.ok ? response.json() : null)
       .then(data => setUser(data?.user ?? null))
       .catch(() => setUser(null))
-      .finally(() => setLoading(false));
+      .finally(() => {
+        window.clearTimeout(timeout);
+        setLoading(false);
+      });
+
+    return () => {
+      window.clearTimeout(timeout);
+      controller.abort();
+    };
   }, []);
 
   const login = (userData: AuthUser) => {

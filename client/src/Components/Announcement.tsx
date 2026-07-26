@@ -82,6 +82,8 @@ export default function Announcement() {
                             key={src}
                             src={asset(src)}
                             alt={`Slide ${i + 1}`}
+                            loading="lazy"
+                            decoding="async"
                             style={{
                                 position: 'absolute',
                                 inset: 0,

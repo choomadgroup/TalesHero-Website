@@ -1,8 +1,6 @@
 # https://www.robotstxt.org/robotstxt.html
 User-agent: *
 Allow: /
-Disallow: /login
-Disallow: /daftar
 Disallow: /forgot-password
 Disallow: /reset-password
 Disallow: /akun
