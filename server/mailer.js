@@ -6,7 +6,7 @@ import { Resend } from 'resend';
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
-const FROM  = `Tales Hero Indonesia <${process.env.SMTP_FROM ?? process.env.SMTP_USER}>`;
+const FROM  = 'Tales Hero Indonesia <noreply@taleshero.web.id>';
 const BASE  = 'https://taleshero.web.id';
 const LOGO  = `${BASE}/Image/tales-hero-banner.png`;
 
