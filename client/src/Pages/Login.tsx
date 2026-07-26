@@ -89,14 +89,16 @@ export default function Login() {
             if (!res.ok) {
                 const data = await res.json().catch(() => ({}));
                 const msg = data?.message ?? 'Username/email atau kata sandi salah.';
-                setErrors({ api: msg });
-                // Hanya reset captcha jika server memang menolak token captcha-nya.
-                // Untuk error lain (salah password, server error), captcha tetap
-                // tercentang agar user tidak perlu solve ulang setiap retry.
-                if (msg === 'Harap selesaikan verifikasi CAPTCHA.') {
-                    captchaRef.current?.reset();
-                    setCaptchaToken(null);
-                }
+                // Jangan tampilkan error captcha kalau penyebabnya bukan captcha
+                // (misal salah password) — tampilkan pesan error yang sebenarnya.
+                const displayMsg = msg === 'Harap selesaikan verifikasi CAPTCHA.'
+                    ? msg
+                    : msg;
+                setErrors({ api: displayMsg });
+                // Selalu reset token karena token reCAPTCHA single-use —
+                // setelah dikirim ke Google (berhasil atau tidak), token hangus.
+                captchaRef.current?.reset();
+                setCaptchaToken(null);
             } else {
                 const data = await res.json().catch(() => ({}));
                 login({
@@ -112,8 +114,8 @@ export default function Login() {
             }
         } catch {
             setErrors({ api: 'Tidak dapat terhubung ke server.' });
-            // Network error: request tidak sampai ke server, token belum dikonsumsi,
-            // jadi tidak perlu reset captcha.
+            captchaRef.current?.reset();
+            setCaptchaToken(null);
         } finally {
             setLoading(false);
         }
