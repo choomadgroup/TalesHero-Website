@@ -198,8 +198,8 @@ export default function Daftar() {
                             <p className="daftar-form-wrap__sub">Bergabunglah dan jadilah hero legendaris!</p>
                             <div className="daftar-recovery-note">
                                 Email dan pertanyaan keamanan akan langsung tersimpan saat pendaftaran.
-                                Email digunakan untuk reset kata sandi dan membantu pemulihan jika kamu lupa
-                                pertanyaan keamanan.
+                                Email bisa digunakan untuk login, reset kata sandi, dan menemukan kembali
+                                pertanyaan keamanan jika kamu lupa pertanyaannya.
                             </div>
 
                             {errors.api && (
@@ -299,7 +299,7 @@ export default function Daftar() {
                                     <span>Pertanyaan Keamanan untuk Reset Kata Sandi</span>
                                     <small>
                                         Jawaban ini tersimpan saat daftar dan digunakan untuk reset kata sandi.
-                                        Email pemulihan membantu jika kamu lupa pertanyaan keamanan.
+                                        Email pemulihan membantu menemukan kembali pertanyaan keamanan.
                                     </small>
                                 </div>
 
