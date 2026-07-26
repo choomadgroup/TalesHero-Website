@@ -84,6 +84,17 @@ async function migrate() {
   } catch (error) {
     if (!['ER_DUP_KEYNAME', 'ER_DUP_ENTRY'].includes(error?.code)) throw error;
   }
+
+  // Tambah kolom jawaban plain-text agar bisa dikirim via email pemulihan.
+  // Hash tetap dipakai untuk verifikasi di change-password.
+  try {
+    await pool.query(`
+      ALTER TABLE tales_hero_web_users
+      ADD COLUMN sec_answer VARCHAR(200) NOT NULL DEFAULT '' AFTER sec_answer_hash
+    `);
+  } catch (error) {
+    if (error?.code !== 'ER_DUP_FIELDNAME') throw error;
+  }
 }
 
 export { pool, query, ping, migrate };

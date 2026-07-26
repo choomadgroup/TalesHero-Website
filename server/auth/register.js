@@ -96,17 +96,19 @@ async function register(req, res) {
 
     // ── 4. Simpan data website (email, pertanyaan keamanan) ──
     await conn.query(
-      `INSERT INTO tales_hero_web_users (username, email, sec_question, sec_answer_hash)
-       VALUES (?, ?, ?, ?)
+      `INSERT INTO tales_hero_web_users (username, email, sec_question, sec_answer_hash, sec_answer)
+       VALUES (?, ?, ?, ?, ?)
        ON DUPLICATE KEY UPDATE
          email           = VALUES(email),
          sec_question    = VALUES(sec_question),
-         sec_answer_hash = VALUES(sec_answer_hash)`,
+         sec_answer_hash = VALUES(sec_answer_hash),
+         sec_answer      = VALUES(sec_answer)`,
       [
         username.trim(),
         normalizedEmail,
         secQuestion,
         sha256(secAnswer.trim().toLowerCase()),
+        secAnswer.trim(),
       ],
     );
 

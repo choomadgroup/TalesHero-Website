@@ -12,7 +12,7 @@ async function forgotSecurityQuestion(req, res) {
     if (!id) return res.status(400).json({ message: 'Username atau email wajib diisi.' });
 
     const rows = await query(
-      `SELECT g.fdUserID AS username, w.email, w.sec_question AS secQuestion
+      `SELECT g.fdUserID AS username, w.email, w.sec_question AS secQuestion, w.sec_answer AS secAnswer
        FROM userinfofrompublisher g
        LEFT JOIN tales_hero_web_users w ON w.username = g.fdUserID
        WHERE g.fdUserID = ? OR w.email = ?
@@ -24,9 +24,9 @@ async function forgotSecurityQuestion(req, res) {
       return res.status(200).json({ message: 'Jika email terdaftar, pertanyaan keamanan sudah dikirim.' });
     }
 
-    const { username, email, secQuestion } = rows[0];
+    const { username, email, secQuestion, secAnswer } = rows[0];
 
-    await sendSecurityQuestionEmail(email, username, secQuestion);
+    await sendSecurityQuestionEmail(email, username, secQuestion, secAnswer);
 
     return res.status(200).json({ message: 'Jika email terdaftar, pertanyaan keamanan sudah dikirim.' });
   } catch (err) {
