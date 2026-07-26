@@ -1,5 +1,17 @@
 # https://www.robotstxt.org/robotstxt.html
 User-agent: *
 Allow: /
+Disallow: /login
+Disallow: /daftar
+Disallow: /forgot-password
+Disallow: /reset-password
+Disallow: /akun
+Disallow: /auth/
+Disallow: /client/
+Disallow: /server/
+Disallow: /attached_assets/
+Disallow: /.local/
+Disallow: /.agents/
+Disallow: /node_modules/
 
 Sitemap: https://taleshero.web.id/sitemap.xml

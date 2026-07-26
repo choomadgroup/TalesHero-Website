@@ -3,3 +3,4 @@
 - [Tales Hero account data](taleshero-account-data.md) — Cash is fdCash; TR/game money is userinfogame.fdGameMoney via userinfo
 - [Tales Hero account locks](taleshero-account-locks.md) — username is immutable; email and security question are write-once and password-confirmed
 - [Imported workspace setup](imported-workspace-setup.md) — restore dependencies from the existing pnpm lockfile before debugging Vite startup
+- [Public source protection](public-source-protection.md) — direct source/config/backend paths must return 404 while Vite module loading continues

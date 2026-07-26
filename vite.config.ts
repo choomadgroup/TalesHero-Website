@@ -27,7 +27,7 @@ const basePath = process.env.BASE_PATH ?? '/';
 /* ── Per-route meta for social crawlers (no JS needed) ── */
 const OG_IMAGE = 'https://taleshero.web.id/Image/tales-hero-banner.png';
 
-const routeMeta: Record<string, { title: string; description: string }> = {
+const routeMeta: Record<string, { title: string; description: string; robots?: string }> = {
   '/': {
     title: 'Tales Hero Indonesia — Game Online Action Adventure',
     description: 'Tales Hero adalah sebuah game action adventure yang menawarkan petualangan dalam berbagai legenda termashur di dunia. Ayo mainkan bersama teman-temanmu!',
@@ -39,14 +39,27 @@ const routeMeta: Record<string, { title: string; description: string }> = {
   '/daftar': {
     title: 'Daftar — Tales Hero Indonesia',
     description: 'Daftarkan hero-mu dan bergabunglah dengan komunitas Tales Hero Indonesia. Gratis!',
+    robots: 'noindex, nofollow',
   },
   '/login': {
     title: 'Login — Tales Hero Indonesia',
     description: 'Masuk ke akun Tales Hero Indonesia-mu dan lanjutkan petualanganmu.',
+    robots: 'noindex, nofollow',
   },
   '/forgot-password': {
     title: 'Pemulihan Akun — Tales Hero Indonesia',
     description: 'Kirim link reset kata sandi atau pertanyaan keamanan ke email terdaftar.',
+    robots: 'noindex, nofollow',
+  },
+  '/reset-password': {
+    title: 'Reset Kata Sandi — Tales Hero Indonesia',
+    description: 'Atur ulang kata sandi akun Tales Hero Indonesia.',
+    robots: 'noindex, nofollow',
+  },
+  '/akun': {
+    title: 'Akun — Tales Hero Indonesia',
+    description: 'Kelola akun Tales Hero Indonesia-mu.',
+    robots: 'noindex, nofollow',
   },
   '/support': {
     title: 'Support — Tales Hero Indonesia',
@@ -96,6 +109,7 @@ function injectRouteMeta(html: string, url: string): string {
   return html
     .replace(/(<title>)[^<]*/,           `$1${meta.title}`)
     .replace(/(name="description"\s+content=")[^"]*/,         `$1${meta.description}`)
+    .replace(/(name="robots"\s+content=")[^"]*/,               `$1${meta.robots ?? 'index, follow'}`)
     .replace(/(property="og:title"\s+content=")[^"]*/,        `$1${meta.title}`)
     .replace(/(property="og:description"\s+content=")[^"]*/,  `$1${meta.description}`)
     .replace(/(property="og:image"\s+content=")[^"]*/,        `$1${OG_IMAGE}`)
@@ -147,6 +161,24 @@ function addJsonResponseHelpers(res: any) {
 const apiPlugin = {
   name: 'tales-hero-api',
   async configureServer(server: any) {
+    const blockedSourcePath = /^\/(?:client\/src|server|attached_assets|\.local|\.agents|node_modules)(?:\/|$)|^\/(?:vite\.config\.ts|package\.json|pnpm-lock\.yaml|tsconfig(?:\.[^/]+)?|\.env(?:\.[^/]*)?)$/i;
+
+    // Vite must serve source modules to the local app, but a browser navigation
+    // to a source/config path should never render the file as a public page.
+    server.middlewares.use((req: any, res: any, next: any) => {
+      const requestPath = (req.url ?? '').split('?')[0];
+      const fetchDestination = req.headers?.['sec-fetch-dest'];
+      const isDirectRequest = !fetchDestination || fetchDestination === 'document'
+        || String(req.headers?.accept ?? '').includes('text/html');
+      if (req.method === 'GET' && isDirectRequest && blockedSourcePath.test(requestPath)) {
+        res.statusCode = 404;
+        res.setHeader('Content-Type', 'text/plain; charset=utf-8');
+        res.end('Not found');
+        return;
+      }
+      next();
+    });
+
     const host = process.env.DB_HOST ?? '?';
     const db   = process.env.DB_NAME ?? 'tr_game_db';
     const hasDatabaseConfig = Boolean(

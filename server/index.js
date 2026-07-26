@@ -24,6 +24,22 @@ app.get('/healthz', (_req, res) => {
   res.json({ ok: true });
 });
 
+const blockedPublicPath = /^\/(?:client\/src|server|attached_assets|\.local|\.agents|node_modules)(?:\/|$)|^\/(?:vite\.config\.ts|package\.json|pnpm-lock\.yaml|tsconfig(?:\.[^/]+)?|\.env(?:\.[^/]*)?)$/i;
+const privatePagePath = /^\/(?:login|daftar|forgot-password|reset-password|akun)(?:\/|$)/i;
+
+// Never let source, backend modules, workspace metadata, or environment files
+// reach the public production server, even through the SPA fallback.
+app.use((req, res, next) => {
+  if (blockedPublicPath.test(req.path)) {
+    res.status(404).type('text').send('Not found');
+    return;
+  }
+  if (privatePagePath.test(req.path)) {
+    res.setHeader('X-Robots-Tag', 'noindex, nofollow');
+  }
+  next();
+});
+
 app.post('/auth/register', register);
 app.post('/auth/login', login);
 app.get('/auth/me', me);
