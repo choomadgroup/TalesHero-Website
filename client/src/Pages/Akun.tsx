@@ -92,7 +92,7 @@ export default function Akun() {
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.45 }}
                 >
-                    <div className="akun-card" style={{ textAlign: 'center' }}>
+                    <div className="akun-card akun-card--guest" style={{ textAlign: 'center' }}>
                         <IoPersonCircleOutline size={56} color="#ccc" />
                         <p style={{ margin: '16px 0 8px', fontWeight: 700, color: '#1a1a2e' }}>Kamu belum login</p>
                         <p style={{ fontSize: 13, color: '#888', marginBottom: 20 }}>Masuk dulu untuk melihat info akun.</p>
@@ -225,53 +225,56 @@ export default function Akun() {
             </div>
 
             <motion.div
-                className="cs-page__card"
+                className="cs-page__card cs-page__card--account"
                 initial={{ opacity: 0, y: 40 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.55, ease: 'easeOut' }}
             >
-                <div className="akun-card">
-                    {/* Avatar */}
-                    <div className="akun-avatar">
-                        <img src={asset('/Image/Account/IMG-DEFAULT-01.png')} alt="Avatar akun" />
-                    </div>
-                    <h1 className="akun-username">{user.username}</h1>
-                    <p className="akun-gameid">Akun Game Tales Hero Indonesia</p>
-
-                    {/* Info rows */}
-                    <div className="akun-balance-grid">
-                        <div className="akun-balance-card akun-balance-card--cash">
-                            <span className="akun-balance-card__label"><IoCashOutline size={14} /> Cash</span>
-                            <strong>{Number(user.cash ?? 0).toLocaleString('id-ID')}</strong>
+                <div className="akun-card akun-card--landscape">
+                    <div className="akun-summary">
+                        {/* Avatar */}
+                        <div className="akun-avatar">
+                            <img src={asset('/Image/Account/IMG-DEFAULT-01.png')} alt="Avatar akun" />
                         </div>
-                        <div className="akun-balance-card akun-balance-card--tr">
-                            <span className="akun-balance-card__label"><IoGameControllerOutline size={14} /> TR</span>
-                            <strong>{Number(user.tr ?? 0).toLocaleString('id-ID')}</strong>
+                        <h1 className="akun-username">{user.username}</h1>
+                        <p className="akun-gameid">Akun Game Tales Hero Indonesia</p>
+
+                        {/* Info rows */}
+                        <div className="akun-balance-grid">
+                            <div className="akun-balance-card akun-balance-card--cash">
+                                <span className="akun-balance-card__label"><IoCashOutline size={14} /> Cash</span>
+                                <strong>{Number(user.cash ?? 0).toLocaleString('id-ID')}</strong>
+                            </div>
+                            <div className="akun-balance-card akun-balance-card--tr">
+                                <span className="akun-balance-card__label"><IoGameControllerOutline size={14} /> TR</span>
+                                <strong>{Number(user.tr ?? 0).toLocaleString('id-ID')}</strong>
+                            </div>
+                        </div>
+
+                        <div className="akun-info">
+                            {user.email && (
+                                <div className="akun-info__row">
+                                    <span className="akun-info__label"><IoMailOutline size={11} /> Email</span>
+                                    <span className="akun-info__value">{user.email}</span>
+                                </div>
+                            )}
+                            {user.secQuestion && (
+                                <div className="akun-info__row">
+                                    <span className="akun-info__label"><IoShieldCheckmarkOutline size={11} /> Pertanyaan Keamanan</span>
+                                    <span className="akun-info__value">{user.secQuestion}</span>
+                                </div>
+                            )}
+                            {user.gameId != null && (
+                                <div className="akun-info__row">
+                                    <span className="akun-info__label"><IoGameControllerOutline size={11} /> Game ID</span>
+                                    <span className="akun-info__value">{user.gameId || '—'}</span>
+                                </div>
+                            )}
                         </div>
                     </div>
 
-                    <div className="akun-info">
-                        {user.email && (
-                            <div className="akun-info__row">
-                                <span className="akun-info__label"><IoMailOutline size={11} /> Email</span>
-                                <span className="akun-info__value">{user.email}</span>
-                            </div>
-                        )}
-                        {user.secQuestion && (
-                            <div className="akun-info__row">
-                                <span className="akun-info__label"><IoShieldCheckmarkOutline size={11} /> Pertanyaan Keamanan</span>
-                                <span className="akun-info__value">{user.secQuestion}</span>
-                            </div>
-                        )}
-                        {user.gameId != null && (
-                            <div className="akun-info__row">
-                                <span className="akun-info__label"><IoGameControllerOutline size={11} /> Game ID</span>
-                                <span className="akun-info__value">{user.gameId || '—'}</span>
-                            </div>
-                        )}
-                    </div>
-
-                    <form className="akun-profile-form" onSubmit={handleProfileSubmit}>
+                    <div className="akun-settings">
+                        <form className="akun-profile-form" onSubmit={handleProfileSubmit}>
                         <p className="akun-section-title"><IoCreateOutline size={14} /> Edit Profil</p>
                         {profileError && <p className="akun-inline-error">{profileError}</p>}
                         {profileMessage && <p className="akun-inline-success"><IoCheckmarkCircle size={14} /> {profileMessage}</p>}
@@ -317,10 +320,10 @@ export default function Akun() {
                                 </button>
                             </>
                         )}
-                    </form>
+                        </form>
 
-                    {!user.secQuestion && (
-                        <form className="akun-profile-form" onSubmit={handleSecuritySubmit}>
+                        {!user.secQuestion && (
+                            <form className="akun-profile-form" onSubmit={handleSecuritySubmit}>
                             <p className="akun-section-title"><IoShieldCheckmarkOutline size={14} /> Atur Pertanyaan Keamanan</p>
                             <p className="akun-form-hint">Pertanyaan ini hanya dapat diatur satu kali dan akan digunakan untuk reset kata sandi.</p>
                             {securityError && <p className="akun-inline-error">{securityError}</p>}
@@ -359,11 +362,11 @@ export default function Akun() {
                             <button className="akun-btn akun-btn--pink" type="submit" disabled={securityLoading}>
                                 {securityLoading ? 'Menyimpan...' : 'Simpan Pertanyaan'}
                             </button>
-                        </form>
-                    )}
+                            </form>
+                        )}
 
                     {/* Password changed notice */}
-                    <AnimatePresence>
+                        <AnimatePresence>
                         {passChanged && (
                             <motion.div
                                 className="akun-success-notice"
@@ -375,10 +378,10 @@ export default function Akun() {
                                 Kata sandi berhasil diubah!
                             </motion.div>
                         )}
-                    </AnimatePresence>
+                        </AnimatePresence>
 
                     {/* Change password form */}
-                    <AnimatePresence>
+                        <AnimatePresence>
                         {showForm && (
                             <motion.div
                                 className="akun-change-pass"
@@ -459,18 +462,19 @@ export default function Akun() {
                                 </form>
                             </motion.div>
                         )}
-                    </AnimatePresence>
+                        </AnimatePresence>
 
                     {/* Action buttons */}
-                    <div className="akun-actions">
-                        {!showForm && (
-                            <button className="akun-btn akun-btn--pink" onClick={() => { setShowForm(true); setPassChanged(false); }}>
-                                <IoLockClosedOutline size={15} /> Ubah Kata Sandi
+                        <div className="akun-actions">
+                            {!showForm && (
+                                <button className="akun-btn akun-btn--pink" onClick={() => { setShowForm(true); setPassChanged(false); }}>
+                                    <IoLockClosedOutline size={15} /> Ubah Kata Sandi
+                                </button>
+                            )}
+                            <button className="akun-btn akun-btn--outline" onClick={handleLogout}>
+                                <IoLogOutOutline size={15} /> Keluar
                             </button>
-                        )}
-                        <button className="akun-btn akun-btn--outline" onClick={handleLogout}>
-                            <IoLogOutOutline size={15} /> Keluar
-                        </button>
+                        </div>
                     </div>
                 </div>
             </motion.div>

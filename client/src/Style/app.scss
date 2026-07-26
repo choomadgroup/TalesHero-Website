@@ -1976,6 +1976,15 @@ footer.site-footer {
   width: 100%;
 }
 
+.cs-page__card--account {
+  max-width: 1060px;
+  padding: 0 24px;
+
+  @media (max-width: 480px) {
+    padding: 0 12px;
+  }
+}
+
 .cs-page__chars {
   display: flex;
   align-items: flex-end;
@@ -4859,6 +4868,26 @@ $nl-sans:     'Poppins', -apple-system, sans-serif;
   text-align: center;
 }
 
+.akun-card--landscape {
+  display: grid;
+  grid-template-columns: minmax(240px, 0.78fr) minmax(0, 1.22fr);
+  gap: 28px;
+  max-width: 980px;
+  padding: 34px;
+  text-align: left;
+  align-items: start;
+}
+
+.akun-summary {
+  position: sticky;
+  top: 84px;
+  padding: 8px 6px 0;
+}
+
+.akun-settings {
+  min-width: 0;
+}
+
 .akun-avatar {
   width: 76px;
   height: 76px;
@@ -4879,6 +4908,23 @@ $nl-sans:     'Poppins', -apple-system, sans-serif;
     height: 100%;
     object-fit: cover;
   }
+}
+
+.akun-card--landscape .akun-avatar {
+  margin-left: 0;
+  margin-right: 0;
+}
+
+.akun-card--landscape .akun-username {
+  text-align: left;
+}
+
+.akun-card--landscape .akun-gameid {
+  text-align: left;
+}
+
+.akun-card--landscape .akun-profile-form:last-child {
+  margin-bottom: 0;
 }
 
 .akun-username {
@@ -5112,6 +5158,14 @@ $nl-sans:     'Poppins', -apple-system, sans-serif;
   gap: 10px;
 }
 
+.akun-card--landscape .akun-actions {
+  flex-direction: row;
+
+  .akun-btn {
+    flex: 1;
+  }
+}
+
 .akun-btn {
   display: flex;
   align-items: center;
@@ -5138,6 +5192,39 @@ $nl-sans:     'Poppins', -apple-system, sans-serif;
     border: 2px solid #e0e0e0;
     color: #777;
     &:hover { border-color: #e91e63; color: #e91e63; }
+  }
+}
+
+@media (max-width: 820px) {
+  .akun-card--landscape {
+    grid-template-columns: 1fr;
+    max-width: 620px;
+    gap: 20px;
+    padding: 28px 22px 22px;
+  }
+
+  .akun-summary {
+    position: static;
+    padding: 0;
+  }
+
+  .akun-card--landscape .akun-avatar,
+  .akun-card--landscape .akun-username,
+  .akun-card--landscape .akun-gameid {
+    margin-left: auto;
+    margin-right: auto;
+    text-align: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .akun-card--landscape {
+    border-radius: 16px;
+    padding: 24px 16px 18px;
+  }
+
+  .akun-card--landscape .akun-actions {
+    flex-direction: column;
   }
 }
 
