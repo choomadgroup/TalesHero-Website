@@ -12,6 +12,11 @@ const transporter = nodemailer.createTransport({
     user: process.env.SMTP_USER,
     pass: process.env.SMTP_PASS,
   },
+  tls: {
+    // shared-hosting: sertifikat diterbitkan untuk hostname server (mx9.mailspace.id),
+    // bukan alias domain (mail.taleshero.web.id) — lewati verifikasi CN
+    rejectUnauthorized: false,
+  },
 });
 
 const FROM = `"Tales Hero Indonesia" <${process.env.SMTP_USER}>`;
