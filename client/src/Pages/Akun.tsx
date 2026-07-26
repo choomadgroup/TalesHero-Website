@@ -451,6 +451,13 @@ export default function Akun() {
                                             <button type="button" className="daftar-field__eye" onClick={() => setShowConfirm(v => !v)}>
                                                 {showConfirm ? <IoEyeOff size={18} /> : <IoEye size={18} />}
                                             </button>
+                                            <button
+                                                type="button"
+                                                className="login-forgot__link"
+                                                onClick={() => setLocation('/forgot-password')}
+                                            >
+                                                Lupa Pertanyaan Keamanan?
+                                            </button>
                                         </div>
                                         {errors.confirm && <p className="daftar-field__error">{errors.confirm}</p>}
                                     </div>
@@ -459,6 +466,7 @@ export default function Akun() {
                                         <button type="submit" className="akun-btn akun-btn--pink" disabled={loading}>
                                             {loading ? 'Menyimpan...' : 'Simpan Perubahan'}
                                         </button>
+                                        
                                         <button type="button" className="akun-btn akun-btn--outline" onClick={() => { setShowForm(false); setErrors({}); }}>
                                             Batal
                                         </button>

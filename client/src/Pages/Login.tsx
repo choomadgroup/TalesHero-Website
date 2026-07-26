@@ -194,13 +194,6 @@ export default function Login() {
                             >
                                 Lupa kata sandi?
                             </button>
-                            <button
-                                type="button"
-                                className="login-forgot__link"
-                                onClick={() => setLocation('/forgot-password')}
-                            >
-                                Lupa Pertanyaan Keamanan?
-                            </button>
                         </div>
 
                         {/* Submit */}
