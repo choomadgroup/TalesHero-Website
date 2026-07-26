@@ -4,7 +4,13 @@
 
 import { Resend } from 'resend';
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+function getResendClient() {
+  const apiKey = process.env.RESEND_API_KEY?.trim();
+  if (!apiKey) {
+    throw new Error('[mailer] RESEND_API_KEY is not configured.');
+  }
+  return new Resend(apiKey);
+}
 
 const FROM  = '<noreply@taleshero.web.id>';
 const BASE  = 'https://taleshero.web.id';
@@ -40,6 +46,7 @@ function emailShell(bodyHtml) {
 
 /** Kirim email reset kata sandi */
 export async function sendPasswordResetEmail(toEmail, toUsername, token) {
+  const resend = getResendClient();
   const link = `${BASE}/reset-password?token=${token}`;
 
   const bodyHtml = `
@@ -89,6 +96,7 @@ export async function sendPasswordResetEmail(toEmail, toUsername, token) {
 
 /** Kirim jawaban pertanyaan keamanan yang tersimpan saat pendaftaran */
 export async function sendSecurityQuestionEmail(toEmail, toUsername, secQuestion, secAnswer) {
+  const resend = getResendClient();
   const displayAnswer = secAnswer && secAnswer.trim()
     ? secAnswer.trim()
     : '(jawaban tidak tersedia — daftar ulang untuk menyimpannya)';
