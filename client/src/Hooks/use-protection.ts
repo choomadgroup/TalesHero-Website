@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 
-const ALLOWED_HOST = 'taleshero.up.railway.app';
+const ALLOWED_HOST = 'taleshero.web.id';
 
 /** Tampilkan layar blokir penuh dan hentikan semua eksekusi. */
 function blockSite() {
