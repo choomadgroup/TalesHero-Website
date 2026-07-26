@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { useLocation } from 'wouter';
 import { usePageMeta } from '@/Hooks/use-page-meta';
@@ -29,8 +29,34 @@ export default function ForgotPassword() {
     const [emailSent, setEmailSent] = useState<EmailType | null>(null);
     const [loading, setLoading] = useState<EmailType | null>(null);
     const [error, setError] = useState('');
+    const [maskedEmail, setMaskedEmail] = useState('');
+    const [sendCount, setSendCount] = useState(0);
+    const [nextAllowedAt, setNextAllowedAt] = useState<number | null>(null);
+    const [countdown, setCountdown] = useState('');
+    const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+    useEffect(() => {
+        if (!nextAllowedAt) { setCountdown(''); return; }
+        const tick = () => {
+            const remaining = nextAllowedAt - Date.now();
+            if (remaining <= 0) {
+                setNextAllowedAt(null);
+                setCountdown('');
+                if (timerRef.current) clearInterval(timerRef.current);
+            } else {
+                const m = Math.floor(remaining / 60000);
+                const s = Math.floor((remaining % 60000) / 1000);
+                setCountdown(`${m}:${s.toString().padStart(2, '0')}`);
+            }
+        };
+        tick();
+        timerRef.current = setInterval(tick, 1000);
+        return () => { if (timerRef.current) clearInterval(timerRef.current); };
+    }, [nextAllowedAt]);
 
     const sendRecoveryEmail = async (type: EmailType) => {
+        if (nextAllowedAt && nextAllowedAt > Date.now()) return;
+
         const value = identifier.trim();
         if (!value) {
             setError('Username atau email wajib diisi.');
@@ -53,6 +79,18 @@ export default function ForgotPassword() {
                 setError(data?.message ?? 'Email pemulihan gagal dikirim. Coba lagi nanti.');
                 return;
             }
+
+            const newCount = sendCount + 1;
+            setSendCount(newCount);
+            setMaskedEmail(data.maskedEmail ?? '');
+
+            // Cooldown: bebas 2x, lalu 30 menit, lalu 1 jam per kirim berikutnya
+            if (newCount === 2) {
+                setNextAllowedAt(Date.now() + 30 * 60 * 1000);
+            } else if (newCount >= 3) {
+                setNextAllowedAt(Date.now() + 60 * 60 * 1000);
+            }
+
             setEmailSent(type);
         } catch {
             setError('Tidak dapat terhubung ke server.');
@@ -78,19 +116,26 @@ export default function ForgotPassword() {
                                 <IoCheckmarkCircle size={54} />
                                 <h1 className="login-form-wrap__title">Email Terkirim!</h1>
                                 <p className="login-form-wrap__sub">
-                                    Jika akun dan email kamu terdaftar,{' '}
                                     {emailSent === 'password'
-                                        ? 'link reset kata sandi'
-                                        : 'pertanyaan keamanan yang tersimpan'}{' '}
-                                    sudah dikirim ke email pemulihanmu.
+                                        ? 'Link reset kata sandi'
+                                        : 'Jawaban pertanyaan keamanan'}{' '}
+                                    sudah dikirim ke{' '}
+                                    <strong>{maskedEmail || 'email pemulihanmu'}</strong>.
                                     <br />
                                     Periksa kotak masuk atau folder spam.
                                 </p>
                                 <button className="daftar-submit" onClick={() => setLocation('/login')}>
                                     Kembali ke Login
                                 </button>
-                                <button type="button" className="reset-secondary" onClick={() => setEmailSent(null)}>
-                                    Coba lagi
+                                <button
+                                    type="button"
+                                    className="reset-secondary"
+                                    disabled={!!nextAllowedAt}
+                                    onClick={() => setEmailSent(null)}
+                                >
+                                    {nextAllowedAt
+                                        ? `Coba lagi (${countdown})`
+                                        : 'Coba lagi'}
                                 </button>
                             </div>
                         ) : (

@@ -5,6 +5,12 @@ import crypto from 'node:crypto';
 import { query } from '../db.js';
 import { sendPasswordResetEmail } from '../mailer.js';
 
+function maskEmail(email) {
+  const [local, domain] = email.split('@');
+  const visible = local.slice(0, Math.min(2, local.length));
+  return `${visible}***@${domain}`;
+}
+
 async function forgotPassword(req, res) {
   try {
     const { identifier } = req.body ?? {};
@@ -46,7 +52,7 @@ async function forgotPassword(req, res) {
 
     await sendPasswordResetEmail(email, username, token);
 
-    return res.status(200).json({ message: 'Jika email terdaftar, link reset sudah dikirim.' });
+    return res.status(200).json({ message: 'Jika email terdaftar, link reset sudah dikirim.', maskedEmail: maskEmail(email) });
   } catch (err) {
     console.error('[forgot-password] error:', err);
     return res.status(500).json({ message: 'Gagal mengirim email. Coba lagi nanti.' });

@@ -4,6 +4,12 @@
 import { query } from '../db.js';
 import { sendSecurityQuestionEmail } from '../mailer.js';
 
+function maskEmail(email) {
+  const [local, domain] = email.split('@');
+  const visible = local.slice(0, Math.min(2, local.length));
+  return `${visible}***@${domain}`;
+}
+
 async function forgotSecurityQuestion(req, res) {
   try {
     const { identifier } = req.body ?? {};
@@ -28,7 +34,7 @@ async function forgotSecurityQuestion(req, res) {
 
     await sendSecurityQuestionEmail(email, username, secQuestion, secAnswer);
 
-    return res.status(200).json({ message: 'Jika email terdaftar, pertanyaan keamanan sudah dikirim.' });
+    return res.status(200).json({ message: 'Jika email terdaftar, pertanyaan keamanan sudah dikirim.', maskedEmail: maskEmail(email) });
   } catch (err) {
     console.error('[forgot-security-question] error:', err);
     return res.status(500).json({ message: 'Gagal mengirim email. Coba lagi nanti.' });
