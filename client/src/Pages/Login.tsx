@@ -1,6 +1,7 @@
 import { useState, useRef } from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useLocation } from 'wouter';
+import FormSkeleton from '@/Components/FormSkeleton';
 import ReCAPTCHA from 'react-google-recaptcha';
 import { usePageMeta } from '@/Hooks/use-page-meta';
 import { useAuth } from '@/Hooks/use-auth';
@@ -133,6 +134,11 @@ export default function Login() {
                 transition={{ duration: 0.55, ease: 'easeOut' }}
             >
                 <div className="login-form-wrap">
+                    <AnimatePresence mode="wait">
+                    {loading ? (
+                        <FormSkeleton rows={2} label="Sedang masuk..." />
+                    ) : (
+                    <motion.div key="form" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.18 }}>
                     <h1 className="login-form-wrap__title">Masuk ke Akunmu</h1>
                     <p className="login-form-wrap__sub">Selamat datang kembali, Hero!</p>
 
@@ -209,6 +215,9 @@ export default function Login() {
                             Daftar di sini
                         </button>
                     </p>
+                    </motion.div>
+                    )}
+                    </AnimatePresence>
                 </div>
             </motion.div>
         </div>

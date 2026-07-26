@@ -2294,6 +2294,68 @@ footer.site-footer {
   to { transform: rotate(360deg); }
 }
 
+// ── Form Skeleton shimmer ──────────────────────────────────────
+@keyframes skeleton-shimmer {
+  0%   { background-position: -400px 0; }
+  100% { background-position: 400px 0; }
+}
+
+%skeleton-base {
+  background: linear-gradient(90deg, #ececec 25%, #f8f8f8 50%, #ececec 75%);
+  background-size: 800px 100%;
+  animation: skeleton-shimmer 1.4s ease-in-out infinite;
+  border-radius: 8px;
+}
+
+.form-skeleton {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  padding: 4px 0;
+  min-height: 220px;
+
+  &__title {
+    @extend %skeleton-base;
+    height: 26px;
+    width: 55%;
+    border-radius: 10px;
+    margin-bottom: 4px;
+  }
+
+  &__field {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+  }
+
+  &__label {
+    @extend %skeleton-base;
+    height: 13px;
+    border-radius: 6px;
+  }
+
+  &__input {
+    @extend %skeleton-base;
+    height: 46px;
+    border-radius: 10px;
+  }
+
+  &__btn {
+    @extend %skeleton-base;
+    height: 48px;
+    border-radius: 50px;
+    margin-top: 4px;
+  }
+
+  &__label-text {
+    text-align: center;
+    color: #aaa;
+    font-size: 13px;
+    margin: 0;
+    letter-spacing: 0.2px;
+  }
+}
+
 // ── Bottom hints ──────────────────────────────────────────────
 .daftar-login-hint {
   text-align: center;

@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import FormSkeleton from '@/Components/FormSkeleton';
 import { useLocation } from 'wouter';
 import { usePageMeta } from '@/Hooks/use-page-meta';
 import { useAuth } from '@/Hooks/use-auth';
@@ -205,9 +206,14 @@ export default function Akun() {
         }
     };
 
+    const [loggingOut, setLoggingOut] = useState(false);
+
     const handleLogout = () => {
-        logout();
-        setLocation('/');
+        setLoggingOut(true);
+        setTimeout(() => {
+            logout();
+            setLocation('/');
+        }, 800);
     };
 
     return (
@@ -230,6 +236,13 @@ export default function Akun() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.55, ease: 'easeOut' }}
             >
+                <AnimatePresence mode="wait">
+                {loggingOut ? (
+                    <div key="logout-skeleton" style={{ padding: '8px 0' }}>
+                        <FormSkeleton rows={3} label="Sedang keluar..." />
+                    </div>
+                ) : (
+                <div key="akun-content">
                 <div className="akun-card akun-card--landscape">
                     <div className="akun-summary">
                         <div className="akun-identity">
@@ -490,6 +503,9 @@ export default function Akun() {
                         </div>
                     </div>
                 </div>
+                </div>
+                )}
+                </AnimatePresence>
             </motion.div>
         </div>
         <Footer />

@@ -1,5 +1,6 @@
 import { useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import FormSkeleton from '@/Components/FormSkeleton';
 import { useLocation } from 'wouter';
 import ReCAPTCHA from 'react-google-recaptcha';
 import { usePageMeta } from '@/Hooks/use-page-meta';
@@ -169,7 +170,9 @@ export default function Daftar() {
             >
 
                 <AnimatePresence mode="wait">
-                    {success ? (
+                    {loading ? (
+                        <FormSkeleton key="skeleton" rows={4} label="Mendaftarkan akun..." />
+                    ) : success ? (
                         /* ── Sukses ── */
                         <motion.div
                             key="success"
