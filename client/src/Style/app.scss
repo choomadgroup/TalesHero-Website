@@ -1977,10 +1977,12 @@ footer.site-footer {
 }
 
 .cs-page__card--account {
-  max-width: 1060px;
-  padding: 0 24px;
+  width: min(100%, 1120px);
+  max-width: 1120px;
+  padding: 0;
 
   @media (max-width: 480px) {
+    width: 100%;
     padding: 0 12px;
   }
 }
@@ -4945,9 +4947,10 @@ $nl-sans:     'Poppins', -apple-system, sans-serif;
 
 .akun-card--landscape {
   display: grid;
-  grid-template-columns: minmax(240px, 0.78fr) minmax(0, 1.22fr);
+  width: 100%;
+  max-width: none;
+  grid-template-columns: minmax(300px, 0.9fr) minmax(420px, 1.1fr);
   gap: 28px;
-  max-width: 980px;
   padding: 34px;
   text-align: left;
   align-items: start;
