@@ -1,28 +1,14 @@
 // ============================================================
-//  Tales Hero Indonesia — Email Sender (nodemailer)
+//  Tales Hero Indonesia — Email Sender (Resend)
 // ============================================================
 
-import nodemailer from 'nodemailer';
+import { Resend } from 'resend';
 
-const transporter = nodemailer.createTransport({
-  host:   process.env.SMTP_HOST,
-  port:   Number(process.env.SMTP_PORT ?? 465),
-  secure: process.env.SMTP_PORT !== '587',   // true = SSL/465, false = TLS/587
-  auth: {
-    user: process.env.SMTP_USER,
-    pass: process.env.SMTP_PASS,
-  },
-  tls: {
-    // shared-hosting: sertifikat diterbitkan untuk hostname server (mx9.mailspace.id),
-    // bukan alias domain (mail.taleshero.web.id) — lewati verifikasi CN
-    rejectUnauthorized: false,
-  },
-});
+const resend = new Resend(process.env.RESEND_API_KEY);
 
-const FROM = `"Tales Hero Indonesia" <${process.env.SMTP_USER}>`;
-const BASE = 'https://taleshero.web.id';
-const LOGO = `${BASE}/Image/tales-hero-banner.png`;
-const UNSUBSCRIBE = `<mailto:${process.env.SMTP_USER}?subject=unsubscribe>`;
+const FROM  = `Tales Hero Indonesia <${process.env.SMTP_FROM ?? process.env.SMTP_USER}>`;
+const BASE  = 'https://taleshero.web.id';
+const LOGO  = `${BASE}/Image/tales-hero-banner.png`;
 
 /** Wrapper HTML email — layout simpel, logo kiri atas */
 function emailShell(bodyHtml) {
@@ -34,12 +20,10 @@ function emailShell(bodyHtml) {
     <tr><td align="center">
       <table width="520" cellpadding="0" cellspacing="0"
              style="background:#ffffff;border-radius:12px;border:1px solid #e2e8f0;max-width:520px;overflow:hidden">
-        <!-- Body dengan logo kiri atas -->
         <tr><td style="padding:32px 32px 24px">
           <img src="${LOGO}" alt="Tales Hero" style="height:48px;display:block;margin-bottom:20px" />
           ${bodyHtml}
         </td></tr>
-        <!-- Footer -->
         <tr>
           <td style="padding:16px 32px 20px;border-top:1px solid #e2e8f0">
             <p style="margin:0;color:#94a3b8;font-size:11px">
@@ -92,14 +76,15 @@ export async function sendPasswordResetEmail(toEmail, toUsername, token) {
     `© ${new Date().getFullYear()} Tales Hero Indonesia`,
   ].join('\n');
 
-  await transporter.sendMail({
+  const { error } = await resend.emails.send({
     from: FROM,
     to: toEmail,
     subject: 'Reset Kata Sandi Tales Hero Indonesia',
     text: plainText,
     html: emailShell(bodyHtml),
-    headers: { 'List-Unsubscribe': UNSUBSCRIBE },
   });
+
+  if (error) throw new Error(`[mailer] Resend error: ${error.message}`);
 }
 
 /** Kirim jawaban pertanyaan keamanan yang tersimpan saat pendaftaran */
@@ -136,12 +121,13 @@ export async function sendSecurityQuestionEmail(toEmail, toUsername, secQuestion
     `© ${new Date().getFullYear()} Tales Hero Indonesia`,
   ].join('\n');
 
-  await transporter.sendMail({
+  const { error } = await resend.emails.send({
     from: FROM,
     to: toEmail,
     subject: 'Pemulihan Akun Tales Hero Indonesia',
     text: plainText,
     html: emailShell(bodyHtml),
-    headers: { 'List-Unsubscribe': UNSUBSCRIBE },
   });
+
+  if (error) throw new Error(`[mailer] Resend error: ${error.message}`);
 }
