@@ -11,7 +11,7 @@
 // ============================================================
 
 import crypto from 'node:crypto';
-import { query } from '../db.js';
+import { pool } from '../db.js';
 import { ALLOWED_SECURITY_QUESTIONS } from './security-questions.js';
 
 function sha256(str) {
@@ -54,6 +54,7 @@ function gamePassword(password) {
  * Express route handler untuk registrasi akun baru.
  */
 async function register(req, res) {
+  const conn = await pool.getConnection();
   try {
     const { username, email, password, secQuestion, secAnswer } = req.body ?? {};
 
@@ -64,24 +65,27 @@ async function register(req, res) {
     }
 
     // ── 2. Cek username sudah terdaftar di akun game ──────
-    const existing = await query(
+    await conn.beginTransaction();
+
+    const [existing] = await conn.query(
       'SELECT fdUserID FROM userinfofrompublisher WHERE fdUserID = ? LIMIT 1',
       [username.trim()]
     );
     if (existing.length > 0) {
+      await conn.rollback();
       return res.status(409).json({ message: 'Username sudah terdaftar di game.' });
     }
 
     // ── 3. Simpan langsung ke tabel publisher game ────────
     // The game server expects a lowercase MD5 digest in fdPassword.
-    await query(
+    await conn.query(
       `INSERT INTO userinfofrompublisher (fdUserID, fdGameID, fdPassword)
        VALUES (?, NULL, ?)`,
       [username.trim(), gamePassword(password)]
     );
 
     // ── 4. Simpan data website (email, pertanyaan keamanan) ──
-    await query(
+    await conn.query(
       `INSERT INTO tales_hero_web_users (username, email, sec_question, sec_answer_hash)
        VALUES (?, ?, ?, ?)
        ON DUPLICATE KEY UPDATE
@@ -96,11 +100,17 @@ async function register(req, res) {
       ],
     );
 
-    return res.status(201).json({ message: 'Akun game berhasil dibuat.' });
+    await conn.commit();
+    return res.status(201).json({
+      message: 'Akun game berhasil dibuat. Email dan pertanyaan keamanan sudah tersimpan.',
+    });
 
   } catch (err) {
+    try { await conn.rollback(); } catch { /* connection cleanup follows */ }
     console.error('[register] error:', err);
     return res.status(500).json({ message: 'Terjadi kesalahan server. Coba lagi nanti.' });
+  } finally {
+    conn.release();
   }
 }
 

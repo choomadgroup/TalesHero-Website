@@ -196,6 +196,11 @@ export default function Daftar() {
                         <motion.div key="form" className="daftar-form-wrap">
                             <h1 className="daftar-form-wrap__title">Buat Akun Baru</h1>
                             <p className="daftar-form-wrap__sub">Bergabunglah dan jadilah hero legendaris!</p>
+                            <div className="daftar-recovery-note">
+                                Email dan pertanyaan keamanan akan langsung tersimpan saat pendaftaran.
+                                Email digunakan untuk reset kata sandi dan membantu pemulihan jika kamu lupa
+                                pertanyaan keamanan.
+                            </div>
 
                             {errors.api && (
                                 <div className="daftar-api-error">{errors.api}</div>
@@ -223,13 +228,13 @@ export default function Daftar() {
 
                                 {/* Email */}
                                 <div className={`daftar-field${errors.email ? ' daftar-field--error' : ''}`}>
-                                    <label className="daftar-field__label">Email</label>
+                                    <label className="daftar-field__label">Email Pemulihan</label>
                                     <div className="daftar-field__input-wrap">
                                         <IoMailOutline className="daftar-field__icon" />
                                         <input
                                             type="email"
                                             className="daftar-field__input"
-                                            placeholder="Email"
+                                            placeholder="Email untuk pemulihan akun"
                                             value={form.email}
                                             onChange={set('email')}
                                             autoComplete="email"
@@ -291,8 +296,11 @@ export default function Daftar() {
                                 {/* Pertanyaan Keamanan */}
                                 <div className="daftar-security-divider">
                                     <IoShieldCheckmarkOutline size={14} />
-                                    <span>Pertanyaan Keamanan</span>
-                                    <small>Digunakan untuk memulihkan akun jika lupa sandi atau email</small>
+                                    <span>Pertanyaan Keamanan untuk Reset Kata Sandi</span>
+                                    <small>
+                                        Jawaban ini tersimpan saat daftar dan digunakan untuk reset kata sandi.
+                                        Email pemulihan membantu jika kamu lupa pertanyaan keamanan.
+                                    </small>
                                 </div>
 
                                 <div className={`daftar-field${errors.secQuestion ? ' daftar-field--error' : ''}`}>

@@ -20,9 +20,10 @@ import { query } from '../db.js';
 async function login(req, res) {
   try {
     const { username, password } = req.body ?? {};
+    const identifier = username?.trim();
 
     // ── 1. Validasi input dasar ───────────────────────────
-    if (!username || !username.trim()) {
+    if (!identifier) {
       return res.status(400).json({ message: 'Username atau email wajib diisi.' });
     }
     if (!password) {
@@ -31,7 +32,7 @@ async function login(req, res) {
 
     // ── 2. Cari user + data website (email, pertanyaan keamanan) ──
     const rows = await query(
-      `SELECT g.fdUserID, g.fdGameID, g.fdPassword, g.fdCash,
+       `SELECT g.fdUserID, g.fdGameID, g.fdPassword, g.fdCash,
                i.fdNickname,
                ig.fdGameMoney,
               w.email, w.sec_question AS secQuestion
@@ -39,8 +40,8 @@ async function login(req, res) {
         LEFT JOIN userinfo i ON i.fdUID = g.fdUserID
         LEFT JOIN userinfogame ig ON ig.fdUserNum = i.fdUserNum
        LEFT JOIN tales_hero_web_users w ON w.username = g.fdUserID
-       WHERE g.fdUserID = ? LIMIT 1`,
-      [username.trim()]
+        WHERE g.fdUserID = ? OR w.email = ? LIMIT 1`,
+       [identifier, identifier]
     );
 
     if (rows.length === 0) {
