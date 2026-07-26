@@ -9,7 +9,8 @@ const VERIFY_URL = 'https://www.google.com/recaptcha/api/siteverify';
 async function verifyRecaptcha(token, remoteIp) {
   const secret = process.env.RECAPTCHA_SECRET_KEY;
   if (!secret) return process.env.NODE_ENV !== 'production';
-  if (!token) return false;
+  if (!token) { console.log('[recaptcha] token missing'); return false; }
+  console.log('[recaptcha] token preview:', typeof token, String(token).slice(0, 30));
 
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), 8000);
