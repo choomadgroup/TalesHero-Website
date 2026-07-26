@@ -7,13 +7,24 @@ const POPUP_IMAGES = [
     '/Image/Home/Popup/IMG-POPUP-02.png',
 ];
 
+// Interval auto-ganti gambar (milidetik)
+const AUTO_INTERVAL = 4000;
+
 export default function AnnouncementPopup() {
     const [open, setOpen]       = useState(true);
     const [current, setCurrent] = useState(0);
+    const [paused, setPaused]   = useState(false);
 
     const total = POPUP_IMAGES.length;
     const prev  = () => setCurrent(i => (i - 1 + total) % total);
     const next  = () => setCurrent(i => (i + 1) % total);
+
+    // Auto-rotate
+    useEffect(() => {
+        if (!open || paused || total <= 1) return;
+        const id = setInterval(() => setCurrent(i => (i + 1) % total), AUTO_INTERVAL);
+        return () => clearInterval(id);
+    }, [open, paused, total]);
 
     // Cegah layout shift (scrollbar hilang/muncul) saat popup terbuka
     useEffect(() => {
@@ -49,6 +60,8 @@ export default function AnnouncementPopup() {
 
             {/* Popup */}
             <div
+                onMouseEnter={() => setPaused(true)}
+                onMouseLeave={() => setPaused(false)}
                 style={{
                     position: 'fixed',
                     top: '50%',
