@@ -12,7 +12,7 @@ function getResendClient() {
   return new Resend(apiKey);
 }
 
-const FROM  = '<noreply@taleshero.web.id>';
+const FROM  = 'noreply@taleshero.web.id';
 const BASE  = 'https://taleshero.web.id';
 const LOGO  = `${BASE}/Image/tales-hero-banner.png`;
 
