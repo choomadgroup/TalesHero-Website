@@ -9,7 +9,7 @@ import Footer from '@/Components/Footer';
 import {
     IoHome, IoEye, IoEyeOff, IoCheckmarkCircle,
     IoPersonOutline, IoMailOutline, IoLockClosedOutline,
-    IoShieldCheckmarkOutline,
+    IoShieldCheckmarkOutline, IoCloseCircleOutline, IoEllipseOutline,
 } from 'react-icons/io5';
 
 const RECAPTCHA_SITE_KEY = '6LeK3mEtAAAAAN5u4fTLNlfuUgwlPPB2dxcw3orE';
@@ -68,8 +68,14 @@ function validate(data: FormData, captchaToken: string | null): FormErrors {
 
     if (!data.password)
         errors.password = 'Kata sandi wajib diisi.';
-    else if (data.password.length < 8)
-        errors.password = 'Kata sandi minimal 8 karakter.';
+    else if (
+        data.password.length < 8 ||
+        !/[A-Z]/.test(data.password) ||
+        !/[a-z]/.test(data.password) ||
+        !/[0-9]/.test(data.password) ||
+        !/[^A-Za-z0-9]/.test(data.password)
+    )
+        errors.password = 'Kata sandi belum memenuhi semua syarat.';
 
     if (!data.confirm)
         errors.confirm = 'Konfirmasi kata sandi wajib diisi.';
@@ -104,6 +110,15 @@ export default function Daftar() {
     const [captchaToken, setCaptchaToken] = useState<string | null>(null);
     const [loading, setLoading]         = useState(false);
     const [success, setSuccess]         = useState(false);
+    const passwordRules = [
+        { label: 'Minimal 8 karakter', valid: form.password.length >= 8 },
+        { label: 'Mengandung huruf besar (A–Z)', valid: /[A-Z]/.test(form.password) },
+        { label: 'Mengandung huruf kecil (a–z)', valid: /[a-z]/.test(form.password) },
+        { label: 'Mengandung angka (0–9)', valid: /[0-9]/.test(form.password) },
+        { label: 'Mengandung tanda khusus (!@#$...)', valid: /[^A-Za-z0-9]/.test(form.password) },
+        { label: 'Ulangi kata sandi harus sama', valid: Boolean(form.confirm) && form.confirm === form.password },
+    ];
+    const passwordStarted = Boolean(form.password || form.confirm);
 
     const set = (key: keyof FormData) => (e: React.ChangeEvent<HTMLInputElement>) => {
         setForm(f => ({ ...f, [key]: e.target.value }));
@@ -294,6 +309,20 @@ export default function Daftar() {
                                         </button>
                                     </div>
                                     {errors.confirm && <p className="daftar-field__error">{errors.confirm}</p>}
+                                    <div className="password-rules" aria-live="polite">
+                                        <p className="password-rules__title">Syarat kata sandi</p>
+                                        <div className="password-rules__grid">
+                                            {passwordRules.map(rule => {
+                                                const state = !passwordStarted ? 'idle' : rule.valid ? 'valid' : 'invalid';
+                                                return (
+                                                    <span key={rule.label} className={`password-rule password-rule--${state}`}>
+                                                        {state === 'valid' ? <IoCheckmarkCircle size={14} /> : state === 'invalid' ? <IoCloseCircleOutline size={14} /> : <IoEllipseOutline size={12} />}
+                                                        {rule.label}
+                                                    </span>
+                                                );
+                                            })}
+                                        </div>
+                                    </div>
                                 </div>
 
                                 {/* Pertanyaan Keamanan */}

@@ -34,8 +34,16 @@ function validate(body) {
   if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim()))
     return 'Format email tidak valid.';
 
-  if (!password || password.length < 8 || password.length > 50)
-    return 'Kata sandi harus antara 8–50 karakter.';
+  if (
+    !password ||
+    password.length < 8 ||
+    password.length > 50 ||
+    !/[A-Z]/.test(password) ||
+    !/[a-z]/.test(password) ||
+    !/[0-9]/.test(password) ||
+    !/[^A-Za-z0-9]/.test(password)
+  )
+    return 'Kata sandi harus 8–50 karakter dan mengandung huruf besar, huruf kecil, angka, serta tanda khusus.';
 
   if (!secQuestion || !ALLOWED_SECURITY_QUESTIONS.includes(secQuestion))
     return 'Pertanyaan keamanan tidak valid.';

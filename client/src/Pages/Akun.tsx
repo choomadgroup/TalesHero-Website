@@ -239,7 +239,7 @@ export default function Akun() {
                 <AnimatePresence mode="wait">
                 {loggingOut ? (
                     <div key="logout-skeleton" style={{ padding: '8px 0' }}>
-                        <FormSkeleton rows={3} label="Sedang keluar..." />
+                        <FormSkeleton variant="logout" label="Sedang keluar..." />
                     </div>
                 ) : (
                 <div key="akun-content">
