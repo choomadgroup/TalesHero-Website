@@ -14,7 +14,7 @@ function getResendClient() {
 
 const FROM_ADDRESS = 'noreply@taleshero.web.id';
 const REPLY_TO     = 'support@taleshero.web.id';
-const FROM         = `"Tales Hero Indonesia" <${FROM_ADDRESS}>`;
+const FROM         = `"Tales Hero Indonesia"`;
 const BASE         = 'https://taleshero.web.id';
 
 // Logo di-embed langsung via CID — tampil di Gmail tanpa perlu klik "Tampilkan gambar"
