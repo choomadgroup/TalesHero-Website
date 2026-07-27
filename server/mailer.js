@@ -191,7 +191,7 @@ export async function sendPasswordResetEmail(toEmail, toUsername, token) {
                     color:#ffffff;text-decoration:none;font-weight:700;font-size:15px;
                     font-family:Arial,Helvetica,sans-serif;border-radius:10px;
                     letter-spacing:.4px;box-shadow:0 4px 12px rgba(37,99,235,0.35)">
-            Reset Kata Sandi &rarr;
+            Reset Kata Sandi
           </a>
         </td>
       </tr>

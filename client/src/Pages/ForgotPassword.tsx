@@ -26,8 +26,7 @@ export default function ForgotPassword() {
     });
 
     const [, setLocation] = useLocation();
-    const [username, setUsername] = useState('');
-    const [email, setEmail] = useState('');
+    const [identifier, setIdentifier] = useState('');
     const [emailSent, setEmailSent] = useState<EmailType | null>(null);
     const [loading, setLoading] = useState<EmailType | null>(null);
     const [error, setError] = useState('');
@@ -60,14 +59,9 @@ export default function ForgotPassword() {
     const sendRecoveryEmail = async (type: EmailType) => {
         if (nextAllowedAt && nextAllowedAt > Date.now()) return;
 
-        const usernameValue = username.trim();
-        const emailValue = email.trim().toLowerCase();
-        if (!usernameValue || !emailValue) {
-            setError('Username game dan email wajib diisi.');
-            return;
-        }
-        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailValue)) {
-            setError('Format email tidak valid.');
+        const value = identifier.trim();
+        if (!value) {
+            setError('Username game atau email wajib diisi.');
             return;
         }
         if (!captcha) {
@@ -82,7 +76,7 @@ export default function ForgotPassword() {
                 {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ username: usernameValue, email: emailValue, captcha }),
+                    body: JSON.stringify({ identifier: value, captcha }),
                 },
             );
             const data = await response.json().catch(() => ({}));
@@ -110,6 +104,8 @@ export default function ForgotPassword() {
         }
     };
 
+    const readyToSend = identifier.trim().length > 0;
+
     return (
         <>
             <Header />
@@ -131,7 +127,7 @@ export default function ForgotPassword() {
                                         ? 'Link reset kata sandi'
                                         : 'Jawaban pertanyaan keamanan'}{' '}
                                     sudah dikirim ke{' '}
-                                    <strong>{maskedEmail || 'email pemulihanmu'}</strong>.
+                                    <strong>{maskedEmail || 'email yang terdaftar di akunmu'}</strong>.
                                     <br />
                                     Periksa kotak masuk atau folder spam.
                                 </p>
@@ -159,25 +155,29 @@ export default function ForgotPassword() {
                                 </div>
                                 <h1 className="login-form-wrap__title">Pemulihan Akun</h1>
                                 <p className="login-form-wrap__sub">
-                                    Masukkan username game dan email yang sudah terdaftar.
+                                    Masukkan username game atau email terdaftar.
+                                    Email pemulihan akan dikirim otomatis ke email yang tersimpan di akunmu.
                                 </p>
 
                                 {error && <div className="login-api-error">{error}</div>}
 
                                 <div className="daftar-field">
-                                    <label className="daftar-field__label" htmlFor="recovery-username">
-                                        Username Game
+                                    <label className="daftar-field__label" htmlFor="recovery-identifier">
+                                        Username Game atau Email
                                     </label>
                                     <div className="daftar-field__input-wrap">
-                                        <IoPersonOutline className="daftar-field__icon" />
+                                        {identifier.includes('@')
+                                            ? <IoMailOutline className="daftar-field__icon" />
+                                            : <IoPersonOutline className="daftar-field__icon" />
+                                        }
                                         <input
-                                            id="recovery-username"
+                                            id="recovery-identifier"
                                             type="text"
                                             className="daftar-field__input"
-                                            placeholder="Masukkan username game"
-                                            value={username}
+                                            placeholder="Username game atau email terdaftar"
+                                            value={identifier}
                                             onChange={event => {
-                                                setUsername(event.target.value);
+                                                setIdentifier(event.target.value);
                                                 if (error) setError('');
                                             }}
                                             autoComplete="username"
@@ -185,28 +185,7 @@ export default function ForgotPassword() {
                                     </div>
                                 </div>
 
-                                <div className="daftar-field">
-                                    <label className="daftar-field__label" htmlFor="recovery-email">
-                                        Email Terdaftar
-                                    </label>
-                                    <div className="daftar-field__input-wrap">
-                                        <IoMailOutline className="daftar-field__icon" />
-                                        <input
-                                            id="recovery-email"
-                                            type="email"
-                                            className="daftar-field__input"
-                                            placeholder="Masukkan email saat pendaftaran"
-                                            value={email}
-                                            onChange={event => {
-                                                setEmail(event.target.value);
-                                                if (error) setError('');
-                                            }}
-                                            autoComplete="email"
-                                        />
-                                    </div>
-                                </div>
-
-                                {username.trim() && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim()) && (
+                                {readyToSend && (
                                     <>
                                         <div className="reset-recovery-actions">
                                             <button
@@ -230,8 +209,8 @@ export default function ForgotPassword() {
                                         </div>
 
                                         <p className="reset-recovery-note">
-                                            Pertanyaan keamanan tidak direset atau diubah. Jika lupa, pertanyaan yang tersimpan
-                                            akan dikirim ke email yang digunakan saat pendaftaran.
+                                            Email dikirim ke alamat yang didaftarkan saat membuat akun.
+                                            Kamu tidak perlu memasukkan email secara manual.
                                         </p>
                                     </>
                                 )}
