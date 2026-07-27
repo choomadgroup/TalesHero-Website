@@ -2,10 +2,17 @@ const VERIFY_URL = 'https://challenges.cloudflare.com/turnstile/v0/siteverify';
 
 /**
  * Verify a Cloudflare Turnstile token on the server.
+ *
+ * Dev/preview: jika TURNSTILE_SECRET_KEY belum diset, verifikasi dilewati
+ * agar developer bisa test tanpa perlu konfigurasi Turnstile lokal.
+ * Production: wajib ada secret key — gagal tertutup jika tidak ada.
  */
 async function verifyRecaptcha(token, remoteIp) {
   const secret = process.env.TURNSTILE_SECRET_KEY?.trim();
-  if (!secret || !token) return false;
+
+  // Lewati verifikasi di dev jika secret belum dikonfigurasi
+  if (!secret) return process.env.NODE_ENV !== 'production';
+  if (!token) return false;
 
   try {
     const response = await fetch(VERIFY_URL, {

@@ -15,7 +15,9 @@ import emailResetPassword from './server/auth/email-reset-password.js';
 import forgotSecurityQuestion from './server/auth/forgot-security-question.js';
 import me from './server/auth/me.js';
 import logout from './server/auth/logout.js';
+import turnstileConfig from './server/auth/turnstile-config.js';
 import { ping, migrate } from './server/db.js';
+import { applySecurityHeaders } from './server/security.js';
 
 import runtimeErrorOverlay from '@replit/vite-plugin-runtime-error-modal';
 
@@ -160,6 +162,18 @@ const apiPlugin = {
   name: 'tales-hero-api',
   async configureServer(server: any) {
     const blockedSourcePath = /^\/(?:client\/src|server|attached_assets|\.local|\.agents|node_modules)(?:\/|$)|^\/(?:vite\.config\.ts|package\.json|pnpm-lock\.yaml|tsconfig(?:\.[^/]+)?|\.env(?:\.[^/]*)?)$/i;
+
+    // Security headers (CORS, CSP, X-Frame-Options, etc.) di dev server
+    server.middlewares.use((req: any, res: any, next: any) => {
+      applySecurityHeaders(req, res, next);
+    });
+
+    // Turnstile site key endpoint untuk dev
+    server.middlewares.use('/api/config/turnstile', (req: any, res: any, next: any) => {
+      if (req.method !== 'GET') { next(); return; }
+      addJsonResponseHelpers(res);
+      turnstileConfig(req, res);
+    });
 
     // Vite must serve source modules to the local app, but a browser navigation
     // to a source/config path should never render the file as a public page.
