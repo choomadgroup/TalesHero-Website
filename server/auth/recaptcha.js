@@ -10,9 +10,9 @@ const VERIFY_URL = 'https://challenges.cloudflare.com/turnstile/v0/siteverify';
 async function verifyRecaptcha(token, remoteIp) {
   const secret = process.env.TURNSTILE_SECRET_KEY?.trim();
 
-  // Lewati verifikasi di dev jika secret belum dikonfigurasi
-  if (!secret) return process.env.NODE_ENV !== 'production';
-  if (!token) return false;
+  // Lewati verifikasi di luar production (dev/preview)
+  if (process.env.NODE_ENV !== 'production') return true;
+  if (!secret || !token) return false;
 
   try {
     const response = await fetch(VERIFY_URL, {

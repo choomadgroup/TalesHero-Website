@@ -24,6 +24,8 @@ type Props = {
     resetKey?: number;
 };
 
+const IS_DEV = import.meta.env.DEV;
+
 let scriptPromise: Promise<void> | null = null;
 
 function loadTurnstileScript() {
@@ -58,7 +60,15 @@ export default function TurnstileWidget({ onToken, resetKey = 0 }: Props) {
     const [siteKey, setSiteKey] = useState('');
     const [loadError, setLoadError] = useState('');
 
+    // Dev mode: auto-provide bypass token tanpa load widget Cloudflare
     useEffect(() => {
+        if (IS_DEV) onToken('dev-bypass');
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [resetKey]);
+
+    // Production: ambil site key dari server
+    useEffect(() => {
+        if (IS_DEV) return;
         let cancelled = false;
         fetch('/api/config/turnstile')
             .then(response => {
@@ -74,8 +84,9 @@ export default function TurnstileWidget({ onToken, resetKey = 0 }: Props) {
         return () => { cancelled = true; };
     }, []);
 
+    // Production: render widget setelah site key tersedia
     useEffect(() => {
-        if (!siteKey || !containerRef.current) return;
+        if (IS_DEV || !siteKey || !containerRef.current) return;
         let cancelled = false;
 
         loadTurnstileScript()
@@ -106,6 +117,14 @@ export default function TurnstileWidget({ onToken, resetKey = 0 }: Props) {
             }
         };
     }, [siteKey, resetKey, onToken]);
+
+    if (IS_DEV) {
+        return (
+            <div className="turnstile-widget" style={{ opacity: 0.5, fontSize: 12, color: '#888', padding: '8px 0' }}>
+                ✓ Captcha dilewati (dev mode)
+            </div>
+        );
+    }
 
     return (
         <div className="turnstile-widget" aria-live="polite">
