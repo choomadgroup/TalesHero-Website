@@ -4,6 +4,7 @@ import { useLocation } from 'wouter';
 import { usePageMeta } from '@/Hooks/use-page-meta';
 import Header from '@/Components/Header';
 import Footer from '@/Components/Footer';
+import TurnstileWidget from '@/Components/TurnstileWidget';
 import {
     IoArrowBack,
     IoCheckmarkCircle,
@@ -30,6 +31,7 @@ export default function ResetPasswordEmail() {
     const [loading, setLoading]         = useState(false);
     const [success, setSuccess]         = useState(false);
     const [error, setError]             = useState('');
+    const [captcha, setCaptcha]         = useState('');
     const passwordRules = [
         { label: 'Minimal 8 karakter', valid: newPassword.length >= 8 },
         { label: 'Mengandung huruf besar (A–Z)', valid: /[A-Z]/.test(newPassword) },
@@ -59,13 +61,17 @@ export default function ResetPasswordEmail() {
             return;
         }
         if (newPassword !== confirm)  { setError('Konfirmasi kata sandi tidak cocok.'); return; }
+        if (!captcha) {
+            setError('Harap selesaikan verifikasi keamanan terlebih dahulu.');
+            return;
+        }
         setLoading(true);
         setError('');
         try {
             const res = await fetch(RESET_API, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ token, newPassword }),
+                body: JSON.stringify({ token, newPassword, captcha }),
             });
             const data = await res.json().catch(() => ({}));
             if (!res.ok) {
@@ -159,6 +165,7 @@ export default function ResetPasswordEmail() {
                                                 })}
                                             </div>
                                         </div>
+                                        <TurnstileWidget onToken={setCaptcha} />
                                         <button className="daftar-submit" type="submit" disabled={loading || !token}>
                                             {loading ? 'Menyimpan...' : 'Simpan Kata Sandi Baru'}
                                         </button>

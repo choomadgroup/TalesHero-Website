@@ -5,6 +5,7 @@ import { useLocation } from 'wouter';
 import { usePageMeta } from '@/Hooks/use-page-meta';
 import Header from '@/Components/Header';
 import Footer from '@/Components/Footer';
+import TurnstileWidget from '@/Components/TurnstileWidget';
 import {
     IoHome, IoEye, IoEyeOff, IoCheckmarkCircle,
     IoPersonOutline, IoMailOutline, IoLockClosedOutline,
@@ -100,6 +101,7 @@ export default function Daftar() {
     const [showConfirm, setShowConfirm] = useState(false);
     const [loading, setLoading]         = useState(false);
     const [success, setSuccess]         = useState(false);
+    const [captcha, setCaptcha]         = useState('');
     const passwordRules = [
         { label: 'Minimal 8 karakter', valid: form.password.length >= 8 },
         { label: 'Mengandung huruf besar (A–Z)', valid: /[A-Z]/.test(form.password) },
@@ -119,6 +121,10 @@ export default function Daftar() {
         e.preventDefault();
         const errs = validate(form);
         if (Object.keys(errs).length > 0) { setErrors(errs); return; }
+        if (!captcha) {
+            setErrors({ api: 'Harap selesaikan verifikasi keamanan terlebih dahulu.' });
+            return;
+        }
 
         setLoading(true);
         setErrors({});
@@ -132,6 +138,7 @@ export default function Daftar() {
                     password:    form.password,
                     secQuestion: form.secQuestion,
                     secAnswer:   form.secAnswer.trim(),
+                    captcha,
                 }),
             });
             if (!res.ok) {
@@ -363,6 +370,7 @@ export default function Daftar() {
                                 </div>
 
                                 {/* Submit */}
+                                <TurnstileWidget onToken={setCaptcha} />
                                 <button type="submit" className="daftar-submit" disabled={loading}>
                                     {loading ? <span className="daftar-submit__spinner" /> : 'Daftar Sekarang'}
                                 </button>

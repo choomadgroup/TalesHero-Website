@@ -6,6 +6,7 @@ import { usePageMeta } from '@/Hooks/use-page-meta';
 import { useAuth } from '@/Hooks/use-auth';
 import Header from '@/Components/Header';
 import Footer from '@/Components/Footer';
+import TurnstileWidget from '@/Components/TurnstileWidget';
 import {
     IoEye, IoEyeOff, IoPersonOutline, IoLockClosedOutline,
 } from 'react-icons/io5';
@@ -53,6 +54,7 @@ export default function Login() {
     const [errors, setErrors] = useState<FormErrors>({});
     const [showPass, setShowPass] = useState(false);
     const [loading, setLoading]   = useState(false);
+    const [captcha, setCaptcha]   = useState('');
 
     const set = (key: keyof FormData) => (e: React.ChangeEvent<HTMLInputElement>) => {
         setForm(f => ({ ...f, [key]: e.target.value }));
@@ -63,6 +65,10 @@ export default function Login() {
         e.preventDefault();
         const errs = validate(form);
         if (Object.keys(errs).length > 0) { setErrors(errs); return; }
+        if (!captcha) {
+            setErrors({ api: 'Harap selesaikan verifikasi keamanan terlebih dahulu.' });
+            return;
+        }
 
         setLoading(true);
         setErrors({});
@@ -74,6 +80,7 @@ export default function Login() {
                     body: JSON.stringify({
                         username: form.username.trim(),
                         password: form.password,
+                        captcha,
                     }),
             });
             if (!res.ok) {
@@ -191,6 +198,7 @@ export default function Login() {
                         </div>
 
                         {/* Submit */}
+                        <TurnstileWidget onToken={setCaptcha} />
                         <button type="submit" className="daftar-submit login-submit" disabled={loading}>
                             Masuk Sekarang
                         </button>

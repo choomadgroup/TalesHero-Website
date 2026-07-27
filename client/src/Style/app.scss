@@ -5708,6 +5708,20 @@ $nl-sans:     'Poppins', -apple-system, sans-serif;
   text-align: center;
 }
 
+.turnstile-widget {
+  display: flex;
+  justify-content: center;
+  min-height: 66px;
+  margin: 16px 0 4px;
+
+  &__error {
+    margin: 8px 0 0;
+    color: #d94b69;
+    font-size: 11px;
+    text-align: center;
+  }
+}
+
 // ── Proteksi konten — production only ────────────────────────
 // Teks & gambar tidak bisa diseleksi atau di-drag
 img {

@@ -4,6 +4,7 @@ import { useLocation } from 'wouter';
 import { usePageMeta } from '@/Hooks/use-page-meta';
 import Header from '@/Components/Header';
 import Footer from '@/Components/Footer';
+import TurnstileWidget from '@/Components/TurnstileWidget';
 import {
     IoArrowBack,
     IoCheckmarkCircle,
@@ -34,6 +35,7 @@ export default function ForgotPassword() {
     const [sendCount, setSendCount] = useState(0);
     const [nextAllowedAt, setNextAllowedAt] = useState<number | null>(null);
     const [countdown, setCountdown] = useState('');
+    const [captcha, setCaptcha] = useState('');
     const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
     useEffect(() => {
@@ -68,6 +70,10 @@ export default function ForgotPassword() {
             setError('Format email tidak valid.');
             return;
         }
+        if (!captcha) {
+            setError('Harap selesaikan verifikasi keamanan terlebih dahulu.');
+            return;
+        }
         setLoading(type);
         setError('');
         try {
@@ -76,7 +82,7 @@ export default function ForgotPassword() {
                 {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ username: usernameValue, email: emailValue }),
+                    body: JSON.stringify({ username: usernameValue, email: emailValue, captcha }),
                 },
             );
             const data = await response.json().catch(() => ({}));
@@ -229,6 +235,7 @@ export default function ForgotPassword() {
                                         </p>
                                     </>
                                 )}
+                                <TurnstileWidget onToken={setCaptcha} />
                             </>
                         )}
                     </div>

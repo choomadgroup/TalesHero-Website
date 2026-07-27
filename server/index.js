@@ -10,7 +10,9 @@ import emailResetPassword from './auth/email-reset-password.js';
 import forgotSecurityQuestion from './auth/forgot-security-question.js';
 import me from './auth/me.js';
 import logout from './auth/logout.js';
+import turnstileConfig from './auth/turnstile-config.js';
 import { migrate } from './db.js';
+import { applySecurityHeaders } from './security.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const publicDir = path.resolve(__dirname, '..', 'dist', 'public');
@@ -19,10 +21,12 @@ const app = express();
 
 app.disable('x-powered-by');
 app.use(express.json({ limit: '16kb' }));
+app.use(applySecurityHeaders);
 
 app.get('/healthz', (_req, res) => {
   res.json({ ok: true });
 });
+app.get('/api/config/turnstile', turnstileConfig);
 
 const blockedPublicPath = /^\/(?:client\/src|server|attached_assets|\.local|\.agents|node_modules)(?:\/|$)|^\/(?:vite\.config\.ts|package\.json|pnpm-lock\.yaml|tsconfig(?:\.[^/]+)?|\.env(?:\.[^/]*)?)$/i;
 const privatePagePath = /^\/(?:forgot-password|reset-password|akun)(?:\/|$)/i;
