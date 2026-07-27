@@ -1,25 +1,25 @@
 // ============================================================
-//  Tales Hero Indonesia — Email Sender (Resend)
+//  Tales Hero Indonesia — Email Sender (Nodemailer SMTP)
 // ============================================================
+//
+//  Required env vars:
+//    EMAIL_USER   — alamat Gmail/SMTP pengirim (mis. noreply@gmail.com)
+//    EMAIL_PASS   — Gmail App Password atau SMTP password
+//
+//  Optional env vars:
+//    SMTP_HOST    — default: smtp.gmail.com
+//    SMTP_PORT    — default: 465
+//    EMAIL_FROM   — nama pengirim, default: "Tales Hero Indonesia"
 
-import fs   from 'fs';
-import path from 'path';
-import { Resend } from 'resend';
+import nodemailer from 'nodemailer';
+import fs         from 'fs';
+import path       from 'path';
 
-function getResendClient() {
-  const apiKey = process.env.RESEND_API_KEY?.trim();
-  if (!apiKey) throw new Error('[Mailer] RESEND_API_KEY is not configured.');
-  return new Resend(apiKey);
-}
+// ── Config ─────────────────────────────────────────────────────────────────
 
-const FROM_ADDRESS = 'noreply@taleshero.web.id';
+const FROM_NAME    = process.env.EMAIL_FROM  || 'Tales Hero Indonesia';
 const REPLY_TO     = 'support@taleshero.web.id';
-const FROM         = `"Tales Hero Indonesia"`;
 const BASE         = 'https://taleshero.web.id';
-
-// Logo di-embed langsung via CID — tampil di Gmail tanpa perlu klik "Tampilkan gambar"
-const LOGO_CID  = 'logo@taleshero.web.id';
-const LOGO_PATH = path.resolve('public/Image/tales-hero-banner.png');
 
 const SOCIAL = {
   facebook  : 'https://facebook.com/talesheronostalgia',
@@ -27,45 +27,64 @@ const SOCIAL = {
   support   : REPLY_TO,
 };
 
-// Icon sosmed dihosting di domain sendiri (40×40 SVG)
 const ICON = {
   facebook  : `${BASE}/Image/email/facebook.svg`,
   instagram : `${BASE}/Image/email/instagram.svg`,
   support   : `${BASE}/Image/email/support.svg`,
 };
 
-// ── Helpers ────────────────────────────────────────────────────────────────
+// Logo di-embed via CID agar tampil tanpa klik "tampilkan gambar"
+const LOGO_CID  = 'logo@taleshero';
+const LOGO_PATH = path.resolve('public/Image/tales-hero-banner.png');
 
-/** Preheader — teks tersembunyi yang muncul sebagai preview di inbox */
+// ── Transport ───────────────────────────────────────────────────────────────
+
+function getTransporter() {
+  const user = process.env.EMAIL_USER?.trim();
+  const pass = process.env.EMAIL_PASS?.trim();
+  if (!user || !pass) throw new Error('[Mailer] EMAIL_USER dan EMAIL_PASS wajib dikonfigurasi.');
+
+  return nodemailer.createTransport({
+    host   : process.env.SMTP_HOST || 'smtp.gmail.com',
+    port   : parseInt(process.env.SMTP_PORT || '465', 10),
+    secure : true,              // SSL (port 465) — lebih baik dari STARTTLS untuk deliverability
+    auth   : { user, pass },
+    pool   : true,              // reuse connections
+    maxConnections: 3,
+  });
+}
+
+function getSenderAddress() {
+  const user = process.env.EMAIL_USER?.trim();
+  if (!user) throw new Error('[Mailer] EMAIL_USER wajib dikonfigurasi.');
+  return `"${FROM_NAME}" <${user}>`;
+}
+
+// ── Logo attachment ─────────────────────────────────────────────────────────
+
+function logoAttachment() {
+  try {
+    fs.accessSync(LOGO_PATH);
+    return [{
+      filename    : 'tales-hero-logo.png',
+      path        : LOGO_PATH,
+      cid         : LOGO_CID,
+      contentType : 'image/png',
+    }];
+  } catch {
+    return [];
+  }
+}
+
+// ── Helpers ─────────────────────────────────────────────────────────────────
+
+/** Preheader — teks tersembunyi sebagai preview di inbox */
 function preheader(text) {
   return `<div style="display:none;font-size:1px;line-height:1px;max-height:0;
 max-width:0;opacity:0;overflow:hidden;mso-hide:all">${text}&nbsp;&zwnj;&zwnj;&zwnj;&zwnj;</div>`;
 }
 
-/**
- * Baca logo sebagai Buffer untuk di-embed via CID.
- * Fallback ke empty buffer jika file tidak ditemukan.
- */
-function readLogo() {
-  try { return fs.readFileSync(LOGO_PATH); }
-  catch { return null; }
-}
-
-/**
- * Attachment list — logo selalu disertakan sebagai inline.
- */
-function logoAttachment() {
-  const buf = readLogo();
-  if (!buf) return [];
-  return [{
-    filename    : 'tales-hero-logo.png',
-    content     : buf,
-    contentType : 'image/png',
-    contentId   : LOGO_CID,
-  }];
-}
-
-// ── Shell HTML ─────────────────────────────────────────────────────────────
+// ── Shell HTML ──────────────────────────────────────────────────────────────
 
 function emailShell(accentGradient, bodyHtml, previewText = '') {
   const year = new Date().getFullYear();
@@ -158,11 +177,11 @@ function emailShell(accentGradient, bodyHtml, previewText = '') {
 </html>`;
 }
 
-// ── Password Reset ─────────────────────────────────────────────────────────
+// ── Password Reset ──────────────────────────────────────────────────────────
 
 export async function sendPasswordResetEmail(toEmail, toUsername, token) {
-  const resend = getResendClient();
-  const link   = `${BASE}/reset-password?token=${token}`;
+  const transporter = getTransporter();
+  const link        = `${BASE}/reset-password?token=${token}`;
 
   const bodyHtml = `
     <p style="margin:0 0 4px;font-size:22px;font-weight:700;color:#111827;font-family:Arial,Helvetica,sans-serif">Reset Kata Sandi</p>
@@ -219,8 +238,8 @@ export async function sendPasswordResetEmail(toEmail, toUsername, token) {
     `© ${new Date().getFullYear()} Tales Hero Indonesia`,
   ].join('\n');
 
-  const { error } = await resend.emails.send({
-    from        : FROM,
+  await transporter.sendMail({
+    from        : getSenderAddress(),
     to          : toEmail,
     replyTo     : REPLY_TO,
     subject     : 'Reset Kata Sandi — Tales Hero Indonesia',
@@ -233,17 +252,16 @@ export async function sendPasswordResetEmail(toEmail, toUsername, token) {
     attachments : logoAttachment(),
     headers     : {
       'List-Unsubscribe' : `<mailto:${REPLY_TO}?subject=unsubscribe>`,
+      'X-Mailer'         : 'Tales Hero Indonesia Mailer',
       'X-Entity-Ref-ID'  : `reset-${toEmail}-${Date.now()}`,
     },
   });
-
-  if (error) throw new Error(`[mailer] Resend error: ${error.message}`);
 }
 
-// ── Security Question ──────────────────────────────────────────────────────
+// ── Security Question ───────────────────────────────────────────────────────
 
 export async function sendSecurityQuestionEmail(toEmail, toUsername, secQuestion, secAnswer) {
-  const resend = getResendClient();
+  const transporter  = getTransporter();
   const displayAnswer = secAnswer?.trim()
     ? secAnswer.trim()
     : '(jawaban tidak tersedia — daftar ulang untuk menyimpannya)';
@@ -306,8 +324,8 @@ export async function sendSecurityQuestionEmail(toEmail, toUsername, secQuestion
     `© ${new Date().getFullYear()} Tales Hero Indonesia`,
   ].join('\n');
 
-  const { error } = await resend.emails.send({
-    from        : FROM,
+  await transporter.sendMail({
+    from        : getSenderAddress(),
     to          : toEmail,
     replyTo     : REPLY_TO,
     subject     : 'Pemulihan Akun — Tales Hero Indonesia',
@@ -320,9 +338,8 @@ export async function sendSecurityQuestionEmail(toEmail, toUsername, secQuestion
     attachments : logoAttachment(),
     headers     : {
       'List-Unsubscribe' : `<mailto:${REPLY_TO}?subject=unsubscribe>`,
+      'X-Mailer'         : 'Tales Hero Indonesia Mailer',
       'X-Entity-Ref-ID'  : `recovery-${toEmail}-${Date.now()}`,
     },
   });
-
-  if (error) throw new Error(`[mailer] Resend error: ${error.message}`);
 }

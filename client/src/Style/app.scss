@@ -148,11 +148,12 @@ section, footer {
   flex-shrink: 0;
 
   img {
-    height: 68px;
+    height: 80px;
+    width: auto;
+    max-width: 220px;
     object-fit: contain;
-    transform: translateY(6px);
 
-    @media (max-width: 768px) { height: 50px; transform: translateY(4px); }
+    @media (max-width: 768px) { height: 60px; max-width: 160px; }
   }
 }
 

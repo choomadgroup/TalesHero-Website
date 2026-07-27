@@ -46,6 +46,18 @@ Website game online action adventure Tales Hero Indonesia — landing page + hal
 - Tidak suka folder/file tambahan yang tidak perlu — jaga struktur seminimal mungkin
 - Tidak suka `.replit-artifact` dan folder sistem muncul di GitHub — sudah di-gitignore
 
+## Email (Nodemailer SMTP)
+
+Pengirim email sekarang pakai **nodemailer** via SMTP (bukan Resend).
+
+Secrets yang dibutuhkan:
+- `EMAIL_USER` — alamat Gmail pengirim (mis. `noreply@gmail.com`)
+- `EMAIL_PASS` — Gmail App Password (bukan password biasa — aktifkan 2FA dulu, lalu buat di myaccount.google.com/apppasswords)
+- `SMTP_HOST` — opsional, default `smtp.gmail.com`
+- `SMTP_PORT` — opsional, default `465`
+
+FROM address otomatis diambil dari `EMAIL_USER` agar SPF/DKIM Gmail valid dan tidak masuk spam.
+
 ## Deploy ke Cloudflare Pages
 
 Setting di Cloudflare Pages:
