@@ -2,6 +2,8 @@
 //  Tales Hero Indonesia — Email Sender (Resend)
 // ============================================================
 
+import fs   from 'fs';
+import path from 'path';
 import { Resend } from 'resend';
 
 function getResendClient() {
@@ -10,170 +12,198 @@ function getResendClient() {
   return new Resend(apiKey);
 }
 
-const FROM_NAME    = 'Tales Hero Indonesia';
 const FROM_ADDRESS = 'noreply@taleshero.web.id';
-const FROM         = `"${FROM_NAME}" <${FROM_ADDRESS}>`;
 const REPLY_TO     = 'support@taleshero.web.id';
+const FROM         = `"Tales Hero Indonesia" <${FROM_ADDRESS}>`;
 const BASE         = 'https://taleshero.web.id';
-const LOGO         = `${BASE}/Image/tales-hero-banner.png`;
+
+// Logo di-embed langsung via CID — tampil di Gmail tanpa perlu klik "Tampilkan gambar"
+const LOGO_CID  = 'logo@taleshero.web.id';
+const LOGO_PATH = path.resolve('public/Image/tales-hero-banner.png');
 
 const SOCIAL = {
   facebook  : 'https://facebook.com/talesheronostalgia',
   instagram : 'https://instagram.com/taleshero.in.id',
-  support   : 'support@taleshero.web.id',
+  support   : REPLY_TO,
 };
 
-// ── Shared styles ──────────────────────────────────────────────────────────
-const COLORS = {
-  bg      : '#f0f2f5',
-  card    : '#ffffff',
-  border  : '#dde3ec',
-  primary : '#1d4ed8',
-  text    : '#1e293b',
-  muted   : '#64748b',
-  faint   : '#94a3b8',
+// Icon sosmed dihosting di domain sendiri (40×40 SVG)
+const ICON = {
+  facebook  : `${BASE}/Image/email/facebook.svg`,
+  instagram : `${BASE}/Image/email/instagram.svg`,
+  support   : `${BASE}/Image/email/support.svg`,
 };
 
-/**
- * Preheader — invisible preview text shown after the subject line in inbox.
- * Helps deliverability and reduces "looks spammy" signals.
- */
+// ── Helpers ────────────────────────────────────────────────────────────────
+
+/** Preheader — teks tersembunyi yang muncul sebagai preview di inbox */
 function preheader(text) {
-  return `<div style="display:none;font-size:1px;line-height:1px;max-height:0;max-width:0;
-    opacity:0;overflow:hidden;mso-hide:all">${text}&nbsp;&zwnj;&zwnj;&zwnj;&zwnj;&zwnj;</div>`;
-}
-
-/** Footer row with FB, IG, and email support links */
-function socialFooter() {
-  const year = new Date().getFullYear();
-
-  const btn = (href, bg, label) =>
-    `<a href="${href}" target="_blank" rel="noopener"
-       style="display:inline-block;margin:0 4px;padding:7px 14px;border-radius:20px;
-              background:${bg};color:#ffffff;text-decoration:none;font-size:12px;
-              font-weight:600;font-family:Arial,Helvetica,sans-serif">
-       ${label}
-     </a>`;
-
-  return `
-  <tr>
-    <td style="padding:20px 32px 12px;border-top:1px solid ${COLORS.border};text-align:center">
-      ${btn(SOCIAL.facebook,  '#1877f2', '&#x1F426; Facebook')}
-      ${btn(SOCIAL.instagram, '#e1306c', '&#x1F4F7; Instagram')}
-      ${btn(`mailto:${SOCIAL.support}`, '#0f766e', '&#x2709; Support')}
-    </td>
-  </tr>
-  <tr>
-    <td style="padding:0 32px 20px;text-align:center">
-      <p style="margin:8px 0 0;color:${COLORS.faint};font-size:11px;font-family:Arial,Helvetica,sans-serif">
-        &copy; ${year} Tales Hero Indonesia. All rights reserved.<br>
-        Butuh bantuan? Hubungi kami di
-        <a href="mailto:${SOCIAL.support}" style="color:${COLORS.faint}">${SOCIAL.support}</a>
-      </p>
-    </td>
-  </tr>`;
+  return `<div style="display:none;font-size:1px;line-height:1px;max-height:0;
+max-width:0;opacity:0;overflow:hidden;mso-hide:all">${text}&nbsp;&zwnj;&zwnj;&zwnj;&zwnj;</div>`;
 }
 
 /**
- * Full HTML email shell.
- * @param {string} bodyHtml   – inner content HTML
- * @param {string} previewText – short preview text (shown in inbox after subject)
+ * Baca logo sebagai Buffer untuk di-embed via CID.
+ * Fallback ke empty buffer jika file tidak ditemukan.
  */
-function emailShell(bodyHtml, previewText = '') {
+function readLogo() {
+  try { return fs.readFileSync(LOGO_PATH); }
+  catch { return null; }
+}
+
+/**
+ * Attachment list — logo selalu disertakan sebagai inline.
+ */
+function logoAttachment() {
+  const buf = readLogo();
+  if (!buf) return [];
+  return [{
+    filename    : 'tales-hero-logo.png',
+    content     : buf,
+    contentType : 'image/png',
+    contentId   : LOGO_CID,
+  }];
+}
+
+// ── Shell HTML ─────────────────────────────────────────────────────────────
+
+function emailShell(accentGradient, bodyHtml, previewText = '') {
+  const year = new Date().getFullYear();
   return `<!DOCTYPE html>
 <html lang="id" xmlns="http://www.w3.org/1999/xhtml">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <title>${FROM_NAME}</title>
+  <title>Tales Hero Indonesia</title>
 </head>
-<body style="margin:0;padding:0;background:${COLORS.bg};
-             font-family:Arial,Helvetica,sans-serif;-webkit-font-smoothing:antialiased">
+<body style="margin:0;padding:0;background:#f0f2f5;font-family:Arial,Helvetica,sans-serif;-webkit-font-smoothing:antialiased">
   ${previewText ? preheader(previewText) : ''}
-  <!--[if mso]>
-  <table width="100%" cellpadding="0" cellspacing="0"><tr><td>
-  <![endif]-->
   <table width="100%" cellpadding="0" cellspacing="0" role="presentation"
-         style="background:${COLORS.bg};padding:32px 0">
+         style="background:#f0f2f5;padding:36px 0">
     <tr><td align="center">
-      <!--[if mso]>
-      <table width="560" cellpadding="0" cellspacing="0"><tr><td>
-      <![endif]-->
       <table width="560" cellpadding="0" cellspacing="0" role="presentation"
-             style="max-width:560px;width:100%;background:${COLORS.card};
-                    border-radius:12px;border:1px solid ${COLORS.border}">
+             style="max-width:560px;width:100%;background:#ffffff;border-radius:10px;
+                    overflow:hidden;box-shadow:0 2px 10px rgba(0,0,0,0.08)">
 
-        <!-- LOGO HEADER -->
+        <!-- Accent bar atas -->
+        <tr><td style="background:${accentGradient};height:5px;padding:0;font-size:0;line-height:0">&nbsp;</td></tr>
+
+        <!-- Logo header -->
         <tr>
-          <td style="padding:28px 32px 20px;border-radius:12px 12px 0 0;background:${COLORS.card}">
-            <a href="${BASE}" target="_blank" rel="noopener"
-               style="display:block;text-decoration:none">
-              <img src="${LOGO}"
-                   alt="Tales Hero Indonesia"
-                   width="160" height="auto"
-                   style="display:block;height:auto;max-height:52px;object-fit:contain;border:0;outline:none"
-                   onerror="this.style.display='none'" />
-              <!--[if !mso]><!-->
-              <span style="display:block;margin-top:4px;font-size:13px;
-                           font-weight:700;color:${COLORS.primary};letter-spacing:.5px;
-                           mso-hide:all">Tales Hero Indonesia</span>
-              <!--<![endif]-->
-            </a>
+          <td style="padding:28px 36px 20px;text-align:left;border-bottom:1px solid #eef0f3">
+            <img src="cid:${LOGO_CID}"
+                 alt="Tales Hero Indonesia"
+                 width="160" height="auto"
+                 style="display:block;height:auto;max-height:52px;object-fit:contain;border:0;outline:none"/>
           </td>
         </tr>
 
-        <!-- BODY -->
+        <!-- Body -->
         <tr>
-          <td style="padding:0 32px 28px">
+          <td style="padding:28px 36px 32px">
             ${bodyHtml}
           </td>
         </tr>
 
-        <!-- SOCIAL FOOTER -->
-        ${socialFooter()}
+        <!-- Footer: sosmed -->
+        <tr>
+          <td style="padding:20px 36px 12px;border-top:1px solid #eef0f3;text-align:center">
+            <table cellpadding="0" cellspacing="0" role="presentation" style="margin:0 auto">
+              <tr>
+                <td style="padding:0 8px">
+                  <a href="${SOCIAL.facebook}" target="_blank" rel="noopener"
+                     style="text-decoration:none;display:block">
+                    <img src="${ICON.facebook}" width="36" height="36" alt="Facebook"
+                         style="display:block;border:0;outline:none;border-radius:8px"/>
+                  </a>
+                </td>
+                <td style="padding:0 8px">
+                  <a href="${SOCIAL.instagram}" target="_blank" rel="noopener"
+                     style="text-decoration:none;display:block">
+                    <img src="${ICON.instagram}" width="36" height="36" alt="Instagram"
+                         style="display:block;border:0;outline:none;border-radius:8px"/>
+                  </a>
+                </td>
+                <td style="padding:0 8px">
+                  <a href="mailto:${SOCIAL.support}"
+                     style="text-decoration:none;display:block">
+                    <img src="${ICON.support}" width="36" height="36" alt="Email Support"
+                         style="display:block;border:0;outline:none;border-radius:8px"/>
+                  </a>
+                </td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+
+        <!-- Footer: copyright -->
+        <tr>
+          <td style="padding:0 36px 20px;text-align:center">
+            <p style="margin:10px 0 4px;font-size:12px;color:#94a3b8;font-family:Arial,Helvetica,sans-serif">
+              &copy; ${year} Tales Hero Indonesia. All rights reserved.
+            </p>
+            <p style="margin:0;font-size:11px;color:#b0bec5;font-family:Arial,Helvetica,sans-serif">
+              Butuh bantuan?
+              <a href="mailto:${SOCIAL.support}"
+                 style="color:#b0bec5;text-decoration:underline">${SOCIAL.support}</a>
+            </p>
+          </td>
+        </tr>
 
       </table>
-      <!--[if mso]></td></tr></table><![endif]-->
     </td></tr>
   </table>
-  <!--[if mso]></td></tr></table><![endif]-->
 </body>
 </html>`;
 }
 
 // ── Password Reset ─────────────────────────────────────────────────────────
+
 export async function sendPasswordResetEmail(toEmail, toUsername, token) {
   const resend = getResendClient();
   const link   = `${BASE}/reset-password?token=${token}`;
 
   const bodyHtml = `
-    <h2 style="color:${COLORS.text};margin:0 0 8px;font-size:20px">Reset Kata Sandi</h2>
-    <p style="color:${COLORS.muted};margin:0 0 6px">Halo <strong style="color:${COLORS.text}">${toUsername}</strong>,</p>
-    <p style="color:${COLORS.muted};margin:0 0 24px;line-height:1.6">
-      Kami menerima permintaan untuk mereset kata sandi akun Tales Hero Indonesia-mu.
-      Klik tombol di bawah untuk melanjutkan. Link ini <strong>berlaku selama 1 jam</strong>.
+    <p style="margin:0 0 4px;font-size:22px;font-weight:700;color:#111827;font-family:Arial,Helvetica,sans-serif">Reset Kata Sandi</p>
+    <p style="margin:0 0 20px;font-size:14px;color:#6b7280;font-family:Arial,Helvetica,sans-serif;line-height:1.6">
+      Permintaan untuk mereset kata sandi akun Tales Hero Indonesia kamu
     </p>
+
+    <p style="margin:0 0 6px;font-size:15px;color:#374151;font-family:Arial,Helvetica,sans-serif">
+      Halo <strong>${toUsername}</strong>,
+    </p>
+    <p style="margin:0 0 24px;font-size:15px;color:#374151;font-family:Arial,Helvetica,sans-serif;line-height:1.7">
+      Kami menerima permintaan untuk mereset kata sandi akunmu.
+      Klik tombol di bawah untuk melanjutkan. Link berlaku selama <strong>1 jam</strong>.
+    </p>
+
+    <!-- CTA button -->
     <table cellpadding="0" cellspacing="0" role="presentation" style="margin:0 0 24px">
       <tr>
-        <td style="border-radius:8px;background:${COLORS.primary}">
+        <td style="border-radius:8px;background:linear-gradient(135deg,#1d4ed8,#2563eb)">
           <a href="${link}" target="_blank" rel="noopener"
-             style="display:inline-block;padding:13px 32px;color:#ffffff;
-                    text-decoration:none;font-weight:700;font-size:15px;
-                    border-radius:8px;font-family:Arial,Helvetica,sans-serif">
+             style="display:inline-block;padding:14px 36px;color:#ffffff;text-decoration:none;
+                    font-weight:700;font-size:15px;font-family:Arial,Helvetica,sans-serif;
+                    border-radius:8px;letter-spacing:.3px">
             Reset Kata Sandi &rarr;
           </a>
         </td>
       </tr>
     </table>
-    <p style="color:${COLORS.muted};font-size:13px;margin:0 0 6px;line-height:1.5">
-      Atau salin link berikut ke browser kamu:<br>
-      <a href="${link}" style="color:${COLORS.primary};word-break:break-all;font-size:12px">${link}</a>
+
+    <p style="margin:0 0 6px;font-size:13px;color:#6b7280;font-family:Arial,Helvetica,sans-serif">
+      Atau salin link berikut ke browser:
     </p>
-    <hr style="border:none;border-top:1px solid ${COLORS.border};margin:20px 0">
-    <p style="color:${COLORS.faint};font-size:12px;margin:0;line-height:1.5">
-      Jika kamu tidak meminta reset kata sandi, abaikan email ini — akunmu tetap aman.
-    </p>`;
+    <p style="margin:0 0 20px;font-size:12px;font-family:Arial,Helvetica,sans-serif">
+      <a href="${link}" style="color:#2563eb;word-break:break-all">${link}</a>
+    </p>
+
+    <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:14px 18px">
+      <p style="margin:0;font-size:13px;color:#94a3b8;font-family:Arial,Helvetica,sans-serif;line-height:1.6">
+        Jika kamu tidak meminta reset kata sandi, abaikan email ini — akunmu tetap aman.
+      </p>
+    </div>`;
 
   const plainText = [
     'Reset Kata Sandi — Tales Hero Indonesia',
@@ -183,21 +213,25 @@ export async function sendPasswordResetEmail(toEmail, toUsername, token) {
     'Klik link berikut untuk mereset kata sandimu:',
     link,
     '',
-    'Link berlaku 1 jam.',
-    'Jika kamu tidak meminta reset, abaikan email ini.',
+    'Link berlaku 1 jam. Jika kamu tidak memintanya, abaikan email ini.',
     '',
     `Butuh bantuan? Hubungi ${SOCIAL.support}`,
     `© ${new Date().getFullYear()} Tales Hero Indonesia`,
   ].join('\n');
 
   const { error } = await resend.emails.send({
-    from    : FROM,
-    to      : toEmail,
-    replyTo : REPLY_TO,
-    subject : 'Reset Kata Sandi — Tales Hero Indonesia',
-    text    : plainText,
-    html    : emailShell(bodyHtml, `Klik untuk reset kata sandi akunmu di Tales Hero Indonesia. Link berlaku 1 jam.`),
-    headers : {
+    from        : FROM,
+    to          : toEmail,
+    replyTo     : REPLY_TO,
+    subject     : 'Reset Kata Sandi — Tales Hero Indonesia',
+    text        : plainText,
+    html        : emailShell(
+      'linear-gradient(90deg,#1d4ed8,#3b82f6)',
+      bodyHtml,
+      `Link reset kata sandi Tales Hero Indonesia untuk ${toUsername}. Berlaku 1 jam.`,
+    ),
+    attachments : logoAttachment(),
+    headers     : {
       'List-Unsubscribe' : `<mailto:${REPLY_TO}?subject=unsubscribe>`,
       'X-Entity-Ref-ID'  : `reset-${toEmail}-${Date.now()}`,
     },
@@ -207,6 +241,7 @@ export async function sendPasswordResetEmail(toEmail, toUsername, token) {
 }
 
 // ── Security Question ──────────────────────────────────────────────────────
+
 export async function sendSecurityQuestionEmail(toEmail, toUsername, secQuestion, secAnswer) {
   const resend = getResendClient();
   const displayAnswer = secAnswer?.trim()
@@ -214,28 +249,48 @@ export async function sendSecurityQuestionEmail(toEmail, toUsername, secQuestion
     : '(jawaban tidak tersedia — daftar ulang untuk menyimpannya)';
 
   const bodyHtml = `
-    <h2 style="color:${COLORS.text};margin:0 0 8px;font-size:20px">Pemulihan Akun</h2>
-    <p style="color:${COLORS.muted};margin:0 0 6px">Halo <strong style="color:${COLORS.text}">${toUsername}</strong>,</p>
-    <p style="color:${COLORS.muted};margin:0 0 16px;line-height:1.6">
-      Berikut adalah pertanyaan dan jawaban keamanan yang kamu buat saat mendaftar di Tales Hero Indonesia.
+    <p style="margin:0 0 4px;font-size:22px;font-weight:700;color:#111827;font-family:Arial,Helvetica,sans-serif">Pemulihan Akun</p>
+    <p style="margin:0 0 20px;font-size:14px;color:#6b7280;font-family:Arial,Helvetica,sans-serif;line-height:1.6">
+      Informasi pertanyaan keamanan akun Tales Hero Indonesia kamu
     </p>
-    <div style="padding:16px 18px;background:#f8fafc;border:1px solid ${COLORS.border};
-                border-radius:10px;margin:0 0 16px">
-      <p style="margin:0 0 6px;color:${COLORS.muted};font-size:13px;font-style:italic">
+
+    <p style="margin:0 0 6px;font-size:15px;color:#374151;font-family:Arial,Helvetica,sans-serif">
+      Halo <strong>${toUsername}</strong>,
+    </p>
+    <p style="margin:0 0 20px;font-size:15px;color:#374151;font-family:Arial,Helvetica,sans-serif;line-height:1.7">
+      Berikut adalah pertanyaan dan jawaban keamanan yang kamu buat saat mendaftar.
+    </p>
+
+    <!-- Pertanyaan -->
+    <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:16px 20px;margin:0 0 16px">
+      <p style="margin:0 0 6px;font-size:11px;font-weight:700;color:#94a3b8;
+                text-transform:uppercase;letter-spacing:.6px;font-family:Arial,Helvetica,sans-serif">
+        Pertanyaan Keamanan
+      </p>
+      <p style="margin:0;font-size:14px;color:#374151;font-style:italic;font-family:Arial,Helvetica,sans-serif">
         ${secQuestion}
       </p>
-      <p style="margin:0;color:#166534;font-weight:700;font-size:15px;
-                background:#f0fdf4;padding:10px 14px;border-radius:8px;
-                border:1px solid #86efac;word-break:break-word">
+    </div>
+
+    <!-- Jawaban -->
+    <div style="background:#f0fdf4;border:1px solid #86efac;border-radius:10px;padding:16px 20px;margin:0 0 24px">
+      <p style="margin:0 0 6px;font-size:11px;font-weight:700;color:#16a34a;
+                text-transform:uppercase;letter-spacing:.6px;font-family:Arial,Helvetica,sans-serif">
+        Jawaban Kamu
+      </p>
+      <p style="margin:0;font-size:16px;font-weight:700;color:#166534;font-family:Arial,Helvetica,sans-serif;
+                word-break:break-word">
         ${displayAnswer}
       </p>
     </div>
-    <hr style="border:none;border-top:1px solid ${COLORS.border};margin:20px 0">
-    <p style="color:${COLORS.faint};font-size:12px;margin:0;line-height:1.5">
-      Jika kamu juga lupa kata sandi, kunjungi halaman pemulihan akun untuk meminta link reset.<br>
-      Jika kamu tidak meminta pemulihan ini, segera hubungi kami di
-      <a href="mailto:${SOCIAL.support}" style="color:${COLORS.faint}">${SOCIAL.support}</a>.
-    </p>`;
+
+    <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:14px 18px">
+      <p style="margin:0;font-size:13px;color:#94a3b8;font-family:Arial,Helvetica,sans-serif;line-height:1.6">
+        Jika kamu juga lupa kata sandi, gunakan halaman pemulihan akun untuk meminta link reset.<br>
+        Tidak merasa meminta email ini? Segera hubungi kami di
+        <a href="mailto:${SOCIAL.support}" style="color:#94a3b8">${SOCIAL.support}</a>.
+      </p>
+    </div>`;
 
   const plainText = [
     'Pemulihan Akun — Tales Hero Indonesia',
@@ -252,13 +307,18 @@ export async function sendSecurityQuestionEmail(toEmail, toUsername, secQuestion
   ].join('\n');
 
   const { error } = await resend.emails.send({
-    from    : FROM,
-    to      : toEmail,
-    replyTo : REPLY_TO,
-    subject : 'Pemulihan Akun — Tales Hero Indonesia',
-    text    : plainText,
-    html    : emailShell(bodyHtml, `Informasi pemulihan akun Tales Hero Indonesia untuk ${toUsername}.`),
-    headers : {
+    from        : FROM,
+    to          : toEmail,
+    replyTo     : REPLY_TO,
+    subject     : 'Pemulihan Akun — Tales Hero Indonesia',
+    text        : plainText,
+    html        : emailShell(
+      'linear-gradient(90deg,#0d9488,#14b8a6)',
+      bodyHtml,
+      `Informasi pemulihan akun Tales Hero Indonesia untuk ${toUsername}.`,
+    ),
+    attachments : logoAttachment(),
+    headers     : {
       'List-Unsubscribe' : `<mailto:${REPLY_TO}?subject=unsubscribe>`,
       'X-Entity-Ref-ID'  : `recovery-${toEmail}-${Date.now()}`,
     },
