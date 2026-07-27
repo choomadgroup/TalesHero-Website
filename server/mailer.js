@@ -91,11 +91,11 @@ function emailShell(accentGradient, bodyHtml, previewText = '') {
 
         <!-- Logo header -->
         <tr>
-          <td style="padding:28px 36px 20px;text-align:left;border-bottom:1px solid #eef0f3">
+          <td style="padding:28px 36px 20px;text-align:center;border-bottom:1px solid #eef0f3">
             <img src="cid:${LOGO_CID}"
                  alt="Tales Hero Indonesia"
-                 width="160" height="auto"
-                 style="display:block;height:auto;max-height:52px;object-fit:contain;border:0;outline:none"/>
+                 width="200" height="auto"
+                 style="display:block;height:auto;max-height:68px;object-fit:contain;border:0;outline:none;margin:0 auto"/>
           </td>
         </tr>
 
