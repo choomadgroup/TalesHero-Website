@@ -67,6 +67,7 @@ export default function Akun() {
     const [securityLoading, setSecurityLoading] = useState(false);
     const [securityMessage, setSecurityMessage] = useState('');
     const [securityError, setSecurityError] = useState('');
+    const [loggingOut, setLoggingOut] = useState(false);
 
     useEffect(() => {
         if (user) setProfileForm({ username: user.username, email: user.email });
@@ -218,8 +219,6 @@ export default function Akun() {
             setLoading(false);
         }
     };
-
-    const [loggingOut, setLoggingOut] = useState(false);
 
     const handleLogout = () => {
         setLoggingOut(true);

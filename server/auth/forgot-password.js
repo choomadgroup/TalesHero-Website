@@ -48,9 +48,8 @@ async function forgotPassword(req, res) {
       );
     }
 
-    // Selalu kembalikan 200 agar tidak bisa dipakai untuk mengecek keberadaan akun
     if (rows.length === 0 || !rows[0].email) {
-      return res.status(200).json({ message: 'Jika akun terdaftar, link reset sudah dikirim.' });
+      return res.status(404).json({ message: 'Akun tidak ditemukan. Pastikan username atau email yang dimasukkan sudah benar.' });
     }
 
     const { username, email } = rows[0];

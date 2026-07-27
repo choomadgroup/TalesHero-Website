@@ -47,8 +47,11 @@ async function forgotSecurityQuestion(req, res) {
       );
     }
 
-    if (rows.length === 0 || !rows[0].email || !rows[0].secQuestion) {
-      return res.status(200).json({ message: 'Jika akun terdaftar, pertanyaan keamanan sudah dikirim.' });
+    if (rows.length === 0 || !rows[0].email) {
+      return res.status(404).json({ message: 'Akun tidak ditemukan. Pastikan username atau email yang dimasukkan sudah benar.' });
+    }
+    if (!rows[0].secQuestion) {
+      return res.status(400).json({ message: 'Akun ini belum mengatur pertanyaan keamanan.' });
     }
 
     const { username, email, secQuestion, secAnswer } = rows[0];
