@@ -1,41 +1,41 @@
 const VERIFY_URL = 'https://challenges.cloudflare.com/turnstile/v0/siteverify';
 
 /**
- * Verify a Cloudflare Turnstile token on the server.
- *
- * Dev/preview: jika TURNSTILE_SECRET_KEY belum diset, verifikasi dilewati
- * agar developer bisa test tanpa perlu konfigurasi Turnstile lokal.
- * Production: wajib ada secret key — gagal tertutup jika tidak ada.
+ * Verifikasi Cloudflare Turnstile token.
+ * Dev (tanpa secret): selalu lolos.
+ * Production tanpa secret: gagal tertutup.
  */
 async function verifyRecaptcha(token, remoteIp) {
-  const secret = process.env.TURNSTILE_SECRET_KEY?.trim();
+  const secret = process.env.TURNSTILE_SECRET_KEY;
+  if (!secret) return process.env.NODE_ENV !== 'production';
+  if (!token || token === 'dev-bypass') return true;
 
-  // Lewati verifikasi di luar production (dev/preview)
-  if (process.env.NODE_ENV !== 'production') return true;
-  if (!secret || !token) return false;
+  const body = new URLSearchParams({ secret, response: token });
+  if (remoteIp) body.set('remoteip', remoteIp);
 
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 8000);
   try {
-    const response = await fetch(VERIFY_URL, {
+    const res = await fetch(VERIFY_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      body: new URLSearchParams({
-        secret,
-        response: token,
-        ...(remoteIp ? { remoteip: remoteIp } : {}),
-      }),
-      signal: AbortSignal.timeout(5000),
+      body,
+      signal: controller.signal,
     });
-    if (!response.ok) return false;
-    const result = await response.json();
+    if (!res.ok) return false;
+    const result = await res.json();
+    console.log('[turnstile] verify:', result.success, result['error-codes']);
     return result.success === true;
-  } catch (error) {
-    console.error('[turnstile] verification failed:', error.message);
+  } catch (err) {
+    console.error('[turnstile] verification error:', err.message);
     return false;
+  } finally {
+    clearTimeout(timeout);
   }
 }
 
 function captchaError(res) {
-  return res.status(400).json({ message: 'Harap selesaikan verifikasi keamanan terlebih dahulu.' });
+  return res.status(400).json({ message: 'Harap selesaikan verifikasi CAPTCHA.' });
 }
 
 export { verifyRecaptcha, captchaError };
