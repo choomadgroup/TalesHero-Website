@@ -1,25 +1,25 @@
 // ============================================================
-//  Tales Hero Indonesia — Email Sender (Nodemailer SMTP)
+//  Tales Hero Indonesia — Email Sender (Resend)
 // ============================================================
-//
-//  Required env vars:
-//    EMAIL_USER   — alamat Gmail/SMTP pengirim (mis. noreply@gmail.com)
-//    EMAIL_PASS   — Gmail App Password atau SMTP password
-//
-//  Optional env vars:
-//    SMTP_HOST    — default: smtp.gmail.com
-//    SMTP_PORT    — default: 465
-//    EMAIL_FROM   — nama pengirim, default: "Tales Hero Indonesia"
 
-import nodemailer from 'nodemailer';
-import fs         from 'fs';
-import path       from 'path';
+import fs   from 'fs';
+import path from 'path';
+import { Resend } from 'resend';
 
-// ── Config ─────────────────────────────────────────────────────────────────
+function getResendClient() {
+  const apiKey = process.env.RESEND_API_KEY?.trim();
+  if (!apiKey) throw new Error('[Mailer] RESEND_API_KEY is not configured.');
+  return new Resend(apiKey);
+}
 
-const FROM_NAME    = process.env.EMAIL_FROM  || 'Tales Hero Indonesia';
+const FROM_ADDRESS = 'noreply@taleshero.web.id';
 const REPLY_TO     = 'support@taleshero.web.id';
+const FROM         = `"Tales Hero Indonesia" <${FROM_ADDRESS}>`;
 const BASE         = 'https://taleshero.web.id';
+
+// Logo di-embed langsung via CID — tampil di Gmail tanpa perlu klik "Tampilkan gambar"
+const LOGO_CID  = 'logo@taleshero.web.id';
+const LOGO_PATH = path.resolve('public/Image/tales-hero-banner.png');
 
 const SOCIAL = {
   facebook  : 'https://facebook.com/talesheronostalgia',
@@ -27,64 +27,45 @@ const SOCIAL = {
   support   : REPLY_TO,
 };
 
+// Icon sosmed dihosting di domain sendiri (40×40 SVG)
 const ICON = {
   facebook  : `${BASE}/Image/email/facebook.svg`,
   instagram : `${BASE}/Image/email/instagram.svg`,
   support   : `${BASE}/Image/email/support.svg`,
 };
 
-// Logo di-embed via CID agar tampil tanpa klik "tampilkan gambar"
-const LOGO_CID  = 'logo@taleshero';
-const LOGO_PATH = path.resolve('public/Image/tales-hero-banner.png');
+// ── Helpers ────────────────────────────────────────────────────────────────
 
-// ── Transport ───────────────────────────────────────────────────────────────
-
-function getTransporter() {
-  const user = process.env.EMAIL_USER?.trim();
-  const pass = process.env.EMAIL_PASS?.trim();
-  if (!user || !pass) throw new Error('[Mailer] EMAIL_USER dan EMAIL_PASS wajib dikonfigurasi.');
-
-  return nodemailer.createTransport({
-    host   : process.env.SMTP_HOST || 'smtp.gmail.com',
-    port   : parseInt(process.env.SMTP_PORT || '465', 10),
-    secure : true,              // SSL (port 465) — lebih baik dari STARTTLS untuk deliverability
-    auth   : { user, pass },
-    pool   : true,              // reuse connections
-    maxConnections: 3,
-  });
-}
-
-function getSenderAddress() {
-  const user = process.env.EMAIL_USER?.trim();
-  if (!user) throw new Error('[Mailer] EMAIL_USER wajib dikonfigurasi.');
-  return `"${FROM_NAME}" <${user}>`;
-}
-
-// ── Logo attachment ─────────────────────────────────────────────────────────
-
-function logoAttachment() {
-  try {
-    fs.accessSync(LOGO_PATH);
-    return [{
-      filename    : 'tales-hero-logo.png',
-      path        : LOGO_PATH,
-      cid         : LOGO_CID,
-      contentType : 'image/png',
-    }];
-  } catch {
-    return [];
-  }
-}
-
-// ── Helpers ─────────────────────────────────────────────────────────────────
-
-/** Preheader — teks tersembunyi sebagai preview di inbox */
+/** Preheader — teks tersembunyi yang muncul sebagai preview di inbox */
 function preheader(text) {
   return `<div style="display:none;font-size:1px;line-height:1px;max-height:0;
 max-width:0;opacity:0;overflow:hidden;mso-hide:all">${text}&nbsp;&zwnj;&zwnj;&zwnj;&zwnj;</div>`;
 }
 
-// ── Shell HTML ──────────────────────────────────────────────────────────────
+/**
+ * Baca logo sebagai Buffer untuk di-embed via CID.
+ * Fallback ke empty buffer jika file tidak ditemukan.
+ */
+function readLogo() {
+  try { return fs.readFileSync(LOGO_PATH); }
+  catch { return null; }
+}
+
+/**
+ * Attachment list — logo selalu disertakan sebagai inline.
+ */
+function logoAttachment() {
+  const buf = readLogo();
+  if (!buf) return [];
+  return [{
+    filename    : 'tales-hero-logo.png',
+    content     : buf,
+    contentType : 'image/png',
+    contentId   : LOGO_CID,
+  }];
+}
+
+// ── Shell HTML ─────────────────────────────────────────────────────────────
 
 function emailShell(accentGradient, bodyHtml, previewText = '') {
   const year = new Date().getFullYear();
@@ -177,50 +158,62 @@ function emailShell(accentGradient, bodyHtml, previewText = '') {
 </html>`;
 }
 
-// ── Password Reset ──────────────────────────────────────────────────────────
+// ── Password Reset ─────────────────────────────────────────────────────────
 
 export async function sendPasswordResetEmail(toEmail, toUsername, token) {
-  const transporter = getTransporter();
-  const link        = `${BASE}/reset-password?token=${token}`;
+  const resend = getResendClient();
+  const link   = `${BASE}/reset-password?token=${token}`;
 
   const bodyHtml = `
-    <p style="margin:0 0 4px;font-size:22px;font-weight:700;color:#111827;font-family:Arial,Helvetica,sans-serif">Reset Kata Sandi</p>
-    <p style="margin:0 0 20px;font-size:14px;color:#6b7280;font-family:Arial,Helvetica,sans-serif;line-height:1.6">
-      Permintaan untuk mereset kata sandi akun Tales Hero Indonesia kamu
+    <!-- Judul & subjudul -->
+    <p style="margin:0 0 6px;font-size:24px;font-weight:700;color:#111827;font-family:Arial,Helvetica,sans-serif;
+              letter-spacing:-0.3px">Reset Kata Sandi</p>
+    <p style="margin:0 0 28px;font-size:14px;color:#6b7280;font-family:Arial,Helvetica,sans-serif;line-height:1.6;
+              border-bottom:1px solid #f1f5f9;padding-bottom:20px">
+      Permintaan reset kata sandi untuk akun <strong style="color:#374151">${toUsername}</strong>
+      di Tales Hero Indonesia
     </p>
 
-    <p style="margin:0 0 6px;font-size:15px;color:#374151;font-family:Arial,Helvetica,sans-serif">
-      Halo <strong>${toUsername}</strong>,
-    </p>
-    <p style="margin:0 0 24px;font-size:15px;color:#374151;font-family:Arial,Helvetica,sans-serif;line-height:1.7">
-      Kami menerima permintaan untuk mereset kata sandi akunmu.
-      Klik tombol di bawah untuk melanjutkan. Link berlaku selama <strong>1 jam</strong>.
+    <!-- Sapaan -->
+    <p style="margin:0 0 16px;font-size:15px;color:#374151;font-family:Arial,Helvetica,sans-serif;line-height:1.7">
+      Halo <strong>${toUsername}</strong>,<br>
+      kami menerima permintaan untuk mereset kata sandi akunmu.
+      Klik tombol di bawah untuk melanjutkan — link hanya berlaku selama <strong>1 jam</strong>.
     </p>
 
-    <!-- CTA button -->
-    <table cellpadding="0" cellspacing="0" role="presentation" style="margin:0 0 24px">
+    <!-- CTA button — tengah, full-width -->
+    <table cellpadding="0" cellspacing="0" role="presentation" width="100%" style="margin:24px 0">
       <tr>
-        <td style="border-radius:8px;background:linear-gradient(135deg,#1d4ed8,#2563eb)">
+        <td align="center">
           <a href="${link}" target="_blank" rel="noopener"
-             style="display:inline-block;padding:14px 36px;color:#ffffff;text-decoration:none;
-                    font-weight:700;font-size:15px;font-family:Arial,Helvetica,sans-serif;
-                    border-radius:8px;letter-spacing:.3px">
+             style="display:inline-block;padding:15px 48px;
+                    background:linear-gradient(135deg,#1d4ed8 0%,#2563eb 100%);
+                    color:#ffffff;text-decoration:none;font-weight:700;font-size:15px;
+                    font-family:Arial,Helvetica,sans-serif;border-radius:10px;
+                    letter-spacing:.4px;box-shadow:0 4px 12px rgba(37,99,235,0.35)">
             Reset Kata Sandi &rarr;
           </a>
         </td>
       </tr>
     </table>
 
-    <p style="margin:0 0 6px;font-size:13px;color:#6b7280;font-family:Arial,Helvetica,sans-serif">
-      Atau salin link berikut ke browser:
-    </p>
-    <p style="margin:0 0 20px;font-size:12px;font-family:Arial,Helvetica,sans-serif">
-      <a href="${link}" style="color:#2563eb;word-break:break-all">${link}</a>
-    </p>
+    <!-- Link cadangan -->
+    <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;
+                padding:14px 18px;margin:0 0 20px">
+      <p style="margin:0 0 6px;font-size:12px;font-weight:700;color:#94a3b8;
+                text-transform:uppercase;letter-spacing:.5px;font-family:Arial,Helvetica,sans-serif">
+        Atau salin link ini ke browser
+      </p>
+      <a href="${link}"
+         style="font-size:12px;color:#2563eb;word-break:break-all;
+                font-family:Arial,Helvetica,sans-serif;line-height:1.6">${link}</a>
+    </div>
 
-    <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:14px 18px">
-      <p style="margin:0;font-size:13px;color:#94a3b8;font-family:Arial,Helvetica,sans-serif;line-height:1.6">
-        Jika kamu tidak meminta reset kata sandi, abaikan email ini — akunmu tetap aman.
+    <!-- Peringatan -->
+    <div style="background:#fffbeb;border:1px solid #fcd34d;border-radius:8px;padding:14px 18px">
+      <p style="margin:0;font-size:13px;color:#92400e;font-family:Arial,Helvetica,sans-serif;line-height:1.6">
+        ⚠️ Jika kamu tidak meminta reset ini, abaikan email ini.
+        Akunmu tetap aman dan tidak ada perubahan yang akan terjadi.
       </p>
     </div>`;
 
@@ -229,17 +222,18 @@ export async function sendPasswordResetEmail(toEmail, toUsername, token) {
     '',
     `Halo ${toUsername},`,
     '',
-    'Klik link berikut untuk mereset kata sandimu:',
+    'Kami menerima permintaan untuk mereset kata sandi akunmu.',
+    'Klik link berikut untuk melanjutkan (berlaku 1 jam):',
     link,
     '',
-    'Link berlaku 1 jam. Jika kamu tidak memintanya, abaikan email ini.',
+    'Jika kamu tidak memintanya, abaikan email ini. Akunmu tetap aman.',
     '',
     `Butuh bantuan? Hubungi ${SOCIAL.support}`,
     `© ${new Date().getFullYear()} Tales Hero Indonesia`,
   ].join('\n');
 
-  await transporter.sendMail({
-    from        : getSenderAddress(),
+  const { error } = await resend.emails.send({
+    from        : FROM,
     to          : toEmail,
     replyTo     : REPLY_TO,
     subject     : 'Reset Kata Sandi — Tales Hero Indonesia',
@@ -256,31 +250,34 @@ export async function sendPasswordResetEmail(toEmail, toUsername, token) {
       'X-Entity-Ref-ID'  : `reset-${toEmail}-${Date.now()}`,
     },
   });
+
+  if (error) throw new Error(`[mailer] Resend error: ${error.message}`);
 }
 
-// ── Security Question ───────────────────────────────────────────────────────
+// ── Security Question ──────────────────────────────────────────────────────
 
 export async function sendSecurityQuestionEmail(toEmail, toUsername, secQuestion, secAnswer) {
-  const transporter  = getTransporter();
+  const resend = getResendClient();
   const displayAnswer = secAnswer?.trim()
     ? secAnswer.trim()
     : '(jawaban tidak tersedia — daftar ulang untuk menyimpannya)';
 
   const bodyHtml = `
-    <p style="margin:0 0 4px;font-size:22px;font-weight:700;color:#111827;font-family:Arial,Helvetica,sans-serif">Pemulihan Akun</p>
-    <p style="margin:0 0 20px;font-size:14px;color:#6b7280;font-family:Arial,Helvetica,sans-serif;line-height:1.6">
-      Informasi pertanyaan keamanan akun Tales Hero Indonesia kamu
+    <p style="margin:0 0 6px;font-size:24px;font-weight:700;color:#111827;font-family:Arial,Helvetica,sans-serif;
+              letter-spacing:-0.3px">Pemulihan Akun</p>
+    <p style="margin:0 0 28px;font-size:14px;color:#6b7280;font-family:Arial,Helvetica,sans-serif;line-height:1.6;
+              border-bottom:1px solid #f1f5f9;padding-bottom:20px">
+      Informasi pertanyaan keamanan akun <strong style="color:#374151">${toUsername}</strong>
+      di Tales Hero Indonesia
     </p>
 
-    <p style="margin:0 0 6px;font-size:15px;color:#374151;font-family:Arial,Helvetica,sans-serif">
-      Halo <strong>${toUsername}</strong>,
-    </p>
     <p style="margin:0 0 20px;font-size:15px;color:#374151;font-family:Arial,Helvetica,sans-serif;line-height:1.7">
-      Berikut adalah pertanyaan dan jawaban keamanan yang kamu buat saat mendaftar.
+      Halo <strong>${toUsername}</strong>,<br>
+      berikut adalah pertanyaan dan jawaban keamanan yang kamu buat saat mendaftar.
     </p>
 
     <!-- Pertanyaan -->
-    <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:16px 20px;margin:0 0 16px">
+    <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:16px 20px;margin:0 0 12px">
       <p style="margin:0 0 6px;font-size:11px;font-weight:700;color:#94a3b8;
                 text-transform:uppercase;letter-spacing:.6px;font-family:Arial,Helvetica,sans-serif">
         Pertanyaan Keamanan
@@ -324,8 +321,8 @@ export async function sendSecurityQuestionEmail(toEmail, toUsername, secQuestion
     `© ${new Date().getFullYear()} Tales Hero Indonesia`,
   ].join('\n');
 
-  await transporter.sendMail({
-    from        : getSenderAddress(),
+  const { error } = await resend.emails.send({
+    from        : FROM,
     to          : toEmail,
     replyTo     : REPLY_TO,
     subject     : 'Pemulihan Akun — Tales Hero Indonesia',
@@ -342,4 +339,6 @@ export async function sendSecurityQuestionEmail(toEmail, toUsername, secQuestion
       'X-Entity-Ref-ID'  : `recovery-${toEmail}-${Date.now()}`,
     },
   });
+
+  if (error) throw new Error(`[mailer] Resend error: ${error.message}`);
 }
