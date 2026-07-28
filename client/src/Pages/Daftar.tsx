@@ -213,7 +213,7 @@ export default function Daftar() {
                             {accountCount !== null && (
                                 <div className="daftar-players-badge">
                                     <IoPeopleOutline size={14} />
-                                    <strong>{accountCount.toLocaleString('id-ID')}</strong> hero sudah bergabung!
+                                    <strong>{accountCount.toLocaleString('id-ID')}</strong> Akun telah terdaftar!
                                 </div>
                             )}
                             <div className="daftar-recovery-note">

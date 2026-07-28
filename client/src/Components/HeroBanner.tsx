@@ -170,7 +170,7 @@ export default function HeroBanner() {
                                 {accountCount !== null && (
                                     <span className="hero-banner__players-badge">
                                         <IoPeopleOutline size={13} />
-                                        {accountCount.toLocaleString('id-ID')} hero terdaftar
+                                        {accountCount.toLocaleString('id-ID')} Akun Terdaftar
                                     </span>
                                 )}
                             </div>
