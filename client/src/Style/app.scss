@@ -160,8 +160,6 @@ section, footer {
 
   &--center {
     justify-self: center;
-
-    @media (max-width: 768px) { display: none; }
   }
 }
 

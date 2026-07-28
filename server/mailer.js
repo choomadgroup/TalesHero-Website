@@ -29,9 +29,9 @@ const SOCIAL = {
 
 // Icon sosmed dihosting di domain sendiri (40×40 SVG)
 const ICON = {
-  facebook  : `${BASE}/Image/email/facebook.svg`,
-  instagram : `${BASE}/Image/email/instagram.svg`,
-  support   : `${BASE}/Image/email/support.svg`,
+  facebook  : `${BASE}/Image/Email/facebook.svg`,
+  instagram : `${BASE}/Image/Email/instagram.svg`,
+  support   : `${BASE}/Image/Email/support.svg`,
 };
 
 // ── Helpers ────────────────────────────────────────────────────────────────
