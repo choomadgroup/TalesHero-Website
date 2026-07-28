@@ -710,6 +710,20 @@ section, footer {
     &:active { transform: translateY(0); }
   }
 
+  &__players-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 6px 13px;
+    background: rgba(0,0,0,0.07);
+    border-radius: 100px;
+    font-size: 12.5px;
+    font-weight: 600;
+    color: #444;
+    white-space: nowrap;
+    backdrop-filter: blur(4px);
+  }
+
   &__dots {
     display: flex;
     align-items: center;
@@ -2101,6 +2115,22 @@ footer.site-footer {
     color: #888;
     margin: 0 0 20px;
   }
+}
+
+.daftar-players-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin: 8px 0 16px;
+  padding: 6px 14px;
+  background: #fff0f6;
+  border: 1px solid #f4c6d5;
+  border-radius: 100px;
+  font-size: 13px;
+  color: #b03060;
+  font-weight: 500;
+
+  strong { font-weight: 700; }
 }
 
 .daftar-recovery-note {

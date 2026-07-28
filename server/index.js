@@ -12,6 +12,7 @@ import forgotSecurityQuestion from './auth/forgot-security-question.js';
 import me from './auth/me.js';
 import logout from './auth/logout.js';
 import turnstileConfig from './auth/turnstile-config.js';
+import stats    from './stats.js';
 import { migrate } from './db.js';
 import { applySecurityHeaders } from './security.js';
 
@@ -28,6 +29,7 @@ app.get('/healthz', (_req, res) => {
   res.json({ ok: true });
 });
 app.get('/api/config/turnstile', turnstileConfig);
+app.get('/api/stats', stats);
 
 const blockedPublicPath = /^\/(?:client\/src|server|attached_assets|\.local|\.agents|node_modules)(?:\/|$)|^\/(?:vite\.config\.ts|package\.json|pnpm-lock\.yaml|tsconfig(?:\.[^/]+)?|\.env(?:\.[^/]*)?)$/i;
 const privatePagePath = /^\/(?:forgot-password|reset-password|akun)(?:\/|$)/i;

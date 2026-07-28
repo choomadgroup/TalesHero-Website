@@ -10,7 +10,9 @@ import {
     IoHome, IoEye, IoEyeOff, IoCheckmarkCircle,
     IoPersonOutline, IoMailOutline, IoLockClosedOutline,
     IoShieldCheckmarkOutline, IoCloseCircleOutline, IoEllipseOutline,
+    IoPeopleOutline,
 } from 'react-icons/io5';
+import { useAccountCount } from '@/Hooks/use-account-count';
 
 const REGISTER_API = '/auth/register';
 
@@ -97,6 +99,7 @@ export default function Daftar() {
 
     const [form, setForm]               = useState<FormData>({ username: '', email: '', password: '', confirm: '', secQuestion: '', secAnswer: '' });
     const [errors, setErrors]           = useState<FormErrors>({});
+    const accountCount = useAccountCount();
     const [showPass, setShowPass]       = useState(false);
     const [showConfirm, setShowConfirm] = useState(false);
     const [loading, setLoading]         = useState(false);
@@ -207,6 +210,12 @@ export default function Daftar() {
                         <motion.div key="form" className="daftar-form-wrap">
                             <h1 className="daftar-form-wrap__title">Buat Akun Baru</h1>
                             <p className="daftar-form-wrap__sub">Bergabunglah dan jadilah hero legendaris!</p>
+                            {accountCount !== null && (
+                                <div className="daftar-players-badge">
+                                    <IoPeopleOutline size={14} />
+                                    <strong>{accountCount.toLocaleString('id-ID')}</strong> hero sudah bergabung!
+                                </div>
+                            )}
                             <div className="daftar-recovery-note">
                                 Email dan pertanyaan keamanan akan langsung tersimpan saat pendaftaran.
                                 Email bisa digunakan untuk login, reset kata sandi, dan menemukan kembali

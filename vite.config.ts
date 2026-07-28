@@ -7,6 +7,7 @@ import remarkFrontmatter from 'remark-frontmatter';
 import remarkMdxFrontmatter from 'remark-mdx-frontmatter';
 import remarkGfm from 'remark-gfm';
 import register from './server/auth/register.js';
+import stats    from './server/stats.js';
 import login from './server/auth/login.js';
 import changePassword from './server/auth/change-password.js';
 import updateProfile from './server/auth/update-profile.js';
@@ -173,6 +174,19 @@ const apiPlugin = {
       if (req.method !== 'GET') { next(); return; }
       addJsonResponseHelpers(res);
       turnstileConfig(req, res);
+    });
+
+    // Stats: jumlah akun terdaftar
+    server.middlewares.use('/api/stats', async (req: any, res: any, next: any) => {
+      if (req.method !== 'GET') { next(); return; }
+      try {
+        addJsonResponseHelpers(res);
+        await stats(req, res);
+      } catch {
+        res.statusCode = 500;
+        res.setHeader('Content-Type', 'application/json');
+        res.end(JSON.stringify({ accounts: null }));
+      }
     });
 
     // Vite must serve source modules to the local app, but a browser navigation
