@@ -102,8 +102,8 @@ app.use((req, res) => {
 });
 
 migrate()
-  .then(() => console.log('[db] tales_hero_web_users OK'))
-  .catch(err => console.error('[db] migrate error:', err.message));
+  .then(() => console.log('[Database] tales_hero_web_users sukses terhubung.'))
+  .catch(err => console.error('[Database] migrate error:', err.message));
 
 app.listen(port, '0.0.0.0', () => {
   console.log(`Tales Hero production server listening on port ${port}`);
