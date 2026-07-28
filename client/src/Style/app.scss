@@ -687,6 +687,13 @@ section, footer {
     @media (max-width: 768px) { justify-content: center; }
   }
 
+  &__online-row {
+    display: flex;
+    justify-content: flex-start;
+
+    @media (max-width: 768px) { justify-content: center; }
+  }
+
   &__btn-primary {
     display: inline-flex;
     align-items: center;

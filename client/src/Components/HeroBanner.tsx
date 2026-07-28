@@ -179,11 +179,13 @@ export default function HeroBanner() {
                                     )}
                                 </div>
                                 {onlineCount !== null && (
-                                    <span className="hero-banner__online-badge">
-                                        <span className="hero-banner__online-dot" />
-                                        <IoWifi size={13} />
-                                        {onlineCount.toLocaleString('id-ID')} Online
-                                    </span>
+                                    <div className="hero-banner__online-row">
+                                        <span className="hero-banner__online-badge">
+                                            <span className="hero-banner__online-dot" />
+                                            <IoWifi size={13} />
+                                            {onlineCount.toLocaleString('id-ID')} Online
+                                        </span>
+                                    </div>
                                 )}
                             </div>
 
