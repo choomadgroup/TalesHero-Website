@@ -44,20 +44,6 @@
   </url>
 
   <url>
-    <loc>https://taleshero.web.id/guides/combat</loc>
-    <lastmod>2026-07-28</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-
-  <url>
-    <loc>https://taleshero.web.id/guides/item</loc>
-    <lastmod>2026-07-28</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-
-  <url>
     <loc>https://taleshero.web.id/news</loc>
     <lastmod>2026-07-28</lastmod>
     <changefreq>daily</changefreq>
