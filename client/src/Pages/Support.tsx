@@ -9,32 +9,36 @@ import Footer from '../Components/Footer';
 
 const FAQS = [
     {
-        q: 'Bagaimana cara membuat akun Tales Hero Indonesia?',
-        a: 'Fitur pendaftaran akun sedang dalam tahap pengembangan. Pantau terus website dan media sosial kami untuk informasi pembukaan pendaftaran pertama!',
+        q: 'Bagaimana cara mendaftar akun Tales Hero Indonesia?',
+        a: 'Klik tombol "Daftar" di sudut kanan atas website, atau kunjungi halaman /daftar. Isi username game, email, kata sandi, dan pertanyaan keamanan. Setelah berhasil, kamu langsung bisa login ke website dan game.',
+    },
+    {
+        q: 'Saya sudah daftar di website, tapi tidak bisa login ke game. Kenapa?',
+        a: 'Setelah daftar di website, gunakan username dan kata sandi yang sama untuk login ke launcher/game. Pastikan kamu mengetik username dengan benar (huruf besar/kecil berpengaruh). Jika masih gagal, coba reset kata sandi melalui halaman Pemulihan Akun.',
+    },
+    {
+        q: 'Bagaimana cara reset kata sandi jika lupa?',
+        a: 'Kunjungi halaman /forgot-password, lalu masukkan username game atau email terdaftar. Sistem akan otomatis mengirim link reset kata sandi ke email yang kamu daftarkan. Periksa folder Spam jika email tidak masuk dalam beberapa menit.',
+    },
+    {
+        q: 'Kenapa email pemulihan tidak masuk ke kotak masuk saya?',
+        a: 'Cek folder Spam atau Promotions di email kamu. Jika tetap tidak ada, pastikan email yang dimasukkan sama persis dengan email saat pendaftaran. Email pemulihan dikirim dari noreply@taleshero.web.id — pastikan alamat ini tidak diblokir.',
     },
     {
         q: 'Game Tales Hero Indonesia bisa dimainkan di perangkat apa saja?',
-        a: 'Tales Hero Indonesia tersedia untuk PC Windows dan Android. Versi iOS sedang dalam persiapan dan akan segera dirilis. Pastikan perangkat kamu memenuhi spesifikasi minimum yang tertera di halaman Download.',
+        a: 'Saat ini Tales Hero Indonesia tersedia untuk PC Windows. Pastikan perangkat kamu memenuhi spesifikasi minimum yang tertera di halaman Download. Dukungan platform lain akan diumumkan kemudian.',
     },
     {
-        q: 'Apakah Tales Hero Indonesia gratis?',
-        a: 'Ya! Tales Hero Indonesia bisa dimainkan secara gratis (Free-to-Play). Tersedia item kosmetik opsional yang bisa dibeli, namun tidak mempengaruhi gameplay.',
+        q: 'Game tidak bisa dibuka atau error setelah diinstall. Apa solusinya?',
+        a: 'Coba langkah berikut: (1) Pastikan spesifikasi PC memenuhi syarat minimum. (2) Update driver VGA ke versi terbaru. (3) Jalankan game sebagai Administrator (klik kanan → Run as administrator). (4) Matikan sementara antivirus. Jika masih bermasalah, hubungi kami di Discord atau email support.',
     },
     {
-        q: 'Game tidak bisa dibuka atau error setelah install. Apa solusinya?',
-        a: 'Coba langkah berikut: (1) Pastikan spesifikasi PC kamu memenuhi syarat minimum. (2) Update driver VGA ke versi terbaru. (3) Jalankan game sebagai Administrator. (4) Matikan sementara antivirus. Jika masih error, hubungi tim support kami.',
+        q: 'Apakah Tales Hero Indonesia gratis dimainkan?',
+        a: 'Ya! Tales Hero Indonesia bisa dimainkan sepenuhnya gratis (Free-to-Play). Item kosmetik opsional tersedia namun tidak mempengaruhi keseimbangan gameplay.',
     },
     {
         q: 'Bagaimana cara melaporkan pemain yang curang (cheater)?',
-        a: 'Kamu bisa melaporkan pemain curang melalui menu Report di dalam game, atau kirimkan laporan detail ke email support kami disertai bukti screenshot/video.',
-    },
-    {
-        q: 'Kapan event server pertama akan diadakan?',
-        a: 'Informasi jadwal event akan diumumkan melalui website resmi dan Discord server kami. Join Discord sekarang agar tidak ketinggalan info terbaru!',
-    },
-    {
-        q: 'Apakah progress game akan di-reset saat Open Beta?',
-        a: 'Progress karakter dan akun akan di-reset saat memasuki fase Open Beta untuk memastikan fairness semua pemain. Akan ada kompensasi spesial untuk pemain Closed Beta.',
+        a: 'Laporkan melalui menu Report di dalam game, atau kirimkan laporan lengkap ke email support kami disertai bukti screenshot atau video. Setiap laporan akan ditindaklanjuti oleh tim moderasi.',
     },
 ];
 

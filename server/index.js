@@ -1,4 +1,5 @@
 import path from 'node:path';
+import fs   from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import express from 'express';
 import register from './auth/register.js';
@@ -54,14 +55,40 @@ app.post('/auth/forgot-password', forgotPassword);
 app.post('/auth/email-reset-password', emailResetPassword);
 app.post('/auth/forgot-security-question', forgotSecurityQuestion);
 
-app.use(express.static(publicDir, { index: 'index.html' }));
+// ── Per-route OG meta injection ─────────────────────────────────────────────
+const OG_IMAGE = 'https://taleshero.web.id/Image/tales-hero-banner.png';
+const ROUTE_META = {
+  '/': { title: 'Tales Hero Indonesia — Game Online Action Adventure', description: 'Tales Hero adalah sebuah game action adventure yang menawarkan petualangan dalam berbagai legenda termashur di dunia. Ayo mainkan bersama teman-temanmu!' },
+  '/daftar': { title: 'Daftar Akun — Tales Hero Indonesia', description: 'Buat akun Tales Hero Indonesia-mu sekarang, gratis! Daftarkan hero-mu dan bergabunglah dengan komunitas petualang dari seluruh Indonesia.' },
+  '/login': { title: 'Login — Tales Hero Indonesia', description: 'Masuk ke akun Tales Hero Indonesia-mu dan lanjutkan petualanganmu bersama teman-temanmu.' },
+  '/support': { title: 'Support — Tales Hero Indonesia', description: 'Butuh bantuan? Hubungi tim support Tales Hero Indonesia atau temukan jawaban di FAQ kami.' },
+  '/download': { title: 'Download — Tales Hero Indonesia', description: 'Unduh Tales Hero Indonesia sekarang dan mulai petualanganmu! Gratis untuk dimainkan di Windows PC.' },
+  '/news': { title: 'News — Tales Hero Indonesia', description: 'Berita terbaru seputar Tales Hero Indonesia: update server, informasi game, dan jadwal maintenance.' },
+};
+function injectMeta(html, urlPath) {
+  const key = urlPath.replace(/\/$/, '') || '/';
+  const meta = ROUTE_META[key] ?? ROUTE_META['/'];
+  return html
+    .replace(/(<title>)[^<]*/, `$1${meta.title}`)
+    .replace(/(name="description"\s+content=")[^"]*/, `$1${meta.description}`)
+    .replace(/(property="og:title"\s+content=")[^"]*/, `$1${meta.title}`)
+    .replace(/(property="og:description"\s+content=")[^"]*/, `$1${meta.description}`)
+    .replace(/(property="og:image"\s+content=")[^"]*/, `$1${OG_IMAGE}`)
+    .replace(/(name="twitter:title"\s+content=")[^"]*/, `$1${meta.title}`)
+    .replace(/(name="twitter:description"\s+content=")[^"]*/, `$1${meta.description}`)
+    .replace(/(name="twitter:image"\s+content=")[^"]*/, `$1${OG_IMAGE}`);
+}
 
-// SPA fallback for the client-side routes, while leaving unknown API routes
-// as JSON 404 responses.
+app.use(express.static(publicDir, { index: false }));
+
+// SPA fallback — inject route-specific meta before serving index.html
 app.use((req, res, next) => {
   if (req.method === 'GET' && req.accepts('html')) {
-    res.sendFile(path.join(publicDir, 'index.html'), (error) => {
-      if (error) next(error);
+    const indexPath = path.join(publicDir, 'index.html');
+    fs.readFile(indexPath, 'utf8', (err, html) => {
+      if (err) return next(err);
+      res.setHeader('Content-Type', 'text/html; charset=utf-8');
+      res.send(injectMeta(html, req.path));
     });
     return;
   }
