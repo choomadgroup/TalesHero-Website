@@ -157,7 +157,7 @@ export default function HeroBanner() {
                             <p className="hero-banner__desc">{slide.desc}</p>
 
                             <div className="hero-banner__actions">
-                                <div className="hero-banner__actions-row">
+                                <div className="hero-banner__actions-download-col">
                                     <button
                                         className="hero-banner__btn-primary"
                                         style={{ background: slide.accent }}
@@ -165,27 +165,25 @@ export default function HeroBanner() {
                                     >
                                         Download
                                     </button>
-                                    <button
-                                        className="hero-banner__btn-secondary"
-                                        onClick={() => setLocation("/daftar")}
-                                    >
-                                        Daftar Sekarang
-                                    </button>
-                                    {accountCount !== null && (
-                                        <span className="hero-banner__players-badge">
-                                            <IoPeopleOutline size={13} />
-                                            {accountCount.toLocaleString('id-ID')} Akun Terdaftar
-                                        </span>
-                                    )}
-                                </div>
-                                {onlineCount !== null && (
-                                    <div className="hero-banner__online-row">
+                                    {onlineCount !== null && (
                                         <span className="hero-banner__online-badge">
                                             <span className="hero-banner__online-dot" />
                                             <IoWifi size={13} />
                                             {onlineCount.toLocaleString('id-ID')} Online
                                         </span>
-                                    </div>
+                                    )}
+                                </div>
+                                <button
+                                    className="hero-banner__btn-secondary"
+                                    onClick={() => setLocation("/daftar")}
+                                >
+                                    Daftar Sekarang
+                                </button>
+                                {accountCount !== null && (
+                                    <span className="hero-banner__players-badge">
+                                        <IoPeopleOutline size={13} />
+                                        {accountCount.toLocaleString('id-ID')} Akun Terdaftar
+                                    </span>
                                 )}
                             </div>
 
