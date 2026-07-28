@@ -165,6 +165,19 @@ export default function HeroBanner() {
                                     Daftar Sekarang
                                 </button>
                             </div>
+
+                            {/* Dot indicators — sejajar dengan tombol */}
+                            <div className="hero-banner__dots">
+                                {SLIDES.map((s, i) => (
+                                    <button
+                                        key={s.id}
+                                        className={`hero-banner__dot ${i === current ? "hero-banner__dot--active" : ""}`}
+                                        style={{ "--dot-color": SLIDES[i].accent } as React.CSSProperties}
+                                        onClick={() => setCurrent(i)}
+                                        aria-label={`Slide ${i + 1}`}
+                                    />
+                                ))}
+                            </div>
                         </motion.div>
                     </AnimatePresence>
 
@@ -181,23 +194,6 @@ export default function HeroBanner() {
                             <img src={slide.image} alt={slide.badge} />
                         </motion.div>
                     </AnimatePresence>
-                </div>
-
-                {/* Dot indicators */}
-                <div className="hero-banner__dots">
-                    {SLIDES.map((s, i) => (
-                        <button
-                            key={s.id}
-                            className={`hero-banner__dot ${i === current ? "hero-banner__dot--active" : ""}`}
-                            style={
-                                {
-                                    "--dot-color": SLIDES[i].accent,
-                                } as React.CSSProperties
-                            }
-                            onClick={() => setCurrent(i)}
-                            aria-label={`Slide ${i + 1}`}
-                        />
-                    ))}
                 </div>
 
                 {/* Progress bar */}

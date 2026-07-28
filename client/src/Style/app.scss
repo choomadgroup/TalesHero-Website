@@ -711,14 +711,10 @@ section, footer {
   }
 
   &__dots {
-    position: absolute;
-    bottom: 36px;
-    left: 80px;
     display: flex;
+    align-items: center;
     gap: 8px;
-    z-index: 3;
-
-    @media (max-width: 768px) { left: 50%; transform: translateX(-50%); }
+    margin-top: 20px;
   }
 
   &__dot {
