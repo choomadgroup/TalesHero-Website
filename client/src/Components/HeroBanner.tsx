@@ -3,7 +3,9 @@ import { asset } from '@/Lib/utils';
 import { motion, AnimatePresence } from "framer-motion";
 import { useLocation } from "wouter";
 import { IoPeopleOutline } from 'react-icons/io5';
+import { IoWifi } from 'react-icons/io5';
 import { useAccountCount } from '@/Hooks/use-account-count';
+import { useOnlineCount } from '@/Hooks/use-online-count';
 import {
     GiCrossedSwords,
     GiScrollUnfurled,
@@ -93,6 +95,7 @@ export default function HeroBanner() {
     const [current, setCurrent] = useState(0);
     const [, setLocation] = useLocation();
     const accountCount = useAccountCount();
+    const onlineCount  = useOnlineCount();
 
     const next = useCallback(() => {
         setCurrent((c) => (c + 1) % SLIDES.length);
@@ -171,6 +174,13 @@ export default function HeroBanner() {
                                     <span className="hero-banner__players-badge">
                                         <IoPeopleOutline size={13} />
                                         {accountCount.toLocaleString('id-ID')} Akun Terdaftar
+                                    </span>
+                                )}
+                                {onlineCount !== null && (
+                                    <span className="hero-banner__online-badge">
+                                        <span className="hero-banner__online-dot" />
+                                        <IoWifi size={13} />
+                                        {onlineCount.toLocaleString('id-ID')} Online
                                     </span>
                                 )}
                             </div>
