@@ -127,17 +127,15 @@ section, footer {
 }
 
 .game-header__inner {
-  display: grid;
-  grid-template-columns: 1fr auto 1fr;
+  display: flex;
   align-items: center;
+  justify-content: space-between;
   max-width: 1200px;
   margin: 0 auto;
   padding: 0 40px;
   height: 60px;
 
   @media (max-width: 768px) {
-    display: flex;
-    justify-content: space-between;
     padding: 0 20px;
     height: 56px;
   }
@@ -158,9 +156,6 @@ section, footer {
     @media (max-width: 768px) { height: 60px; max-width: 160px; }
   }
 
-  &--center {
-    justify-self: center;
-  }
 }
 
 // Desktop nav links
@@ -168,7 +163,6 @@ section, footer {
   display: flex;
   align-items: center;
   gap: 8px;
-  justify-self: start;
 
   @media (max-width: 768px) { display: none; }
 }
@@ -339,7 +333,6 @@ section, footer {
   display: flex;
   align-items: center;
   gap: 12px;
-  justify-self: end;
 }
 
 // Headset music toggle
