@@ -3,7 +3,7 @@ import { asset } from '@/Lib/utils';
 
 // Tambahkan/hapus path gambar di sini untuk mengatur popup
 const POPUP_IMAGES = [
-    '/Image/Home/Popup/IMG-POPUP-01.png',
+    '/Image/Home/Popup/IMG-POPUP-01.jpg',
     '/Image/Home/Popup/IMG-POPUP-02.png',
 ];
 

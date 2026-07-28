@@ -69,16 +69,7 @@ const Header = ({ light = false }: { light?: boolean }) => {
             <header className={`game-header ${light ? 'game-header--light' : ''} ${scrolled ? 'game-header--scrolled' : ''}`}>
                 <div className="game-header__inner">
 
-                    {/* Logo */}
-                    <a href="/" className="game-header__logo">
-                        <img
-                            src={asset("/Image/tales-hero-banner.png")}
-                            alt="Tales Hero Indonesia"
-                            style={{ objectFit: 'contain' }}
-                        />
-                    </a>
-
-                    {/* Desktop nav */}
+                    {/* Desktop nav — left */}
                     <nav className="game-header__nav">
 
                         {/* Pengenalan Game — dengan dropdown */}
@@ -129,6 +120,15 @@ const Header = ({ light = false }: { light?: boolean }) => {
                             </span>
                         ))}
                     </nav>
+
+                    {/* Logo — center */}
+                    <a href="/" className="game-header__logo game-header__logo--center">
+                        <img
+                            src={asset("/Image/logo-tales-hero.png")}
+                            alt="Tales Hero Indonesia"
+                            style={{ objectFit: 'contain' }}
+                        />
+                    </a>
 
                     {/* CTA + burger */}
                     <div className="game-header__actions">
@@ -212,7 +212,7 @@ const Header = ({ light = false }: { light?: boolean }) => {
                 <div className="game-drawer-overlay" onClick={() => setOpened(false)}>
                     <div className="game-drawer" onClick={e => e.stopPropagation()}>
                         <div className="game-drawer__logo">
-                            <img src={asset("/Image/tales-hero-banner.png")} alt="Tales Hero" height={36} />
+                            <img src={asset("/Image/logo-tales-hero.png")} alt="Tales Hero" height={36} />
                         </div>
 
                         <nav className="game-drawer__nav">

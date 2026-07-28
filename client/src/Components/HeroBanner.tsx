@@ -2,8 +2,6 @@ import { useState, useEffect, useCallback } from "react";
 import { asset } from '@/Lib/utils';
 import { motion, AnimatePresence } from "framer-motion";
 import { useLocation } from "wouter";
-import { IoPeopleOutline } from 'react-icons/io5';
-import { useAccountCount } from '@/Hooks/use-account-count';
 import {
     GiCrossedSwords,
     GiScrollUnfurled,
@@ -92,8 +90,6 @@ const INTERVAL = 8000;
 export default function HeroBanner() {
     const [current, setCurrent] = useState(0);
     const [, setLocation] = useLocation();
-    const accountCount = useAccountCount();
-
     const next = useCallback(() => {
         setCurrent((c) => (c + 1) % SLIDES.length);
     }, []);
@@ -167,12 +163,6 @@ export default function HeroBanner() {
                                 >
                                     Daftar Sekarang
                                 </button>
-                                {accountCount !== null && (
-                                    <span className="hero-banner__players-badge">
-                                        <IoPeopleOutline size={13} />
-                                        {accountCount.toLocaleString('id-ID')} Akun Terdaftar
-                                    </span>
-                                )}
                             </div>
 
                             {/* Dot indicators — sejajar dengan tombol */}
