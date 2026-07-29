@@ -18,7 +18,7 @@ const pool = mysql.createPool({
 });
 
 pool.on('error', (err) => {
-  console.error('[db] ❌ Koneksi MySQL error:', err.message);
+  console.error('[Database] ❌ Koneksi MySQL error:', err.message);
 });
 
 /**
