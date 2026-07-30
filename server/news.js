@@ -1,7 +1,8 @@
 import crypto from 'node:crypto';
 import { NewsArticle }        from './models/news-article.js';
-import { isAdminAuthenticated, setAdminCookie, clearAdminCookie } from './admin-session.js';
+import { isAdminAuthenticated, getAdminUser, setAdminCookie, clearAdminCookie, STAFF_ROLES } from './admin-session.js';
 import { isMongoConnected }   from './mongodb.js';
+import { query }              from './db.js';
 
 // ── helpers ──────────────────────────────────────────────────────────────────
 
@@ -94,22 +95,57 @@ export async function publicReact(req, res, category, slug, body) {
 
 // ── ADMIN AUTH ────────────────────────────────────────────────────────────────
 
-export function adminLogin(req, res) {
-  const { password } = req.body ?? {};
-  if (!password) { json(res, 400, { message: 'Password wajib diisi' }); return; }
+/**
+ * Login admin via akun staf game (MySQL).
+ * Verifikasi: password MD5 di userinfofrompublisher + fdRole di userinfo harus
+ * Owner / Staff / GM.
+ */
+export async function adminLogin(req, res) {
+  const { username, password } = req.body ?? {};
+  if (!username?.trim()) { json(res, 400, { message: 'Username wajib diisi' }); return; }
+  if (!password)         { json(res, 400, { message: 'Password wajib diisi' }); return; }
 
-  const correct = process.env.ADMIN_PASSWORD;
-  if (!correct) { json(res, 500, { message: 'Admin belum dikonfigurasi' }); return; }
+  try {
+    // Ambil data login + role dari tabel game
+    const rows = await query(
+      `SELECT g.fdUserID, g.fdPassword,
+              i.fdNickname, i.fdRole
+       FROM userinfofrompublisher g
+       JOIN userinfo i ON i.fdUID = g.fdUserID
+       WHERE g.fdUserID = ?
+       LIMIT 1`,
+      [username.trim()],
+    );
 
-  const a = Buffer.from(String(password));
-  const b = Buffer.from(String(correct));
-  const match = a.length === b.length && (() => {
-    try { return crypto.timingSafeEqual(a, b); } catch { return false; }
-  })();
+    if (rows.length === 0) {
+      json(res, 401, { message: 'Username atau password salah' }); return;
+    }
 
-  if (!match) { json(res, 401, { message: 'Password salah' }); return; }
-  setAdminCookie(res);
-  json(res, 200, { ok: true });
+    const row = rows[0];
+
+    // Verifikasi password — game menyimpan MD5
+    const md5 = crypto.createHash('md5').update(password, 'utf8').digest('hex');
+    if (md5 !== row.fdPassword) {
+      json(res, 401, { message: 'Username atau password salah' }); return;
+    }
+
+    // Cek role — hanya Owner, Staff, GM yang boleh masuk
+    if (!STAFF_ROLES.has(row.fdRole)) {
+      json(res, 403, { message: 'Akun ini tidak memiliki akses ke dashboard admin' }); return;
+    }
+
+    const user = {
+      username: row.fdUserID,
+      nickname: row.fdNickname ?? row.fdUserID,
+      role:     row.fdRole,
+    };
+
+    setAdminCookie(res, user);
+    json(res, 200, { ok: true, user });
+  } catch (err) {
+    console.error('[adminLogin]', err.message);
+    json(res, 500, { message: 'Terjadi kesalahan server' });
+  }
 }
 
 export function adminLogout(req, res) {
@@ -118,7 +154,9 @@ export function adminLogout(req, res) {
 }
 
 export function adminMe(req, res) {
-  json(res, isAdminAuthenticated(req) ? 200 : 401, { authenticated: isAdminAuthenticated(req) });
+  const user = getAdminUser(req);
+  if (!user) { json(res, 401, { authenticated: false }); return; }
+  json(res, 200, { authenticated: true, user });
 }
 
 // ── ADMIN CRUD ────────────────────────────────────────────────────────────────

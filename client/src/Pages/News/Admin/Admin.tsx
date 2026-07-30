@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import '@/Style/admin.scss';
 import { renderMarkdown } from '@/Lib/markdown';
-import { useAdminAuth, useAdminNews, type AdminNewsArticle, type NewsFormData } from '@/Hooks/use-admin-news';
+import { useAdminAuth, useAdminNews, type AdminNewsArticle, type NewsFormData, type AdminUser } from '@/Hooks/use-admin-news';
 import { useAdminDownloads, type DownloadPackage } from '@/Hooks/use-downloads';
 
 // ── category helpers ──────────────────────────────────────────────────────────
@@ -27,20 +27,30 @@ function slugify(t: string) {
   return t.toLowerCase().replace(/[^a-z0-9\s-]/g, '').replace(/\s+/g, '-').replace(/-+/g, '-').trim().slice(0, 80);
 }
 
+// Role badge colours
+const ROLE_COLORS: Record<string, string> = {
+  Owner: '#f59e0b',
+  Staff: '#6366f1',
+  GM:    '#10b981',
+};
+
 // ─────────────────────────────────────────────────────────────────────────────
 // Login screen
 // ─────────────────────────────────────────────────────────────────────────────
-function AdminLogin({ onLogin }: { onLogin: (pw: string) => Promise<{ ok: boolean; message?: string }> }) {
-  const [pw, setPw] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
+function AdminLogin({ onLogin }: {
+  onLogin: (username: string, password: string) => Promise<{ ok: boolean; message?: string }>;
+}) {
+  const [username, setUsername] = useState('');
+  const [pw,       setPw]       = useState('');
+  const [loading,  setLoading]  = useState(false);
+  const [error,    setError]    = useState('');
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!pw.trim()) return;
+    if (!username.trim() || !pw.trim()) return;
     setLoading(true); setError('');
-    const r = await onLogin(pw);
-    if (!r.ok) { setError(r.message ?? 'Password salah'); setLoading(false); }
+    const r = await onLogin(username.trim(), pw);
+    if (!r.ok) { setError(r.message ?? 'Login gagal'); setLoading(false); }
   };
 
   return (
@@ -51,13 +61,21 @@ function AdminLogin({ onLogin }: { onLogin: (pw: string) => Promise<{ ok: boolea
           <p>ADMIN PANEL</p>
         </div>
         <h1>Masuk ke Dashboard</h1>
+        <p style={{ textAlign:'center', fontSize:13, color:'#64748b', marginTop:-16, marginBottom:20 }}>
+          Gunakan akun staf game kamu (Owner / Staff / GM)
+        </p>
         <form onSubmit={submit}>
           <div className="admin-form-group">
-            <label htmlFor="admin-pw">Password Admin</label>
-            <input id="admin-pw" type="password" placeholder="Masukkan password admin" value={pw}
-              onChange={e => setPw(e.target.value)} autoFocus />
+            <label htmlFor="admin-uid">Username Game</label>
+            <input id="admin-uid" type="text" placeholder="fdUserID / username game"
+              value={username} onChange={e => setUsername(e.target.value)} autoFocus autoComplete="username" />
           </div>
-          <button type="submit" className="admin-login-btn" disabled={loading || !pw.trim()}>
+          <div className="admin-form-group">
+            <label htmlFor="admin-pw">Password</label>
+            <input id="admin-pw" type="password" placeholder="Password akun game"
+              value={pw} onChange={e => setPw(e.target.value)} autoComplete="current-password" />
+          </div>
+          <button type="submit" className="admin-login-btn" disabled={loading || !username.trim() || !pw.trim()}>
             {loading ? 'Memverifikasi…' : 'Masuk'}
           </button>
           {error && <div className="admin-login-error">{error}</div>}
@@ -448,7 +466,7 @@ function DownloadManager({ showToast }: { showToast: (msg: string) => void }) {
 // ─────────────────────────────────────────────────────────────────────────────
 type Section = 'news' | 'downloads';
 
-function AdminDashboard({ onLogout }: { onLogout: () => void }) {
+function AdminDashboard({ onLogout, adminUser }: { onLogout: () => void; adminUser: AdminUser | null }) {
   const { articles, loading, refresh, create, update, remove, togglePublish } = useAdminNews();
   const [section, setSection]   = useState<Section>('news');
   const [view, setView]         = useState<'list' | 'new' | 'edit'>('list');
@@ -467,12 +485,11 @@ function AdminDashboard({ onLogout }: { onLogout: () => void }) {
   useEffect(() => () => { if (toastTimer.current) clearTimeout(toastTimer.current); }, []);
 
   const handleSave = async (data: NewsFormData, asDraft: boolean) => {
-    const payload = { ...data, published: !asDraft };
     if (view === 'edit' && editing) {
-      await update(editing._id, payload);
+      await update(editing._id, data, asDraft);
       showToast('Artikel berhasil diperbarui.');
     } else {
-      await create(payload);
+      await create(data, asDraft);
       showToast('Artikel berhasil dibuat.');
     }
     setView('list');
@@ -501,6 +518,23 @@ function AdminDashboard({ onLogout }: { onLogout: () => void }) {
           <img src="/Image/logo-taleshero.png" alt="Tales Hero" onError={e => { (e.target as HTMLImageElement).style.display = 'none'; }} />
           <span>Admin Panel</span>
         </div>
+
+        {/* logged-in user info */}
+        {adminUser && (
+          <div className="admin-sidebar__user">
+            <div className="admin-sidebar__user-name">{adminUser.nickname || adminUser.username}</div>
+            <div className="admin-sidebar__user-meta">
+              <span className="admin-sidebar__user-id">@{adminUser.username}</span>
+              <span
+                className="admin-sidebar__role-badge"
+                style={{ background: ROLE_COLORS[adminUser.role] ?? '#64748b' }}
+              >
+                {adminUser.role}
+              </span>
+            </div>
+          </div>
+        )}
+
         <nav className="admin-sidebar__nav">
           <button className={`admin-nav-link${section === 'news' ? ' admin-nav-link--active' : ''}`}
             onClick={() => goSection('news')}>
@@ -565,7 +599,7 @@ function AdminDashboard({ onLogout }: { onLogout: () => void }) {
 // Root export — handles auth gate
 // ─────────────────────────────────────────────────────────────────────────────
 export default function AdminPage() {
-  const { authenticated, login, logout } = useAdminAuth();
+  const { authenticated, adminUser, login, logout } = useAdminAuth();
 
   if (authenticated === null) {
     return (
@@ -577,5 +611,5 @@ export default function AdminPage() {
 
   if (!authenticated) return <AdminLogin onLogin={login} />;
 
-  return <AdminDashboard onLogout={logout} />;
+  return <AdminDashboard onLogout={logout} adminUser={adminUser} />;
 }

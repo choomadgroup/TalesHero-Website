@@ -3,6 +3,9 @@ import crypto from 'node:crypto';
 const COOKIE = 'th_admin';
 const TTL    = 8 * 60 * 60; // 8 hours
 
+// ── Allowed staff roles ────────────────────────────────────────────────────────
+export const STAFF_ROLES = new Set(['Owner', 'Staff', 'GM']);
+
 function secret() {
   return process.env.SESSION_SECRET || 'dev-fallback-secret';
 }
@@ -34,8 +37,20 @@ function parseCookies(header = '') {
   return result;
 }
 
-export function setAdminCookie(res) {
-  const token  = sign('admin:' + Date.now());
+/**
+ * Buat cookie admin yang menyimpan informasi user staff.
+ * Payload: "username\x1Fnickname\x1Frole\x1Ftimestamp"
+ */
+export function setAdminCookie(res, { username, nickname, role }) {
+  // Use unit-separator (non-printable) to avoid collisions with user data
+  const payload = [
+    encodeURIComponent(username),
+    encodeURIComponent(nickname || ''),
+    encodeURIComponent(role     || ''),
+    Date.now(),
+  ].join('\x1F');
+
+  const token  = sign(payload);
   const secure = process.env.NODE_ENV === 'production' ? '; Secure' : '';
   res.setHeader(
     'Set-Cookie',
@@ -47,8 +62,26 @@ export function clearAdminCookie(res) {
   res.setHeader('Set-Cookie', `${COOKIE}=; Path=/; Max-Age=0; HttpOnly; SameSite=Strict`);
 }
 
-export function isAdminAuthenticated(req) {
+/**
+ * Verifikasi cookie dan kembalikan data user staff, atau null jika tidak valid.
+ * @returns {{ username: string, nickname: string, role: string } | null}
+ */
+export function getAdminUser(req) {
   const cookies = parseCookies(req.headers?.cookie ?? '');
   const val     = cookies[COOKIE];
-  return val ? verify(val) : false;
+  if (!val) return null;
+  if (!verify(val)) return null;
+
+  const payload = val.slice(0, val.lastIndexOf('.'));
+  const parts   = payload.split('\x1F');
+  if (parts.length < 4) return null;
+
+  const [u, n, r] = parts.map(decodeURIComponent);
+  if (!u || !STAFF_ROLES.has(r)) return null;
+
+  return { username: u, nickname: n, role: r };
+}
+
+export function isAdminAuthenticated(req) {
+  return getAdminUser(req) !== null;
 }
