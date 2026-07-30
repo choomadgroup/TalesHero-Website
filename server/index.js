@@ -38,7 +38,7 @@ app.get('/api/config/turnstile', turnstileConfig);
 app.get('/api/stats', stats);
 
 const blockedPublicPath = /^\/(?:client\/src|server|attached_assets|\.local|\.agents|node_modules)(?:\/|$)|^\/(?:vite\.config\.ts|package\.json|pnpm-lock\.yaml|tsconfig(?:\.[^/]+)?|\.env(?:\.[^/]*)?)$/i;
-const privatePagePath = /^\/(?:forgot-password|reset-password|akun)(?:\/|$)/i;
+const privatePagePath = /^\/(?:forgot-password|reset-password|akun|admin)(?:\/|$)/i;
 
 // Never let source, backend modules, workspace metadata, or environment files
 // reach the public production server, even through the SPA fallback.
@@ -52,6 +52,30 @@ app.use((req, res, next) => {
   }
   next();
 });
+
+// ── Rate limiter for admin login (simple in-memory, max 10 req / 15 min / IP) ──
+const _loginAttempts = new Map(); // ip → { count, resetAt }
+const RATE_LIMIT_MAX   = 10;
+const RATE_LIMIT_WINDOW = 15 * 60 * 1000; // 15 minutes
+
+function adminRateLimit(req, res, next) {
+  const ip      = req.ip ?? req.socket?.remoteAddress ?? 'unknown';
+  const now     = Date.now();
+  const entry   = _loginAttempts.get(ip);
+
+  if (entry && now < entry.resetAt) {
+    entry.count++;
+    if (entry.count > RATE_LIMIT_MAX) {
+      const retry = Math.ceil((entry.resetAt - now) / 1000);
+      res.setHeader('Retry-After', String(retry));
+      res.status(429).json({ message: `Terlalu banyak percobaan. Coba lagi dalam ${Math.ceil(retry / 60)} menit.` });
+      return;
+    }
+  } else {
+    _loginAttempts.set(ip, { count: 1, resetAt: now + RATE_LIMIT_WINDOW });
+  }
+  next();
+}
 
 app.post('/auth/register', register);
 app.post('/auth/login', login);
@@ -70,7 +94,7 @@ app.get('/api/news/:category/:slug', (req, res) =>
 );
 
 // ── Admin auth ────────────────────────────────────────────────────────────────
-app.post('/api/admin/login',  adminLogin);
+app.post('/api/admin/login', adminRateLimit, adminLogin);
 app.post('/api/admin/logout', adminLogout);
 app.get('/api/admin/me',      adminMe);
 

@@ -2,10 +2,6 @@ import path from 'path';
 import react from '@vitejs/plugin-react';
 import tailwindcss from '@tailwindcss/vite';
 import { defineConfig } from 'vite';
-import mdx from '@mdx-js/rollup';
-import remarkFrontmatter from 'remark-frontmatter';
-import remarkMdxFrontmatter from 'remark-mdx-frontmatter';
-import remarkGfm from 'remark-gfm';
 import register from './server/auth/register.js';
 import stats    from './server/stats.js';
 import login from './server/auth/login.js';
@@ -387,17 +383,7 @@ const apiPlugin = {
 export default defineConfig({
   base: basePath,
   plugins: [
-    {
-      enforce: 'pre',
-      ...mdx({
-        remarkPlugins: [
-          remarkFrontmatter,
-          [remarkMdxFrontmatter, { name: 'frontmatter' }],
-          remarkGfm,
-        ],
-      }),
-    },
-    react({ include: /\.(jsx|js|mdx|md|tsx|ts)$/ }),
+    react({ include: /\.(jsx|js|tsx|ts)$/ }),
     tailwindcss(),
     runtimeErrorOverlay(),
     metaInjectorPlugin,

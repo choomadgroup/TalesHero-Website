@@ -1,18 +1,9 @@
 import { useEffect, useState } from 'react';
 import { useLocation } from 'wouter';
 import { asset } from '@/Lib/utils';
-import { allArticles, CATEGORY_LABELS, CATEGORY_COLORS } from '@/Lib/newsLoader';
+import { useApiNews } from '@/Hooks/use-news';
+import { CATEGORY_LABELS, CATEGORY_COLORS, type NewsCategory } from '@/Lib/newsLoader';
 import CharacterSpotlight from './CharacterSpotlight';
-
-// Ambil 4 terbaru — kalau ada artikel baru, yang paling lama otomatis keluar
-const now = Date.now();
-const ANNOUNCEMENTS = allArticles.slice(0, 4).map((a) => ({
-    slug:     a.slug,
-    category: a.category,
-    tag:      CATEGORY_LABELS[a.category],
-    title:    a.title,
-    isNew:    a.date ? (now - new Date(a.date).getTime()) / 86_400_000 <= 7 : false,
-}));
 
 const SLIDES = [
     '/Image/Home/Slideshow/obj-sp-001.png',
@@ -22,6 +13,16 @@ const SLIDES = [
 export default function Announcement() {
     const [current, setCurrent] = useState(0);
     const [, navigate] = useLocation();
+    const { articles, loading } = useApiNews();
+
+    const now = Date.now();
+    const announcements = articles.slice(0, 4).map(a => ({
+        slug:     a.slug,
+        category: a.category as NewsCategory,
+        tag:      CATEGORY_LABELS[a.category as NewsCategory] ?? a.category,
+        title:    a.title,
+        isNew:    a.publishedAt ? (now - new Date(a.publishedAt).getTime()) / 86_400_000 <= 7 : false,
+    }));
 
     useEffect(() => {
         const timer = setInterval(() => {
@@ -48,8 +49,18 @@ export default function Announcement() {
                     </div>
 
                     <ul className="ann-list">
-                        {ANNOUNCEMENTS.map((item) => {
-                            const accent  = CATEGORY_COLORS[item.category];
+                        {loading && (
+                            <li className="ann-row" style={{ pointerEvents: 'none', opacity: 0.5 }}>
+                                <span style={{ fontSize: 12, color: '#aaa' }}>Memuat berita…</span>
+                            </li>
+                        )}
+                        {!loading && announcements.length === 0 && (
+                            <li className="ann-row" style={{ pointerEvents: 'none' }}>
+                                <span style={{ fontSize: 12, color: '#aaa' }}>Belum ada berita terbaru.</span>
+                            </li>
+                        )}
+                        {announcements.map(item => {
+                            const accent  = CATEGORY_COLORS[item.category] ?? '#fab005';
                             const bgLight = `${accent}18`;
                             const border  = `${accent}55`;
                             return (

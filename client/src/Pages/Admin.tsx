@@ -1,28 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import '@/Style/admin.scss';
+import { renderMarkdown } from '@/Lib/markdown';
 import { useAdminAuth, useAdminNews, type AdminNewsArticle, type NewsFormData } from '@/Hooks/use-admin-news';
-
-// ── tiny markdown preview (no external dep) ──────────────────────────────────
-function renderMarkdown(md: string): string {
-  return md
-    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
-    .replace(/^#{4}\s(.+)$/gm, '<h4>$1</h4>')
-    .replace(/^#{3}\s(.+)$/gm, '<h3>$1</h3>')
-    .replace(/^#{2}\s(.+)$/gm, '<h2>$1</h2>')
-    .replace(/^#\s(.+)$/gm, '<h1>$1</h1>')
-    .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
-    .replace(/\*(.+?)\*/g, '<em>$1</em>')
-    .replace(/`{3}[\s\S]*?`{3}/g, (m) => `<pre><code>${m.slice(3, -3).trim()}</code></pre>`)
-    .replace(/`(.+?)`/g, '<code>$1</code>')
-    .replace(/^> (.+)$/gm, '<blockquote>$1</blockquote>')
-    .replace(/^---$/gm, '<hr/>')
-    .replace(/\[(.+?)\]\((.+?)\)/g, '<a href="$2" target="_blank" rel="noopener">$1</a>')
-    .replace(/!\[.*?\]\((.+?)\)/g, '<img src="$1" alt=""/>')
-    .replace(/^[-*] (.+)$/gm, '<li>$1</li>')
-    .replace(/(<li>.*<\/li>)/s, '<ul>$1</ul>')
-    .replace(/\n\n/g, '</p><p>')
-    .replace(/^(?!<[hupboi])(.+)$/gm, (line) => line ? `<p>${line}</p>` : '');
-}
 
 // ── category helpers ──────────────────────────────────────────────────────────
 const CATEGORY_LABELS: Record<string, string> = {

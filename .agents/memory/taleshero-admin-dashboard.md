@@ -22,5 +22,15 @@ description: Admin news dashboard architecture — what was built, what still ne
 
 **Why:** MongoDB connection is intentionally lazy/optional so missing MONGODB_URI never crashes startup.
 
-## /news page still uses MDX statics
-`NewsListPage.tsx` and `NewsArticlePage.tsx` still read from `client/src/Data/News/` MDX files via `newsLoader.ts`. The `useApiNews` / `useApiNewsArticle` hooks are ready but not yet wired into those pages — that's follow-up task #5.
+## MDX system fully removed (2026-07-30)
+- All MDX files deleted (`client/src/Data/News/`)
+- `@mdx-js/rollup`, `remark-frontmatter`, `remark-gfm`, `remark-mdx-frontmatter` removed from package.json + vite.config.ts
+- `newsLoader.ts` now only exports constants/types (CATEGORY_LABELS, CATEGORY_COLORS, NewsCategory, formatDate)
+- `formatDate` + `renderMarkdown` shared via `client/src/Lib/markdown.ts`
+- `NewsListPage.tsx` → uses `useApiNews()` hook, Grid layout with featured top card + nl-grid
+- `NewsArticlePage.tsx` → uses `useApiNewsArticle()` hook, renders markdown via `renderMarkdown()`
+- `Announcement.tsx` → uses `useApiNews()` hook (was using static `allArticles`)
+
+## Admin protection added
+- `/admin` added to `privatePagePath` regex in `server/index.js` → X-Robots-Tag: noindex, nofollow
+- Rate limiting on `/api/admin/login`: max 10 req / 15 min / IP (in-memory, server/index.js)

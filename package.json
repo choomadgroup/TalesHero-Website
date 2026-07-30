@@ -88,7 +88,6 @@
   },
   "dependencies": {
     "@marsidev/react-turnstile": "^1.5.3",
-    "@mdx-js/rollup": "^3.1.1",
     "bcryptjs": "^3.0.3",
     "express": "^5.2.1",
     "marked": "^18.0.6",
@@ -96,9 +95,6 @@
     "mysql2": "^3.23.1",
     "nodemailer": "^9.0.3",
     "react-scroll": "^1.9.3",
-    "remark-frontmatter": "^5.0.0",
-    "remark-gfm": "^4.0.1",
-    "remark-mdx-frontmatter": "^5.2.0",
     "resend": "^6.18.0",
     "sass": "^1.101.0"
   }
