@@ -112,7 +112,7 @@ export default function Download() {
                         animate={{ opacity: 1, x: 0 }}
                         transition={{ duration: 0.6 }}
                     >
-                        <span className="dl-hero__badge">🎮 Download Gratis</span>
+                        <span className="dl-hero__badge">Download Gratis</span>
                         <h1 className="dl-hero__title">Mulai Petualanganmu<br />di Tales Hero!</h1>
                         <p className="dl-hero__desc">
                             Unduh Tales Hero Indonesia sekarang dan bergabunglah dengan ribuan pemain

@@ -226,7 +226,15 @@ const apiPlugin = {
     }
 
     // MongoDB (berita) — opsional, startup tidak gagal jika MONGODB_URI tidak ada
-    await connectMongoDB();
+    if (process.env.MONGODB_URI) {
+      try {
+        await connectMongoDB();
+        const mongoHost = new URL(process.env.MONGODB_URI).host;
+        server.config.logger.info(`  \x1b[32m➜\x1b[0m  MongoDB: \x1b[36m${mongoHost}\x1b[0m`);
+      } catch (err: any) {
+        server.config.logger.error(`  MongoDB: ❌ gagal konek — ${err.message}`);
+      }
+    }
 
     server.middlewares.use('/auth/register', async (req: any, res: any, next: any) => {
       if (req.method !== 'POST') { next(); return; }
