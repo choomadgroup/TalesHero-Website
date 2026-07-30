@@ -3,6 +3,7 @@ import '@/Style/admin.scss';
 import { renderMarkdown } from '@/Lib/markdown';
 import { useAdminAuth, useAdminNews, type AdminNewsArticle, type NewsFormData, type AdminUser } from '@/Hooks/use-admin-news';
 import { useAdminDownloads, type DownloadPackage } from '@/Hooks/use-downloads';
+import { useMusic } from '@/Hooks/use-music';
 
 // ── category helpers ──────────────────────────────────────────────────────────
 const CATEGORY_LABELS: Record<string, string> = {
@@ -600,6 +601,10 @@ function AdminDashboard({ onLogout, adminUser }: { onLogout: () => void; adminUs
 // ─────────────────────────────────────────────────────────────────────────────
 export default function AdminPage() {
   const { authenticated, adminUser, login, logout } = useAdminAuth();
+  const { pauseMusic } = useMusic();
+
+  // Pause BGM whenever the admin page is open
+  useEffect(() => { pauseMusic(); }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   if (authenticated === null) {
     return (

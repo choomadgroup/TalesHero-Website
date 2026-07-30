@@ -2,17 +2,26 @@ import { createContext, useContext, useEffect, useRef, useState, ReactNode } fro
 import { asset } from '@/Lib/utils';
 
 interface MusicCtx {
-    musicOn: boolean;
+    musicOn:     boolean;
     toggleMusic: () => void;
+    pauseMusic:  () => void;
 }
 
-const MusicContext = createContext<MusicCtx>({ musicOn: false, toggleMusic: () => {} });
+const MusicContext = createContext<MusicCtx>({
+    musicOn:     false,
+    toggleMusic: () => {},
+    pauseMusic:  () => {},
+});
+
+/** Returns true when the current page is the admin dashboard. */
+function isAdminPage() {
+    return window.location.pathname.replace(/\/$/, '').endsWith('/admin');
+}
 
 export function MusicProvider({ children }: { children: ReactNode }) {
-    const audioRef        = useRef<HTMLAudioElement | null>(null);
-    const [musicOn, setMusicOn] = useState(false);
-    // Track whether the user has already triggered autoplay so we only do it once
+    const audioRef   = useRef<HTMLAudioElement | null>(null);
     const autoplayed = useRef(false);
+    const [musicOn, setMusicOn] = useState(false);
 
     const getAudio = () => {
         if (audioRef.current) return audioRef.current;
@@ -23,21 +32,19 @@ export function MusicProvider({ children }: { children: ReactNode }) {
         return audio;
     };
 
-    // Autoplay on first user interaction — browsers require a gesture before
-    // any audio can play, so we hook the earliest possible touch/click/key.
+    // Autoplay on first user interaction — skip entirely on /admin.
     useEffect(() => {
         const tryAutoplay = () => {
             if (autoplayed.current) return;
             autoplayed.current = true;
+
+            // Never autoplay on the admin dashboard
+            if (isAdminPage()) return;
+
             const audio = getAudio();
             audio.play()
                 .then(() => setMusicOn(true))
-                .catch(() => { /* user or browser rejected — silently skip */ });
-            // Remove listeners after first trigger
-            window.removeEventListener('click',      tryAutoplay);
-            window.removeEventListener('touchstart', tryAutoplay);
-            window.removeEventListener('keydown',    tryAutoplay);
-            window.removeEventListener('scroll',     tryAutoplay);
+                .catch(() => {});
         };
 
         window.addEventListener('click',      tryAutoplay, { once: true, passive: true });
@@ -60,6 +67,11 @@ export function MusicProvider({ children }: { children: ReactNode }) {
         if (audioRef.current) audioRef.current.src = '';
     }, []);
 
+    const pauseMusic = () => {
+        audioRef.current?.pause();
+        setMusicOn(false);
+    };
+
     const toggleMusic = () => {
         const audio = getAudio();
         if (musicOn) {
@@ -71,7 +83,7 @@ export function MusicProvider({ children }: { children: ReactNode }) {
     };
 
     return (
-        <MusicContext.Provider value={{ musicOn, toggleMusic }}>
+        <MusicContext.Provider value={{ musicOn, toggleMusic, pauseMusic }}>
             {children}
         </MusicContext.Provider>
     );
