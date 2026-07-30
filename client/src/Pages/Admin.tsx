@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from 'react';
 import '@/Style/admin.scss';
 import { renderMarkdown } from '@/Lib/markdown';
 import { useAdminAuth, useAdminNews, type AdminNewsArticle, type NewsFormData } from '@/Hooks/use-admin-news';
+import { useAdminDownloads, type DownloadPackage } from '@/Hooks/use-downloads';
 
 // ── category helpers ──────────────────────────────────────────────────────────
 const CATEGORY_LABELS: Record<string, string> = {
@@ -12,6 +13,7 @@ const CATEGORY_LABELS: Record<string, string> = {
 
 // ── icons (inline SVG to avoid dep) ─────────────────────────────────────────
 const IconNews      = () => <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M19 3H5a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2V5a2 2 0 00-2-2z"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg>;
+const IconDownload  = () => <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>;
 const IconLogout    = () => <svg width="15" height="15" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>;
 const IconPlus      = () => <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>;
 const IconRefresh   = () => <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 11-2.12-9.36L23 10"/></svg>;
@@ -52,14 +54,8 @@ function AdminLogin({ onLogin }: { onLogin: (pw: string) => Promise<{ ok: boolea
         <form onSubmit={submit}>
           <div className="admin-form-group">
             <label htmlFor="admin-pw">Password Admin</label>
-            <input
-              id="admin-pw"
-              type="password"
-              placeholder="Masukkan password admin"
-              value={pw}
-              onChange={e => setPw(e.target.value)}
-              autoFocus
-            />
+            <input id="admin-pw" type="password" placeholder="Masukkan password admin" value={pw}
+              onChange={e => setPw(e.target.value)} autoFocus />
           </div>
           <button type="submit" className="admin-login-btn" disabled={loading || !pw.trim()}>
             {loading ? 'Memverifikasi…' : 'Masuk'}
@@ -134,7 +130,6 @@ function ArticleEditor({ initial, onSave, onCancel }: {
 
   return (
     <div>
-      {/* topbar */}
       <div className="admin-topbar">
         <h1>{initial ? 'Edit Artikel' : 'Artikel Baru'}</h1>
         <div className="admin-topbar__actions">
@@ -144,11 +139,8 @@ function ArticleEditor({ initial, onSave, onCancel }: {
 
       <div className="admin-content">
         {error && <div className="admin-error">{error}</div>}
-
         <div className="admin-editor">
-          {/* form + preview */}
           <div className="admin-editor__body">
-            {/* left: form */}
             <div className="admin-editor__form">
               <div className="admin-form-field">
                 <label>Judul <span className="required">*</span></label>
@@ -173,12 +165,8 @@ function ArticleEditor({ initial, onSave, onCancel }: {
               </div>
               <div className="admin-form-field">
                 <label>Ringkasan <span className="required">*</span></label>
-                <textarea
-                  className="excerpt-editor"
-                  value={form.excerpt}
-                  onChange={e => set('excerpt', e.target.value)}
-                  placeholder="Ringkasan singkat (tampil di daftar berita)"
-                />
+                <textarea className="excerpt-editor" value={form.excerpt} onChange={e => set('excerpt', e.target.value)}
+                  placeholder="Ringkasan singkat (tampil di daftar berita)" />
               </div>
               <div className="admin-form-field">
                 <label>Konten (Markdown) <span className="required">*</span></label>
@@ -193,12 +181,8 @@ function ArticleEditor({ initial, onSave, onCancel }: {
                   </button>
                 </div>
                 {tab === 'write' ? (
-                  <textarea
-                    className="content-editor"
-                    value={form.content}
-                    onChange={e => set('content', e.target.value)}
-                    placeholder="Tulis konten artikel dalam format Markdown…"
-                  />
+                  <textarea className="content-editor" value={form.content} onChange={e => set('content', e.target.value)}
+                    placeholder="Tulis konten artikel dalam format Markdown…" />
                 ) : (
                   <div className="preview-content"
                     style={{ minHeight:300,border:'1.5px solid #e2e8f0',borderRadius:8,padding:'10px 14px',background:'#fafafa' }}
@@ -208,7 +192,6 @@ function ArticleEditor({ initial, onSave, onCancel }: {
               </div>
             </div>
 
-            {/* right: live preview panel (desktop only) */}
             <div className="admin-editor__preview">
               <h3>Pratinjau Langsung</h3>
               {form.coverUrl && (
@@ -222,14 +205,11 @@ function ArticleEditor({ initial, onSave, onCancel }: {
                 </span>
               )}
               {form.content && (
-                <div className="preview-content"
-                  dangerouslySetInnerHTML={{ __html: renderMarkdown(form.content) }}
-                />
+                <div className="preview-content" dangerouslySetInnerHTML={{ __html: renderMarkdown(form.content) }} />
               )}
             </div>
           </div>
 
-          {/* footer */}
           <div className="admin-editor__footer">
             <button className="btn-draft" disabled={saving} onClick={() => save(true)}>
               {saving ? 'Menyimpan…' : 'Simpan sebagai Draft'}
@@ -265,12 +245,8 @@ function ArticleList({
       <div className="admin-topbar">
         <h1>Manajemen Berita</h1>
         <div className="admin-topbar__actions">
-          <button className="admin-btn admin-btn--ghost" onClick={onRefresh} title="Refresh">
-            <IconRefresh /> Refresh
-          </button>
-          <button className="admin-btn admin-btn--primary" onClick={onNew}>
-            <IconPlus /> Artikel Baru
-          </button>
+          <button className="admin-btn admin-btn--ghost" onClick={onRefresh} title="Refresh"><IconRefresh /> Refresh</button>
+          <button className="admin-btn admin-btn--primary" onClick={onNew}><IconPlus /> Artikel Baru</button>
         </div>
       </div>
 
@@ -291,10 +267,7 @@ function ArticleList({
             <table>
               <thead>
                 <tr>
-                  <th>Judul</th>
-                  <th>Kategori</th>
-                  <th>Status</th>
-                  <th>Tanggal</th>
+                  <th>Judul</th><th>Kategori</th><th>Status</th><th>Tanggal</th>
                   <th style={{ width: 200 }}>Aksi</th>
                 </tr>
               </thead>
@@ -309,23 +282,17 @@ function ArticleList({
                     </td>
                     <td>
                       <span className={`admin-status-badge admin-status-badge--${a.published ? 'published' : 'draft'}`}>
-                        <span className="dot" />
-                        {a.published ? 'Dipublikasi' : 'Draft'}
+                        <span className="dot" />{a.published ? 'Dipublikasi' : 'Draft'}
                       </span>
                     </td>
-                    <td style={{ fontSize: 12, color: '#94a3b8' }}>
-                      {fmt(a.publishedAt ?? a.createdAt)}
-                    </td>
+                    <td style={{ fontSize: 12, color: '#94a3b8' }}>{fmt(a.publishedAt ?? a.createdAt)}</td>
                     <td>
                       <div className="admin-actions">
-                        <button className="btn-edit"    onClick={() => onEdit(a)}>Edit</button>
-                        <button
-                          className={a.published ? 'btn-unpublish' : 'btn-publish'}
-                          onClick={() => onTogglePublish(a)}
-                        >
+                        <button className="btn-edit" onClick={() => onEdit(a)}>Edit</button>
+                        <button className={a.published ? 'btn-unpublish' : 'btn-publish'} onClick={() => onTogglePublish(a)}>
                           {a.published ? 'Sembunyikan' : 'Publikasikan'}
                         </button>
-                        <button className="btn-delete"  onClick={() => onDelete(a)}>Hapus</button>
+                        <button className="btn-delete" onClick={() => onDelete(a)}>Hapus</button>
                       </div>
                     </td>
                   </tr>
@@ -340,12 +307,152 @@ function ArticleList({
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
+// Download manager
+// ─────────────────────────────────────────────────────────────────────────────
+const PKG_LABELS: Record<string, string> = {
+  setup:      'File Setup',
+  fullclient: 'Full Client',
+  patch:      'Manual Patch',
+};
+const PKG_COLORS: Record<string, string> = {
+  setup: '#fab005', fullclient: '#4dabf7', patch: '#69db7c',
+};
+
+function DownloadEditor({ pkg, onSave, onCancel }: {
+  pkg: DownloadPackage;
+  onSave: (data: { href: string; size: string; available: boolean }) => Promise<void>;
+  onCancel: () => void;
+}) {
+  const [href,      setHref]      = useState(pkg.href);
+  const [size,      setSize]      = useState(pkg.size);
+  const [available, setAvailable] = useState(pkg.available);
+  const [saving,    setSaving]    = useState(false);
+  const [error,     setError]     = useState('');
+
+  const save = async () => {
+    setSaving(true); setError('');
+    try { await onSave({ href: href.trim(), size: size.trim(), available }); }
+    catch (e: any) { setError(e.message ?? 'Gagal menyimpan'); setSaving(false); }
+  };
+
+  return (
+    <div className="adl-editor">
+      <div className="adl-editor__header" style={{ '--pkg-color': PKG_COLORS[pkg.id] } as React.CSSProperties}>
+        <span className="adl-editor__label">{PKG_LABELS[pkg.id] ?? pkg.id}</span>
+        <button className="admin-btn admin-btn--ghost" onClick={onCancel} disabled={saving}>Batal</button>
+      </div>
+
+      {error && <div className="admin-error" style={{ margin:'0 0 12px' }}>{error}</div>}
+
+      <div className="admin-form-field">
+        <label>Link Download</label>
+        <input value={href} onChange={e => setHref(e.target.value)} placeholder="https://drive.google.com/… atau URL langsung" />
+        <div className="helper">URL langsung ke file, atau link Google Drive / OneDrive</div>
+      </div>
+
+      <div className="admin-form-field">
+        <label>Ukuran File</label>
+        <input value={size} onChange={e => setSize(e.target.value)} placeholder="~500 MB" />
+      </div>
+
+      <div className="admin-form-field">
+        <label style={{ display:'flex', alignItems:'center', gap:10, cursor:'pointer' }}>
+          <input type="checkbox" checked={available} onChange={e => setAvailable(e.target.checked)}
+            style={{ width:16,height:16,cursor:'pointer' }} />
+          Aktifkan tombol download (hapus "Segera Hadir")
+        </label>
+        {available && !href.trim() && (
+          <div style={{ fontSize:12, color:'#ef4444', marginTop:4 }}>⚠ Isi link download terlebih dahulu sebelum mengaktifkan</div>
+        )}
+      </div>
+
+      <button className="btn-save-publish" disabled={saving || (available && !href.trim())} onClick={save}
+        style={{ marginTop:4 }}>
+        {saving ? 'Menyimpan…' : 'Simpan'}
+      </button>
+    </div>
+  );
+}
+
+function DownloadManager({ showToast }: { showToast: (msg: string) => void }) {
+  const { packages, loading, error, refresh, update } = useAdminDownloads();
+  const [editingId, setEditingId] = useState<string | null>(null);
+
+  const handleSave = async (id: string, data: { href: string; size: string; available: boolean }) => {
+    await update(id, data);
+    showToast('Paket download berhasil diperbarui.');
+    setEditingId(null);
+  };
+
+  return (
+    <div>
+      <div className="admin-topbar">
+        <h1>Manajemen Download</h1>
+        <div className="admin-topbar__actions">
+          <button className="admin-btn admin-btn--ghost" onClick={refresh} title="Refresh"><IconRefresh /> Refresh</button>
+        </div>
+      </div>
+
+      <div className="admin-content">
+        {error && <div className="admin-error">{error}</div>}
+
+        {loading ? (
+          <div className="admin-loading">Memuat data download…</div>
+        ) : (
+          <div className="adl-list">
+            <p className="adl-list__hint">
+              Atur link dan status untuk setiap paket download yang tampil di halaman <strong>/download</strong>.
+            </p>
+            {packages.map(pkg => (
+              <div key={pkg.id} className="adl-row">
+                {editingId === pkg.id ? (
+                  <DownloadEditor
+                    pkg={pkg}
+                    onSave={data => handleSave(pkg.id, data)}
+                    onCancel={() => setEditingId(null)}
+                  />
+                ) : (
+                  <div className="adl-row__info">
+                    <div className="adl-row__left">
+                      <span className="adl-row__dot" style={{ background: PKG_COLORS[pkg.id] }} />
+                      <div>
+                        <div className="adl-row__name">{PKG_LABELS[pkg.id] ?? pkg.id}</div>
+                        <div className="adl-row__meta">
+                          {pkg.size && <span>{pkg.size}</span>}
+                          {pkg.href
+                            ? <span className="adl-row__url" title={pkg.href}>{pkg.href.slice(0, 50)}{pkg.href.length > 50 ? '…' : ''}</span>
+                            : <span style={{ color:'#cbd5e1' }}>Belum ada link</span>
+                          }
+                        </div>
+                      </div>
+                    </div>
+                    <div className="adl-row__right">
+                      <span className={`admin-status-badge admin-status-badge--${pkg.available ? 'published' : 'draft'}`}>
+                        <span className="dot" />{pkg.available ? 'Aktif' : 'Coming Soon'}
+                      </span>
+                      <button className="btn-edit" onClick={() => setEditingId(pkg.id)}>Edit</button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
 // Dashboard shell
 // ─────────────────────────────────────────────────────────────────────────────
+type Section = 'news' | 'downloads';
+
 function AdminDashboard({ onLogout }: { onLogout: () => void }) {
   const { articles, loading, refresh, create, update, remove, togglePublish } = useAdminNews();
-  const [view, setView] = useState<'list' | 'new' | 'edit'>('list');
-  const [editing, setEditing] = useState<AdminNewsArticle | null>(null);
+  const [section, setSection]   = useState<Section>('news');
+  const [view, setView]         = useState<'list' | 'new' | 'edit'>('list');
+  const [editing, setEditing]   = useState<AdminNewsArticle | null>(null);
   const [deleting, setDeleting] = useState<AdminNewsArticle | null>(null);
   const [deleteLoading, setDeleteLoading] = useState(false);
   const [toast, setToast] = useState('');
@@ -384,6 +491,8 @@ function AdminDashboard({ onLogout }: { onLogout: () => void }) {
     catch { showToast('Gagal mengubah status.'); }
   };
 
+  const goSection = (s: Section) => { setSection(s); setView('list'); setEditing(null); };
+
   return (
     <div className="admin-layout">
       {/* sidebar */}
@@ -393,24 +502,25 @@ function AdminDashboard({ onLogout }: { onLogout: () => void }) {
           <span>Admin Panel</span>
         </div>
         <nav className="admin-sidebar__nav">
-          <button className={`admin-nav-link${view !== 'edit' ? ' admin-nav-link--active' : ''}`}
-            onClick={() => { setView('list'); setEditing(null); }}>
+          <button className={`admin-nav-link${section === 'news' ? ' admin-nav-link--active' : ''}`}
+            onClick={() => goSection('news')}>
             <IconNews /> Berita
+          </button>
+          <button className={`admin-nav-link${section === 'downloads' ? ' admin-nav-link--active' : ''}`}
+            onClick={() => goSection('downloads')}>
+            <IconDownload /> Download
           </button>
         </nav>
         <div className="admin-sidebar__footer">
-          <button className="admin-nav-link" onClick={onLogout}>
-            <IconLogout /> Keluar
-          </button>
+          <button className="admin-nav-link" onClick={onLogout}><IconLogout /> Keluar</button>
         </div>
       </aside>
 
       {/* main area */}
       <main className="admin-main">
-        {view === 'list' && (
+        {section === 'news' && view === 'list' && (
           <ArticleList
-            articles={articles}
-            loading={loading}
+            articles={articles} loading={loading}
             onNew={() => { setEditing(null); setView('new'); }}
             onEdit={a => { setEditing(a); setView('edit'); }}
             onDelete={a => setDeleting(a)}
@@ -418,23 +528,22 @@ function AdminDashboard({ onLogout }: { onLogout: () => void }) {
             onRefresh={refresh}
           />
         )}
-        {(view === 'new' || view === 'edit') && (
+        {section === 'news' && (view === 'new' || view === 'edit') && (
           <ArticleEditor
             initial={view === 'edit' ? editing : null}
             onSave={handleSave}
             onCancel={() => { setView('list'); setEditing(null); }}
           />
         )}
+        {section === 'downloads' && (
+          <DownloadManager showToast={showToast} />
+        )}
       </main>
 
       {/* delete modal */}
       {deleting && (
-        <DeleteModal
-          title={deleting.title}
-          onConfirm={handleDelete}
-          onCancel={() => setDeleting(null)}
-          loading={deleteLoading}
-        />
+        <DeleteModal title={deleting.title} onConfirm={handleDelete}
+          onCancel={() => setDeleting(null)} loading={deleteLoading} />
       )}
 
       {/* toast */}
@@ -460,15 +569,13 @@ export default function AdminPage() {
 
   if (authenticated === null) {
     return (
-      <div className="admin-loading" style={{ minHeight: '100vh', display:'flex', alignItems:'center', justifyContent:'center', fontFamily:'Poppins,sans-serif' }}>
+      <div className="admin-loading" style={{ minHeight:'100vh',display:'flex',alignItems:'center',justifyContent:'center',fontFamily:'Poppins,sans-serif' }}>
         Memuat…
       </div>
     );
   }
 
-  if (!authenticated) {
-    return <AdminLogin onLogin={login} />;
-  }
+  if (!authenticated) return <AdminLogin onLogin={login} />;
 
   return <AdminDashboard onLogout={logout} />;
 }

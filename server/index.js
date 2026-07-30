@@ -21,6 +21,9 @@ import {
   adminLogin, adminLogout, adminMe,
   adminGetAll, adminCreate, adminUpdate, adminDelete,
 } from './news.js';
+import {
+  publicGetDownloads, adminGetDownloads, adminUpdateDownload,
+} from './downloads.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const publicDir = path.resolve(__dirname, '..', 'dist', 'public');
@@ -103,6 +106,11 @@ app.get('/api/admin/news',         adminGetAll);
 app.post('/api/admin/news',        adminCreate);
 app.put('/api/admin/news/:id',     (req, res) => adminUpdate(req, res, req.params.id));
 app.delete('/api/admin/news/:id',  (req, res) => adminDelete(req, res, req.params.id));
+
+// ── Downloads (public + admin) ────────────────────────────────────────────────
+app.get('/api/downloads',                  publicGetDownloads);
+app.get('/api/admin/downloads',            adminGetDownloads);
+app.put('/api/admin/downloads/:id',        (req, res) => adminUpdateDownload(req, res, req.params.id));
 
 // ── Per-route OG meta injection ─────────────────────────────────────────────
 const OG_IMAGE = 'https://taleshero.web.id/Image/tales-hero-banner.png';

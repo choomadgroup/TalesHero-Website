@@ -8,45 +8,14 @@ import { MdComputer, MdMemory } from 'react-icons/md';
 import { BsBoxSeam, BsHddStack, BsPatchCheck } from 'react-icons/bs';
 import Header from '../Components/Header';
 import Footer from '../Components/Footer';
+import { useDownloads } from '@/Hooks/use-downloads';
 
-const PACKAGES = [
-    {
-        id: 'setup',
-        icon: <BsBoxSeam size={28} />,
-        label: 'File Setup',
-        desc: 'Installer lengkap untuk instalasi pertama kali. Cocok untuk pemain baru.',
-        size: '~500 MB',
-        features: ['Installer otomatis', 'Semua file game', 'Langsung bisa main'],
-        available: true,
-        href: '#',  // ganti dengan URL download file setup
-        btnLabel: 'Unduh Setup',
-        color: '#fab005',
-    },
-    {
-        id: 'fullclient',
-        icon: <BsHddStack size={28} />,
-        label: 'Full Client',
-        desc: 'Paket lengkap tanpa installer. Ekstrak dan langsung jalankan.',
-        size: '~1.2 GB',
-        features: ['Tanpa installer', 'Portable', 'Ideal untuk reinstall'],
-        available: false,
-        href: '#',
-        btnLabel: 'Segera Hadir',
-        color: '#4dabf7',
-    },
-    {
-        id: 'patch',
-        icon: <BsPatchCheck size={28} />,
-        label: 'Manual Patch',
-        desc: 'Patch terbaru untuk pemain yang sudah punya game sebelumnya.',
-        size: '~50 MB',
-        features: ['Update incremental', 'Ukuran kecil', 'Hanya file terbaru'],
-        available: false,
-        href: '#',
-        btnLabel: 'Segera Hadir',
-        color: '#69db7c',
-    },
-];
+// Static metadata that never changes from admin
+const PKG_META: Record<string, { icon: React.ReactNode; features: string[]; color: string }> = {
+    setup:      { icon: <BsBoxSeam size={28} />,    features: ['Installer otomatis', 'Semua file game', 'Langsung bisa main'], color: '#fab005' },
+    fullclient: { icon: <BsHddStack size={28} />,   features: ['Tanpa installer', 'Portable', 'Ideal untuk reinstall'],        color: '#4dabf7' },
+    patch:      { icon: <BsPatchCheck size={28} />, features: ['Update incremental', 'Ukuran kecil', 'Hanya file terbaru'],    color: '#69db7c' },
+};
 
 const STEPS = [
     { num: '01', title: 'Unduh File', desc: 'Pilih paket yang sesuai dan klik tombol unduh.' },
@@ -55,38 +24,11 @@ const STEPS = [
 ];
 
 const SPECS = [
-    {
-        icon: <GiProcessor size={20} />,
-        label: 'CPU',
-        min: 'Core2 Duo atau lebih tinggi',
-        rec: 'Intel i5 3GHz atau Ryzen 5 3GHz atau lebih tinggi',
-    },
-    {
-        icon: <GiVideoCamera size={20} />,
-        label: 'VGA',
-        min: 'Radeon HD 5000 atau lebih tinggi\nGeForce GTS 400 atau lebih tinggi',
-        rec: 'Radeon HD 6000 atau lebih tinggi\nGeForce GTS 700 atau lebih tinggi',
-    },
-    {
-        icon: <GiRam size={20} />,
-        label: 'RAM',
-        min: '4 GB',
-        rec: '8 GB',
-    },
-    {
-        icon: <MdComputer size={20} />,
-        label: 'OS',
-        min: 'Windows 10 atau lebih baru (tidak didukung oleh MAC OS)',
-        rec: 'Windows 10 atau lebih baru (tidak didukung oleh MAC OS)',
-        same: true,
-    },
-    {
-        icon: <MdMemory size={20} />,
-        label: 'DirectX',
-        min: 'DirectX 11 atau lebih tinggi',
-        rec: 'DirectX 11 atau lebih tinggi',
-        same: true,
-    },
+    { icon: <GiProcessor size={20} />, label: 'CPU',     min: 'Core2 Duo atau lebih tinggi',                                               rec: 'Intel i5 3GHz atau Ryzen 5 3GHz atau lebih tinggi' },
+    { icon: <GiVideoCamera size={20} />, label: 'VGA',   min: 'Radeon HD 5000 atau lebih tinggi\nGeForce GTS 400 atau lebih tinggi',        rec: 'Radeon HD 6000 atau lebih tinggi\nGeForce GTS 700 atau lebih tinggi' },
+    { icon: <GiRam size={20} />, label: 'RAM',           min: '4 GB',                                                                       rec: '8 GB' },
+    { icon: <MdComputer size={20} />, label: 'OS',       min: 'Windows 10 atau lebih baru (tidak didukung oleh MAC OS)',                    rec: 'Windows 10 atau lebih baru', same: true },
+    { icon: <MdMemory size={20} />, label: 'DirectX',    min: 'DirectX 11 atau lebih tinggi',                                               rec: 'DirectX 11 atau lebih tinggi', same: true },
 ];
 
 const DRIVERS = [
@@ -98,12 +40,24 @@ const DRIVERS = [
 
 const FEATURES = ['Gratis Dimainkan', 'Update Rutin', 'Anti-Cheat System', 'Khusus Windows PC', 'Event Mingguan'];
 
+// Skeleton for a single package card
+function PkgSkeleton() {
+    return (
+        <div className="dl-pkg-card" style={{ gap: 14 }}>
+            {[48, 24, 52, 18, 90, 36].map((h, i) => (
+                <div key={i} style={{ height: h, borderRadius: 8, background: '#f0f0f2', width: i === 2 ? '80%' : i === 3 ? '40%' : '100%' }} />
+            ))}
+        </div>
+    );
+}
+
 export default function Download() {
     usePageMeta({
         title: 'Download — Tales Hero Indonesia',
         description: 'Unduh Tales Hero Indonesia sekarang dan mulai petualanganmu! Gratis untuk dimainkan di Windows PC.',
     });
     const [, setLocation] = useLocation();
+    const { packages, loading } = useDownloads();
 
     return (
         <>
@@ -112,12 +66,7 @@ export default function Download() {
             {/* Hero */}
             <section className="dl-hero">
                 <div className="dl-hero__inner">
-                    <motion.div
-                        className="dl-hero__text"
-                        initial={{ opacity: 0, x: -40 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ duration: 0.6 }}
-                    >
+                    <motion.div className="dl-hero__text" initial={{ opacity: 0, x: -40 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.6 }}>
                         <span className="dl-hero__badge">Download Gratis</span>
                         <h1 className="dl-hero__title">Mulai Petualanganmu<br />di Tales Hero!</h1>
                         <p className="dl-hero__desc">
@@ -126,21 +75,13 @@ export default function Download() {
                         </p>
                         <div className="dl-hero__feats">
                             {FEATURES.map(f => (
-                                <span key={f} className="dl-hero__feat">
-                                    <IoCheckmark size={13} /> {f}
-                                </span>
+                                <span key={f} className="dl-hero__feat"><IoCheckmark size={13} /> {f}</span>
                             ))}
                         </div>
                     </motion.div>
                     <div className="dl-hero__chars">
-                        <motion.img
-                            src={asset("/Image/Other/obj-thi-001.png")}
-                            alt="Tales Hero Indonesia"
-                            className="dl-hero__char-img"
-                            initial={{ opacity: 0, y: 30 }}
-                            animate={{ opacity: 1, y: -10 }}
-                            transition={{ duration: 0.7 }}
-                        />
+                        <motion.img src={asset("/Image/Other/obj-thi-001.png")} alt="Tales Hero Indonesia" className="dl-hero__char-img"
+                            initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: -10 }} transition={{ duration: 0.7 }} />
                     </div>
                 </div>
             </section>
@@ -149,44 +90,38 @@ export default function Download() {
             <section className="dl-packages">
                 <div className="dl-section-inner">
                     <h2 className="dl-section-title">Pilih Paket Download</h2>
-                    <p className="dl-packages__sub">
-                        <IoLogoWindows size={14} /> Tersedia untuk Windows PC
-                    </p>
+                    <p className="dl-packages__sub"><IoLogoWindows size={14} /> Tersedia untuk Windows PC</p>
                     <div className="dl-packages-grid">
-                        {PACKAGES.map((pkg, i) => (
-                            <motion.div
-                                key={pkg.id}
-                                className={`dl-pkg-card${pkg.available ? ' dl-pkg-card--active' : ''}`}
-                                style={{ '--pkg-color': pkg.color } as React.CSSProperties}
-                                initial={{ opacity: 0, y: 28 }}
-                                whileInView={{ opacity: 1, y: 0 }}
-                                viewport={{ once: true, amount: 0.2 }}
-                                transition={{ delay: i * 0.12, duration: 0.5 }}
-                            >
-                                <div className="dl-pkg-card__icon">{pkg.icon}</div>
-                                <h3 className="dl-pkg-card__title">{pkg.label}</h3>
-                                <p className="dl-pkg-card__desc">{pkg.desc}</p>
-                                <div className="dl-pkg-card__size">{pkg.size}</div>
-                                <ul className="dl-pkg-card__features">
-                                    {pkg.features.map(f => (
-                                        <li key={f}><IoCheckmark size={12} /> {f}</li>
-                                    ))}
-                                </ul>
-                                {pkg.available ? (
-                                    <a
-                                        href={pkg.href}
-                                        className="dl-pkg-card__btn dl-pkg-card__btn--active"
-                                        download
+                        {loading
+                            ? [0, 1, 2].map(i => <PkgSkeleton key={i} />)
+                            : packages.map((pkg, i) => {
+                                const meta = PKG_META[pkg.id] ?? PKG_META.setup;
+                                return (
+                                    <motion.div
+                                        key={pkg.id}
+                                        className={`dl-pkg-card${pkg.available ? ' dl-pkg-card--active' : ''}`}
+                                        style={{ '--pkg-color': meta.color } as React.CSSProperties}
+                                        initial={{ opacity: 0, y: 28 }} whileInView={{ opacity: 1, y: 0 }}
+                                        viewport={{ once: true, amount: 0.2 }} transition={{ delay: i * 0.12, duration: 0.5 }}
                                     >
-                                        <IoDownloadOutline size={16} /> {pkg.btnLabel}
-                                    </a>
-                                ) : (
-                                    <span className="dl-pkg-card__btn dl-pkg-card__btn--soon">
-                                        🚧 {pkg.btnLabel}
-                                    </span>
-                                )}
-                            </motion.div>
-                        ))}
+                                        <div className="dl-pkg-card__icon">{meta.icon}</div>
+                                        <h3 className="dl-pkg-card__title">{pkg.label}</h3>
+                                        <p className="dl-pkg-card__desc">{pkg.desc}</p>
+                                        <div className="dl-pkg-card__size">{pkg.size}</div>
+                                        <ul className="dl-pkg-card__features">
+                                            {meta.features.map(f => <li key={f}><IoCheckmark size={12} /> {f}</li>)}
+                                        </ul>
+                                        {pkg.available && pkg.href ? (
+                                            <a href={pkg.href} className="dl-pkg-card__btn dl-pkg-card__btn--active" download>
+                                                <IoDownloadOutline size={16} /> Unduh {pkg.label}
+                                            </a>
+                                        ) : (
+                                            <span className="dl-pkg-card__btn dl-pkg-card__btn--soon">🚧 Segera Hadir</span>
+                                        )}
+                                    </motion.div>
+                                );
+                            })
+                        }
                     </div>
                 </div>
             </section>
@@ -197,14 +132,9 @@ export default function Download() {
                     <h2 className="dl-section-title">Cara Install</h2>
                     <div className="dl-steps-grid">
                         {STEPS.map((s, i) => (
-                            <motion.div
-                                key={s.num}
-                                className="dl-step-card"
-                                initial={{ opacity: 0, y: 20 }}
-                                whileInView={{ opacity: 1, y: 0 }}
-                                viewport={{ once: true, amount: 0.3 }}
-                                transition={{ delay: i * 0.15, duration: 0.5 }}
-                            >
+                            <motion.div key={s.num} className="dl-step-card"
+                                initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }}
+                                viewport={{ once: true, amount: 0.3 }} transition={{ delay: i * 0.15, duration: 0.5 }}>
                                 <span className="dl-step-card__num">{s.num}</span>
                                 <h3 className="dl-step-card__title">{s.title}</h3>
                                 <p className="dl-step-card__desc">{s.desc}</p>
@@ -221,19 +151,13 @@ export default function Download() {
                     <h2 className="dl-section-title">Spesifikasi Komputer TalesRunner</h2>
                     <div className="dl-specs-table">
                         <div className="dl-specs-table__head">
-                            <span>Barang</span>
-                            <span>Spesifikasi Minimum</span>
-                            <span>Spesifikasi yang Direkomendasikan</span>
+                            <span>Barang</span><span>Spesifikasi Minimum</span><span>Spesifikasi yang Direkomendasikan</span>
                         </div>
                         {SPECS.map(s => (
                             <div key={s.label} className="dl-specs-table__row">
-                                <span className="dl-specs-table__label">
-                                    {s.icon} {s.label}
-                                </span>
+                                <span className="dl-specs-table__label">{s.icon} {s.label}</span>
                                 {s.same ? (
-                                    <span className="dl-specs-table__colspan" style={{ gridColumn: '2 / 4' }}>
-                                        {s.min}
-                                    </span>
+                                    <span className="dl-specs-table__colspan" style={{ gridColumn: '2 / 4' }}>{s.min}</span>
                                 ) : (
                                     <>
                                         <span style={{ whiteSpace: 'pre-line' }}>{s.min}</span>
@@ -253,22 +177,12 @@ export default function Download() {
                     <h2 className="dl-section-title">Unduh Driver</h2>
                     <div className="dl-driver-grid">
                         {DRIVERS.map((d, i) => (
-                            <motion.a
-                                key={d.id}
-                                href={d.href}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="dl-driver-card"
-                                initial={{ opacity: 0, y: 20 }}
-                                whileInView={{ opacity: 1, y: 0 }}
-                                viewport={{ once: true, amount: 0.3 }}
-                                transition={{ delay: i * 0.1, duration: 0.4 }}
-                            >
+                            <motion.a key={d.id} href={d.href} target="_blank" rel="noopener noreferrer" className="dl-driver-card"
+                                initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }}
+                                viewport={{ once: true, amount: 0.3 }} transition={{ delay: i * 0.1, duration: 0.4 }}>
                                 <span className={`dl-driver-card__logo ${d.logoClass}`}>{d.logo}</span>
                                 <p className="dl-driver-card__name">{d.logo}</p>
-                                <span className="dl-driver-card__btn">
-                                    <IoDownloadOutline size={14} /> Unduh
-                                </span>
+                                <span className="dl-driver-card__btn"><IoDownloadOutline size={14} /> Unduh</span>
                             </motion.a>
                         ))}
                     </div>
@@ -281,16 +195,14 @@ export default function Download() {
                 </div>
             </section>
 
-            {/* CTA banner */}
+            {/* CTA */}
             <section className="dl-cta">
                 <div className="dl-section-inner dl-cta__inner">
                     <div>
                         <h2 className="dl-cta__title">Siap Berlari? 🏆</h2>
                         <p className="dl-cta__desc">Bergabunglah dengan komunitas Tales Hero Indonesia sekarang!</p>
                     </div>
-                    <button className="game-cta-btn" onClick={() => setLocation('/')}>
-                        Kembali ke Beranda
-                    </button>
+                    <button className="game-cta-btn" onClick={() => setLocation('/')}>Kembali ke Beranda</button>
                 </div>
             </section>
 

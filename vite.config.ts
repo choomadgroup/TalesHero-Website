@@ -11,6 +11,9 @@ import {
   adminLogin, adminLogout, adminMe,
   adminGetAll, adminCreate, adminUpdate, adminDelete,
 } from './server/news.js';
+import {
+  publicGetDownloads, adminGetDownloads, adminUpdateDownload,
+} from './server/downloads.js';
 import changePassword from './server/auth/change-password.js';
 import updateProfile from './server/auth/update-profile.js';
 import forgotPassword from './server/auth/forgot-password.js';
@@ -353,6 +356,26 @@ const apiPlugin = {
         res.setHeader('Content-Type', 'application/json');
         res.end(JSON.stringify({ message: 'Server error' }));
       }
+    });
+
+    // ── Downloads (public) ───────────────────────────────────────────────────
+    server.middlewares.use('/api/downloads', async (req: any, res: any, next: any) => {
+      if (req.method !== 'GET') { next(); return; }
+      try { await publicGetDownloads(req, res); }
+      catch (e) { res.statusCode = 500; res.setHeader('Content-Type','application/json'); res.end(JSON.stringify({message:'Server error'})); }
+    });
+
+    // ── Admin downloads CRUD ─────────────────────────────────────────────────
+    server.middlewares.use('/api/admin/downloads', async (req: any, res: any, next: any) => {
+      const pkgId = (req.url ?? '').split('?')[0].replace(/^\//, '').split('/')[0] || null;
+      try {
+        req.body = req.method === 'PUT' ? await parseBody(req) : undefined;
+        if (pkgId && req.method === 'PUT') {
+          await adminUpdateDownload(req, res, pkgId);
+        } else if (!pkgId && req.method === 'GET') {
+          await adminGetDownloads(req, res);
+        } else { next(); }
+      } catch (e) { res.statusCode = 500; res.setHeader('Content-Type','application/json'); res.end(JSON.stringify({message:'Server error'})); }
     });
 
     // ── Admin auth ────────────────────────────────────────────────────────────
