@@ -15,7 +15,7 @@ import GuidesPengantar from '@/Pages/Guides/Pengantar';
 import GuidesKarakter from '@/Pages/Guides/Karakter';
 import NewsListPage from '@/Pages/News/NewsListPage';
 import NewsArticlePage from '@/Pages/News/NewsArticlePage';
-import AdminPage from '@/Pages/Admin';
+import AdminPage from '@/Pages/News/Admin/Admin';
 import NotFound from '@/Pages/Not-Found';
 
 function Router() {
