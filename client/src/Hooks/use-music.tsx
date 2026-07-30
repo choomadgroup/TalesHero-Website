@@ -15,7 +15,7 @@ export function MusicProvider({ children }: { children: ReactNode }) {
 
     const getAudio = () => {
         if (audioRef.current) return audioRef.current;
-        const audio = new Audio(asset('/Sound/Talesrunner soundtrack 01 - Park & Farm.mp3'));
+        const audio = new Audio(asset('/Sound/BGM Tales Hero Indonesia.mp3'));
         audio.loop   = true;
         audio.volume = 0.4;
         audioRef.current = audio;
