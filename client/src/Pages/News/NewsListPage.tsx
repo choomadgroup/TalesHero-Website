@@ -243,11 +243,11 @@ export default function NewsListPage() {
                                 variants={fadeUp} initial="hidden" animate="show">
                                 <div className="nl-empty__icon"><BsNewspaper size={28} /></div>
                                 <p className="nl-empty__title">
-                                    {articles.length === 0 ? 'Belum ada artikel' : 'Tidak ada hasil ditemukan'}
+                                    {articles.length === 0 ? 'Belum ada Artikel' : 'Tidak ada hasil ditemukan'}
                                 </p>
                                 <p className="nl-empty__hint">
                                     {articles.length === 0
-                                        ? 'Artikel akan muncul di sini setelah ditambahkan dari admin panel.'
+                                        ? 'Halaman ini belum memiliki artikel.'
                                         : 'Coba kata kunci atau kategori yang berbeda.'}
                                 </p>
                                 {(query || activeCategory) && (

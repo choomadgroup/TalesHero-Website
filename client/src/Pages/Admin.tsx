@@ -138,7 +138,7 @@ function ArticleEditor({ initial, onSave, onCancel }: {
       <div className="admin-topbar">
         <h1>{initial ? 'Edit Artikel' : 'Artikel Baru'}</h1>
         <div className="admin-topbar__actions">
-          <button className="admin-btn admin-btn--ghost" onClick={onCancel} disabled={saving}>← Kembali</button>
+          <button className="admin-btn admin-btn--ghost" onClick={onCancel} disabled={saving}>Kembali</button>
         </div>
       </div>
 
