@@ -15,6 +15,12 @@ import turnstileConfig from './auth/turnstile-config.js';
 import stats    from './stats.js';
 import { migrate } from './db.js';
 import { applySecurityHeaders } from './security.js';
+import { connectMongoDB } from './mongodb.js';
+import {
+  publicGetNews, publicGetArticle,
+  adminLogin, adminLogout, adminMe,
+  adminGetAll, adminCreate, adminUpdate, adminDelete,
+} from './news.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const publicDir = path.resolve(__dirname, '..', 'dist', 'public');
@@ -56,6 +62,23 @@ app.post('/auth/update-profile', updateProfile);
 app.post('/auth/forgot-password', forgotPassword);
 app.post('/auth/email-reset-password', emailResetPassword);
 app.post('/auth/forgot-security-question', forgotSecurityQuestion);
+
+// ── News API (public) ─────────────────────────────────────────────────────────
+app.get('/api/news', publicGetNews);
+app.get('/api/news/:category/:slug', (req, res) =>
+  publicGetArticle(req, res, req.params.category, req.params.slug)
+);
+
+// ── Admin auth ────────────────────────────────────────────────────────────────
+app.post('/api/admin/login',  adminLogin);
+app.post('/api/admin/logout', adminLogout);
+app.get('/api/admin/me',      adminMe);
+
+// ── Admin news CRUD ───────────────────────────────────────────────────────────
+app.get('/api/admin/news',         adminGetAll);
+app.post('/api/admin/news',        adminCreate);
+app.put('/api/admin/news/:id',     (req, res) => adminUpdate(req, res, req.params.id));
+app.delete('/api/admin/news/:id',  (req, res) => adminDelete(req, res, req.params.id));
 
 // ── Per-route OG meta injection ─────────────────────────────────────────────
 const OG_IMAGE = 'https://taleshero.web.id/Image/tales-hero-banner.png';
@@ -104,6 +127,8 @@ app.use((req, res) => {
 migrate()
   .then(() => console.log('[Database] tales_hero_web_users sukses terhubung.'))
   .catch(err => console.error('[Database] migrate error:', err.message));
+
+connectMongoDB().catch(err => console.error('[MongoDB] startup error:', err.message));
 
 app.listen(port, '0.0.0.0', () => {
   console.log(`Tales Hero production server listening on port ${port}`);

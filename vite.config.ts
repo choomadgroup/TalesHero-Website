@@ -9,6 +9,12 @@ import remarkGfm from 'remark-gfm';
 import register from './server/auth/register.js';
 import stats    from './server/stats.js';
 import login from './server/auth/login.js';
+import { connectMongoDB } from './server/mongodb.js';
+import {
+  publicGetNews, publicGetArticle,
+  adminLogin, adminLogout, adminMe,
+  adminGetAll, adminCreate, adminUpdate, adminDelete,
+} from './server/news.js';
 import changePassword from './server/auth/change-password.js';
 import updateProfile from './server/auth/update-profile.js';
 import forgotPassword from './server/auth/forgot-password.js';
@@ -223,6 +229,9 @@ const apiPlugin = {
       }
     }
 
+    // MongoDB (berita) — opsional, startup tidak gagal jika MONGODB_URI tidak ada
+    await connectMongoDB();
+
     server.middlewares.use('/auth/register', async (req: any, res: any, next: any) => {
       if (req.method !== 'POST') { next(); return; }
       try {
@@ -314,6 +323,64 @@ const apiPlugin = {
         }
       });
     }
+
+    // ── News API (public) ────────────────────────────────────────────────────
+    server.middlewares.use('/api/news', async (req: any, res: any, next: any) => {
+      if (req.method !== 'GET') { next(); return; }
+      const parts = (req.url ?? '').split('?')[0].replace(/^\//, '').split('/');
+      try {
+        if (parts.length >= 2 && parts[0] && parts[1]) {
+          await publicGetArticle(req, res, parts[0], parts[1]);
+        } else {
+          await publicGetNews(req, res);
+        }
+      } catch (e) {
+        res.statusCode = 500;
+        res.setHeader('Content-Type', 'application/json');
+        res.end(JSON.stringify({ message: 'Server error' }));
+      }
+    });
+
+    // ── Admin auth ────────────────────────────────────────────────────────────
+    server.middlewares.use('/api/admin/login', async (req: any, res: any, next: any) => {
+      if (req.method !== 'POST') { next(); return; }
+      try { req.body = await parseBody(req); adminLogin(req, res); }
+      catch (e) { res.statusCode = 500; res.setHeader('Content-Type','application/json'); res.end(JSON.stringify({message:'Server error'})); }
+    });
+    server.middlewares.use('/api/admin/logout', async (req: any, res: any, next: any) => {
+      if (req.method !== 'POST') { next(); return; }
+      try { adminLogout(req, res); }
+      catch (e) { res.statusCode = 500; res.setHeader('Content-Type','application/json'); res.end(JSON.stringify({message:'Server error'})); }
+    });
+    server.middlewares.use('/api/admin/me', async (req: any, res: any, next: any) => {
+      if (req.method !== 'GET') { next(); return; }
+      try { adminMe(req, res); }
+      catch (e) { res.statusCode = 500; res.setHeader('Content-Type','application/json'); res.end(JSON.stringify({message:'Server error'})); }
+    });
+
+    // ── Admin news CRUD ───────────────────────────────────────────────────────
+    server.middlewares.use('/api/admin/news', async (req: any, res: any, next: any) => {
+      const urlPath = (req.url ?? '').split('?')[0];
+      // /api/admin/news/<id>
+      const idMatch = urlPath.match(/^\/([a-f0-9]{24})$/i);
+      const id = idMatch ? idMatch[1] : null;
+      try {
+        req.body = ['POST', 'PUT', 'PATCH'].includes(req.method) ? await parseBody(req) : undefined;
+        if (id) {
+          if      (req.method === 'PUT'   || req.method === 'PATCH') await adminUpdate(req, res, id);
+          else if (req.method === 'DELETE') await adminDelete(req, res, id);
+          else next();
+        } else {
+          if      (req.method === 'GET')  await adminGetAll(req, res);
+          else if (req.method === 'POST') await adminCreate(req, res);
+          else next();
+        }
+      } catch (e) {
+        res.statusCode = 500;
+        res.setHeader('Content-Type', 'application/json');
+        res.end(JSON.stringify({ message: 'Server error' }));
+      }
+    });
   },
 };
 

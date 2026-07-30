@@ -6,3 +6,4 @@
 - [Public source protection](public-source-protection.md) — direct source/config/backend paths must return 404 while Vite module loading continues
 - [Cloudflare deploy compatibility](cloudflare-deploy-compatibility.md) — pin Wrangler to a Node 20-compatible major while the project engine remains Node 20
 - [Tales Hero email startup](taleshero-email-startup.md) — initialize Resend only when sending so an optional missing key cannot block Vite startup
+- [Tales Hero admin dashboard](taleshero-admin-dashboard.md) — admin news CRUD built; needs MONGODB_URI + ADMIN_PASSWORD secrets to activate persistence
