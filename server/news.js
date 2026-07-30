@@ -33,7 +33,7 @@ export async function publicGetNews(req, res) {
   try {
     const articles = await NewsArticle
       .find({ published: true })
-      .select('title slug category excerpt coverUrl readTime publishedAt createdAt')
+      .select('title slug category tags excerpt coverUrl readTime publishedAt createdAt viewCount reactions')
       .sort({ publishedAt: -1, createdAt: -1 })
       .lean();
     json(res, 200, articles);
@@ -51,6 +51,43 @@ export async function publicGetArticle(req, res, category, slug) {
     json(res, 200, article);
   } catch (err) {
     console.error('[news] publicGetArticle:', err.message);
+    json(res, 500, { message: 'Server error' });
+  }
+}
+
+export async function publicTrackView(req, res, category, slug) {
+  if (!isMongoConnected()) { json(res, 200, { viewCount: 0 }); return; }
+  try {
+    const article = await NewsArticle.findOneAndUpdate(
+      { category, slug, published: true },
+      { $inc: { viewCount: 1 } },
+      { returnDocument: 'after', select: 'viewCount' },
+    ).lean();
+    if (!article) { json(res, 404, { message: 'Not found' }); return; }
+    json(res, 200, { viewCount: article.viewCount ?? 0 });
+  } catch (err) {
+    console.error('[news] publicTrackView:', err.message);
+    json(res, 500, { message: 'Server error' });
+  }
+}
+
+export async function publicReact(req, res, category, slug, body) {
+  if (!isMongoConnected()) { json(res, 200, { reactions: { thumbsUp: 0, heart: 0 } }); return; }
+  const type = body?.type;
+  if (type !== 'thumbsUp' && type !== 'heart') {
+    json(res, 400, { message: 'type harus thumbsUp atau heart' }); return;
+  }
+  try {
+    const inc = { [`reactions.${type}`]: 1 };
+    const article = await NewsArticle.findOneAndUpdate(
+      { category, slug, published: true },
+      { $inc: inc },
+      { returnDocument: 'after', select: 'reactions' },
+    ).lean();
+    if (!article) { json(res, 404, { message: 'Not found' }); return; }
+    json(res, 200, { reactions: article.reactions ?? { thumbsUp: 0, heart: 0 } });
+  } catch (err) {
+    console.error('[news] publicReact:', err.message);
     json(res, 500, { message: 'Server error' });
   }
 }
@@ -102,7 +139,7 @@ export async function adminCreate(req, res) {
   if (!isAdminAuthenticated(req)) { json(res, 401, { message: 'Unauthorized' }); return; }
   if (!isMongoConnected()) { json(res, 503, { message: 'MongoDB not connected' }); return; }
   try {
-    const { title, slug, category, content, excerpt, coverUrl, published } = req.body ?? {};
+    const { title, slug, category, tags, content, excerpt, coverUrl, published } = req.body ?? {};
     if (!title || !category || !content || !excerpt) {
       json(res, 400, { message: 'title, category, content, excerpt wajib diisi' }); return;
     }
@@ -110,6 +147,7 @@ export async function adminCreate(req, res) {
       title,
       slug:        slug || slugify(title),
       category,
+      tags:        Array.isArray(tags) ? tags : (tags ? [tags] : []),
       content,
       excerpt,
       coverUrl:    coverUrl || null,
@@ -134,6 +172,9 @@ export async function adminUpdate(req, res, id) {
     if (updates.content) updates.readTime = estimateReadTime(updates.content);
     if (updates.published && !updates.publishedAt) updates.publishedAt = new Date();
     if (updates.published === false) updates.publishedAt = null;
+    if (updates.tags !== undefined) {
+      updates.tags = Array.isArray(updates.tags) ? updates.tags : (updates.tags ? [updates.tags] : []);
+    }
     const article = await NewsArticle.findByIdAndUpdate(id, updates, { new: true });
     if (!article) { json(res, 404, { message: 'Artikel tidak ditemukan' }); return; }
     json(res, 200, article);

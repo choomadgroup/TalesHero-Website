@@ -5,12 +5,18 @@ const schema = new mongoose.Schema(
     title:       { type: String, required: true },
     slug:        { type: String, required: true, unique: true },
     category:    { type: String, enum: ['update', 'info', 'maintenance'], required: true },
+    tags:        { type: [String], default: [] },
     content:     { type: String, required: true },
     excerpt:     { type: String, required: true },
     coverUrl:    { type: String, default: null },
     readTime:    { type: Number, default: 1 },
     published:   { type: Boolean, default: false },
     publishedAt: { type: Date, default: null },
+    viewCount:   { type: Number, default: 0 },
+    reactions:   {
+      thumbsUp: { type: Number, default: 0 },
+      heart:    { type: Number, default: 0 },
+    },
   },
   { timestamps: true },
 );

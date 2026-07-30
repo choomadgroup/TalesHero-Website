@@ -1,8 +1,10 @@
+import { useEffect, useRef, useState } from "react";
 import { useLocation, useParams } from "wouter";
 import { usePageMeta } from "@/Hooks/use-page-meta";
 import Header from "@/Components/Header";
 import Footer from "@/Components/Footer";
-import { useApiNewsArticle } from "@/Hooks/use-news";
+import { useApiNewsArticle, trackView, sendReaction } from "@/Hooks/use-news";
+import type { NewsReactions } from "@/Hooks/use-news";
 import {
     CATEGORY_LABELS,
     CATEGORY_COLORS,
@@ -14,9 +16,16 @@ import {
     HiCalendar,
     HiClock,
     HiGlobe,
+    HiEye,
 } from "react-icons/hi";
 import { HiChevronDown } from "react-icons/hi";
 import { MdUpdate, MdInfoOutline, MdBuildCircle } from "react-icons/md";
+import {
+    BsHandThumbsUp, BsHandThumbsUpFill,
+    BsHeart, BsHeartFill,
+    BsShare, BsLink45Deg, BsCheckLg,
+    BsTwitterX, BsWhatsapp,
+} from "react-icons/bs";
 
 const CATEGORY_ICONS: Record<NewsCategory, React.ReactNode> = {
     update: <MdUpdate size={13} />,
@@ -24,18 +33,12 @@ const CATEGORY_ICONS: Record<NewsCategory, React.ReactNode> = {
     maintenance: <MdBuildCircle size={13} />,
 };
 
+const LS_KEY = (slug: string) => `news_reacted_${slug}`;
+
 // ── Skeleton ──────────────────────────────────────────────────────────────────
 function ArticleSkeleton() {
     const bar = (w: string, h: number, mb = 12) => (
-        <div
-            style={{
-                height: h,
-                width: w,
-                borderRadius: 6,
-                background: "rgba(0,0,0,0.06)",
-                marginBottom: mb,
-            }}
-        />
+        <div style={{ height: h, width: w, borderRadius: 6, background: "rgba(0,0,0,0.06)", marginBottom: mb }} />
     );
     return (
         <>
@@ -47,16 +50,8 @@ function ArticleSkeleton() {
                         {bar("80%", 32, 14)}
                         {bar("60%", 32, 28)}
                         {bar("30%", 13, 36)}
-                        <div
-                            style={{
-                                height: 1,
-                                background: "rgba(0,0,0,0.07)",
-                                marginBottom: 32,
-                            }}
-                        />
-                        {[...Array(6)].map((_, i) =>
-                            bar(i % 3 === 2 ? "70%" : "100%", 14, 10),
-                        )}
+                        <div style={{ height: 1, background: "rgba(0,0,0,0.07)", marginBottom: 32 }} />
+                        {[...Array(6)].map((_, i) => bar(i % 3 === 2 ? "70%" : "100%", 14, 10))}
                     </div>
                 </div>
             </div>
@@ -70,24 +65,66 @@ export default function NewsArticlePage() {
     const [, setLocation] = useLocation();
     const { category, slug } = useParams<{ category: string; slug: string }>();
 
-    const { article, loading, notFound } = useApiNewsArticle(
-        category ?? "",
-        slug ?? "",
-    );
+    const { article, loading, notFound } = useApiNewsArticle(category ?? "", slug ?? "");
+
+    // ── View count ────────────────────────────────────────────────────────────
+    const [viewCount, setViewCount] = useState<number | null>(null);
+    const viewTracked = useRef(false);
+    useEffect(() => {
+        if (!article || viewTracked.current) return;
+        viewTracked.current = true;
+        trackView(article.category, article.slug).then(setViewCount);
+    }, [article]);
+
+    // ── Reactions ─────────────────────────────────────────────────────────────
+    const [reactions, setReactions] = useState<NewsReactions>({ thumbsUp: 0, heart: 0 });
+    const [reacted, setReacted] = useState<{ thumbsUp: boolean; heart: boolean }>({ thumbsUp: false, heart: false });
+    const [reactLoading, setReactLoading] = useState<'thumbsUp' | 'heart' | null>(null);
+
+    useEffect(() => {
+        if (!article) return;
+        if (article.reactions) setReactions(article.reactions);
+        try {
+            const saved = JSON.parse(localStorage.getItem(LS_KEY(article.slug)) ?? '{}');
+            setReacted(saved);
+        } catch { /* ignore */ }
+    }, [article]);
+
+    const handleReact = async (type: 'thumbsUp' | 'heart') => {
+        if (!article || reacted[type] || reactLoading) return;
+        setReactLoading(type);
+        const updated = await sendReaction(article.category, article.slug, type);
+        setReactions(updated);
+        const next = { ...reacted, [type]: true };
+        setReacted(next);
+        try { localStorage.setItem(LS_KEY(article.slug), JSON.stringify(next)); } catch { /* ignore */ }
+        setReactLoading(null);
+    };
+
+    // ── Share ─────────────────────────────────────────────────────────────────
+    const [copied, setCopied] = useState(false);
+    const handleCopy = async () => {
+        try { await navigator.clipboard.writeText(window.location.href); } catch { /* ignore */ }
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
+    };
+    const handleWhatsApp = () => {
+        window.open(`https://wa.me/?text=${encodeURIComponent(window.location.href)}`, '_blank');
+    };
+    const handleTwitter = () => {
+        const text = article ? `${article.title} — Tales Hero Indonesia` : 'Tales Hero Indonesia';
+        window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(window.location.href)}`, '_blank');
+    };
 
     usePageMeta({
         title: article
             ? `${article.title} — Tales Hero Indonesia`
-            : notFound
-              ? "Artikel Tidak Ditemukan"
-              : "Memuat… — Tales Hero Indonesia",
+            : notFound ? "Artikel Tidak Ditemukan" : "Memuat… — Tales Hero Indonesia",
         description: article?.excerpt ?? "",
     });
 
-    // Loading skeleton
     if (loading) return <ArticleSkeleton />;
 
-    // Not found
     if (notFound || !article) {
         return (
             <>
@@ -96,13 +133,8 @@ export default function NewsArticlePage() {
                     <div className="news-page__content news-notfound">
                         <HiNewspaper size={48} />
                         <h2>Artikel tidak ditemukan</h2>
-                        <p>
-                            Artikel yang kamu cari tidak ada atau sudah dihapus.
-                        </p>
-                        <button
-                            className="news-back-btn"
-                            onClick={() => setLocation("/news")}
-                        >
+                        <p>Artikel yang kamu cari tidak ada atau sudah dihapus.</p>
+                        <button className="news-back-btn" onClick={() => setLocation("/news")}>
                             Kembali ke News
                         </button>
                     </div>
@@ -112,8 +144,8 @@ export default function NewsArticlePage() {
         );
     }
 
-    const badgeColor =
-        CATEGORY_COLORS[article.category as NewsCategory] ?? "#fab005";
+    const badgeColor = CATEGORY_COLORS[article.category as NewsCategory] ?? "#fab005";
+    const liveViews = viewCount ?? article.viewCount ?? 0;
 
     const handleTranslate = () => {
         const url = `https://translate.google.com/translate?hl=id&sl=id&tl=en&u=${encodeURIComponent(window.location.href)}`;
@@ -126,11 +158,8 @@ export default function NewsArticlePage() {
             <div className="news-page">
                 <div className="news-article">
                     {/* Back */}
-                    <button
-                        className="news-back-link"
-                        onClick={() => setLocation("/news")}
-                    >
-                        Kembali ke News
+                    <button className="news-back-link" onClick={() => setLocation("/news")}>
+                        ← Kembali ke News
                     </button>
 
                     {/* Cover image */}
@@ -142,19 +171,19 @@ export default function NewsArticlePage() {
 
                     {/* Header */}
                     <div className="na-header">
-                        <span
-                            className="na-badge"
-                            style={
-                                {
-                                    "--badge-color": badgeColor,
-                                } as React.CSSProperties
-                            }
-                        >
-                            {CATEGORY_ICONS[article.category as NewsCategory]}
-                            {CATEGORY_LABELS[
-                                article.category as NewsCategory
-                            ] ?? article.category}
-                        </span>
+                        <div className="na-header__top">
+                            <span className="na-badge" style={{ "--badge-color": badgeColor } as React.CSSProperties}>
+                                {CATEGORY_ICONS[article.category as NewsCategory]}
+                                {CATEGORY_LABELS[article.category as NewsCategory] ?? article.category}
+                            </span>
+                            {(article.tags ?? []).length > 0 && (
+                                <div className="na-tags">
+                                    {article.tags!.map(tag => (
+                                        <span key={tag} className="na-tag">#{tag}</span>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
 
                         <h1 className="na-title">{article.title}</h1>
 
@@ -165,9 +194,7 @@ export default function NewsArticlePage() {
                         <div className="na-meta">
                             <span className="na-meta__item">
                                 <HiCalendar size={14} />
-                                {formatDate(
-                                    article.publishedAt ?? article.createdAt,
-                                )}
+                                {formatDate(article.publishedAt ?? article.createdAt)}
                             </span>
                             {article.readTime && (
                                 <span className="na-meta__item">
@@ -175,12 +202,14 @@ export default function NewsArticlePage() {
                                     {article.readTime} menit baca
                                 </span>
                             )}
-                            <button
-                                className="na-meta__translate"
-                                onClick={handleTranslate}
-                            >
-                                <HiGlobe size={14} /> Terjemahkan{" "}
-                                <HiChevronDown size={12} />
+                            {liveViews > 0 && (
+                                <span className="na-meta__item">
+                                    <HiEye size={14} />
+                                    {liveViews.toLocaleString('id-ID')} dilihat
+                                </span>
+                            )}
+                            <button className="na-meta__translate" onClick={handleTranslate}>
+                                <HiGlobe size={14} /> Terjemahkan <HiChevronDown size={12} />
                             </button>
                         </div>
 
@@ -190,10 +219,55 @@ export default function NewsArticlePage() {
                     {/* Markdown content */}
                     <div
                         className="news-prose"
-                        dangerouslySetInnerHTML={{
-                            __html: renderMarkdown(article.content ?? ""),
-                        }}
+                        dangerouslySetInnerHTML={{ __html: renderMarkdown(article.content ?? "") }}
                     />
+
+                    {/* ── Reactions + Share ───────────────────────────────── */}
+                    <div className="na-footer">
+                        <div className="na-reactions">
+                            <span className="na-reactions__label">Artikel ini membantu?</span>
+                            <div className="na-reactions__btns">
+                                <button
+                                    className={`na-react-btn${reacted.thumbsUp ? ' na-react-btn--active' : ''}`}
+                                    onClick={() => handleReact('thumbsUp')}
+                                    disabled={reacted.thumbsUp || reactLoading === 'thumbsUp'}
+                                    title="Suka"
+                                >
+                                    {reacted.thumbsUp
+                                        ? <BsHandThumbsUpFill size={17} />
+                                        : <BsHandThumbsUp size={17} />}
+                                    <span>{reactions.thumbsUp}</span>
+                                </button>
+                                <button
+                                    className={`na-react-btn na-react-btn--heart${reacted.heart ? ' na-react-btn--active' : ''}`}
+                                    onClick={() => handleReact('heart')}
+                                    disabled={reacted.heart || reactLoading === 'heart'}
+                                    title="Suka banget"
+                                >
+                                    {reacted.heart
+                                        ? <BsHeartFill size={16} />
+                                        : <BsHeart size={16} />}
+                                    <span>{reactions.heart}</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div className="na-share">
+                            <span className="na-share__label"><BsShare size={13} /> Bagikan</span>
+                            <div className="na-share__btns">
+                                <button className="na-share-btn na-share-btn--copy" onClick={handleCopy} title="Salin link">
+                                    {copied ? <BsCheckLg size={14} /> : <BsLink45Deg size={16} />}
+                                    {copied ? 'Tersalin!' : 'Salin'}
+                                </button>
+                                <button className="na-share-btn na-share-btn--wa" onClick={handleWhatsApp} title="WhatsApp">
+                                    <BsWhatsapp size={15} /> WhatsApp
+                                </button>
+                                <button className="na-share-btn na-share-btn--x" onClick={handleTwitter} title="Twitter/X">
+                                    <BsTwitterX size={13} /> Twitter
+                                </button>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
             <Footer />

@@ -113,6 +113,13 @@ function ArticleCard({ a, idx, onClick }: { a: ApiNewsArticle; idx: number; onCl
                 <div className="nc-card__body">
                     <h3 className="nc-card__title">{a.title}</h3>
                     {a.excerpt && <p className="nc-card__excerpt">{a.excerpt}</p>}
+                    {(a.tags ?? []).length > 0 && (
+                        <div className="nc-card__tags">
+                            {a.tags!.slice(0, 3).map(tag => (
+                                <span key={tag} className="nc-card__tag">#{tag}</span>
+                            ))}
+                        </div>
+                    )}
                     <div className="nc-card__footer">
                         <span className="nc-cat-badge nc-cat-badge--sm"
                             style={{ '--badge-color': badgeColor } as React.CSSProperties}>

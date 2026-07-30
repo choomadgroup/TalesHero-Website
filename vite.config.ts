@@ -7,7 +7,7 @@ import stats    from './server/stats.js';
 import login from './server/auth/login.js';
 import { connectMongoDB } from './server/mongodb.js';
 import {
-  publicGetNews, publicGetArticle,
+  publicGetNews, publicGetArticle, publicTrackView, publicReact,
   adminLogin, adminLogout, adminMe,
   adminGetAll, adminCreate, adminUpdate, adminDelete,
 } from './server/news.js';
@@ -330,13 +330,23 @@ const apiPlugin = {
 
     // ── News API (public) ────────────────────────────────────────────────────
     server.middlewares.use('/api/news', async (req: any, res: any, next: any) => {
-      if (req.method !== 'GET') { next(); return; }
       const parts = (req.url ?? '').split('?')[0].replace(/^\//, '').split('/');
       try {
-        if (parts.length >= 2 && parts[0] && parts[1]) {
+        // POST /:category/:slug/view  — track view count
+        if (req.method === 'POST' && parts.length >= 3 && parts[2] === 'view') {
+          await publicTrackView(req, res, parts[0], parts[1]);
+        // POST /:category/:slug/react — thumbsUp / heart
+        } else if (req.method === 'POST' && parts.length >= 3 && parts[2] === 'react') {
+          req.body = await parseBody(req);
+          await publicReact(req, res, parts[0], parts[1], req.body);
+        // GET /:category/:slug        — single article
+        } else if (req.method === 'GET' && parts.length >= 2 && parts[0] && parts[1]) {
           await publicGetArticle(req, res, parts[0], parts[1]);
-        } else {
+        // GET /                       — article list
+        } else if (req.method === 'GET') {
           await publicGetNews(req, res);
+        } else {
+          next();
         }
       } catch (e) {
         res.statusCode = 500;

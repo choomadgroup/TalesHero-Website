@@ -5,25 +5,51 @@ import { useLocation } from 'wouter';
 import { IoLogoWindows, IoCheckmark, IoChevronForward, IoDownloadOutline } from 'react-icons/io5';
 import { GiProcessor, GiRam, GiVideoCamera } from 'react-icons/gi';
 import { MdComputer, MdMemory } from 'react-icons/md';
+import { BsBoxSeam, BsHddStack, BsPatchCheck } from 'react-icons/bs';
 import Header from '../Components/Header';
 import Footer from '../Components/Footer';
 
-const PLATFORMS = [
+const PACKAGES = [
     {
-        id: 'windows',
-        icon: <IoLogoWindows size={40} />,
-        label: 'Windows PC',
-        version: 'Versi 1.0.0',
-        size: '1.2 GB',
-        btn: 'Unduh Sekarang',
-        color: '#0078d4',
+        id: 'setup',
+        icon: <BsBoxSeam size={28} />,
+        label: 'File Setup',
+        desc: 'Installer lengkap untuk instalasi pertama kali. Cocok untuk pemain baru.',
+        size: '~500 MB',
+        features: ['Installer otomatis', 'Semua file game', 'Langsung bisa main'],
         available: true,
+        href: '#',  // ganti dengan URL download file setup
+        btnLabel: 'Unduh Setup',
+        color: '#fab005',
+    },
+    {
+        id: 'fullclient',
+        icon: <BsHddStack size={28} />,
+        label: 'Full Client',
+        desc: 'Paket lengkap tanpa installer. Ekstrak dan langsung jalankan.',
+        size: '~1.2 GB',
+        features: ['Tanpa installer', 'Portable', 'Ideal untuk reinstall'],
+        available: false,
         href: '#',
+        btnLabel: 'Segera Hadir',
+        color: '#4dabf7',
+    },
+    {
+        id: 'patch',
+        icon: <BsPatchCheck size={28} />,
+        label: 'Manual Patch',
+        desc: 'Patch terbaru untuk pemain yang sudah punya game sebelumnya.',
+        size: '~50 MB',
+        features: ['Update incremental', 'Ukuran kecil', 'Hanya file terbaru'],
+        available: false,
+        href: '#',
+        btnLabel: 'Segera Hadir',
+        color: '#69db7c',
     },
 ];
 
 const STEPS = [
-    { num: '01', title: 'Unduh File', desc: 'Pilih platform kamu dan klik tombol unduh.' },
+    { num: '01', title: 'Unduh File', desc: 'Pilih paket yang sesuai dan klik tombol unduh.' },
     { num: '02', title: 'Install Game', desc: 'Buka file installer dan ikuti langkah-langkah pemasangan.' },
     { num: '03', title: 'Mulai Bermain!', desc: 'Buat akun, pilih karakter, dan mulai petualanganmu!' },
 ];
@@ -64,30 +90,10 @@ const SPECS = [
 ];
 
 const DRIVERS = [
-    {
-        id: 'nvidia',
-        logo: 'NVIDIA',
-        logoClass: 'dl-driver-card__logo--nvidia',
-        href: 'https://www.nvidia.com/Download/index.aspx',
-    },
-    {
-        id: 'amd',
-        logo: 'AMD',
-        logoClass: 'dl-driver-card__logo--amd',
-        href: 'https://www.amd.com/en/support',
-    },
-    {
-        id: 'intel',
-        logo: 'intel',
-        logoClass: 'dl-driver-card__logo--intel',
-        href: 'https://www.intel.com/content/www/us/en/download-center/home.html',
-    },
-    {
-        id: 'directx',
-        logo: 'DirectX',
-        logoClass: 'dl-driver-card__logo--directx',
-        href: 'https://www.microsoft.com/en-us/download/details.aspx?id=35',
-    },
+    { id: 'nvidia',  logo: 'NVIDIA',  logoClass: 'dl-driver-card__logo--nvidia',  href: 'https://www.nvidia.com/Download/index.aspx' },
+    { id: 'amd',     logo: 'AMD',     logoClass: 'dl-driver-card__logo--amd',     href: 'https://www.amd.com/en/support' },
+    { id: 'intel',   logo: 'intel',   logoClass: 'dl-driver-card__logo--intel',   href: 'https://www.intel.com/content/www/us/en/download-center/home.html' },
+    { id: 'directx', logo: 'DirectX', logoClass: 'dl-driver-card__logo--directx', href: 'https://www.microsoft.com/en-us/download/details.aspx?id=35' },
 ];
 
 const FEATURES = ['Gratis Dimainkan', 'Update Rutin', 'Anti-Cheat System', 'Khusus Windows PC', 'Event Mingguan'];
@@ -139,57 +145,49 @@ export default function Download() {
                 </div>
             </section>
 
-            {/* Download banner */}
-            <section className="dl-banner">
+            {/* Download packages */}
+            <section className="dl-packages">
                 <div className="dl-section-inner">
-                    <motion.div
-                        className="dl-banner__card"
-                        initial={{ opacity: 0, y: 30 }}
-                        whileInView={{ opacity: 1, y: 0 }}
-                        viewport={{ once: true, amount: 0.2 }}
-                        transition={{ duration: 0.55 }}
-                    >
-                        {/* characters — left panel */}
-                        <div className="dl-banner__chars">
-                            <motion.img
-                                src={asset("/Image/Other/obj-thi-001.png")}
-                                alt="Tales Hero Indonesia"
-                                className="dl-banner__char dl-banner__char--front"
-                                initial={{ opacity: 0, x: -20 }}
-                                whileInView={{ opacity: 1, x: 0 }}
-                                viewport={{ once: true }}
-                                transition={{ duration: 0.6, delay: 0.1 }}
-                                animate={{ y: [0, -14, 0] }}
-                            />
-                        </div>
-
-                        {/* content — right panel */}
-                        <div className="dl-banner__content">
-                            <span className="dl-banner__eyebrow">
-                                <IoLogoWindows size={14} /> Windows PC Only
-                            </span>
-                            <h3 className="dl-banner__title">
-                                Unduh<br />Tales Hero<br />
-                                <em>Indonesia</em>
-                            </h3>
-                            <p className="dl-banner__sub">
-                                Game aksi petualangan gratis.<br />
-                                Segera hadir untuk PC — stay tuned!
-                            </p>
-                            <div className="dl-banner__btn">
-                                🚧&nbsp; Coming Soon
-                            </div>
-                            {/* decorative dots */}
-                            <div className="dl-banner__dots" aria-hidden>
-                                {Array.from({ length: 12 }).map((_, i) => (
-                                    <span key={i} className="dl-banner__dot" />
-                                ))}
-                            </div>
-                        </div>
-
-                        {/* accent blob */}
-                        <div className="dl-banner__blob" aria-hidden />
-                    </motion.div>
+                    <h2 className="dl-section-title">Pilih Paket Download</h2>
+                    <p className="dl-packages__sub">
+                        <IoLogoWindows size={14} /> Tersedia untuk Windows PC
+                    </p>
+                    <div className="dl-packages-grid">
+                        {PACKAGES.map((pkg, i) => (
+                            <motion.div
+                                key={pkg.id}
+                                className={`dl-pkg-card${pkg.available ? ' dl-pkg-card--active' : ''}`}
+                                style={{ '--pkg-color': pkg.color } as React.CSSProperties}
+                                initial={{ opacity: 0, y: 28 }}
+                                whileInView={{ opacity: 1, y: 0 }}
+                                viewport={{ once: true, amount: 0.2 }}
+                                transition={{ delay: i * 0.12, duration: 0.5 }}
+                            >
+                                <div className="dl-pkg-card__icon">{pkg.icon}</div>
+                                <h3 className="dl-pkg-card__title">{pkg.label}</h3>
+                                <p className="dl-pkg-card__desc">{pkg.desc}</p>
+                                <div className="dl-pkg-card__size">{pkg.size}</div>
+                                <ul className="dl-pkg-card__features">
+                                    {pkg.features.map(f => (
+                                        <li key={f}><IoCheckmark size={12} /> {f}</li>
+                                    ))}
+                                </ul>
+                                {pkg.available ? (
+                                    <a
+                                        href={pkg.href}
+                                        className="dl-pkg-card__btn dl-pkg-card__btn--active"
+                                        download
+                                    >
+                                        <IoDownloadOutline size={16} /> {pkg.btnLabel}
+                                    </a>
+                                ) : (
+                                    <span className="dl-pkg-card__btn dl-pkg-card__btn--soon">
+                                        🚧 {pkg.btnLabel}
+                                    </span>
+                                )}
+                            </motion.div>
+                        ))}
+                    </div>
                 </div>
             </section>
 
