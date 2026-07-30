@@ -56,7 +56,7 @@ export default function Announcement() {
                         )}
                         {!loading && announcements.length === 0 && (
                             <li className="ann-row" style={{ pointerEvents: 'none' }}>
-                                <span style={{ fontSize: 12, color: '#aaa' }}>Belum ada berita terbaru.</span>
+                                <span style={{ fontSize: 12, color: '#aaa', display: 'block', textAlign: 'center', padding: '16px 0' }}>Belum ada berita terbaru.</span>
                             </li>
                         )}
                         {announcements.map(item => {
