@@ -4361,79 +4361,18 @@ footer.site-footer {
   padding: 3px 10px;
 }
 
-// ── Reactions + Share footer ──────────────────────────────────
-.na-footer {
+// ── Share footer ──────────────────────────────────────────────
+.na-share-footer {
   margin-top: 56px;
   padding-top: 28px;
   border-top: 1.5px solid #f0f0f2;
   display: flex;
   align-items: center;
-  justify-content: space-between;
   flex-wrap: wrap;
-  gap: 20px;
-
-  @media (max-width: 600px) { flex-direction: column; align-items: flex-start; }
-}
-
-.na-reactions {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  flex-wrap: wrap;
-
-  &__label {
-    font-size: 13px;
-    color: #888;
-    font-weight: 500;
-  }
-
-  &__btns {
-    display: flex;
-    gap: 8px;
-  }
-}
-
-.na-react-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 7px 14px;
-  border-radius: 100px;
-  font-size: 13px;
-  font-weight: 600;
-  color: #666;
-  background: #f4f4f5;
-  border: 1.5px solid #e5e7eb;
-  cursor: pointer;
-  transition: all 0.18s;
-
-  &:hover:not(:disabled) {
-    background: #1a1a2e;
-    color: #fff;
-    border-color: #1a1a2e;
-  }
-
-  &--active {
-    background: #1a1a2e;
-    color: #fff;
-    border-color: #1a1a2e;
-    cursor: default;
-  }
-
-  &--heart.na-react-btn--active {
-    background: #ff4d6d;
-    border-color: #ff4d6d;
-  }
-
-  &:disabled { opacity: 0.7; }
+  gap: 14px;
 }
 
 .na-share {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  flex-wrap: wrap;
-
   &__label {
     display: inline-flex;
     align-items: center;
