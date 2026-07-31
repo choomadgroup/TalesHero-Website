@@ -71,6 +71,8 @@ const PLAYER_SELECT = `
     COALESCE(ui.fdRole, 'Player') AS RoleName,
     COALESCE(up.fdCash, 0) AS Cash,
     COALESCE(uig.fdGameMoney, 0) AS GameMoney,
+    COALESCE(up.fdMau, 0)       AS Mau,
+    COALESCE(uig.fdExp, 0)      AS Exp,
     CASE WHEN bl.fdUserNum IS NULL THEN 0 ELSE 1 END AS IsBanned,
     ull.fdLastLoginTime,
     ull.fdLastLogoutTime,
@@ -222,6 +224,73 @@ export async function sendTR(req, res, targetUserNum) {
   } catch (err) {
     console.error('[gm/sendTR]', err.message);
     return json(res, 500, { message: err.message || 'Gagal mengirim TR.' });
+  }
+}
+
+// ── Send MAU ──────────────────────────────────────────────────────────────────
+
+export async function sendMau(req, res, targetUserNum) {
+  const admin = getAdminUser(req);
+  if (!admin) return json(res, 401, { message: 'Akses ditolak.' });
+  const amount = Number(req.body?.amount ?? 0);
+  if (!amount || amount <= 0) return json(res, 400, { message: 'Jumlah MAU harus lebih dari 0.' });
+  try {
+    const targets = await query(`${PLAYER_SELECT} WHERE ui.fdUserNum = ? LIMIT 1`, [targetUserNum]);
+    if (!targets.length) return json(res, 404, { message: 'Player target tidak ditemukan.' });
+
+    if (isOwner(admin)) {
+      const conn = await pool.getConnection();
+      try {
+        await conn.beginTransaction();
+        await conn.query(
+          `UPDATE userinfofrompublisher up
+           INNER JOIN userinfo ui ON (CAST(ui.fdUID AS CHAR) = CAST(up.fdUserID AS CHAR)
+               OR CAST(ui.fdAuthUserNum AS CHAR) = CAST(up.fdUserID AS CHAR))
+           SET up.fdMau = COALESCE(up.fdMau, 0) + ? WHERE ui.fdUserNum = ?`,
+          [amount, targetUserNum],
+        );
+        await conn.commit();
+      } catch (e) { await conn.rollback(); throw e; } finally { conn.release(); }
+      await logAction(admin, 'SEND_MAU', `UserNum:${targetUserNum}`, `MAU +${amount}`);
+      return json(res, 200, { message: `MAU +${amount.toLocaleString('id-ID')} berhasil dikirim ke ${targets[0].fdNickname}.` });
+    } else {
+      await query(
+        `INSERT INTO tblgm_requests
+         (fdType, fdRequestedByUserNum, fdRequestedByUserId, fdRequestedByNickname,
+          fdTargetUserNum, fdTargetUserId, fdTargetNickname, fdAmount, fdStatus, fdNote, fdRequestedAt)
+         VALUES ('Mau', ?, ?, ?, ?, ?, ?, ?, 'Pending', 'Request MAU dari GM', NOW())`,
+        [admin.userNum ?? 0, admin.username, admin.nickname,
+         targetUserNum, targets[0].UserId ?? '', targets[0].fdNickname, amount],
+      );
+      return json(res, 200, { message: 'Request MAU berhasil dikirim ke Owner.' });
+    }
+  } catch (err) {
+    console.error('[gm/sendMau]', err.message);
+    return json(res, 500, { message: err.message || 'Gagal mengirim MAU.' });
+  }
+}
+
+// ── Send EXP Player ───────────────────────────────────────────────────────────
+
+export async function sendExp(req, res, targetUserNum) {
+  const admin = getAdminUser(req);
+  if (!admin) return json(res, 401, { message: 'Akses ditolak.' });
+  if (!isOwner(admin)) return json(res, 403, { message: 'Hanya Owner yang bisa menambah EXP player.' });
+  const amount = Number(req.body?.amount ?? 0);
+  if (!amount || amount <= 0) return json(res, 400, { message: 'Jumlah EXP harus lebih dari 0.' });
+  try {
+    const targets = await query(`${PLAYER_SELECT} WHERE ui.fdUserNum = ? LIMIT 1`, [targetUserNum]);
+    if (!targets.length) return json(res, 404, { message: 'Player target tidak ditemukan.' });
+    await query(
+      `INSERT INTO userinfogame (fdUserNum, fdExp) VALUES (?, ?)
+       ON DUPLICATE KEY UPDATE fdExp = COALESCE(fdExp, 0) + VALUES(fdExp)`,
+      [targetUserNum, amount],
+    );
+    await logAction(admin, 'SEND_EXP', `UserNum:${targetUserNum}`, `EXP +${amount}`);
+    return json(res, 200, { message: `EXP +${amount.toLocaleString('id-ID')} berhasil ditambahkan ke ${targets[0].fdNickname}.` });
+  } catch (err) {
+    console.error('[gm/sendExp]', err.message);
+    return json(res, 500, { message: err.message || 'Gagal menambah EXP.' });
   }
 }
 
@@ -566,6 +635,14 @@ export async function approveRequest(req, res, requestId) {
          ON DUPLICATE KEY UPDATE fdGameMoney = COALESCE(fdGameMoney, 0) + VALUES(fdGameMoney)`,
         [target, request.fdAmount],
       );
+    } else if (type === 'Mau') {
+      await conn.query(
+        `UPDATE userinfofrompublisher up
+         INNER JOIN userinfo ui ON (CAST(ui.fdUID AS CHAR) = CAST(up.fdUserID AS CHAR)
+             OR CAST(ui.fdAuthUserNum AS CHAR) = CAST(up.fdUserID AS CHAR))
+         SET up.fdMau = COALESCE(up.fdMau, 0) + ? WHERE ui.fdUserNum = ?`,
+        [request.fdAmount, target],
+      );
     } else if (type === 'Item') {
       const delivery = request.fdDeliveryTarget === 'Warehouse' ? 'Warehouse' : 'Giftbox';
       if (delivery === 'Giftbox') {
@@ -692,6 +769,8 @@ export async function gmToolsRouter(req, res, next) {
     if ( id && !sub && m === 'GET') return getPlayerDetail(req, res, Number(id));
     if ( id && sub === 'cash'      && m === 'POST')   return sendCash(req, res, Number(id));
     if ( id && sub === 'tr'        && m === 'POST')   return sendTR(req, res, Number(id));
+    if ( id && sub === 'mau'       && m === 'POST')   return sendMau(req, res, Number(id));
+    if ( id && sub === 'exp'       && m === 'POST')   return sendExp(req, res, Number(id));
     if ( id && sub === 'item'      && m === 'POST')   return sendItem(req, res, Number(id));
     if ( id && sub === 'ban'       && m === 'PATCH')  return setBan(req, res, Number(id));
     if ( id && sub === 'role'      && m === 'PATCH')  return setRole(req, res, Number(id));

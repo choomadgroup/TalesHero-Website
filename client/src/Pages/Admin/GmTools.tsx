@@ -20,6 +20,8 @@ export interface GmPlayer {
   RoleName:       string;
   Cash:           number;
   GameMoney:      number;
+  Mau:            number;
+  Exp:            number;
   IsBanned:       number;
   fdLastLoginTime?: string | null;
   fdLoginCount?:  number;
@@ -185,9 +187,11 @@ export function GmPlayerSection({ adminUser, showToast }: {
   const [player, setPlayer]     = useState<GmPlayer | null>(null);
   const [playerTab, setPlayerTab] = useState<PlayerTab>('send');
 
-  // send cash / TR
+  // send cash / TR / MAU / EXP
   const [cashAmt, setCashAmt]   = useState('');
   const [trAmt, setTrAmt]       = useState('');
+  const [mauAmt, setMauAmt]     = useState('');
+  const [expAmt, setExpAmt]     = useState('');
 
   // send item
   const [itemQ, setItemQ]       = useState('');
@@ -287,6 +291,20 @@ export function GmPlayerSection({ adminUser, showToast }: {
       method: 'POST', body: JSON.stringify({ amount: Number(cashAmt) }),
     });
     setCashAmt(''); await refreshPlayer(); return r;
+  });
+
+  const doSendMau = () => act(async () => {
+    const r = await gmFetch(`/players/${player!.fdUserNum}/mau`, {
+      method: 'POST', body: JSON.stringify({ amount: Number(mauAmt) }),
+    });
+    setMauAmt(''); return r;
+  });
+
+  const doSendExp = () => act(async () => {
+    const r = await gmFetch(`/players/${player!.fdUserNum}/exp`, {
+      method: 'POST', body: JSON.stringify({ amount: Number(expAmt) }),
+    });
+    setExpAmt(''); return r;
   });
 
   const doSendTR = () => act(async () => {
@@ -401,7 +419,7 @@ export function GmPlayerSection({ adminUser, showToast }: {
                 <thead>
                   <tr>
                     <th>UserNum</th><th>Nickname</th><th>Role</th>
-                    <th>Cash</th><th>TR</th><th>Status</th><th></th>
+                    <th>Cash</th><th>TR</th><th>MAU</th><th>Status</th><th></th>
                   </tr>
                 </thead>
                 <tbody>
@@ -417,6 +435,7 @@ export function GmPlayerSection({ adminUser, showToast }: {
                       </td>
                       <td>{Number(p.Cash).toLocaleString('id-ID')}</td>
                       <td>{Number(p.GameMoney).toLocaleString('id-ID')}</td>
+                      <td>{Number(p.Mau).toLocaleString('id-ID')}</td>
                       <td>
                         {p.IsBanned
                           ? <span style={{ color: '#ef4444', fontWeight: 600, fontSize: 12 }}>🔴 Banned</span>
@@ -460,23 +479,35 @@ export function GmPlayerSection({ adminUser, showToast }: {
                     : <span style={{ marginLeft: 8, color: '#10b981', fontWeight: 600 }}>🟢 Normal</span>}
                 </div>
               </div>
-              <div style={{ display: 'flex', gap: 20 }}>
+              <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap' }}>
                 <div style={{ textAlign: 'center' }}>
-                  <div style={{ fontSize: 11, color: '#94a3b8', fontWeight: 600 }}>CASH</div>
-                  <div style={{ fontSize: 18, fontWeight: 800, color: '#f59e0b' }}>
+                  <div style={{ fontSize: 10, color: '#94a3b8', fontWeight: 700, letterSpacing: '0.05em' }}>CASH</div>
+                  <div style={{ fontSize: 16, fontWeight: 800, color: '#f59e0b' }}>
                     {Number(player.Cash).toLocaleString('id-ID')}
                   </div>
                 </div>
                 <div style={{ textAlign: 'center' }}>
-                  <div style={{ fontSize: 11, color: '#94a3b8', fontWeight: 600 }}>TR</div>
-                  <div style={{ fontSize: 18, fontWeight: 800, color: '#3b82f6' }}>
+                  <div style={{ fontSize: 10, color: '#94a3b8', fontWeight: 700, letterSpacing: '0.05em' }}>TR</div>
+                  <div style={{ fontSize: 16, fontWeight: 800, color: '#3b82f6' }}>
                     {Number(player.GameMoney).toLocaleString('id-ID')}
+                  </div>
+                </div>
+                <div style={{ textAlign: 'center' }}>
+                  <div style={{ fontSize: 10, color: '#94a3b8', fontWeight: 700, letterSpacing: '0.05em' }}>MAU</div>
+                  <div style={{ fontSize: 16, fontWeight: 800, color: '#7c3aed' }}>
+                    {Number(player.Mau).toLocaleString('id-ID')}
+                  </div>
+                </div>
+                <div style={{ textAlign: 'center' }}>
+                  <div style={{ fontSize: 10, color: '#94a3b8', fontWeight: 700, letterSpacing: '0.05em' }}>EXP</div>
+                  <div style={{ fontSize: 16, fontWeight: 800, color: '#10b981' }}>
+                    {Number(player.Exp).toLocaleString('id-ID')}
                   </div>
                 </div>
                 {player.fdLoginCount !== undefined && (
                   <div style={{ textAlign: 'center' }}>
-                    <div style={{ fontSize: 11, color: '#94a3b8', fontWeight: 600 }}>LOGIN</div>
-                    <div style={{ fontSize: 18, fontWeight: 800, color: '#64748b' }}>
+                    <div style={{ fontSize: 10, color: '#94a3b8', fontWeight: 700, letterSpacing: '0.05em' }}>LOGIN</div>
+                    <div style={{ fontSize: 16, fontWeight: 800, color: '#64748b' }}>
                       {player.fdLoginCount?.toLocaleString('id-ID')}x
                     </div>
                   </div>
@@ -493,89 +524,118 @@ export function GmPlayerSection({ adminUser, showToast }: {
 
             {/* === Tab: Kirim === */}
             {playerTab === 'send' && (
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 16 }}>
-                {/* Send Cash */}
-                <div style={{ background: '#fefce8', border: '1px solid #fde68a', borderRadius: 10, padding: '16px 18px' }}>
-                  <div style={{ fontWeight: 700, marginBottom: 12, fontSize: 13.5 }}>💰 Kirim Cash</div>
-                  <div style={S.field}>
-                    <label style={S.label}>Jumlah Cash</label>
-                    <input style={S.input} type="number" min="1" placeholder="contoh: 10000"
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+
+                {/* ── Baris 1: Currency (Cash / TR / MAU) ── */}
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 12 }}>
+                  {/* Cash */}
+                  <div style={{ background: '#fefce8', border: '1px solid #fde68a', borderRadius: 10, padding: '14px 16px' }}>
+                    <div style={{ fontWeight: 700, marginBottom: 10, fontSize: 13, color: '#92400e' }}>💰 Cash</div>
+                    <input style={S.input} type="number" min="1" placeholder="Jumlah"
                       value={cashAmt} onChange={e => setCashAmt(e.target.value)} />
+                    <button
+                      style={{ ...S.btn, background: '#f59e0b', color: '#fff', marginTop: 8, width: '100%', justifyContent: 'center', fontSize: 12 }}
+                      onClick={doSendCash} disabled={loading || !cashAmt}
+                    >
+                      {isOwner ? '✓ Kirim' : '📨 Request'}
+                    </button>
                   </div>
-                  <button
-                    style={{ ...S.btn, background: '#f59e0b', color: '#fff', marginTop: 10, width: '100%', justifyContent: 'center' }}
-                    onClick={doSendCash} disabled={loading || !cashAmt}
-                  >
-                    {isOwner ? '✓ Kirim Cash' : '📨 Request Cash'}
-                  </button>
-                </div>
 
-                {/* Send TR */}
-                <div style={{ background: '#eff6ff', border: '1px solid #bfdbfe', borderRadius: 10, padding: '16px 18px' }}>
-                  <div style={{ fontWeight: 700, marginBottom: 12, fontSize: 13.5 }}>⚔️ Kirim TR</div>
-                  <div style={S.field}>
-                    <label style={S.label}>Jumlah TR</label>
-                    <input style={S.input} type="number" min="1" placeholder="contoh: 5000"
+                  {/* TR */}
+                  <div style={{ background: '#eff6ff', border: '1px solid #bfdbfe', borderRadius: 10, padding: '14px 16px' }}>
+                    <div style={{ fontWeight: 700, marginBottom: 10, fontSize: 13, color: '#1e40af' }}>⚔️ TR</div>
+                    <input style={S.input} type="number" min="1" placeholder="Jumlah"
                       value={trAmt} onChange={e => setTrAmt(e.target.value)} />
+                    <button
+                      style={{ ...S.btn, background: '#3b82f6', color: '#fff', marginTop: 8, width: '100%', justifyContent: 'center', fontSize: 12 }}
+                      onClick={doSendTR} disabled={loading || !trAmt}
+                    >
+                      {isOwner ? '✓ Kirim' : '📨 Request'}
+                    </button>
                   </div>
-                  <button
-                    style={{ ...S.btn, background: '#3b82f6', color: '#fff', marginTop: 10, width: '100%', justifyContent: 'center' }}
-                    onClick={doSendTR} disabled={loading || !trAmt}
-                  >
-                    {isOwner ? '✓ Kirim TR' : '📨 Request TR'}
-                  </button>
+
+                  {/* MAU */}
+                  <div style={{ background: '#f5f3ff', border: '1px solid #ddd6fe', borderRadius: 10, padding: '14px 16px' }}>
+                    <div style={{ fontWeight: 700, marginBottom: 10, fontSize: 13, color: '#5b21b6' }}>✨ MAU</div>
+                    <input style={S.input} type="number" min="1" placeholder="Jumlah"
+                      value={mauAmt} onChange={e => setMauAmt(e.target.value)} />
+                    <button
+                      style={{ ...S.btn, background: '#7c3aed', color: '#fff', marginTop: 8, width: '100%', justifyContent: 'center', fontSize: 12 }}
+                      onClick={doSendMau} disabled={loading || !mauAmt}
+                    >
+                      {isOwner ? '✓ Kirim' : '📨 Request'}
+                    </button>
+                  </div>
                 </div>
 
-                {/* Send Item */}
-                <div style={{ background: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: 10, padding: '16px 18px' }}>
-                  <div style={{ fontWeight: 700, marginBottom: 12, fontSize: 13.5 }}>🎁 Kirim Item</div>
-                  <div style={S.field}>
-                    <label style={S.label}>Cari Item (nama / kode)</label>
-                    <div style={{ display: 'flex', gap: 6 }}>
-                      <input style={{ ...S.input, flex: 1 }} placeholder="nama atau #kode"
-                        value={itemQ} onChange={e => setItemQ(e.target.value)}
-                        onKeyDown={e => e.key === 'Enter' && searchItems()} />
-                      <button style={{ ...S.btn, background: '#10b981', color: '#fff', padding: '8px 10px' }}
-                        onClick={searchItems}>🔍</button>
+                {/* ── Baris 2: EXP Player (Owner only) ── */}
+                {isOwner && (
+                  <div style={{ background: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: 10, padding: '14px 16px' }}>
+                    <div style={{ fontWeight: 700, marginBottom: 10, fontSize: 13, color: '#065f46' }}>🌟 EXP Player <span style={{ fontSize: 11, fontWeight: 400, color: '#6b7280' }}>(Owner only — langsung diterapkan)</span></div>
+                    <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                      <input style={{ ...S.input, flex: 1 }} type="number" min="1" placeholder="Jumlah EXP"
+                        value={expAmt} onChange={e => setExpAmt(e.target.value)} />
+                      <button
+                        style={{ ...S.btn, background: '#10b981', color: '#fff', whiteSpace: 'nowrap', fontSize: 12 }}
+                        onClick={doSendExp} disabled={loading || !expAmt}
+                      >
+                        ✓ Tambah EXP
+                      </button>
                     </div>
                   </div>
+                )}
+
+                {/* ── Baris 3: Item ── */}
+                <div style={{ background: '#fff7ed', border: '1px solid #fed7aa', borderRadius: 10, padding: '14px 16px' }}>
+                  <div style={{ fontWeight: 700, marginBottom: 10, fontSize: 13, color: '#9a3412' }}>🎁 Kirim Item</div>
+                  <div style={{ display: 'flex', gap: 6, marginBottom: 8 }}>
+                    <input style={{ ...S.input, flex: 1 }} placeholder="Cari nama atau #kode item"
+                      value={itemQ} onChange={e => setItemQ(e.target.value)}
+                      onKeyDown={e => e.key === 'Enter' && searchItems()} />
+                    <button style={{ ...S.btn, background: '#f97316', color: '#fff', padding: '8px 12px', fontSize: 12 }}
+                      onClick={searchItems}>🔍 Cari</button>
+                  </div>
                   {itemResults.length > 0 && (
-                    <div style={{ maxHeight: 120, overflowY: 'auto', border: '1px solid #d1fae5', borderRadius: 6, marginTop: 6 }}>
+                    <div style={{ maxHeight: 140, overflowY: 'auto', border: '1px solid #fed7aa', borderRadius: 6, marginBottom: 8 }}>
                       {itemResults.map(item => (
                         <div key={item.fdItemNum}
                           onClick={() => { setSelItem(item); setItemResults([]); setItemQ(item.fdItemName); }}
-                          style={{ padding: '6px 10px', cursor: 'pointer', fontSize: 12,
-                            background: selItem?.fdItemNum === item.fdItemNum ? '#d1fae5' : '#fff',
-                            borderBottom: '1px solid #f0fdf4',
+                          style={{ padding: '7px 12px', cursor: 'pointer', fontSize: 12,
+                            background: selItem?.fdItemNum === item.fdItemNum ? '#ffedd5' : '#fff',
+                            borderBottom: '1px solid #fff7ed',
                           }}
                         >
-                          <b>#{item.fdItemNum}</b> {item.fdItemName}
+                          <span style={{ fontFamily: 'monospace', color: '#94a3b8', marginRight: 6 }}>#{item.fdItemNum}</span>
+                          {item.fdItemName}
                         </div>
                       ))}
                     </div>
                   )}
                   {selItem && (
-                    <div style={{ marginTop: 8, padding: '6px 10px', background: '#d1fae5', borderRadius: 6, fontSize: 12 }}>
-                      ✓ <b>#{selItem.fdItemNum}</b> {selItem.fdItemName}
+                    <div style={{ marginBottom: 8, padding: '6px 12px', background: '#ffedd5', borderRadius: 6, fontSize: 12, display: 'flex', alignItems: 'center', gap: 8 }}>
+                      <span style={{ color: '#10b981', fontWeight: 700 }}>✓</span>
+                      <span><b>#{selItem.fdItemNum}</b> {selItem.fdItemName}</span>
+                      <button type="button" onClick={() => { setSelItem(null); setItemQ(''); }}
+                        style={{ marginLeft: 'auto', background: 'none', border: 'none', cursor: 'pointer', color: '#94a3b8', fontSize: 16, lineHeight: 1 }}>×</button>
                     </div>
                   )}
-                  <div style={{ display: 'flex', gap: 8, marginTop: 8 }}>
+                  <div style={{ display: 'flex', gap: 8, marginBottom: 8 }}>
                     {(['Giftbox', 'Warehouse'] as const).map(d => (
-                      <button key={d}
-                        onClick={() => setDelivery(d)}
+                      <button key={d} onClick={() => setDelivery(d)}
                         style={{ ...S.btn, flex: 1, justifyContent: 'center', fontSize: 12,
-                          background: delivery === d ? '#10b981' : '#e2e8f0',
+                          background: delivery === d ? '#f97316' : '#f1f5f9',
                           color: delivery === d ? '#fff' : '#374151' }}
                       >{d}</button>
                     ))}
                   </div>
                   <button
-                    style={{ ...S.btn, background: '#10b981', color: '#fff', marginTop: 10, width: '100%', justifyContent: 'center' }}
+                    style={{ ...S.btn, background: '#f97316', color: '#fff', width: '100%', justifyContent: 'center', fontSize: 12 }}
                     onClick={doSendItem} disabled={loading || !selItem}
                   >
-                    {isOwner ? `✓ Kirim ke ${delivery}` : `📨 Request Item`}
+                    {isOwner ? `✓ Kirim ke ${delivery}` : '📨 Request Item'}
                   </button>
                 </div>
+
               </div>
             )}
 
@@ -811,6 +871,7 @@ export function GmRequestsSection({ adminUser, showToast }: {
   const typeLabel: Record<string, string> = {
     Cash:            '💰 Cash',
     TR:              '⚔️ TR',
+    Mau:             '✨ MAU',
     Item:            '🎁 Item',
     InventoryDelete: '🗑️ Hapus Inventory',
     InventoryExtend: '📈 Extend Exp',
@@ -955,6 +1016,8 @@ export function GmLogsSection({ adminUser }: { adminUser: AdminUser | null }) {
   const actionColor: Record<string, string> = {
     SEND_CASH:         '#f59e0b',
     SEND_TR:           '#3b82f6',
+    SEND_MAU:          '#7c3aed',
+    SEND_EXP:          '#10b981',
     SEND_ITEM:         '#10b981',
     BAN_PLAYER:        '#ef4444',
     UNBAN_PLAYER:      '#10b981',

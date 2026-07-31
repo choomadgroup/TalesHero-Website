@@ -35,7 +35,7 @@ async function login(req, res) {
 
     // ── 2. Cari user + data website (email, pertanyaan keamanan) ──
     const rows = await query(
-       `SELECT g.fdUserID, g.fdGameID, g.fdPassword, g.fdCash,
+       `SELECT g.fdUserID, g.fdGameID, g.fdPassword, g.fdCash, COALESCE(g.fdMau, 0) AS fdMau,
                i.fdNickname,
                ig.fdGameMoney,
               w.email, w.sec_question AS secQuestion
@@ -69,6 +69,7 @@ async function login(req, res) {
         nickname:    user.fdNickname ?? '',
         gameId:      user.fdGameID,
         cash:        user.fdCash,
+        mau:         user.fdMau  ?? 0,
         tr:          user.fdGameMoney ?? 0,
         email:       user.email       ?? '',
         secQuestion: user.secQuestion ?? '',

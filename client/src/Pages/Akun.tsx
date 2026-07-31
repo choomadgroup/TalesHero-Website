@@ -11,7 +11,7 @@ import {
     IoPersonCircleOutline, IoMailOutline, IoShieldCheckmarkOutline,
     IoLogOutOutline, IoLockClosedOutline, IoEye, IoEyeOff,
     IoCheckmarkCircle, IoGameControllerOutline,
-    IoCashOutline, IoCreateOutline,
+    IoCashOutline, IoCreateOutline, IoStarOutline,
 } from 'react-icons/io5';
 
 const CHANGE_PASS_API = '/auth/change-password';
@@ -276,6 +276,10 @@ export default function Akun() {
                             <div className="akun-balance-card akun-balance-card--tr">
                                 <span className="akun-balance-card__label"><IoGameControllerOutline size={14} /> TR</span>
                                 <strong>{Number(user.tr ?? 0).toLocaleString('id-ID')}</strong>
+                            </div>
+                            <div className="akun-balance-card akun-balance-card--mau">
+                                <span className="akun-balance-card__label"><IoStarOutline size={14} /> MAU</span>
+                                <strong>{Number(user.mau ?? 0).toLocaleString('id-ID')}</strong>
                             </div>
                         </div>
 

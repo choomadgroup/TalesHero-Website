@@ -1,48 +1,14 @@
 ---
 name: Tales Hero admin dashboard
-description: Admin dashboard architecture — News, Downloads, and Redeem Code sections all complete
+description: Admin panel sections, GM tools layout, and known structural patterns.
 ---
 
-## What was built
-- `server/mongodb.js` — mongoose connection, gracefully no-ops if MONGODB_URI missing
-- `server/models/news-article.js` — mongoose schema (title, slug, category, tags[], content, excerpt, coverUrl, readTime, published, publishedAt, viewCount, reactions{thumbsUp,heart})
-- `server/news.js` — public GET /api/news + /api/news/:cat/:slug; POST /api/news/:cat/:slug/view (view tracking); POST /api/news/:cat/:slug/react (thumbsUp|heart); admin CRUD at /api/admin/news; admin auth at /api/admin/login|logout|me
-- `server/admin-session.js` — HMAC-signed cookie `th_admin`, 8h TTL, uses SESSION_SECRET
-- `client/src/Hooks/use-admin-news.ts` — useAdminAuth + useAdminNews hooks
-- `client/src/Hooks/use-news.ts` — useApiNews + useApiNewsArticle + trackView() + sendReaction()
-- `client/src/Style/admin.scss` — full admin UI styles
-- `client/src/Pages/Admin.tsx` — complete admin UI (login gate → dashboard → article list + editor with markdown preview)
-- Route `/admin` added to `client/src/App.tsx`
-- API routes wired in both `vite.config.ts` (dev) and `server/index.js` (prod)
+Admin panel sections (Section type in Admin.tsx): `news | downloads | redeem | players | requests | logs`.
 
-## Blog-style features added (2026-07-30)
-- **Tags**: free-form string array per article; shown as pills on article page and card grid
-- **View count**: POST /:cat/:slug/view increments atomically; shown on article page with eye icon
-- **Reactions**: thumbsUp + heart; POST /:cat/:slug/react; localStorage prevents duplicate from same browser
-- **Share panel**: copy link, WhatsApp, Twitter/X buttons at bottom of each article
-- `client/src/mdx.d.ts` deleted (MDX remnant)
+Sidebar nav has a divider between content sections (news/downloads/redeem) and GM Tools sections (players/requests/logs). GM sections (GmPlayerSection, GmRequestsSection, GmLogsSection) render their own topbar+content wrapper internally — Admin.tsx renders them directly without extra wrapping (no double-wrap).
 
-## Download page redesign (2026-07-30)
-- Replaced single "Coming Soon" banner with 3 package cards: File Setup (active, href='#' placeholder), Full Client (coming soon), Manual Patch (coming soon)
-- CSS class `.dl-pkg-card` with `--pkg-color` CSS variable per package
-- To activate File Setup download: update `href` in `PACKAGES[0]` in `client/src/Pages/Download.tsx`
+GmPlayerSection send tab layout (as of current): 3 currency cards row (Cash/TR/MAU) + EXP Owner-only row + Item card. EXP send is Owner-only with no GM request path.
 
-## Redeem Code section (complete — 2026-07-31)
-- `server/admin-redeem.js` — GET/POST /api/admin/redeem, PATCH /api/admin/redeem/:id, GET /api/admin/redeem/search-item
-- `client/src/Hooks/use-admin-redeem.ts` — useAdminRedeem hook + searchItems() function
-- `RedeemManager` + `RedeemCreateForm` components added to `client/src/Pages/News/Admin/Admin.tsx`
-- Only **Owner** role can create or toggle codes (enforced on both client and server)
-- Item search: debounced, min 2 chars, searches tblavataritemdesc by name or item number
-- Code auto-generates `TRH-XXXX-XXXX` format if left blank; duplicates are rejected by server
-- Expired codes shown in red; toggle button disabled for expired codes
+AdminUser interface includes `userNum: number` (from cookie, used for logging).
 
-## What needs activation before articles persist
-1. Set `MONGODB_URI` secret → a free MongoDB Atlas cluster works ✅ (now set)
-2. Set `ADMIN_PASSWORD` secret → any strong password
-3. Without these, admin dashboard loads but articles cannot be saved (503 from API)
-
-**Why:** MongoDB connection is intentionally lazy/optional so missing MONGODB_URI never crashes startup.
-
-## Admin protection added
-- `/admin` added to `privatePagePath` regex in `server/index.js` → X-Robots-Tag: noindex, nofollow
-- Rate limiting on `/api/admin/login`: max 10 req / 15 min / IP (in-memory, server/index.js)
+Admin news CRUD built; needs MONGODB_URI + ADMIN_PASSWORD secrets to activate persistence. Redeem codes use MySQL. GM Tools use the game MySQL tables.

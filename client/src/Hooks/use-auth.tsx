@@ -5,6 +5,7 @@ export interface AuthUser {
   nickname:    string;
   gameId:      string | null;
   cash:        number;
+  mau:         number;
   tr:          number;
   email:       string;
   secQuestion: string;

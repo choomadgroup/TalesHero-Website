@@ -93,6 +93,7 @@ export default function Login() {
                     nickname:    data.user?.nickname    ?? data.user?.username ?? form.username.trim(),
                     gameId:      data.user?.gameId      ?? null,
                     cash:        data.user?.cash        ?? 0,
+                    mau:         data.user?.mau         ?? 0,
                     tr:          data.user?.tr          ?? 0,
                     email:       data.user?.email       ?? '',
                     secQuestion: data.user?.secQuestion ?? '',

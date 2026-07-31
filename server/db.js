@@ -122,6 +122,13 @@ async function migrate() {
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
   `);
 
+  // Tambah kolom fdMau ke userinfofrompublisher untuk sistem MAU in-game
+  try {
+    await pool.query(`ALTER TABLE userinfofrompublisher ADD COLUMN fdMau INT NOT NULL DEFAULT 0`);
+  } catch (error) {
+    if (error?.code !== 'ER_DUP_FIELDNAME') throw error;
+  }
+
   await pool.query(`
     CREATE TABLE IF NOT EXISTS redeem_code_uses (
       id         INT AUTO_INCREMENT PRIMARY KEY,

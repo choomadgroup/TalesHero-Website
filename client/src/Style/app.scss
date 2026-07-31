@@ -5435,7 +5435,7 @@ $nl-sans:     'Poppins', -apple-system, sans-serif;
 
 .akun-balance-grid {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 10px;
   margin-bottom: 16px;
   text-align: left;
@@ -5453,6 +5453,11 @@ $nl-sans:     'Poppins', -apple-system, sans-serif;
   &--tr {
     background: #fffaf0;
     border-color: #f8dfaa;
+  }
+
+  &--mau {
+    background: #f5f3ff;
+    border-color: #ddd6fe;
   }
 
   &__label {

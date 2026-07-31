@@ -921,39 +921,9 @@ function AdminDashboard({ onLogout, adminUser }: { onLogout: () => void; adminUs
         {section === 'redeem' && (
           <RedeemManager adminUser={adminUser} showToast={showToast} />
         )}
-        {section === 'players' && (
-          <div>
-            <div className="admin-topbar">
-              <h1>GM — Manajemen Player</h1>
-              <div className="admin-topbar__actions" />
-            </div>
-            <div className="admin-content">
-              <GmPlayerSection adminUser={adminUser} showToast={showToast} />
-            </div>
-          </div>
-        )}
-        {section === 'requests' && (
-          <div>
-            <div className="admin-topbar">
-              <h1>GM — Antrian Request</h1>
-              <div className="admin-topbar__actions" />
-            </div>
-            <div className="admin-content">
-              <GmRequestsSection adminUser={adminUser} showToast={showToast} />
-            </div>
-          </div>
-        )}
-        {section === 'logs' && (
-          <div>
-            <div className="admin-topbar">
-              <h1>GM — Log Aktivitas</h1>
-              <div className="admin-topbar__actions" />
-            </div>
-            <div className="admin-content">
-              <GmLogsSection adminUser={adminUser} />
-            </div>
-          </div>
-        )}
+        {section === 'players'  && <GmPlayerSection  adminUser={adminUser} showToast={showToast} />}
+        {section === 'requests' && <GmRequestsSection adminUser={adminUser} showToast={showToast} />}
+        {section === 'logs'     && <GmLogsSection     adminUser={adminUser} />}
       </main>
 
       {/* delete modal */}
