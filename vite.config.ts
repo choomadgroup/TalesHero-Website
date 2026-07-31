@@ -15,6 +15,10 @@ import {
   publicGetDownloads, adminGetDownloads, adminUpdateDownload,
 } from './server/downloads.js';
 import redeem from './server/redeem.js';
+import {
+  adminGetRedeemCodes, adminCreateRedeemCode,
+  adminToggleRedeemCode, adminSearchItem,
+} from './server/admin-redeem.js';
 import changePassword from './server/auth/change-password.js';
 import updateProfile from './server/auth/update-profile.js';
 import forgotPassword from './server/auth/forgot-password.js';
@@ -407,6 +411,32 @@ const apiPlugin = {
       if (req.method !== 'GET') { next(); return; }
       try { adminMe(req, res); }
       catch (e) { res.statusCode = 500; res.setHeader('Content-Type','application/json'); res.end(JSON.stringify({message:'Server error'})); }
+    });
+
+    // ── Admin redeem CRUD ─────────────────────────────────────────────────────
+    server.middlewares.use('/api/admin/redeem', async (req: any, res: any, next: any) => {
+      try {
+        addJsonResponseHelpers(res);
+        const urlPath = (req.url ?? '').split('?')[0];
+        const idMatch = urlPath.replace(/^\//, '').match(/^(\d+)$/);
+        const id = idMatch ? idMatch[1] : null;
+        if (req.method === 'GET' && urlPath.includes('search-item')) {
+          req.query = Object.fromEntries(new URL('http://x' + req.url).searchParams.entries());
+          await adminSearchItem(req, res);
+        } else if (!id && req.method === 'GET') {
+          await adminGetRedeemCodes(req, res);
+        } else if (!id && req.method === 'POST') {
+          req.body = await parseBody(req);
+          await adminCreateRedeemCode(req, res);
+        } else if (id && req.method === 'PATCH') {
+          req.params = { id };
+          await adminToggleRedeemCode(req, res);
+        } else { next(); }
+      } catch (e) {
+        res.statusCode = 500;
+        res.setHeader('Content-Type', 'application/json');
+        res.end(JSON.stringify({ message: 'Server error' }));
+      }
     });
 
     // ── Admin news CRUD ───────────────────────────────────────────────────────

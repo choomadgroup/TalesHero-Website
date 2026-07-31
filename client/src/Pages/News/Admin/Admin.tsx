@@ -1,8 +1,9 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 import '@/Style/admin.scss';
 import { renderMarkdown } from '@/Lib/markdown';
 import { useAdminAuth, useAdminNews, type AdminNewsArticle, type NewsFormData, type AdminUser } from '@/Hooks/use-admin-news';
 import { useAdminDownloads, type DownloadPackage } from '@/Hooks/use-downloads';
+import { useAdminRedeem, searchItems, type RedeemCode, type RedeemFormData, type ItemResult } from '@/Hooks/use-admin-redeem';
 import { useMusic } from '@/Hooks/use-music';
 
 // ── category helpers ──────────────────────────────────────────────────────────
