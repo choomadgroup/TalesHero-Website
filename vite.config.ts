@@ -17,7 +17,7 @@ import {
 import redeem from './server/redeem.js';
 import {
   adminGetRedeemCodes, adminCreateRedeemCode,
-  adminToggleRedeemCode, adminSearchItem,
+  adminToggleRedeemCode, adminDeleteRedeemCode, adminSearchItem,
 } from './server/admin-redeem.js';
 import changePassword from './server/auth/change-password.js';
 import updateProfile from './server/auth/update-profile.js';
@@ -431,6 +431,9 @@ const apiPlugin = {
         } else if (id && req.method === 'PATCH') {
           req.params = { id };
           await adminToggleRedeemCode(req, res);
+        } else if (id && req.method === 'DELETE') {
+          req.params = { id };
+          await adminDeleteRedeemCode(req, res);
         } else { next(); }
       } catch (e) {
         res.statusCode = 500;

@@ -33,6 +33,12 @@ export async function adminGetRedeemCodes(req, res) {
     const admin = getAdminUser(req);
     if (!admin) return res.status(401).json({ message: 'Akses ditolak.' });
 
+    // Auto-cleanup: hapus kode yang sudah kedaluwarsa atau dinonaktifkan
+    await query(
+      `DELETE FROM tblredeem_code
+       WHERE fdIsActive = 0 OR (fdExpiredAt IS NOT NULL AND fdExpiredAt < NOW())`,
+    ).catch(err => console.warn('[admin-redeem/auto-cleanup]', err.message));
+
     const codes = await query(
       `SELECT fdRedeemId, fdCode,
               fdRewardCash, fdRewardTR,
@@ -48,6 +54,33 @@ export async function adminGetRedeemCodes(req, res) {
   } catch (err) {
     console.error('[admin-redeem/list]', err);
     return res.status(500).json({ message: 'Gagal memuat daftar kode.' });
+  }
+}
+
+// ── DELETE /api/admin/redeem/:id — hapus kode ─────────────────
+export async function adminDeleteRedeemCode(req, res) {
+  try {
+    const admin = getAdminUser(req);
+    if (!admin) return res.status(401).json({ message: 'Akses ditolak.' });
+    if (admin.role !== 'Owner') {
+      return res.status(403).json({ message: 'Hanya Owner yang bisa menghapus kode redeem.' });
+    }
+
+    const id = Number(req.params?.id ?? 0);
+    if (!id) return res.status(400).json({ message: 'ID tidak valid.' });
+
+    const rows = await query(
+      `SELECT fdRedeemId FROM tblredeem_code WHERE fdRedeemId = ? LIMIT 1`,
+      [id],
+    );
+    if (rows.length === 0) return res.status(404).json({ message: 'Kode tidak ditemukan.' });
+
+    await query(`DELETE FROM tblredeem_code WHERE fdRedeemId = ?`, [id]);
+
+    return res.status(200).json({ message: 'Kode berhasil dihapus.' });
+  } catch (err) {
+    console.error('[admin-redeem/delete]', err);
+    return res.status(500).json({ message: 'Gagal menghapus kode.' });
   }
 }
 

@@ -15,7 +15,7 @@ import GuidesPengantar from '@/Pages/Guides/Pengantar';
 import GuidesKarakter from '@/Pages/Guides/Karakter';
 import NewsListPage from '@/Pages/News/NewsListPage';
 import NewsArticlePage from '@/Pages/News/NewsArticlePage';
-import AdminPage from '@/Pages/News/Admin/Admin';
+import AdminPage from '@/Pages/Admin/Admin';
 import NotFound from '@/Pages/Not-Found';
 
 function Router() {
@@ -33,7 +33,7 @@ function Router() {
             <Route path="/guides/karakter" component={GuidesKarakter} />
             <Route path="/news" component={NewsListPage} />
             <Route path="/news/:category/:slug" component={NewsArticlePage} />
-            <Route path="/admin" component={AdminPage} />
+            <Route path="/dashboard/admin" component={AdminPage} />
             <Route component={NotFound} />
         </Switch>
     );

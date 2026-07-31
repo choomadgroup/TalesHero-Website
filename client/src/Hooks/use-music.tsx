@@ -15,7 +15,7 @@ const MusicContext = createContext<MusicCtx>({
 
 /** Returns true when the current page is the admin dashboard. */
 function isAdminPage() {
-    return window.location.pathname.replace(/\/$/, '').endsWith('/admin');
+    return window.location.pathname.replace(/\/$/, '').endsWith('/dashboard/admin');
 }
 
 export function MusicProvider({ children }: { children: ReactNode }) {

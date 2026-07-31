@@ -70,7 +70,16 @@ export function useAdminRedeem() {
     ));
   };
 
-  return { codes, loading, refresh, create, toggle };
+  const deleteCode = async (id: number): Promise<void> => {
+    const r = await fetch(`/api/admin/redeem/${id}`, {
+      method: 'DELETE', credentials: 'include',
+    });
+    const body = await r.json();
+    if (!r.ok) throw new Error(body.message ?? 'Gagal menghapus kode');
+    setCodes(prev => prev.filter(c => c.fdRedeemId !== id));
+  };
+
+  return { codes, loading, refresh, create, toggle, deleteCode };
 }
 
 export async function searchItems(q: string): Promise<ItemResult[]> {

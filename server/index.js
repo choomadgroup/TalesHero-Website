@@ -14,7 +14,7 @@ import logout from './auth/logout.js';
 import redeem from './redeem.js';
 import {
   adminGetRedeemCodes, adminCreateRedeemCode,
-  adminToggleRedeemCode, adminSearchItem,
+  adminToggleRedeemCode, adminDeleteRedeemCode, adminSearchItem,
 } from './admin-redeem.js';
 import turnstileConfig from './auth/turnstile-config.js';
 import stats    from './stats.js';
@@ -46,7 +46,7 @@ app.get('/api/config/turnstile', turnstileConfig);
 app.get('/api/stats', stats);
 
 const blockedPublicPath = /^\/(?:client\/src|server|attached_assets|\.local|\.agents|node_modules)(?:\/|$)|^\/(?:vite\.config\.ts|package\.json|pnpm-lock\.yaml|tsconfig(?:\.[^/]+)?|\.env(?:\.[^/]*)?)$/i;
-const privatePagePath = /^\/(?:forgot-password|reset-password|akun|admin)(?:\/|$)/i;
+const privatePagePath = /^\/(?:forgot-password|reset-password|akun|dashboard\/admin)(?:\/|$)/i;
 
 // Never let source, backend modules, workspace metadata, or environment files
 // reach the public production server, even through the SPA fallback.
@@ -101,6 +101,7 @@ app.get('/api/admin/redeem/search-item', adminSearchItem);
 app.get('/api/admin/redeem',        adminGetRedeemCodes);
 app.post('/api/admin/redeem',       adminCreateRedeemCode);
 app.patch('/api/admin/redeem/:id',  (req, res) => { req.params = { id: req.params.id }; adminToggleRedeemCode(req, res); });
+app.delete('/api/admin/redeem/:id', (req, res) => { req.params = { id: req.params.id }; adminDeleteRedeemCode(req, res); });
 
 // ── News API (public) ─────────────────────────────────────────────────────────
 app.get('/api/news', publicGetNews);

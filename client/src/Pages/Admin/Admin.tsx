@@ -614,9 +614,11 @@ function RedeemCreateForm({ onSave, onCancel }: {
 }
 
 function RedeemManager({ adminUser, showToast }: { adminUser: AdminUser | null; showToast: (msg: string) => void }) {
-  const { codes, loading, refresh, create, toggle } = useAdminRedeem();
-  const [showForm, setShowForm] = useState(false);
-  const [copiedId, setCopiedId] = useState<number | null>(null);
+  const { codes, loading, refresh, create, toggle, deleteCode } = useAdminRedeem();
+  const [showForm, setShowForm]           = useState(false);
+  const [copiedId, setCopiedId]           = useState<number | null>(null);
+  const [deletingCode, setDeletingCode]   = useState<RedeemCode | null>(null);
+  const [deleteLoading, setDeleteLoading] = useState(false);
   const isOwner = adminUser?.role === 'Owner';
 
   const copyCode = (code: string, id: number) => {
@@ -626,7 +628,7 @@ function RedeemManager({ adminUser, showToast }: { adminUser: AdminUser | null; 
     });
   };
 
-  const fmt     = (d?: string | null) => d ? new Date(d).toLocaleDateString('id-ID', { day:'2-digit', month:'short', year:'numeric' }) : '—';
+  const fmt       = (d?: string | null) => d ? new Date(d).toLocaleDateString('id-ID', { day:'2-digit', month:'short', year:'numeric' }) : '—';
   const isExpired = (d?: string | null) => d ? new Date(d) < new Date() : false;
 
   const handleCreate = async (data: RedeemFormData) => {
@@ -640,6 +642,16 @@ function RedeemManager({ adminUser, showToast }: { adminUser: AdminUser | null; 
       await toggle(c.fdRedeemId);
       showToast(c.fdIsActive ? 'Kode dinonaktifkan.' : 'Kode diaktifkan.');
     } catch (e: any) { showToast(e.message ?? 'Gagal mengubah status.'); }
+  };
+
+  const handleDelete = async () => {
+    if (!deletingCode) return;
+    setDeleteLoading(true);
+    try {
+      await deleteCode(deletingCode.fdRedeemId);
+      showToast('Kode berhasil dihapus.');
+    } catch (e: any) { showToast(e.message ?? 'Gagal menghapus kode.'); }
+    finally { setDeleteLoading(false); setDeletingCode(null); }
   };
 
   return (
