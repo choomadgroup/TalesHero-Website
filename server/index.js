@@ -11,6 +11,7 @@ import emailResetPassword from './auth/email-reset-password.js';
 import forgotSecurityQuestion from './auth/forgot-security-question.js';
 import me from './auth/me.js';
 import logout from './auth/logout.js';
+import redeem from './redeem.js';
 import turnstileConfig from './auth/turnstile-config.js';
 import stats    from './stats.js';
 import { migrate } from './db.js';
@@ -89,6 +90,7 @@ app.post('/auth/update-profile', updateProfile);
 app.post('/auth/forgot-password', forgotPassword);
 app.post('/auth/email-reset-password', emailResetPassword);
 app.post('/auth/forgot-security-question', forgotSecurityQuestion);
+app.post('/auth/redeem', redeem);
 
 // ── News API (public) ─────────────────────────────────────────────────────────
 app.get('/api/news', publicGetNews);

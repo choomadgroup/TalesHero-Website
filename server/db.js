@@ -106,6 +106,32 @@ async function migrate() {
   } catch (error) {
     if (error?.code !== 'ER_DUP_FIELDNAME') throw error;
   }
+
+  // ── Redeem codes ─────────────────────────────────────────────
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS redeem_codes (
+      id            INT AUTO_INCREMENT PRIMARY KEY,
+      code          VARCHAR(50)  NOT NULL UNIQUE,
+      reward_type   ENUM('cash','tr') NOT NULL DEFAULT 'cash',
+      reward_amount INT          NOT NULL DEFAULT 0,
+      max_uses      INT          NOT NULL DEFAULT 1,
+      used_count    INT          NOT NULL DEFAULT 0,
+      expires_at    DATETIME     DEFAULT NULL,
+      created_at    DATETIME     DEFAULT CURRENT_TIMESTAMP,
+      INDEX idx_redeem_code (code)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+  `);
+
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS redeem_code_uses (
+      id         INT AUTO_INCREMENT PRIMARY KEY,
+      code       VARCHAR(50) NOT NULL,
+      username   VARCHAR(50) NOT NULL,
+      used_at    DATETIME    DEFAULT CURRENT_TIMESTAMP,
+      UNIQUE KEY uq_redeem_code_user (code, username),
+      INDEX idx_redeem_code_uses (code, username)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+  `);
 }
 
 export { pool, query, ping, migrate };

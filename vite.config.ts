@@ -14,6 +14,7 @@ import {
 import {
   publicGetDownloads, adminGetDownloads, adminUpdateDownload,
 } from './server/downloads.js';
+import redeem from './server/redeem.js';
 import changePassword from './server/auth/change-password.js';
 import updateProfile from './server/auth/update-profile.js';
 import forgotPassword from './server/auth/forgot-password.js';
@@ -238,6 +239,19 @@ const apiPlugin = {
         server.config.logger.error(`  MongoDB: ❌ gagal konek — ${err.message}`);
       }
     }
+
+    server.middlewares.use('/auth/redeem', async (req: any, res: any, next: any) => {
+      if (req.method !== 'POST') { next(); return; }
+      try {
+        addJsonResponseHelpers(res);
+        req.body = await parseBody(req);
+        await redeem(req, res);
+      } catch (e) {
+        res.statusCode = 500;
+        res.setHeader('Content-Type', 'application/json');
+        res.end(JSON.stringify({ message: 'Server error' }));
+      }
+    });
 
     server.middlewares.use('/auth/register', async (req: any, res: any, next: any) => {
       if (req.method !== 'POST') { next(); return; }

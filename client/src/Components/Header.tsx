@@ -4,9 +4,10 @@ import { useLocation } from 'wouter';
 import { GiBookmarklet } from 'react-icons/gi';
 import { HiMenuAlt3, HiX, HiChevronDown, HiLogin, HiUserAdd, HiDownload, HiQuestionMarkCircle, HiNewspaper } from 'react-icons/hi';
 import { MdHeadset, MdHeadsetOff } from 'react-icons/md';
-import { IoPersonCircleOutline, IoLogOutOutline } from 'react-icons/io5';
+import { IoPersonCircleOutline, IoLogOutOutline, IoGiftOutline } from 'react-icons/io5';
 import { useMusic } from '@/Hooks/use-music';
 import { useAuth } from '@/Hooks/use-auth';
+import RedeemModal from '@/Components/RedeemModal';
 
 // Nav links route-based
 const NAV_LINKS = [
@@ -26,6 +27,7 @@ const Header = ({ light = false }: { light?: boolean }) => {
     const [scrolled, setScrolled] = useState(false);
     const [dropdownOpen, setDropdownOpen] = useState(false);
     const [accountOpen, setAccountOpen] = useState(false);
+    const [redeemOpen, setRedeemOpen] = useState(false);
     const [location, setLocation] = useLocation();
     const dropdownRef = useRef<HTMLDivElement>(null);
     const accountRef = useRef<HTMLDivElement>(null);
@@ -167,6 +169,14 @@ const Header = ({ light = false }: { light?: boolean }) => {
                                             Info Akun
                                         </button>
                                         <button
+                                            className="game-account-dropdown__item game-account-dropdown__item--redeem"
+                                            onClick={() => { setRedeemOpen(true); setAccountOpen(false); }}
+                                            role="menuitem"
+                                        >
+                                            <IoGiftOutline size={17} />
+                                            Redeem Kode
+                                        </button>
+                                        <button
                                             className="game-account-dropdown__item game-account-dropdown__item--logout"
                                             onClick={() => { logout(); setLocation('/'); setAccountOpen(false); }}
                                             role="menuitem"
@@ -254,6 +264,13 @@ const Header = ({ light = false }: { light?: boolean }) => {
                                     </button>
                                     <button
                                         className="game-login-btn game-login-btn--full"
+                                        onClick={() => { setRedeemOpen(true); setOpened(false); }}
+                                    >
+                                        <IoGiftOutline size={16} />
+                                        Redeem Kode
+                                    </button>
+                                    <button
+                                        className="game-login-btn game-login-btn--full"
                                         style={{ opacity: 0.7 }}
                                         onClick={() => { logout(); setLocation('/'); setOpened(false); }}
                                     >
@@ -286,6 +303,8 @@ const Header = ({ light = false }: { light?: boolean }) => {
                     </div>
                 </div>
             )}
+
+            <RedeemModal open={redeemOpen} onClose={() => setRedeemOpen(false)} />
         </>
     );
 };
