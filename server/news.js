@@ -109,7 +109,7 @@ export async function adminLogin(req, res) {
     // Ambil data login + role dari tabel game
     const rows = await query(
       `SELECT g.fdUserID, g.fdPassword,
-              i.fdNickname, i.fdRole
+              i.fdNickname, i.fdRole, i.fdUserNum
        FROM userinfofrompublisher g
        JOIN userinfo i ON i.fdUID = g.fdUserID
        WHERE g.fdUserID = ?
@@ -138,6 +138,7 @@ export async function adminLogin(req, res) {
       username: row.fdUserID,
       nickname: row.fdNickname ?? row.fdUserID,
       role:     row.fdRole,
+      userNum:  row.fdUserNum ?? 0,
     };
 
     setAdminCookie(res, user);

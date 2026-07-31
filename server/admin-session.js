@@ -39,14 +39,15 @@ function parseCookies(header = '') {
 
 /**
  * Buat cookie admin yang menyimpan informasi user staff.
- * Payload: "username\x1Fnickname\x1Frole\x1Ftimestamp"
+ * Payload format: "username\x1Fnickname\x1Frole\x1FuserNum\x1Ftimestamp"
+ * (userNum ditambahkan untuk logging aksi GM tools)
  */
-export function setAdminCookie(res, { username, nickname, role }) {
-  // Use unit-separator (non-printable) to avoid collisions with user data
+export function setAdminCookie(res, { username, nickname, role, userNum = 0 }) {
   const payload = [
     encodeURIComponent(username),
     encodeURIComponent(nickname || ''),
     encodeURIComponent(role     || ''),
+    String(userNum || 0),
     Date.now(),
   ].join('\x1F');
 
@@ -64,7 +65,8 @@ export function clearAdminCookie(res) {
 
 /**
  * Verifikasi cookie dan kembalikan data user staff, atau null jika tidak valid.
- * @returns {{ username: string, nickname: string, role: string } | null}
+ * Kompatibel dengan cookie lama (4 segmen) maupun baru (5 segmen dengan userNum).
+ * @returns {{ username: string, nickname: string, role: string, userNum: number } | null}
  */
 export function getAdminUser(req) {
   const cookies = parseCookies(req.headers?.cookie ?? '');
@@ -76,10 +78,20 @@ export function getAdminUser(req) {
   const parts   = payload.split('\x1F');
   if (parts.length < 4) return null;
 
-  const [u, n, r] = parts.map(decodeURIComponent);
+  const u = decodeURIComponent(parts[0]);
+  const n = decodeURIComponent(parts[1]);
+  const r = decodeURIComponent(parts[2]);
+
   if (!u || !STAFF_ROLES.has(r)) return null;
 
-  return { username: u, nickname: n, role: r };
+  // Format baru (5 segmen): parts[3] = userNum, parts[4] = timestamp
+  // Format lama (4 segmen): parts[3] = timestamp
+  let userNum = 0;
+  if (parts.length >= 5) {
+    userNum = parseInt(parts[3], 10) || 0;
+  }
+
+  return { username: u, nickname: n, role: r, userNum };
 }
 
 export function isAdminAuthenticated(req) {

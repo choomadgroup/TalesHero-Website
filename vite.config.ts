@@ -28,6 +28,7 @@ import me from './server/auth/me.js';
 import logout from './server/auth/logout.js';
 import turnstileConfig from './server/auth/turnstile-config.js';
 import { ping, migrate } from './server/db.js';
+import { gmToolsRouter } from './server/gm-tools.js';
 import { applySecurityHeaders } from './server/security.js';
 
 import runtimeErrorOverlay from '@replit/vite-plugin-runtime-error-modal';
@@ -435,6 +436,20 @@ const apiPlugin = {
           req.params = { id };
           await adminDeleteRedeemCode(req, res);
         } else { next(); }
+      } catch (e) {
+        res.statusCode = 500;
+        res.setHeader('Content-Type', 'application/json');
+        res.end(JSON.stringify({ message: 'Server error' }));
+      }
+    });
+
+    // ── GM Tools (player mgmt, send cash/TR/item, ban, requests, logs) ───────
+    server.middlewares.use('/api/admin/gm', async (req: any, res: any, next: any) => {
+      try {
+        addJsonResponseHelpers(res);
+        req.body  = ['POST', 'PUT', 'PATCH'].includes(req.method) ? await parseBody(req) : undefined;
+        req.query = Object.fromEntries(new URL('http://x' + req.url).searchParams.entries());
+        await gmToolsRouter(req, res, next);
       } catch (e) {
         res.statusCode = 500;
         res.setHeader('Content-Type', 'application/json');
