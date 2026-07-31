@@ -616,7 +616,15 @@ function RedeemCreateForm({ onSave, onCancel }: {
 function RedeemManager({ adminUser, showToast }: { adminUser: AdminUser | null; showToast: (msg: string) => void }) {
   const { codes, loading, refresh, create, toggle } = useAdminRedeem();
   const [showForm, setShowForm] = useState(false);
+  const [copiedId, setCopiedId] = useState<number | null>(null);
   const isOwner = adminUser?.role === 'Owner';
+
+  const copyCode = (code: string, id: number) => {
+    navigator.clipboard.writeText(code).then(() => {
+      setCopiedId(id);
+      setTimeout(() => setCopiedId(null), 1800);
+    });
+  };
 
   const fmt     = (d?: string | null) => d ? new Date(d).toLocaleDateString('id-ID', { day:'2-digit', month:'short', year:'numeric' }) : '—';
   const isExpired = (d?: string | null) => d ? new Date(d) < new Date() : false;
@@ -688,9 +696,22 @@ function RedeemManager({ adminUser, showToast }: { adminUser: AdminUser | null; 
                   return (
                     <tr key={c.fdRedeemId}>
                       <td>
-                        <code style={{ fontFamily:'monospace', fontSize:13, fontWeight:600, color:'#6366f1', background:'#eef2ff', padding:'2px 6px', borderRadius:5 }}>
-                          {c.fdCode}
-                        </code>
+                        <div style={{ display:'flex', alignItems:'center', gap:6 }}>
+                          <code style={{ fontFamily:'monospace', fontSize:13, fontWeight:600, color:'#6366f1', background:'#eef2ff', padding:'2px 6px', borderRadius:5 }}>
+                            {c.fdCode}
+                          </code>
+                          <button
+                            type="button"
+                            onClick={() => copyCode(c.fdCode, c.fdRedeemId)}
+                            title="Salin kode"
+                            style={{ background:'none', border:'none', cursor:'pointer', padding:'2px 4px', borderRadius:4, color: copiedId === c.fdRedeemId ? '#22c55e' : '#94a3b8', transition:'color .15s', lineHeight:1, flexShrink:0 }}
+                          >
+                            {copiedId === c.fdRedeemId
+                              ? <svg width="13" height="13" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+                              : <svg width="13" height="13" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+                            }
+                          </button>
+                        </div>
                         {c.fdNote && <div style={{ fontSize:11, color:'#94a3b8', marginTop:3 }}>{c.fdNote}</div>}
                       </td>
                       <td style={{ fontSize:12.5, lineHeight:1.7 }}>
