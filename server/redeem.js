@@ -80,6 +80,13 @@ async function redeem(req, res) {
     const userNum  = user.fdUserNum;
     const nickname = user.fdNickname ?? username;
 
+    // 3b. Pastikan player sudah punya karakter di game
+    if (!userNum) {
+      return res.status(422).json({
+        message: 'Kamu belum memiliki karakter dalam game. Buat karakter di Tales Hero terlebih dahulu sebelum menukarkan kode.',
+      });
+    }
+
     // 4. Cari kode di tblredeem_code
     const codeRows = await query(
       `SELECT fdRedeemId, fdCode,
