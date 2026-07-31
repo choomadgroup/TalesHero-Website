@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { IoGiftOutline, IoCloseOutline, IoCheckmarkCircle, IoAlertCircleOutline } from 'react-icons/io5';
+import { useAuth } from '@/Hooks/use-auth';
 
 interface Props {
     open: boolean;
@@ -9,6 +10,7 @@ interface Props {
 }
 
 export default function RedeemModal({ open, onClose, onSuccess }: Props) {
+    const { refreshUser } = useAuth();
     const [code, setCode]       = useState('');
     const [loading, setLoading] = useState(false);
     const [success, setSuccess] = useState<string | null>(null);
@@ -52,6 +54,7 @@ export default function RedeemModal({ open, onClose, onSuccess }: Props) {
             } else {
                 setSuccess(data?.message ?? 'Kode berhasil ditukarkan!');
                 setCode('');
+                refreshUser();
                 if (data?.reward && onSuccess) onSuccess(data.reward);
             }
         } catch {

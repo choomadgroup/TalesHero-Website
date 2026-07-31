@@ -15,6 +15,7 @@ interface AuthContextType {
   loading: boolean;
   login:  (user: AuthUser) => void;
   updateUser: (updates: Partial<AuthUser>) => void;
+  refreshUser: () => Promise<void>;
   logout: () => Promise<void>;
 }
 
@@ -60,8 +61,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     });
   };
 
+  const refreshUser = async () => {
+    try {
+      const res = await fetch('/auth/me', { credentials: 'include' });
+      const data = res.ok ? await res.json() : null;
+      setUser(data?.user ?? null);
+    } catch {
+      // sesi tetap valid, abaikan error jaringan sementara
+    }
+  };
+
   return (
-    <AuthContext.Provider value={{ user, loading, login, updateUser, logout }}>
+    <AuthContext.Provider value={{ user, loading, login, updateUser, refreshUser, logout }}>
       {children}
     </AuthContext.Provider>
   );
