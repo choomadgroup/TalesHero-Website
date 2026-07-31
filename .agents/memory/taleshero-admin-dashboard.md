@@ -1,6 +1,6 @@
 ---
 name: Tales Hero admin dashboard
-description: Admin news dashboard architecture — what was built, what still needs activation
+description: Admin dashboard architecture — News, Downloads, and Redeem Code sections all complete
 ---
 
 ## What was built
@@ -27,8 +27,17 @@ description: Admin news dashboard architecture — what was built, what still ne
 - CSS class `.dl-pkg-card` with `--pkg-color` CSS variable per package
 - To activate File Setup download: update `href` in `PACKAGES[0]` in `client/src/Pages/Download.tsx`
 
+## Redeem Code section (complete — 2026-07-31)
+- `server/admin-redeem.js` — GET/POST /api/admin/redeem, PATCH /api/admin/redeem/:id, GET /api/admin/redeem/search-item
+- `client/src/Hooks/use-admin-redeem.ts` — useAdminRedeem hook + searchItems() function
+- `RedeemManager` + `RedeemCreateForm` components added to `client/src/Pages/News/Admin/Admin.tsx`
+- Only **Owner** role can create or toggle codes (enforced on both client and server)
+- Item search: debounced, min 2 chars, searches tblavataritemdesc by name or item number
+- Code auto-generates `TRH-XXXX-XXXX` format if left blank; duplicates are rejected by server
+- Expired codes shown in red; toggle button disabled for expired codes
+
 ## What needs activation before articles persist
-1. Set `MONGODB_URI` secret → a free MongoDB Atlas cluster works
+1. Set `MONGODB_URI` secret → a free MongoDB Atlas cluster works ✅ (now set)
 2. Set `ADMIN_PASSWORD` secret → any strong password
 3. Without these, admin dashboard loads but articles cannot be saved (503 from API)
 
