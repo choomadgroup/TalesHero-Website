@@ -264,7 +264,6 @@ export default function Akun() {
                             <div className="akun-identity__copy">
                                     <p className="akun-greeting">✦ Halo! Aku ✦</p>
                                     <h1 className="akun-username">{user.nickname || "Belum ada nickname"}</h1>
-                                <p className="akun-gameid">Nickname dalam game</p>
                             </div>
                         </div>
 
