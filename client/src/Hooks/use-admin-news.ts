@@ -29,6 +29,7 @@ export interface AdminUser {
   username: string;
   nickname: string;
   role:     string;
+  userNum:  number;
 }
 
 // ── Admin auth ────────────────────────────────────────────────────────────────

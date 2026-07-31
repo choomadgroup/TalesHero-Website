@@ -296,6 +296,12 @@
   svg { flex-shrink: 0; }
 }
 
+.admin-sidebar__nav-divider {
+  height: 1px;
+  background: rgba(255, 255, 255, 0.1);
+  margin: 8px 4px;
+}
+
 .admin-main {
   flex: 1;
   margin-left: 220px;

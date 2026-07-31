@@ -877,6 +877,19 @@ function AdminDashboard({ onLogout, adminUser }: { onLogout: () => void; adminUs
             onClick={() => goSection('redeem')}>
             <IconRedeem /> Redeem Code
           </button>
+          <div className="admin-sidebar__nav-divider" />
+          <button className={`admin-nav-link${section === 'players' ? ' admin-nav-link--active' : ''}`}
+            onClick={() => goSection('players')}>
+            <IconPlayers /> GM — Player
+          </button>
+          <button className={`admin-nav-link${section === 'requests' ? ' admin-nav-link--active' : ''}`}
+            onClick={() => goSection('requests')}>
+            <IconRequests /> GM — Requests
+          </button>
+          <button className={`admin-nav-link${section === 'logs' ? ' admin-nav-link--active' : ''}`}
+            onClick={() => goSection('logs')}>
+            <IconLog /> GM — Logs
+          </button>
         </nav>
         <div className="admin-sidebar__footer">
           <button className="admin-nav-link" onClick={onLogout}><IconLogout /> Keluar</button>
@@ -907,6 +920,39 @@ function AdminDashboard({ onLogout, adminUser }: { onLogout: () => void; adminUs
         )}
         {section === 'redeem' && (
           <RedeemManager adminUser={adminUser} showToast={showToast} />
+        )}
+        {section === 'players' && (
+          <div>
+            <div className="admin-topbar">
+              <h1>GM — Manajemen Player</h1>
+              <div className="admin-topbar__actions" />
+            </div>
+            <div className="admin-content">
+              <GmPlayerSection adminUser={adminUser} showToast={showToast} />
+            </div>
+          </div>
+        )}
+        {section === 'requests' && (
+          <div>
+            <div className="admin-topbar">
+              <h1>GM — Antrian Request</h1>
+              <div className="admin-topbar__actions" />
+            </div>
+            <div className="admin-content">
+              <GmRequestsSection adminUser={adminUser} showToast={showToast} />
+            </div>
+          </div>
+        )}
+        {section === 'logs' && (
+          <div>
+            <div className="admin-topbar">
+              <h1>GM — Log Aktivitas</h1>
+              <div className="admin-topbar__actions" />
+            </div>
+            <div className="admin-content">
+              <GmLogsSection adminUser={adminUser} />
+            </div>
+          </div>
         )}
       </main>
 
