@@ -91,15 +91,15 @@ function AdminLogin({ onLogin }: {
 // ─────────────────────────────────────────────────────────────────────────────
 // Delete confirmation modal
 // ─────────────────────────────────────────────────────────────────────────────
-function DeleteModal({ title, onConfirm, onCancel, loading }: {
-  title: string; onConfirm: () => void; onCancel: () => void; loading: boolean;
+function DeleteModal({ title, heading = 'Hapus?', onConfirm, onCancel, loading }: {
+  title: string; heading?: string; onConfirm: () => void; onCancel: () => void; loading: boolean;
 }) {
   return (
     <div style={{ position:'fixed',inset:0,background:'rgba(15,23,42,0.55)',display:'flex',alignItems:'center',justifyContent:'center',zIndex:200 }}>
       <div style={{ background:'#fff',borderRadius:12,padding:'28px 32px',maxWidth:380,width:'90%',boxShadow:'0 8px 40px rgba(0,0,0,.15)' }}>
-        <h3 style={{ margin:'0 0 10px',fontSize:'1rem',fontWeight:700,color:'#0f172a' }}>Hapus Artikel?</h3>
+        <h3 style={{ margin:'0 0 10px',fontSize:'1rem',fontWeight:700,color:'#0f172a' }}>{heading}</h3>
         <p style={{ margin:'0 0 22px',fontSize:13.5,color:'#64748b',lineHeight:1.55 }}>
-          Artikel <strong>"{title}"</strong> akan dihapus permanen dan tidak bisa dipulihkan.
+          <strong>"{title}"</strong> akan dihapus permanen dan tidak bisa dipulihkan.
         </p>
         <div style={{ display:'flex',gap:10,justifyContent:'flex-end' }}>
           <button onClick={onCancel} disabled={loading} className="admin-btn admin-btn--ghost">Batal</button>
@@ -655,6 +655,16 @@ function RedeemManager({ adminUser, showToast }: { adminUser: AdminUser | null; 
   };
 
   return (
+    <>
+    {deletingCode && (
+      <DeleteModal
+        heading="Hapus Kode Redeem?"
+        title={deletingCode.fdCode}
+        onConfirm={handleDelete}
+        onCancel={() => setDeletingCode(null)}
+        loading={deleteLoading}
+      />
+    )}
     <div>
       <div className="admin-topbar">
         <h1>Manajemen Redeem Code</h1>
@@ -759,6 +769,7 @@ function RedeemManager({ adminUser, showToast }: { adminUser: AdminUser | null; 
                               disabled={expired}>
                               {c.fdIsActive ? 'Nonaktifkan' : 'Aktifkan'}
                             </button>
+                            <button className="btn-delete" onClick={() => setDeletingCode(c)}>Hapus</button>
                           </div>
                         </td>
                       )}
@@ -771,6 +782,7 @@ function RedeemManager({ adminUser, showToast }: { adminUser: AdminUser | null; 
         )}
       </div>
     </div>
+    </>
   );
 }
 
