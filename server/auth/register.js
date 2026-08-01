@@ -101,8 +101,8 @@ async function register(req, res) {
     // ── 3. Simpan langsung ke tabel publisher game ────────
     // The game server expects a lowercase MD5 digest in fdPassword.
     await conn.query(
-      `INSERT INTO userinfofrompublisher (fdUserID, fdGameID, fdPassword)
-       VALUES (?, ?, ?)`,
+      `INSERT INTO userinfofrompublisher (fdUserID, fdGameID, fdPassword, fdWhitelist)
+       VALUES (?, ?, ?, 1)`,
       [username.trim(), username.trim(), gamePassword(password)]
     );
 

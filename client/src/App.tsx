@@ -1,4 +1,4 @@
-import { Route, Switch, Router as WouterRouter } from 'wouter';
+import { Route, Switch, Router as WouterRouter, useLocation } from 'wouter';
 import { MusicProvider } from '@/Hooks/use-music';
 import { AuthProvider } from '@/Hooks/use-auth';
 import { useProtection } from '@/Hooks/use-protection';
@@ -39,13 +39,19 @@ function Router() {
     );
 }
 
+function PopupWrapper() {
+    const [location] = useLocation();
+    if (location.startsWith('/dashboard')) return null;
+    return <AnnouncementPopup />;
+}
+
 function App() {
     useProtection();
     return (
         <AuthProvider>
             <MusicProvider>
-                <AnnouncementPopup />
                 <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, '')}>
+                    <PopupWrapper />
                     <Router />
                 </WouterRouter>
             </MusicProvider>
