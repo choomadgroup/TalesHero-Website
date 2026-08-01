@@ -107,6 +107,26 @@ async function migrate() {
     if (error?.code !== 'ER_DUP_FIELDNAME') throw error;
   }
 
+  // Tambah kolom MAU ke tblredeem_code (jika belum ada).
+  try {
+    await pool.query(`
+      ALTER TABLE tblredeem_code
+      ADD COLUMN fdRewardMAU INT NOT NULL DEFAULT 0 AFTER fdRewardTR
+    `);
+  } catch (error) {
+    if (error?.code !== 'ER_DUP_FIELDNAME') throw error;
+  }
+
+  // Tambah kolom MAU ke tblredeem_code_claim (jika belum ada).
+  try {
+    await pool.query(`
+      ALTER TABLE tblredeem_code_claim
+      ADD COLUMN fdClaimedMAU INT NOT NULL DEFAULT 0 AFTER fdClaimedTR
+    `);
+  } catch (error) {
+    if (error?.code !== 'ER_DUP_FIELDNAME') throw error;
+  }
+
   // ── Redeem codes ─────────────────────────────────────────────
   await pool.query(`
     CREATE TABLE IF NOT EXISTS redeem_codes (

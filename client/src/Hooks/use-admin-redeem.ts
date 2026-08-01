@@ -5,6 +5,7 @@ export interface RedeemCode {
   fdCode:             string;
   fdRewardCash:       number;
   fdRewardTR:         number;
+  fdRewardMAU:        number;
   fdRewardItemNum:    number | null;
   fdRewardItemName:   string | null;
   fdDeliveryTarget:   string | null;
@@ -20,6 +21,7 @@ export interface RedeemFormData {
   code:            string;
   cash_amount:     number;
   tr_amount:       number;
+  mau_amount:      number;
   item_num:        number;
   item_name:       string;
   delivery_target: 'Giftbox' | 'Warehouse';

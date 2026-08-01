@@ -472,7 +472,7 @@ function DownloadManager({ showToast }: { showToast: (msg: string) => void }) {
 // Redeem manager
 // ─────────────────────────────────────────────────────────────────────────────
 const emptyRedeemForm = (): RedeemFormData => ({
-  code: '', cash_amount: 0, tr_amount: 0,
+  code: '', cash_amount: 0, tr_amount: 0, mau_amount: 0,
   item_num: 0, item_name: '', delivery_target: 'Giftbox',
   note: '', expires_days: 7,
 });
@@ -516,8 +516,8 @@ function RedeemCreateForm({ onSave, onCancel }: {
   };
 
   const save = async () => {
-    if (form.cash_amount <= 0 && form.tr_amount <= 0 && form.item_num <= 0) {
-      setError('Isi minimal satu reward: Cash, TR, atau Item.'); return;
+    if (form.cash_amount <= 0 && form.tr_amount <= 0 && form.mau_amount <= 0 && form.item_num <= 0) {
+      setError('Isi minimal satu reward: Cash, TR, MAU, atau Item.'); return;
     }
     setSaving(true); setError('');
     try { await onSave(form); }
@@ -550,6 +550,12 @@ function RedeemCreateForm({ onSave, onCancel }: {
           <label>TR (Game Money)</label>
           <input type="number" min={0} value={form.tr_amount || ''}
             onChange={e => set('tr_amount', Number(e.target.value))} placeholder="0" />
+        </div>
+
+        <div className="admin-form-field">
+          <label>MAU (Point)</label>
+          <input type="number" min={0} value={form.mau_amount || ''}
+            onChange={e => set('mau_amount', Number(e.target.value))} placeholder="0" />
         </div>
 
         <div className="admin-form-field" style={{ gridColumn:'1/-1', position:'relative' }}>
@@ -743,6 +749,7 @@ function RedeemManager({ adminUser, showToast }: { adminUser: AdminUser | null; 
                       <td style={{ fontSize:12.5, lineHeight:1.7 }}>
                         {c.fdRewardCash  > 0 && <div>💰 {c.fdRewardCash.toLocaleString('id-ID')} Cash</div>}
                         {c.fdRewardTR    > 0 && <div>⚔ {c.fdRewardTR.toLocaleString('id-ID')} TR</div>}
+                        {c.fdRewardMAU   > 0 && <div>✨ {c.fdRewardMAU.toLocaleString('id-ID')} MAU</div>}
                         {c.fdRewardItemNum && (
                           <div title={`#${c.fdRewardItemNum}`}>
                             🎁 {c.fdRewardItemName ?? `Item #${c.fdRewardItemNum}`}

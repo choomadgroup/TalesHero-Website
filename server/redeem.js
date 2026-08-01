@@ -90,7 +90,7 @@ async function redeem(req, res) {
     // 4. Cari kode di tblredeem_code
     const codeRows = await query(
       `SELECT fdRedeemId, fdCode,
-              fdRewardCash, fdRewardTR,
+              fdRewardCash, fdRewardTR, COALESCE(fdRewardMAU, 0) AS fdRewardMAU,
               fdRewardItemNum, fdRewardItemName, fdDeliveryTarget,
               fdIsActive, fdClaimCount, fdExpiredAt
        FROM tblredeem_code
@@ -129,6 +129,7 @@ async function redeem(req, res) {
     // 8. Terapkan reward ─────────────────────────────────────
     const cash   = Number(rc.fdRewardCash)   || 0;
     const tr     = Number(rc.fdRewardTR)     || 0;
+    const mau    = Number(rc.fdRewardMAU)    || 0;
     const itemNum = rc.fdRewardItemNum ? Number(rc.fdRewardItemNum) : null;
     const delivery = rc.fdDeliveryTarget ?? 'Giftbox';
     const memo   = `Redeem Code: ${rc.fdCode}`;
@@ -151,6 +152,15 @@ async function redeem(req, res) {
       );
     }
 
+    if (mau > 0) {
+      await query(
+        `UPDATE userinfopoint
+         SET fdPoint = fdPoint + ?, fdPointAccumulated = fdPointAccumulated + ?
+         WHERE fdUserNum = ? AND fdRewardCondition = 1201`,
+        [mau, mau, userNum],
+      );
+    }
+
     if (itemNum) {
       const senderNickname = '[GM]System';
       if (delivery === 'Warehouse') {
@@ -165,8 +175,8 @@ async function redeem(req, res) {
     await query(
       `INSERT INTO tblredeem_code_claim
          (fdRedeemId, fdCode, fdUserNum, fdUserId, fdNickname,
-          fdClaimedCash, fdClaimedTR, fdClaimedItemNum, fdClaimedItemName, fdDeliveryTarget)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+          fdClaimedCash, fdClaimedTR, fdClaimedMAU, fdClaimedItemNum, fdClaimedItemName, fdDeliveryTarget)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         rc.fdRedeemId,
         rc.fdCode,
@@ -175,6 +185,7 @@ async function redeem(req, res) {
         nickname,
         cash,
         tr,
+        mau,
         itemNum,
         rc.fdRewardItemName ?? null,
         itemNum ? delivery : null,
@@ -191,6 +202,7 @@ async function redeem(req, res) {
     const parts = [];
     if (cash > 0)   parts.push(`${Number(cash).toLocaleString('id-ID')} Cash`);
     if (tr > 0)     parts.push(`${Number(tr).toLocaleString('id-ID')} TR`);
+    if (mau > 0)    parts.push(`${Number(mau).toLocaleString('id-ID')} MAU`);
     if (itemNum)    parts.push(`${rc.fdRewardItemName ?? 'Item'} (${delivery})`);
     const rewardSummary = parts.join(' + ') || 'Hadiah spesial';
 

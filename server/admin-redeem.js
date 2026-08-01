@@ -41,7 +41,7 @@ export async function adminGetRedeemCodes(req, res) {
 
     const codes = await query(
       `SELECT fdRedeemId, fdCode,
-              fdRewardCash, fdRewardTR,
+              fdRewardCash, fdRewardTR, COALESCE(fdRewardMAU, 0) AS fdRewardMAU,
               fdRewardItemNum, fdRewardItemName, fdDeliveryTarget,
               fdNote, fdIsActive, fdClaimCount,
               fdCreatedByNickname, fdCreatedAt, fdExpiredAt
@@ -97,6 +97,7 @@ export async function adminCreateRedeemCode(req, res) {
       code: rawCode,
       cash_amount = 0,
       tr_amount   = 0,
+      mau_amount  = 0,
       item_num    = 0,
       item_name   = '',
       delivery_target = 'Giftbox',
@@ -107,9 +108,10 @@ export async function adminCreateRedeemCode(req, res) {
     // Validasi reward — minimal salah satu harus diisi
     const cash   = Number(cash_amount)  || 0;
     const tr     = Number(tr_amount)    || 0;
+    const mau    = Number(mau_amount)   || 0;
     const itemNum = Number(item_num)    || 0;
-    if (cash <= 0 && tr <= 0 && itemNum <= 0) {
-      return res.status(400).json({ message: 'Isi minimal satu reward: Cash, TR, atau Item.' });
+    if (cash <= 0 && tr <= 0 && mau <= 0 && itemNum <= 0) {
+      return res.status(400).json({ message: 'Isi minimal satu reward: Cash, TR, MAU, atau Item.' });
     }
 
     // Resolve kode — generate kalau kosong
@@ -157,16 +159,17 @@ export async function adminCreateRedeemCode(req, res) {
 
     await query(
       `INSERT INTO tblredeem_code
-         (fdCode, fdRewardCash, fdRewardTR,
+         (fdCode, fdRewardCash, fdRewardTR, fdRewardMAU,
           fdRewardItemNum, fdRewardItemName, fdDeliveryTarget,
           fdNote, fdIsActive, fdClaimCount,
           fdCreatedByUserNum, fdCreatedByUserId, fdCreatedByNickname,
           fdExpiredAt)
-       VALUES (?, ?, ?, ?, ?, ?, ?, 1, 0, ?, ?, ?, ?)`,
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, 1, 0, ?, ?, ?, ?)`,
       [
         code,
         cash,
         tr,
+        mau,
         itemNum || null,
         itemNum ? resolvedItemName : null,
         itemNum ? (delivery_target === 'Warehouse' ? 'Warehouse' : 'Giftbox') : null,
@@ -179,7 +182,7 @@ export async function adminCreateRedeemCode(req, res) {
     );
 
     const [created] = await query(
-      `SELECT fdRedeemId, fdCode, fdRewardCash, fdRewardTR,
+      `SELECT fdRedeemId, fdCode, fdRewardCash, fdRewardTR, COALESCE(fdRewardMAU, 0) AS fdRewardMAU,
               fdRewardItemNum, fdRewardItemName, fdDeliveryTarget,
               fdNote, fdIsActive, fdClaimCount,
               fdCreatedByNickname, fdCreatedAt, fdExpiredAt
