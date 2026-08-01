@@ -22,6 +22,7 @@ export interface GmPlayer {
   GameMoney:      number;
   Mau:            number;
   Exp:            number;
+  Attribute:      number;   // 1 = Piero/GM character
   IsBanned:       number;
   fdLastLoginTime?: string | null;
   fdLoginCount?:  number;
@@ -190,8 +191,9 @@ export function GmPlayerSection({ adminUser, showToast }: {
   // send cash / TR / MAU / EXP
   const [cashAmt, setCashAmt]   = useState('');
   const [trAmt, setTrAmt]       = useState('');
-  const [mauAmt, setMauAmt]     = useState('');
-  const [expAmt, setExpAmt]     = useState('');
+  const [mauAmt, setMauAmt]       = useState('');
+  const [expAmt, setExpAmt]       = useState('');
+  const [pieroColor, setPieroColorVal] = useState<number | ''>('');
 
   // send item
   const [itemQ, setItemQ]       = useState('');

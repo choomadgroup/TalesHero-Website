@@ -77,6 +77,7 @@ const PLAYER_SELECT = `
     COALESCE(uig.fdGameMoney, 0) AS GameMoney,
     COALESCE(uip.TotalPoint, 0) AS Mau,
     COALESCE(uig.fdExp, 0)      AS Exp,
+    COALESCE(ui.fdAttribute, 0) AS Attribute,
     CASE WHEN bl.fdUserNum IS NULL THEN 0 ELSE 1 END AS IsBanned,
     ull.fdLastLoginTime,
     ull.fdLastLogoutTime,
