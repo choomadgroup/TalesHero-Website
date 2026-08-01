@@ -52,10 +52,16 @@ async function findUser(username) {
        GROUP BY fdItemNum
      ) cpk ON cpk.fdItemNum = ig.fdAvatarCharacterSettingNum
      LEFT JOIN (
-       SELECT fdUserNum, MIN(fdCharacter) AS fdCharFromInv
-       FROM tblavataruser
-       WHERE fdUsing = 1 AND fdCharacter > 0
-       GROUP BY fdUserNum
+       -- Base character item (fdType=1, fdPosition=0) — reliable regardless of what
+       -- fashion outfit the player is wearing on top
+       SELECT au.fdUserNum, MIN(ad.fdCharacter) AS fdCharFromInv
+       FROM tblavataruser au
+       JOIN tblavataritemdesc ad ON ad.fdItemNum = au.fdItemDescNum
+       WHERE au.fdUsing = 1
+         AND ad.fdType = 1
+         AND ad.fdPosition = 0
+         AND ad.fdCharacter > 0
+       GROUP BY au.fdUserNum
      ) inv ON inv.fdUserNum = i.fdUserNum
      LEFT JOIN (
        SELECT fdUserNum, SUM(fdPoint) AS TotalPoint
@@ -70,11 +76,14 @@ async function findUser(username) {
   const user = rows[0];
   if (!user) return null;
 
-  // Prefer cpkref character; fall back to equipped inventory item if cpkref gives 0/null
-  const fdChar = (user.fdChar && user.fdChar > 0)
-    ? user.fdChar
-    : (user.fdCharFromInv && user.fdCharFromInv > 0)
-      ? user.fdCharFromInv
+  // Prefer base character from inventory (fdType=1, fdPosition=0) — this is the actual
+  // character the player IS, regardless of what fashion they're wearing on top.
+  // cpk.fdChar (fdAvatarCharacterSettingNum) tracks the avatar fashion SET and can
+  // belong to a different character, so it's only used as a last resort.
+  const fdChar = (user.fdCharFromInv && user.fdCharFromInv > 0)
+    ? user.fdCharFromInv
+    : (user.fdChar && user.fdChar > 0)
+      ? user.fdChar
       : null;
   const character = fdChar != null ? (CHAR_NAME_MAP[fdChar] ?? null) : null;
 
