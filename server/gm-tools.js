@@ -245,12 +245,10 @@ export async function sendMau(req, res, targetUserNum) {
 
     if (isOwner(admin)) {
       await query(
-        `INSERT INTO userinfopoint (fdUserNum, fdRewardCondition, fdPoint, fdPointAccumulated)
-         VALUES (?, 1201, ?, ?)
-         ON DUPLICATE KEY UPDATE
-           fdPoint = fdPoint + VALUES(fdPoint),
-           fdPointAccumulated = fdPointAccumulated + VALUES(fdPoint)`,
-        [targetUserNum, amount, amount],
+        `UPDATE userinfopoint
+         SET fdPoint = fdPoint + ?, fdPointAccumulated = fdPointAccumulated + ?
+         WHERE fdUserNum = ? AND fdRewardCondition = 1201`,
+        [amount, amount, targetUserNum],
       );
       await logAction(admin, 'SEND_MAU', `UserNum:${targetUserNum}`, `MAU +${amount}`);
       return json(res, 200, { message: `MAU +${amount.toLocaleString('id-ID')} berhasil dikirim ke ${targets[0].fdNickname}.` });
@@ -638,12 +636,10 @@ export async function approveRequest(req, res, requestId) {
       );
     } else if (type === 'Mau') {
       await conn.query(
-        `INSERT INTO userinfopoint (fdUserNum, fdRewardCondition, fdPoint, fdPointAccumulated)
-         VALUES (?, 1201, ?, ?)
-         ON DUPLICATE KEY UPDATE
-           fdPoint = fdPoint + VALUES(fdPoint),
-           fdPointAccumulated = fdPointAccumulated + VALUES(fdPoint)`,
-        [target, request.fdAmount, request.fdAmount],
+        `UPDATE userinfopoint
+         SET fdPoint = fdPoint + ?, fdPointAccumulated = fdPointAccumulated + ?
+         WHERE fdUserNum = ? AND fdRewardCondition = 1201`,
+        [request.fdAmount, request.fdAmount, target],
       );
     } else if (type === 'Item') {
       const delivery = request.fdDeliveryTarget === 'Warehouse' ? 'Warehouse' : 'Giftbox';
@@ -759,6 +755,8 @@ export async function setPieroAccount(req, res, targetUserNum) {
 // ── Set Piero Color ───────────────────────────────────────────────────────────
 
 const PIERO_COLORS = ['Red', 'Orange', 'Yellow', 'Green', 'Blue', 'Navy', 'Purple', 'Angel', 'Devil', 'Winter', 'Black'];
+// Stored procedure usp_GM_SetPieroColor(nickname, colorIndex) expects an integer 0–10
+const PIERO_COLOR_INDEX = Object.fromEntries(PIERO_COLORS.map((c, i) => [c, i]));
 
 export async function setPieroColor(req, res, targetUserNum) {
   const admin = getAdminUser(req);
@@ -767,12 +765,13 @@ export async function setPieroColor(req, res, targetUserNum) {
   const color = String(req.body?.color ?? '').trim();
   if (!PIERO_COLORS.includes(color))
     return json(res, 400, { message: `Warna tidak valid. Pilihan: ${PIERO_COLORS.join(', ')}` });
+  const colorIndex = PIERO_COLOR_INDEX[color];
   try {
     const targets = await query(`${PLAYER_SELECT} WHERE ui.fdUserNum = ? LIMIT 1`, [targetUserNum]);
     if (!targets.length) return json(res, 404, { message: 'Player tidak ditemukan.' });
     if (!targets[0].Attribute)
       return json(res, 400, { message: 'Player belum diset sebagai Piero. Aktifkan Piero terlebih dahulu.' });
-    await query('CALL usp_GM_SetPieroColor(?, ?)', [targets[0].fdNickname, color]);
+    await query('CALL usp_GM_SetPieroColor(?, ?)', [targets[0].fdNickname, colorIndex]);
     await logAction(admin, 'SET_PIERO_COLOR', `UserNum:${targetUserNum}`,
       `Piero color -> ${color} (${targets[0].fdNickname})`);
     return json(res, 200, { message: `Warna Piero ${targets[0].fdNickname} berhasil diubah menjadi ${color}.` });

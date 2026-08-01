@@ -38,7 +38,7 @@ async function login(req, res) {
        `SELECT g.fdUserID, g.fdGameID, g.fdPassword, g.fdCash,
                i.fdNickname,
                ig.fdGameMoney,
-               COALESCE(uip.TotalPoint, 0) AS fdMau,
+               COALESCE(uip.TotalPoint, 0) AS mauTotal,
                w.email, w.sec_question AS secQuestion
        FROM userinfofrompublisher g
         LEFT JOIN userinfo i ON i.fdUID = g.fdUserID
@@ -74,7 +74,7 @@ async function login(req, res) {
         nickname:    user.fdNickname ?? '',
         gameId:      user.fdGameID,
         cash:        user.fdCash,
-        mau:         user.fdMau  ?? 0,
+        mau:         user.mauTotal ?? 0,
         tr:          user.fdGameMoney ?? 0,
         email:       user.email       ?? '',
         secQuestion: user.secQuestion ?? '',
