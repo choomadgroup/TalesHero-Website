@@ -67,6 +67,19 @@ const ALL_CHARACTERS = [
 
 const CHAR_KEY = 'taleshero_selected_char';
 
+// Characters that have confirmed art files in /Image/Karakter/Art/
+const CHARS_WITH_ART = new Set([
+    'Abel','BigBo','Bloody Vera','Cain','Celia','Chloe','Damyeon','Dewi','DnD',
+    'Elims','Harang','Haru','Hidden Rough','Jab','Jaka','Kai','LaLa','Luci',
+    'Maki','Miho','Mingming','Narcius','R','Rina','Rini','Roroa','Rough',
+    'Sid','Siho','Tifanny',
+]);
+
+function findCharIdx(name: string | null | undefined): number {
+    if (!name) return -1;
+    return ALL_CHARACTERS.findIndex(c => c.name === name);
+}
+
 interface ChangeForm { secAnswer: string; newPassword: string; confirm: string; }
 interface ChangeErrors { secAnswer?: string; newPassword?: string; confirm?: string; api?: string; }
 
@@ -87,21 +100,49 @@ export default function Akun() {
     const { user, loading: authLoading, logout, updateUser } = useAuth();
     const [, setLocation]  = useLocation();
 
-    // Character picker
+    // Character display — use game character when available, fall back to localStorage pick
     const [charIdx, setCharIdx] = useState<number>(() => {
         const stored = localStorage.getItem(CHAR_KEY);
         const n = stored !== null ? parseInt(stored, 10) : -1;
         if (n >= 0 && n < ALL_CHARACTERS.length) return n;
-        return Math.floor(Math.random() * ALL_CHARACTERS.length);
+        return -1; // will be resolved in useEffect once user loads
     });
+    const [charFromGame, setCharFromGame] = useState(false);
     const [showCharPicker, setShowCharPicker] = useState(false);
     const [charSearch, setCharSearch] = useState('');
 
+    // When user data arrives, resolve character from game if no localStorage override
+    useEffect(() => {
+        if (!user) return;
+        const stored = localStorage.getItem(CHAR_KEY);
+        if (stored !== null) return; // user has manually picked — respect that
+        const gameCharIdx = findCharIdx(user.character);
+        if (gameCharIdx >= 0) {
+            setCharIdx(gameCharIdx);
+            setCharFromGame(true);
+        } else {
+            // character not detected or no art — pick random
+            setCharIdx(Math.floor(Math.random() * ALL_CHARACTERS.length));
+            setCharFromGame(false);
+        }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [user?.character]);
+
     const selectChar = (idx: number) => {
         setCharIdx(idx);
+        setCharFromGame(false);
         localStorage.setItem(CHAR_KEY, String(idx));
         setShowCharPicker(false);
         setCharSearch('');
+    };
+
+    const resetToGameChar = () => {
+        localStorage.removeItem(CHAR_KEY);
+        const gameCharIdx = findCharIdx(user?.character);
+        if (gameCharIdx >= 0) {
+            setCharIdx(gameCharIdx);
+            setCharFromGame(true);
+        }
     };
 
     const filteredChars = ALL_CHARACTERS.filter(c =>
@@ -268,7 +309,7 @@ export default function Akun() {
         setTimeout(() => { logout(); setLocation('/'); }, 800);
     };
 
-    const char = ALL_CHARACTERS[charIdx];
+    const char = charIdx >= 0 ? ALL_CHARACTERS[charIdx] : ALL_CHARACTERS[0];
 
     return (
         <>
@@ -326,20 +367,34 @@ export default function Akun() {
                                         exit={{ opacity: 0 }}
                                         transition={{ duration: 0.28 }}
                                     >
+                                        {charFromGame && (
+                                            <span className="akun-char-panel__badge">🎮 Karakter game kamu</span>
+                                        )}
                                         <span className="akun-char-panel__label">Karakter</span>
                                         <h2 className="akun-char-panel__name">{char.name}</h2>
                                         <p className="akun-char-panel__quote">"{char.quote}"</p>
                                     </motion.div>
                                 </AnimatePresence>
                             </div>
-                            <button
-                                className="akun-char-panel__change-btn"
-                                onClick={() => setShowCharPicker(true)}
-                                title="Ganti karakter"
-                            >
-                                <IoSwapHorizontalOutline size={14} />
-                                Ganti Karakter
-                            </button>
+                            <div className="akun-char-panel__actions">
+                                <button
+                                    className="akun-char-panel__change-btn"
+                                    onClick={() => setShowCharPicker(true)}
+                                    title="Ganti karakter tampilan"
+                                >
+                                    <IoSwapHorizontalOutline size={14} />
+                                    Ganti
+                                </button>
+                                {!charFromGame && user?.character && CHARS_WITH_ART.has(user.character) && (
+                                    <button
+                                        className="akun-char-panel__change-btn akun-char-panel__change-btn--game"
+                                        onClick={resetToGameChar}
+                                        title="Kembali ke karakter game"
+                                    >
+                                        🎮 Pakai Karakter Game
+                                    </button>
+                                )}
+                            </div>
                         </div>
 
                         {/* Player identity */}
@@ -350,8 +405,8 @@ export default function Akun() {
                             </div>
                             <div className="akun-player-card__sep" />
                             <div className="akun-player-card__nick">
-                                <span className="akun-player-card__label">Username</span>
-                                <strong className="akun-player-card__value">{user.username}</strong>
+                                <span className="akun-player-card__label">Game ID</span>
+                                <strong className="akun-player-card__value">{user.gameId || '—'}</strong>
                             </div>
                         </div>
 

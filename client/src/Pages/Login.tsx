@@ -97,6 +97,7 @@ export default function Login() {
                     tr:          data.user?.tr          ?? 0,
                     email:       data.user?.email       ?? '',
                     secQuestion: data.user?.secQuestion ?? '',
+                    character:   data.user?.character   ?? null,
                 });
                 setLocation('/akun');
             }

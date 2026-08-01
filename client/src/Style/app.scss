@@ -5420,11 +5420,29 @@ $nl-sans:     'Poppins', -apple-system, sans-serif;
     overflow: hidden;
   }
 
-  &__change-btn {
+  &__badge {
+    display: inline-block;
+    margin-bottom: 4px;
+    padding: 2px 8px;
+    border-radius: 100px;
+    background: rgba(233,30,99,0.3);
+    border: 1px solid rgba(233,30,99,0.5);
+    color: rgba(255,255,255,0.9);
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.3px;
+  }
+
+  &__actions {
     position: absolute;
     bottom: 14px;
     right: 14px;
     z-index: 4;
+    display: flex;
+    gap: 6px;
+  }
+
+  &__change-btn {
     display: flex;
     align-items: center;
     gap: 5px;
@@ -5443,6 +5461,12 @@ $nl-sans:     'Poppins', -apple-system, sans-serif;
       background: rgba(233,30,99,0.7);
       border-color: transparent;
       color: #fff;
+    }
+
+    &--game {
+      background: rgba(233,30,99,0.25);
+      border-color: rgba(233,30,99,0.4);
+      &:hover { background: rgba(233,30,99,0.75); }
     }
   }
 }

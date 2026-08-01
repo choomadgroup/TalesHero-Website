@@ -9,6 +9,7 @@ export interface AuthUser {
   tr:          number;
   email:       string;
   secQuestion: string;
+  character:   string | null;
 }
 
 interface AuthContextType {
