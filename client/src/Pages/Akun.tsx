@@ -100,29 +100,57 @@ export default function Akun() {
     const { user, loading: authLoading, logout, updateUser } = useAuth();
     const [, setLocation]  = useLocation();
 
-    // Character display — use game character when available, fall back to localStorage pick
+    // Character display — use game character when available, fall back to localStorage pick.
+    // localStorage stores the character NAME (string). Old numeric format is treated as stale
+    // and cleared immediately so game detection always wins after upgrade.
     const [charIdx, setCharIdx] = useState<number>(() => {
         const stored = localStorage.getItem(CHAR_KEY);
-        const n = stored !== null ? parseInt(stored, 10) : -1;
-        if (n >= 0 && n < ALL_CHARACTERS.length) return n;
-        return -1; // will be resolved in useEffect once user loads
+        if (!stored) return -1;
+        if (/^\d+$/.test(stored)) {
+            // Old numeric index format — stale, clear it; useEffect will resolve from game
+            localStorage.removeItem(CHAR_KEY);
+            return -1;
+        }
+        const idx = ALL_CHARACTERS.findIndex(c => c.name === stored);
+        return idx >= 0 ? idx : -1;
     });
     const [charFromGame, setCharFromGame] = useState(false);
     const [showCharPicker, setShowCharPicker] = useState(false);
     const [charSearch, setCharSearch] = useState('');
 
-    // When user data arrives, resolve character from game if no localStorage override
+    // When user data arrives: game character wins unless user has an explicit name-based
+    // override stored that differs from the detected game character.
     useEffect(() => {
         if (!user) return;
         const stored = localStorage.getItem(CHAR_KEY);
-        if (stored !== null) return; // user has manually picked — respect that
+        // Clear any stale numeric entries that slipped through
+        if (stored !== null && /^\d+$/.test(stored)) {
+            localStorage.removeItem(CHAR_KEY);
+        }
+        const overrideName = stored && !/^\d+$/.test(stored) ? stored : null;
         const gameCharIdx = findCharIdx(user.character);
+
         if (gameCharIdx >= 0) {
+            // Game has a valid character.
+            // Respect an explicit override only when it names a DIFFERENT character.
+            if (overrideName && overrideName !== user.character) {
+                const overrideIdx = ALL_CHARACTERS.findIndex(c => c.name === overrideName);
+                if (overrideIdx >= 0) {
+                    setCharIdx(overrideIdx);
+                    setCharFromGame(false);
+                    return;
+                }
+            }
+            // No valid override — show game character and clear any leftover localStorage
             setCharIdx(gameCharIdx);
             setCharFromGame(true);
+            if (overrideName === user.character) localStorage.removeItem(CHAR_KEY);
         } else {
-            // character not detected or no art — pick random
-            setCharIdx(Math.floor(Math.random() * ALL_CHARACTERS.length));
+            // No game character detected — use stored override or pick random
+            const overrideIdx = overrideName
+                ? ALL_CHARACTERS.findIndex(c => c.name === overrideName)
+                : -1;
+            setCharIdx(overrideIdx >= 0 ? overrideIdx : Math.floor(Math.random() * ALL_CHARACTERS.length));
             setCharFromGame(false);
         }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -131,7 +159,7 @@ export default function Akun() {
     const selectChar = (idx: number) => {
         setCharIdx(idx);
         setCharFromGame(false);
-        localStorage.setItem(CHAR_KEY, String(idx));
+        localStorage.setItem(CHAR_KEY, ALL_CHARACTERS[idx].name); // store NAME, not index
         setShowCharPicker(false);
         setCharSearch('');
     };

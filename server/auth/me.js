@@ -39,12 +39,24 @@ async function findUser(username) {
             ig.fdGameMoney,
             ig.fdAvatarCharacterSettingNum,
             cpk.fdChar,
+            inv.fdCharFromInv,
             COALESCE(uip.TotalPoint, 0) AS mauTotal,
             w.email, w.sec_question AS secQuestion
      FROM userinfofrompublisher g
      LEFT JOIN userinfo i ON i.fdUID = g.fdUserID
      LEFT JOIN userinfogame ig ON ig.fdUserNum = i.fdUserNum
-     LEFT JOIN essenavataritemcpkref cpk ON cpk.fdItemNum = ig.fdAvatarCharacterSettingNum
+     LEFT JOIN (
+       SELECT fdItemNum, MIN(fdChar) AS fdChar
+       FROM essenavataritemcpkref
+       WHERE fdChar > 0
+       GROUP BY fdItemNum
+     ) cpk ON cpk.fdItemNum = ig.fdAvatarCharacterSettingNum
+     LEFT JOIN (
+       SELECT fdUserNum, MIN(fdCharacter) AS fdCharFromInv
+       FROM tblavataruser
+       WHERE fdUsing = 1 AND fdCharacter > 0
+       GROUP BY fdUserNum
+     ) inv ON inv.fdUserNum = i.fdUserNum
      LEFT JOIN (
        SELECT fdUserNum, SUM(fdPoint) AS TotalPoint
        FROM userinfopoint GROUP BY fdUserNum
@@ -58,7 +70,12 @@ async function findUser(username) {
   const user = rows[0];
   if (!user) return null;
 
-  const fdChar = user.fdChar ?? null;
+  // Prefer cpkref character; fall back to equipped inventory item if cpkref gives 0/null
+  const fdChar = (user.fdChar && user.fdChar > 0)
+    ? user.fdChar
+    : (user.fdCharFromInv && user.fdCharFromInv > 0)
+      ? user.fdCharFromInv
+      : null;
   const character = fdChar != null ? (CHAR_NAME_MAP[fdChar] ?? null) : null;
 
   return {
