@@ -85,6 +85,16 @@ async function gmFetch(path: string, opts?: RequestInit) {
   return body;
 }
 
+// ── Piero colours ─────────────────────────────────────────────────────────────
+
+const PIERO_COLORS = ['Red', 'Orange', 'Yellow', 'Green', 'Blue', 'Navy', 'Purple', 'Angel', 'Devil', 'Winter', 'Black'];
+
+const PIERO_SWATCH: Record<string, string> = {
+  Red:    '#ef4444', Orange: '#f97316', Yellow: '#eab308', Green:  '#22c55e',
+  Blue:   '#3b82f6', Navy:   '#1e3a8a', Purple: '#a855f7', Angel:  '#e0f2fe',
+  Devil:  '#7f1d1d', Winter: '#bae6fd', Black:  '#1e293b',
+};
+
 // ── Role colour ───────────────────────────────────────────────────────────────
 
 const ROLE_COLOR: Record<string, string> = {
@@ -193,7 +203,7 @@ export function GmPlayerSection({ adminUser, showToast }: {
   const [trAmt, setTrAmt]       = useState('');
   const [mauAmt, setMauAmt]       = useState('');
   const [expAmt, setExpAmt]       = useState('');
-  const [pieroColor, setPieroColorVal] = useState<number | ''>('');
+  const [pieroColor, setPieroColorVal] = useState<string>('');
 
   // send item
   const [itemQ, setItemQ]       = useState('');
@@ -352,6 +362,20 @@ export function GmPlayerSection({ adminUser, showToast }: {
     setNewPw(''); return r;
   });
 
+  const doSetPiero = (isPiero: boolean) => act(async () => {
+    const r = await gmFetch(`/players/${player!.fdUserNum}/piero`, {
+      method: 'PATCH', body: JSON.stringify({ isPiero }),
+    });
+    await refreshPlayer(); return r;
+  });
+
+  const doSetPieroColor = () => act(async () => {
+    const r = await gmFetch(`/players/${player!.fdUserNum}/piero-color`, {
+      method: 'PATCH', body: JSON.stringify({ color: pieroColor }),
+    });
+    setPieroColorVal(''); return r;
+  });
+
   // ── Inventory actions ───────────────────────────────────────
   const doDeleteInv = (invNum: number) => act(async () => {
     const r = await gmFetch(`/players/${player!.fdUserNum}/inventory/${invNum}`, { method: 'DELETE' });
@@ -479,6 +503,10 @@ export function GmPlayerSection({ adminUser, showToast }: {
                   UserNum: <b>{player.fdUserNum}</b> · ID: <b>{player.UserId || '–'}</b>
                   {player.IsBanned ? <span style={{ marginLeft: 8, color: '#ef4444', fontWeight: 700 }}>🔴 BANNED</span>
                     : <span style={{ marginLeft: 8, color: '#10b981', fontWeight: 600 }}>🟢 Normal</span>}
+                  {player.Attribute === 1 && (
+                    <span style={{ marginLeft: 8, padding: '2px 8px', borderRadius: 20, fontSize: 11, fontWeight: 700,
+                      background: '#0ea5e9', color: '#fff' }}>⭐ Piero</span>
+                  )}
                 </div>
               </div>
               <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap' }}>
@@ -809,6 +837,72 @@ export function GmPlayerSection({ adminUser, showToast }: {
                     ✓ Reset Password
                   </button>
                 </div>
+
+                {/* Piero Account */}
+                <div style={{ background: '#f0f9ff', border: '1px solid #bae6fd', borderRadius: 10, padding: '16px 18px' }}>
+                  <div style={{ fontWeight: 700, marginBottom: 12, fontSize: 13.5 }}>
+                    ⭐ Piero Account
+                    {player.Attribute === 1 && (
+                      <span style={{ marginLeft: 8, padding: '2px 8px', borderRadius: 20, fontSize: 11,
+                        background: '#0ea5e9', color: '#fff' }}>AKTIF</span>
+                    )}
+                  </div>
+                  {player.Attribute === 1 ? (
+                    <button
+                      style={{ ...S.btn, background: '#94a3b8', color: '#fff', marginBottom: 12, width: '100%', justifyContent: 'center' }}
+                      onClick={() => { if (confirm('Nonaktifkan Piero untuk player ini?')) doSetPiero(false); }}
+                      disabled={loading}
+                    >
+                      🔴 Nonaktifkan Piero
+                    </button>
+                  ) : (
+                    <button
+                      style={{ ...S.btn, background: '#0ea5e9', color: '#fff', marginBottom: 12, width: '100%', justifyContent: 'center' }}
+                      onClick={() => { if (confirm('Aktifkan akun Piero untuk player ini?')) doSetPiero(true); }}
+                      disabled={loading}
+                    >
+                      ⭐ Aktifkan Piero
+                    </button>
+                  )}
+                  {player.Attribute === 1 && (
+                    <div>
+                      <label style={S.label}>Warna Piero</label>
+                      <div style={{ display: 'flex', gap: 6, marginTop: 6 }}>
+                        <select
+                          style={{ ...S.input, flex: 1, cursor: 'pointer' }}
+                          value={pieroColor}
+                          onChange={e => setPieroColorVal(e.target.value)}
+                        >
+                          <option value="">-- Pilih Warna --</option>
+                          {PIERO_COLORS.map(c => (
+                            <option key={c} value={c}>{c}</option>
+                          ))}
+                        </select>
+                        <button
+                          style={{ ...S.btn, background: '#0ea5e9', color: '#fff', whiteSpace: 'nowrap' }}
+                          onClick={doSetPieroColor}
+                          disabled={loading || !pieroColor}
+                        >
+                          ✓ Set Warna
+                        </button>
+                      </div>
+                      {/* colour swatches */}
+                      <div style={{ display: 'flex', gap: 4, marginTop: 8, flexWrap: 'wrap' }}>
+                        {PIERO_COLORS.map(c => (
+                          <button
+                            key={c}
+                            title={c}
+                            onClick={() => setPieroColorVal(c)}
+                            style={{
+                              width: 22, height: 22, borderRadius: '50%', border: pieroColor === c ? '2px solid #0ea5e9' : '2px solid transparent',
+                              background: PIERO_SWATCH[c], cursor: 'pointer', padding: 0, outline: 'none',
+                            }}
+                          />
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
               </div>
             )}
           </div>
@@ -1030,6 +1124,8 @@ export function GmLogsSection({ adminUser }: { adminUser: AdminUser | null }) {
     EXTEND_INVENTORY_EXP: '#3b82f6',
     APPROVE_REQUEST:   '#10b981',
     REJECT_REQUEST:    '#ef4444',
+    SET_PIERO_ACCOUNT: '#0ea5e9',
+    SET_PIERO_COLOR:   '#0284c7',
   };
 
   return (

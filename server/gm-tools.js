@@ -732,6 +732,56 @@ export async function getLogs(req, res) {
   }
 }
 
+// ── Set Piero Account ─────────────────────────────────────────────────────────
+
+export async function setPieroAccount(req, res, targetUserNum) {
+  const admin = getAdminUser(req);
+  if (!admin) return json(res, 401, { message: 'Akses ditolak.' });
+  if (!isOwner(admin)) return json(res, 403, { message: 'Hanya Owner yang bisa mengubah status Piero.' });
+  const isPiero = Boolean(req.body?.isPiero);
+  try {
+    const targets = await query(`${PLAYER_SELECT} WHERE ui.fdUserNum = ? LIMIT 1`, [targetUserNum]);
+    if (!targets.length) return json(res, 404, { message: 'Player tidak ditemukan.' });
+    await query('UPDATE userinfo SET fdAttribute = ? WHERE fdUserNum = ?', [isPiero ? 1 : 0, targetUserNum]);
+    await logAction(admin, 'SET_PIERO_ACCOUNT', `UserNum:${targetUserNum}`,
+      isPiero ? 'fdAttribute = 1 (Piero aktif)' : 'fdAttribute = 0 (Piero nonaktif)');
+    return json(res, 200, {
+      message: isPiero
+        ? `Akun ${targets[0].fdNickname} berhasil diset sebagai Piero.`
+        : `Status Piero ${targets[0].fdNickname} berhasil dinonaktifkan.`,
+    });
+  } catch (err) {
+    console.error('[gm/setPieroAccount]', err.message);
+    return json(res, 500, { message: 'Gagal mengubah status Piero.' });
+  }
+}
+
+// ── Set Piero Color ───────────────────────────────────────────────────────────
+
+const PIERO_COLORS = ['Red', 'Orange', 'Yellow', 'Green', 'Blue', 'Navy', 'Purple', 'Angel', 'Devil', 'Winter', 'Black'];
+
+export async function setPieroColor(req, res, targetUserNum) {
+  const admin = getAdminUser(req);
+  if (!admin) return json(res, 401, { message: 'Akses ditolak.' });
+  if (!isOwner(admin)) return json(res, 403, { message: 'Hanya Owner yang bisa mengubah warna Piero.' });
+  const color = String(req.body?.color ?? '').trim();
+  if (!PIERO_COLORS.includes(color))
+    return json(res, 400, { message: `Warna tidak valid. Pilihan: ${PIERO_COLORS.join(', ')}` });
+  try {
+    const targets = await query(`${PLAYER_SELECT} WHERE ui.fdUserNum = ? LIMIT 1`, [targetUserNum]);
+    if (!targets.length) return json(res, 404, { message: 'Player tidak ditemukan.' });
+    if (!targets[0].Attribute)
+      return json(res, 400, { message: 'Player belum diset sebagai Piero. Aktifkan Piero terlebih dahulu.' });
+    await query('CALL usp_GM_SetPieroColor(?, ?)', [targets[0].fdNickname, color]);
+    await logAction(admin, 'SET_PIERO_COLOR', `UserNum:${targetUserNum}`,
+      `Piero color -> ${color} (${targets[0].fdNickname})`);
+    return json(res, 200, { message: `Warna Piero ${targets[0].fdNickname} berhasil diubah menjadi ${color}.` });
+  } catch (err) {
+    console.error('[gm/setPieroColor]', err.message);
+    return json(res, 500, { message: err.message || 'Gagal mengubah warna Piero.' });
+  }
+}
+
 // ── Item search ───────────────────────────────────────────────────────────────
 
 export async function searchGmItems(req, res) {
@@ -774,10 +824,12 @@ export async function gmToolsRouter(req, res, next) {
     if ( id && sub === 'mau'       && m === 'POST')   return sendMau(req, res, Number(id));
     if ( id && sub === 'exp'       && m === 'POST')   return sendExp(req, res, Number(id));
     if ( id && sub === 'item'      && m === 'POST')   return sendItem(req, res, Number(id));
-    if ( id && sub === 'ban'       && m === 'PATCH')  return setBan(req, res, Number(id));
-    if ( id && sub === 'role'      && m === 'PATCH')  return setRole(req, res, Number(id));
-    if ( id && sub === 'nickname'  && m === 'PATCH')  return setNickname(req, res, Number(id));
-    if ( id && sub === 'password'  && m === 'PATCH')  return setPassword(req, res, Number(id));
+    if ( id && sub === 'ban'         && m === 'PATCH')  return setBan(req, res, Number(id));
+    if ( id && sub === 'role'        && m === 'PATCH')  return setRole(req, res, Number(id));
+    if ( id && sub === 'nickname'    && m === 'PATCH')  return setNickname(req, res, Number(id));
+    if ( id && sub === 'password'    && m === 'PATCH')  return setPassword(req, res, Number(id));
+    if ( id && sub === 'piero'       && m === 'PATCH')  return setPieroAccount(req, res, Number(id));
+    if ( id && sub === 'piero-color' && m === 'PATCH')  return setPieroColor(req, res, Number(id));
     if ( id && sub === 'inventory' && !subId  && m === 'GET')    return getInventory(req, res, Number(id));
     if ( id && sub === 'inventory' &&  subId  && !subAction && m === 'DELETE')
       return deleteInventoryItem(req, res, Number(id), Number(subId));
