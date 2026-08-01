@@ -35,14 +35,19 @@ async function login(req, res) {
 
     // ── 2. Cari user + data website (email, pertanyaan keamanan) ──
     const rows = await query(
-       `SELECT g.fdUserID, g.fdGameID, g.fdPassword, g.fdCash, COALESCE(g.fdMau, 0) AS fdMau,
+       `SELECT g.fdUserID, g.fdGameID, g.fdPassword, g.fdCash,
                i.fdNickname,
                ig.fdGameMoney,
-              w.email, w.sec_question AS secQuestion
+               COALESCE(uip.TotalPoint, 0) AS fdMau,
+               w.email, w.sec_question AS secQuestion
        FROM userinfofrompublisher g
         LEFT JOIN userinfo i ON i.fdUID = g.fdUserID
         LEFT JOIN userinfogame ig ON ig.fdUserNum = i.fdUserNum
-       LEFT JOIN tales_hero_web_users w ON w.username = g.fdUserID
+        LEFT JOIN (
+          SELECT fdUserNum, SUM(fdPoint) AS TotalPoint
+          FROM userinfopoint GROUP BY fdUserNum
+        ) uip ON uip.fdUserNum = i.fdUserNum
+        LEFT JOIN tales_hero_web_users w ON w.username = g.fdUserID
         WHERE g.fdUserID = ? OR w.email = ? LIMIT 1`,
        [identifier, identifier]
     );

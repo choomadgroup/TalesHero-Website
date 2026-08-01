@@ -57,6 +57,10 @@ const PLAYER_JOIN = `
       ON (CAST(ui.fdUID AS CHAR) = CAST(up.fdUserID AS CHAR)
           OR CAST(ui.fdAuthUserNum AS CHAR) = CAST(up.fdUserID AS CHAR))
   LEFT JOIN userinfogame uig ON uig.fdUserNum = ui.fdUserNum
+  LEFT JOIN (
+    SELECT fdUserNum, SUM(fdPoint) AS TotalPoint
+    FROM userinfopoint GROUP BY fdUserNum
+  ) uip ON uip.fdUserNum = ui.fdUserNum
   LEFT JOIN tblblacklist bl
       ON bl.fdUserNum = ui.fdUserNum
       AND (bl.fdBlockEndDateTime IS NULL OR bl.fdBlockEndDateTime >= NOW())
@@ -71,7 +75,7 @@ const PLAYER_SELECT = `
     COALESCE(ui.fdRole, 'Player') AS RoleName,
     COALESCE(up.fdCash, 0) AS Cash,
     COALESCE(uig.fdGameMoney, 0) AS GameMoney,
-    COALESCE(up.fdMau, 0)       AS Mau,
+    COALESCE(uip.TotalPoint, 0) AS Mau,
     COALESCE(uig.fdExp, 0)      AS Exp,
     CASE WHEN bl.fdUserNum IS NULL THEN 0 ELSE 1 END AS IsBanned,
     ull.fdLastLoginTime,
@@ -239,18 +243,14 @@ export async function sendMau(req, res, targetUserNum) {
     if (!targets.length) return json(res, 404, { message: 'Player target tidak ditemukan.' });
 
     if (isOwner(admin)) {
-      const conn = await pool.getConnection();
-      try {
-        await conn.beginTransaction();
-        await conn.query(
-          `UPDATE userinfofrompublisher up
-           INNER JOIN userinfo ui ON (CAST(ui.fdUID AS CHAR) = CAST(up.fdUserID AS CHAR)
-               OR CAST(ui.fdAuthUserNum AS CHAR) = CAST(up.fdUserID AS CHAR))
-           SET up.fdMau = COALESCE(up.fdMau, 0) + ? WHERE ui.fdUserNum = ?`,
-          [amount, targetUserNum],
-        );
-        await conn.commit();
-      } catch (e) { await conn.rollback(); throw e; } finally { conn.release(); }
+      await query(
+        `INSERT INTO userinfopoint (fdUserNum, fdRewardCondition, fdPoint, fdPointAccumulated)
+         VALUES (?, 1201, ?, ?)
+         ON DUPLICATE KEY UPDATE
+           fdPoint = fdPoint + VALUES(fdPoint),
+           fdPointAccumulated = fdPointAccumulated + VALUES(fdPoint)`,
+        [targetUserNum, amount, amount],
+      );
       await logAction(admin, 'SEND_MAU', `UserNum:${targetUserNum}`, `MAU +${amount}`);
       return json(res, 200, { message: `MAU +${amount.toLocaleString('id-ID')} berhasil dikirim ke ${targets[0].fdNickname}.` });
     } else {
@@ -637,11 +637,12 @@ export async function approveRequest(req, res, requestId) {
       );
     } else if (type === 'Mau') {
       await conn.query(
-        `UPDATE userinfofrompublisher up
-         INNER JOIN userinfo ui ON (CAST(ui.fdUID AS CHAR) = CAST(up.fdUserID AS CHAR)
-             OR CAST(ui.fdAuthUserNum AS CHAR) = CAST(up.fdUserID AS CHAR))
-         SET up.fdMau = COALESCE(up.fdMau, 0) + ? WHERE ui.fdUserNum = ?`,
-        [request.fdAmount, target],
+        `INSERT INTO userinfopoint (fdUserNum, fdRewardCondition, fdPoint, fdPointAccumulated)
+         VALUES (?, 1201, ?, ?)
+         ON DUPLICATE KEY UPDATE
+           fdPoint = fdPoint + VALUES(fdPoint),
+           fdPointAccumulated = fdPointAccumulated + VALUES(fdPoint)`,
+        [target, request.fdAmount, request.fdAmount],
       );
     } else if (type === 'Item') {
       const delivery = request.fdDeliveryTarget === 'Warehouse' ? 'Warehouse' : 'Giftbox';
