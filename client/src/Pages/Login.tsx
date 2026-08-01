@@ -98,6 +98,9 @@ export default function Login() {
                     email:       data.user?.email       ?? '',
                     secQuestion: data.user?.secQuestion ?? '',
                     character:   data.user?.character   ?? null,
+                    exp:         data.user?.exp         ?? 0,
+                    level:       data.user?.level       ?? 1,
+                    expPct:      data.user?.expPct      ?? 0,
                 });
                 setLocation('/akun');
             }

@@ -5572,6 +5572,53 @@ $nl-sans:     'Poppins', -apple-system, sans-serif;
   }
 }
 
+// ── EXP Bar (game HUD style) ──
+.akun-exp-card {
+  background: #0d0d1a;
+  border-radius: 14px;
+  padding: 12px 16px;
+  box-shadow: 0 4px 18px rgba(0,0,0,0.28);
+
+  &__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 7px;
+  }
+
+  &__level {
+    font-size: 12px;
+    font-weight: 900;
+    color: #f6c940;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+  }
+
+  &__pct {
+    font-size: 11px;
+    font-weight: 800;
+    color: rgba(255,255,255,0.65);
+    letter-spacing: 0.3px;
+  }
+
+  &__bar-bg {
+    width: 100%;
+    height: 10px;
+    background: rgba(255,255,255,0.1);
+    border-radius: 100px;
+    overflow: hidden;
+  }
+
+  &__bar-fill {
+    height: 100%;
+    border-radius: 100px;
+    background: linear-gradient(90deg, #29b6f6 0%, #4fc3f7 60%, #81d4fa 100%);
+    box-shadow: 0 0 8px rgba(79,195,247,0.5);
+    transition: width 0.6s ease;
+    min-width: 2px;
+  }
+}
+
 .akun-profile-form {
   margin: 0 0 16px;
   padding: 17px 18px;

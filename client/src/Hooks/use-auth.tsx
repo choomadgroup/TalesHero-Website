@@ -10,6 +10,9 @@ export interface AuthUser {
   email:       string;
   secQuestion: string;
   character:   string | null;
+  exp:         number;
+  level:       number;
+  expPct:      number;
 }
 
 interface AuthContextType {

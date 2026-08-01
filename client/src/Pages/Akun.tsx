@@ -12,7 +12,6 @@ import {
     IoLogOutOutline, IoLockClosedOutline, IoEye, IoEyeOff,
     IoCheckmarkCircle, IoGameControllerOutline,
     IoCashOutline, IoCreateOutline, IoStarOutline,
-    IoSwapHorizontalOutline, IoCloseOutline, IoSearchOutline,
 } from 'react-icons/io5';
 
 const CHANGE_PASS_API = '/auth/change-password';
@@ -65,8 +64,6 @@ const ALL_CHARACTERS = [
     { name: 'Tifanny',      file: 'Tifanny.png',      quote: 'Pesonaku membuat lawan lengah — lalu kutaklukkan mereka!' },
 ];
 
-const CHAR_KEY = 'taleshero_selected_char';
-
 // Characters that have confirmed art files in /Image/Karakter/Art/
 const CHARS_WITH_ART = new Set([
     'Abel','BigBo','Bloody Vera','Cain','Celia','Chloe','Damyeon','Dewi','DnD',
@@ -100,82 +97,10 @@ export default function Akun() {
     const { user, loading: authLoading, logout, updateUser } = useAuth();
     const [, setLocation]  = useLocation();
 
-    // Character display — use game character when available, fall back to localStorage pick.
-    // localStorage stores the character NAME (string). Old numeric format is treated as stale
-    // and cleared immediately so game detection always wins after upgrade.
-    const [charIdx, setCharIdx] = useState<number>(() => {
-        const stored = localStorage.getItem(CHAR_KEY);
-        if (!stored) return -1;
-        if (/^\d+$/.test(stored)) {
-            // Old numeric index format — stale, clear it; useEffect will resolve from game
-            localStorage.removeItem(CHAR_KEY);
-            return -1;
-        }
-        const idx = ALL_CHARACTERS.findIndex(c => c.name === stored);
-        return idx >= 0 ? idx : -1;
-    });
-    const [charFromGame, setCharFromGame] = useState(false);
-    const [showCharPicker, setShowCharPicker] = useState(false);
-    const [charSearch, setCharSearch] = useState('');
-
-    // When user data arrives: game character wins unless user has an explicit name-based
-    // override stored that differs from the detected game character.
-    useEffect(() => {
-        if (!user) return;
-        const stored = localStorage.getItem(CHAR_KEY);
-        // Clear any stale numeric entries that slipped through
-        if (stored !== null && /^\d+$/.test(stored)) {
-            localStorage.removeItem(CHAR_KEY);
-        }
-        const overrideName = stored && !/^\d+$/.test(stored) ? stored : null;
-        const gameCharIdx = findCharIdx(user.character);
-
-        if (gameCharIdx >= 0) {
-            // Game has a valid character.
-            // Respect an explicit override only when it names a DIFFERENT character.
-            if (overrideName && overrideName !== user.character) {
-                const overrideIdx = ALL_CHARACTERS.findIndex(c => c.name === overrideName);
-                if (overrideIdx >= 0) {
-                    setCharIdx(overrideIdx);
-                    setCharFromGame(false);
-                    return;
-                }
-            }
-            // No valid override — show game character and clear any leftover localStorage
-            setCharIdx(gameCharIdx);
-            setCharFromGame(true);
-            if (overrideName === user.character) localStorage.removeItem(CHAR_KEY);
-        } else {
-            // No game character detected — use stored override or pick random
-            const overrideIdx = overrideName
-                ? ALL_CHARACTERS.findIndex(c => c.name === overrideName)
-                : -1;
-            setCharIdx(overrideIdx >= 0 ? overrideIdx : Math.floor(Math.random() * ALL_CHARACTERS.length));
-            setCharFromGame(false);
-        }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [user?.character]);
-
-    const selectChar = (idx: number) => {
-        setCharIdx(idx);
-        setCharFromGame(false);
-        localStorage.setItem(CHAR_KEY, ALL_CHARACTERS[idx].name); // store NAME, not index
-        setShowCharPicker(false);
-        setCharSearch('');
-    };
-
-    const resetToGameChar = () => {
-        localStorage.removeItem(CHAR_KEY);
-        const gameCharIdx = findCharIdx(user?.character);
-        if (gameCharIdx >= 0) {
-            setCharIdx(gameCharIdx);
-            setCharFromGame(true);
-        }
-    };
-
-    const filteredChars = ALL_CHARACTERS.filter(c =>
-        c.name.toLowerCase().includes(charSearch.toLowerCase())
-    );
+    // Character resolved directly from game — no manual picker, no localStorage
+    const charData = (user?.character && CHARS_WITH_ART.has(user.character))
+        ? (ALL_CHARACTERS.find(c => c.name === user.character) ?? ALL_CHARACTERS[0])
+        : ALL_CHARACTERS[0];
 
     // Form states
     const [showForm,     setShowForm]     = useState(false);
@@ -337,8 +262,6 @@ export default function Akun() {
         setTimeout(() => { logout(); setLocation('/'); }, 800);
     };
 
-    const char = charIdx >= 0 ? ALL_CHARACTERS[charIdx] : ALL_CHARACTERS[0];
-
     return (
         <>
         <Header />
@@ -375,9 +298,9 @@ export default function Akun() {
                             <div className="akun-char-panel__bg" />
                             <AnimatePresence mode="wait">
                                 <motion.img
-                                    key={charIdx}
-                                    src={asset(`/Image/Karakter/Art/${char.file}`)}
-                                    alt={char.name}
+                                    key={charData.name}
+                                    src={asset(`/Image/Karakter/Art/${charData.file}`)}
+                                    alt={charData.name}
                                     className="akun-char-panel__img"
                                     initial={{ opacity: 0, y: 18 }}
                                     animate={{ opacity: 1, y: 0 }}
@@ -388,40 +311,18 @@ export default function Akun() {
                             <div className="akun-char-panel__overlay">
                                 <AnimatePresence mode="wait">
                                     <motion.div
-                                        key={`name-${charIdx}`}
+                                        key={`name-${charData.name}`}
                                         className="akun-char-panel__info"
                                         initial={{ opacity: 0, y: 8 }}
                                         animate={{ opacity: 1, y: 0 }}
                                         exit={{ opacity: 0 }}
                                         transition={{ duration: 0.28 }}
                                     >
-                                        {charFromGame && (
-                                            <span className="akun-char-panel__badge">🎮 Karakter game kamu</span>
-                                        )}
                                         <span className="akun-char-panel__label">Karakter</span>
-                                        <h2 className="akun-char-panel__name">{char.name}</h2>
-                                        <p className="akun-char-panel__quote">"{char.quote}"</p>
+                                        <h2 className="akun-char-panel__name">{charData.name}</h2>
+                                        <p className="akun-char-panel__quote">"{charData.quote}"</p>
                                     </motion.div>
                                 </AnimatePresence>
-                            </div>
-                            <div className="akun-char-panel__actions">
-                                <button
-                                    className="akun-char-panel__change-btn"
-                                    onClick={() => setShowCharPicker(true)}
-                                    title="Ganti karakter tampilan"
-                                >
-                                    <IoSwapHorizontalOutline size={14} />
-                                    Ganti
-                                </button>
-                                {!charFromGame && user?.character && CHARS_WITH_ART.has(user.character) && (
-                                    <button
-                                        className="akun-char-panel__change-btn akun-char-panel__change-btn--game"
-                                        onClick={resetToGameChar}
-                                        title="Kembali ke karakter game"
-                                    >
-                                        🎮 Pakai Karakter Game
-                                    </button>
-                                )}
                             </div>
                         </div>
 
@@ -435,6 +336,20 @@ export default function Akun() {
                             <div className="akun-player-card__nick">
                                 <span className="akun-player-card__label">Game ID</span>
                                 <strong className="akun-player-card__value">{user.gameId || '—'}</strong>
+                            </div>
+                        </div>
+
+                        {/* EXP Bar — styled like the in-game HUD */}
+                        <div className="akun-exp-card">
+                            <div className="akun-exp-card__header">
+                                <span className="akun-exp-card__level">Lv. {user.level}</span>
+                                <span className="akun-exp-card__pct">EXP {user.expPct.toFixed(2)}%</span>
+                            </div>
+                            <div className="akun-exp-card__bar-bg">
+                                <div
+                                    className="akun-exp-card__bar-fill"
+                                    style={{ width: `${user.expPct}%` }}
+                                />
                             </div>
                         </div>
 
@@ -637,75 +552,6 @@ export default function Akun() {
                 </AnimatePresence>
             </motion.div>
         </div>
-
-        {/* ═══ Character Picker Modal ═══ */}
-        <AnimatePresence>
-        {showCharPicker && (
-            <motion.div
-                className="akun-char-picker-overlay"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                onClick={() => { setShowCharPicker(false); setCharSearch(''); }}
-            >
-                <motion.div
-                    className="akun-char-picker"
-                    initial={{ opacity: 0, scale: 0.93, y: 20 }}
-                    animate={{ opacity: 1, scale: 1, y: 0 }}
-                    exit={{ opacity: 0, scale: 0.95, y: 10 }}
-                    transition={{ duration: 0.28, ease: 'easeOut' }}
-                    onClick={e => e.stopPropagation()}
-                >
-                    <div className="akun-char-picker__header">
-                        <h3 className="akun-char-picker__title">Pilih Karakter</h3>
-                        <button className="akun-char-picker__close" onClick={() => { setShowCharPicker(false); setCharSearch(''); }}>
-                            <IoCloseOutline size={22} />
-                        </button>
-                    </div>
-                    <div className="akun-char-picker__search-wrap">
-                        <IoSearchOutline size={15} className="akun-char-picker__search-icon" />
-                        <input
-                            className="akun-char-picker__search"
-                            placeholder="Cari karakter..."
-                            value={charSearch}
-                            onChange={e => setCharSearch(e.target.value)}
-                            autoFocus
-                        />
-                    </div>
-                    <div className="akun-char-picker__grid">
-                        {filteredChars.map((c, i) => {
-                            const realIdx = ALL_CHARACTERS.indexOf(c);
-                            return (
-                                <button
-                                    key={c.name}
-                                    className={`akun-char-picker__item${realIdx === charIdx ? ' akun-char-picker__item--active' : ''}`}
-                                    onClick={() => selectChar(realIdx)}
-                                    title={c.name}
-                                >
-                                    <div className="akun-char-picker__item-img-wrap">
-                                        <img
-                                            src={asset(`/Image/Karakter/Art/${c.file}`)}
-                                            alt={c.name}
-                                            loading="lazy"
-                                        />
-                                        {realIdx === charIdx && (
-                                            <span className="akun-char-picker__item-check">
-                                                <IoCheckmarkCircle size={16} />
-                                            </span>
-                                        )}
-                                    </div>
-                                    <span className="akun-char-picker__item-name">{c.name}</span>
-                                </button>
-                            );
-                        })}
-                        {filteredChars.length === 0 && (
-                            <p className="akun-char-picker__empty">Karakter "{charSearch}" tidak ditemukan.</p>
-                        )}
-                    </div>
-                </motion.div>
-            </motion.div>
-        )}
-        </AnimatePresence>
 
         <Footer />
         </>
