@@ -754,10 +754,23 @@ export async function setPieroAccount(req, res, targetUserNum) {
 
 // ── Set Piero Color ───────────────────────────────────────────────────────────
 
-// Stored procedure usp_GM_SetPieroColor(nickname, colorIndex) hanya menerima indeks 0–6.
-// Angel/Devil/Winter/Black adalah tipe karakter di DB, bukan kode warna — SP menolaknya (ret=1).
-const PIERO_COLORS = ['Red', 'Orange', 'Yellow', 'Green', 'Blue', 'Navy', 'Purple'];
-const PIERO_COLOR_INDEX = Object.fromEntries(PIERO_COLORS.map((c, i) => [c, i]));
+// Mapping nama tampilan → indeks SP (dari definisi usp_GM_SetPieroColor).
+// Index 7 (Santa) dan 10 (Police) di-comment di SP → ret=1 jika dikirim.
+// Black di SP adalah index 12 (bukan 10 seperti label PHP lama yang salah).
+const PIERO_COLOR_MAP = {
+  Red:    0,
+  Orange: 1,
+  Yellow: 2,
+  Green:  3,
+  Blue:   4,
+  Navy:   5,
+  Purple: 6,
+  Angel:  8,   // Pierrot Angel (小丑服裝(天使))  item 8114 / kind 7008
+  Devil:  9,   // Clown Devil   (小丑服裝(魔鬼))  item 8115 / kind 7009
+  Worker: 11,  // Worker        (小丑服裝(工人))  item 22623 / kind 7011
+  Black:  12,  // Black clown   (黑色小丑服裝)    item 24723 / kind 7012
+};
+const PIERO_COLORS = Object.keys(PIERO_COLOR_MAP);
 
 export async function setPieroColor(req, res, targetUserNum) {
   const admin = getAdminUser(req);
@@ -766,7 +779,7 @@ export async function setPieroColor(req, res, targetUserNum) {
   const color = String(req.body?.color ?? '').trim();
   if (!PIERO_COLORS.includes(color))
     return json(res, 400, { message: `Warna tidak valid. Pilihan: ${PIERO_COLORS.join(', ')}` });
-  const colorIndex = PIERO_COLOR_INDEX[color];
+  const colorIndex = PIERO_COLOR_MAP[color];
   try {
     const targets = await query(`${PLAYER_SELECT} WHERE ui.fdUserNum = ? LIMIT 1`, [targetUserNum]);
     if (!targets.length) return json(res, 404, { message: 'Player tidak ditemukan.' });
