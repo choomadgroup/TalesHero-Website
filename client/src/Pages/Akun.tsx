@@ -332,12 +332,9 @@ export default function Akun() {
                                     <span className="akun-hero-banner__charname">{charData.name}</span>
                                 )}
 
-                                {/* EXP bar */}
+                                {/* EXP bar — inline: Lv. X [====] XX% */}
                                 <div className="akun-hero-banner__exp">
-                                    <div className="akun-hero-banner__exp-meta">
-                                        <span className="akun-hero-banner__exp-lv">Lv. {user.level}</span>
-                                        <span className="akun-hero-banner__exp-pct">EXP {user.expPct.toFixed(1)}%</span>
-                                    </div>
+                                    <span className="akun-hero-banner__exp-lv">Lv. {user.level}</span>
                                     <div className="akun-hero-banner__exp-track">
                                         <motion.div
                                             className="akun-hero-banner__exp-fill"
@@ -346,6 +343,7 @@ export default function Akun() {
                                             transition={{ duration: 0.9, ease: 'easeOut', delay: 0.3 }}
                                         />
                                     </div>
+                                    <span className="akun-hero-banner__exp-pct">{user.expPct.toFixed(1)}%</span>
                                 </div>
 
                                 {/* Currency chips */}
@@ -408,12 +406,6 @@ export default function Akun() {
                                     <span className="akun-info-panel__value">{user.gameId || '—'}</span>
                                 </div>
                             )}
-                            <div className="akun-info-panel__row">
-                                <span className="akun-info-panel__label">
-                                    <IoPersonCircleOutline size={11} /> Username
-                                </span>
-                                <span className="akun-info-panel__value">{user.username}</span>
-                            </div>
                             {user.email && (
                                 <div className="akun-info-panel__row">
                                     <span className="akun-info-panel__label">
@@ -428,14 +420,6 @@ export default function Akun() {
                                         <IoShieldCheckmarkOutline size={11} /> Pertanyaan Keamanan
                                     </span>
                                     <span className="akun-info-panel__value">{user.secQuestion}</span>
-                                </div>
-                            )}
-                            {charData && (
-                                <div className="akun-info-panel__row">
-                                    <span className="akun-info-panel__label">
-                                        <IoStarOutline size={11} /> Karakter
-                                    </span>
-                                    <span className="akun-info-panel__value">{charData.name}</span>
                                 </div>
                             )}
 
