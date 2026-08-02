@@ -2053,12 +2053,20 @@ footer.site-footer {
   }
 }
 
-// Light page shell for the logged-in account view
+// Account page shell — same hero image as login page
 .cs-page--account {
-  background: #f2f3f7;
+  background: url('/Image/Header/IMG-HR-04.png') center center / cover no-repeat;
   align-items: flex-start;
-  padding-top: 80px;   // clears fixed navbar (~64px) + breathing room
+  padding-top: 80px;
   padding-bottom: 60px;
+
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: rgba(10, 10, 30, 0.55);
+    z-index: 0;
+  }
 }
 
 .cs-page__chars {
