@@ -836,7 +836,7 @@ function RedeemManager({ adminUser, showToast }: { adminUser: AdminUser | null; 
                           </div>
                         ))}
                       </td>
-                      <td style={{ fontSize:13, textAlign:'center', fontWeight:600, color: c.fdClaimCount > 0 ? '#0f172a' : '#cbd5e1' }}>
+                      <td style={{ fontSize:13, textAlign:'center', fontWeight:600, color: c.fdClaimCount > 0 ? '#c8d0ff' : '#3a4060' }}>
                         {c.fdClaimCount}
                       </td>
                       <td style={{ fontSize:12, color: expired ? '#ef4444' : '#64748b' }}>
