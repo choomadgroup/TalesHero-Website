@@ -1,7 +1,7 @@
 import { query } from '../db.js';
 import { getSessionUsername } from './session.js';
 
-// fdCharacter → character name (from tblavatarcharactersetting)
+// fdCharacter → character name (matches art file names in /Image/Karakter/Art/)
 const CHAR_NAME_MAP = {
   1:   'Jaka',
   2:   'Mingming',
@@ -23,18 +23,18 @@ const CHAR_NAME_MAP = {
   18:  'Siho',
   19:  'Luci',
   20:  'Miho',
-  21:  'Deva',
+  21:  'Bloody Vera',   // DB: Bloody Vera
   22:  'R',
   23:  'Harang',
   24:  'LaLa',
   25:  'Elims',
   26:  'Cain',
   27:  'YeonOh',
-  28:  'Bloody Vera',
-  212: 'Maid Mingming',
-  213: 'Bloody Vera',
-  214: 'Elims',
-  215: 'Cain',
+  28:  'Bloody Vera',   // DB: Bloody Vera (variant)
+  30:  'Roroa',         // DB: Roroa
+  212: 'Xionell',       // DB: Xionell
+  213: 'Celia',         // DB: Celia
+  215: 'Damyeon',       // DB: Damyeon
 };
 
 // ── Level thresholds (cached after first load) ─────────────────────────────
@@ -75,8 +75,10 @@ async function findUser(username) {
       `SELECT g.fdUserID, g.fdGameID, g.fdCash,
               i.fdNickname, i.fdUserNum,
               ig.fdGameMoney, ig.fdExp AS igExp,
-              ig.fdAvatarCharacterSettingNum,
-              acs.fdCharacter AS fdChar,
+              COALESCE(
+                NULLIF(acs.fdCharacter, 0),
+                NULLIF(mroom.fdCharacter, 0)
+              ) AS fdChar,
               COALESCE(uip.TotalPoint, 0) AS mauTotal,
               w.email, w.sec_question AS secQuestion
        FROM userinfofrompublisher g
@@ -85,6 +87,8 @@ async function findUser(username) {
        LEFT JOIN tblavatarcharactersetting acs
          ON acs.fdUserNum = i.fdUserNum
          AND acs.fdItemCharacterSettingNum = ig.fdAvatarCharacterSettingNum
+       LEFT JOIN usermyroomslotsettinginfo mroom
+         ON mroom.fdUserNum = i.fdUserNum AND mroom.fdSlotNum = 0
        LEFT JOIN (
          SELECT fdUserNum, SUM(fdPoint) AS TotalPoint
          FROM userinfopoint GROUP BY fdUserNum

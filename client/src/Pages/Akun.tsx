@@ -30,7 +30,8 @@ const STARS = Array.from({ length: 16 }, (_, i) => ({
     size: `${4 + (i % 4)}px`,
 }));
 
-// Only characters with confirmed art files
+// Characters with art files in /Image/Karakter/Art/
+// Names must match CHAR_NAME_MAP values in server/auth/me.js exactly
 const ALL_CHARACTERS = [
     { name: 'Abel',         file: 'Abel.png',         quote: 'Keberanian sejati bukan soal tanpa rasa takut, tapi tetap melangkah meski takut!' },
     { name: 'BigBo',        file: 'BigBo.png',        quote: 'Ukuranku besar, semangatku jauh lebih besar lagi!' },
@@ -62,20 +63,20 @@ const ALL_CHARACTERS = [
     { name: 'Sid',          file: 'Sid.png',          quote: 'Ketepatan setiap seranganku adalah mahkota kebanggaanku.' },
     { name: 'Siho',         file: 'Siho.png',         quote: 'Ketenangan dalam badai adalah kekuatanku yang sesungguhnya.' },
     { name: 'Tifanny',      file: 'Tifanny.png',      quote: 'Pesonaku membuat lawan lengah — lalu kutaklukkan mereka!' },
+    { name: 'Vera',         file: 'Vera.png',         quote: 'Anggun di luar, mematikan di dalam. Jangan salah menilai!' },
+    { name: 'Wukong',       file: 'Wukong.png',       quote: 'Kekuatan legendaris bersemayam dalam setiap gerakanku!' },
+    { name: 'Xionell',      file: 'Xionell.png',      quote: 'Keunikanku adalah kekuatanku yang paling tak terduga.' },
+    { name: 'YeonOh',       file: 'YeonOh.png',       quote: 'Setiap langkah adalah tarian, setiap tarian adalah kemenangan.' },
 ];
 
-// Characters that have confirmed art files in /Image/Karakter/Art/
+// Names that have confirmed art files in /Image/Karakter/Art/
 const CHARS_WITH_ART = new Set([
     'Abel','BigBo','Bloody Vera','Cain','Celia','Chloe','Damyeon','Dewi','DnD',
     'Elims','Harang','Haru','Hidden Rough','Jab','Jaka','Kai','LaLa','Luci',
     'Maki','Miho','Mingming','Narcius','R','Rina','Rini','Roroa','Rough',
-    'Sid','Siho','Tifanny',
+    'Sid','Siho','Tifanny','Vera','Wukong','Xionell','YeonOh',
 ]);
 
-function findCharIdx(name: string | null | undefined): number {
-    if (!name) return -1;
-    return ALL_CHARACTERS.findIndex(c => c.name === name);
-}
 
 interface ChangeForm { secAnswer: string; newPassword: string; confirm: string; }
 interface ChangeErrors { secAnswer?: string; newPassword?: string; confirm?: string; api?: string; }
@@ -99,8 +100,8 @@ export default function Akun() {
 
     // Character resolved directly from game — no manual picker, no localStorage
     const charData = (user?.character && CHARS_WITH_ART.has(user.character))
-        ? (ALL_CHARACTERS.find(c => c.name === user.character) ?? ALL_CHARACTERS[0])
-        : ALL_CHARACTERS[0];
+        ? ALL_CHARACTERS.find(c => c.name === user.character) ?? null
+        : null;
 
     // Form states
     const [showForm,     setShowForm]     = useState(false);
@@ -298,9 +299,11 @@ export default function Akun() {
                             <div className="akun-hero-row__avatar-wrap">
                                 <AnimatePresence mode="wait">
                                     <motion.img
-                                        key={charData.name}
-                                        src={asset(`/Image/Karakter/Avatar/${charData.file}`)}
-                                        alt={charData.name}
+                                        key={charData?.name ?? 'none'}
+                                        src={charData
+                                            ? asset(`/Image/Karakter/Avatar/${charData.file}`)
+                                            : asset('/Image/Account/IMG-DEFAULT-01.png')}
+                                        alt={charData?.name ?? 'Karakter'}
                                         className="akun-hero-row__avatar"
                                         initial={{ opacity: 0, scale: 0.88 }}
                                         animate={{ opacity: 1, scale: 1 }}
@@ -315,7 +318,7 @@ export default function Akun() {
                             </div>
                             <AnimatePresence mode="wait">
                                 <motion.div
-                                    key={`greeting-${charData.name}`}
+                                    key={`greeting-${charData?.name ?? 'none'}`}
                                     className="akun-hero-row__text"
                                     initial={{ opacity: 0, x: 10 }}
                                     animate={{ opacity: 1, x: 0 }}
@@ -329,7 +332,9 @@ export default function Akun() {
                                     <strong className="akun-hero-row__nick">
                                         {user.nickname || user.username}
                                     </strong>
-                                    <span className="akun-hero-row__char">{charData.name}</span>
+                                    {charData && (
+                                        <span className="akun-hero-row__char">{charData.name}</span>
+                                    )}
                                 </motion.div>
                             </AnimatePresence>
                         </div>
