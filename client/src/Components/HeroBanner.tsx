@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { asset } from '@/Lib/utils';
 import { motion, AnimatePresence } from "framer-motion";
 import { useLocation } from "wouter";
@@ -97,6 +97,25 @@ export default function HeroBanner() {
     const accountCount = useAccountCount();
     const onlineCount  = useOnlineCount();
 
+    // ── Online players tooltip ────────────────────────────────
+    const [showOnlineTip, setShowOnlineTip]   = useState(false);
+    const [onlinePlayers, setOnlinePlayers]   = useState<string[] | null>(null);
+    const [loadingPlayers, setLoadingPlayers] = useState(false);
+    const hideTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+    const openTip  = () => { if (hideTimerRef.current) clearTimeout(hideTimerRef.current); setShowOnlineTip(true); };
+    const closeTip = () => { hideTimerRef.current = setTimeout(() => setShowOnlineTip(false), 120); };
+
+    const fetchOnlinePlayers = useCallback(async () => {
+        if (loadingPlayers) return;
+        setLoadingPlayers(true);
+        try {
+            const r = await fetch('/api/stats/online-players');
+            if (r.ok) { const d = await r.json(); setOnlinePlayers(Array.isArray(d) ? d : []); }
+        } catch { /* silent */ }
+        finally { setLoadingPlayers(false); }
+    }, [loadingPlayers]);
+
     const next = useCallback(() => {
         setCurrent((c) => (c + 1) % SLIDES.length);
     }, []);
@@ -177,10 +196,58 @@ export default function HeroBanner() {
                                     </span>
                                 )}
                                 {onlineCount !== null && (
-                                    <span className="hero-banner__online-badge">
+                                    <span
+                                        className="hero-banner__online-badge"
+                                        style={{ position: 'relative' }}
+                                        onMouseEnter={() => { openTip(); fetchOnlinePlayers(); }}
+                                        onMouseLeave={closeTip}
+                                    >
                                         <span className="hero-banner__online-dot" />
                                         <IoWifi size={13} />
                                         {onlineCount.toLocaleString('id-ID')} Online
+
+                                        {showOnlineTip && (
+                                            <span
+                                                onMouseEnter={openTip}
+                                                onMouseLeave={closeTip}
+                                                style={{
+                                                    position: 'absolute',
+                                                    bottom: 'calc(100% + 8px)',
+                                                    left: '50%',
+                                                    transform: 'translateX(-50%)',
+                                                    background: 'rgba(10,10,24,0.97)',
+                                                    border: '1px solid rgba(86,145,240,0.35)',
+                                                    borderRadius: 10,
+                                                    padding: '10px 14px',
+                                                    minWidth: 180,
+                                                    maxWidth: 240,
+                                                    boxShadow: '0 6px 32px rgba(0,0,0,0.5)',
+                                                    zIndex: 200,
+                                                    whiteSpace: 'normal',
+                                                    cursor: 'default',
+                                                }}
+                                            >
+                                                <span style={{ display: 'block', fontSize: 10, fontWeight: 700, color: '#5691f0', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 7 }}>
+                                                    Player Online
+                                                </span>
+
+                                                {loadingPlayers && <span style={{ fontSize: 12, color: '#94a3b8' }}>Memuat…</span>}
+                                                {!loadingPlayers && (!onlinePlayers || onlinePlayers.length === 0) && (
+                                                    <span style={{ fontSize: 12, color: '#94a3b8' }}>Tidak ada player online</span>
+                                                )}
+                                                {!loadingPlayers && onlinePlayers && onlinePlayers.length > 0 && (
+                                                    <span style={{ display: 'block', maxHeight: 190, overflowY: 'auto' }}>
+                                                        {onlinePlayers.map((nick, i) => (
+                                                            <span key={nick} style={{ display: 'block', fontSize: 12, color: '#e2e8f0', padding: '2px 0', borderBottom: i < onlinePlayers.length - 1 ? '1px solid rgba(255,255,255,0.05)' : 'none' }}>
+                                                                {nick}
+                                                            </span>
+                                                        ))}
+                                                    </span>
+                                                )}
+
+                                                <span style={{ position: 'absolute', bottom: -6, left: '50%', width: 10, height: 10, background: 'rgba(10,10,24,0.97)', border: '1px solid rgba(86,145,240,0.35)', borderTop: 'none', borderLeft: 'none', transform: 'translateX(-50%) rotate(45deg)' }} />
+                                            </span>
+                                        )}
                                     </span>
                                 )}
                             </div>
