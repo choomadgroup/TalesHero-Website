@@ -4,7 +4,34 @@
 
 // --- Base -------------------------------------------------------
 
-* { box-sizing: border-box; }
+// ── Custom cursor — apply to every element so browser never overrides ──────────
+$cursor-url: url('/Image/Other/cursor-taleshero.png');
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  cursor: $cursor-url, auto;
+}
+
+// Interactive elements would normally get `cursor: pointer` — keep custom cursor
+a, button, label, select,
+[role="button"], [role="link"],
+input[type="button"], input[type="submit"], input[type="reset"],
+input[type="checkbox"], input[type="radio"],
+summary, [tabindex]:not([tabindex="-1"]) {
+  cursor: $cursor-url, pointer;
+}
+
+// Disabled elements
+[disabled], [aria-disabled="true"] {
+  cursor: $cursor-url, not-allowed;
+}
+
+// Text inputs keep a text cursor that still shows on top of ours
+input:not([type="button"]):not([type="submit"]):not([type="reset"]):not([type="checkbox"]):not([type="radio"]),
+textarea {
+  cursor: $cursor-url, text;
+}
+
 html, body { overflow-x: hidden; }
 
 body {
@@ -12,7 +39,6 @@ body {
   padding: 0;
   background-color: rgb(248, 246, 246);
   font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  cursor: url('/Image/Other/cursor-taleshero.png'), auto;
   display: flex;
   flex-direction: column;
   min-height: 100vh;
