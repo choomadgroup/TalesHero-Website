@@ -152,7 +152,16 @@ const Header = ({ light = false }: { light?: boolean }) => {
                                     aria-label={`Buka menu akun ${user.username}`}
                                     title={`Halo ${user.username}`}
                                 >
-                                    <img src={asset('/Image/Account/IMG-DEFAULT-01.png')} alt="" />
+                                    <img
+                                        src={user.character
+                                            ? asset(`/Image/Karakter/Avatar/${user.character}.png`)
+                                            : asset('/Image/Account/IMG-DEFAULT-01.png')}
+                                        alt=""
+                                        onError={(e) => {
+                                            (e.currentTarget as HTMLImageElement).src =
+                                                asset('/Image/Account/IMG-DEFAULT-01.png');
+                                        }}
+                                    />
                                 </button>
                                 {accountOpen && (
                                     <div className="game-account-dropdown" role="menu">
