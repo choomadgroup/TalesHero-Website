@@ -5678,10 +5678,10 @@ $nl-sans:     'Poppins', -apple-system, sans-serif;
 
 // ── EXP Bar (game HUD style) ──
 .akun-exp-card {
-  background: #0d0d1a;
+  background: linear-gradient(135deg, #1a1a2e 0%, #2d1b4e 60%, #3a1040 100%);
   border-radius: 14px;
   padding: 12px 16px;
-  box-shadow: 0 4px 18px rgba(0,0,0,0.28);
+  box-shadow: 0 4px 18px rgba(80,20,100,0.25);
 
   &__header {
     display: flex;

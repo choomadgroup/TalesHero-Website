@@ -301,7 +301,7 @@ export default function Akun() {
                                 <motion.img
                                     key={charData?.name ?? 'default'}
                                     src={charData
-                                        ? asset(`/Image/Karakter/Art/${charData.file}`)
+                                        ? asset(`/Image/Karakter/Avatar/${charData.file}`)
                                         : asset('/Image/Account/IMG-DEFAULT-01.png')}
                                     alt={charData?.name ?? 'Karakter'}
                                     className="akun-char-panel__img"
