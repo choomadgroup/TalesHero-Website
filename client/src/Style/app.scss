@@ -6147,20 +6147,22 @@ $nl-sans:     'Poppins', -apple-system, sans-serif;
   position: relative;
   border-radius: 22px;
   overflow: hidden;
-  background: linear-gradient(130deg, #08080f 0%, #120820 100%);
-  border: 1px solid rgba(255,255,255,0.07);
-  box-shadow: 0 16px 48px rgba(0,0,0,0.5);
+  background: rgba(255,255,255,0.08);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  border: 1px solid rgba(255,255,255,0.15);
+  box-shadow: 0 8px 32px rgba(0,0,0,0.35);
   display: flex;
   align-items: stretch;
   min-height: 200px;
 
-  // Pink/purple glow blob
+  // Subtle pink accent
   &__glow {
     position: absolute;
     inset: 0;
     background:
-      radial-gradient(ellipse at 20% 50%, rgba(233,30,99,0.22) 0%, transparent 55%),
-      radial-gradient(ellipse at 85% 30%, rgba(120,40,200,0.15) 0%, transparent 50%);
+      radial-gradient(ellipse at 20% 50%, rgba(233,30,99,0.18) 0%, transparent 55%),
+      radial-gradient(ellipse at 85% 30%, rgba(120,40,200,0.12) 0%, transparent 50%);
     pointer-events: none;
     z-index: 0;
   }
