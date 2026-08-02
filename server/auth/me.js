@@ -34,6 +34,7 @@ const CHAR_NAME_MAP = {
   30:  'Roroa',         // DB: Roroa
   212: 'Xionell',       // DB: Xionell
   213: 'Celia',         // DB: Celia
+  214: 'Roroa',         // DB: Rolloa — uses Roroa art
   215: 'Damyeon',       // DB: Damyeon
 };
 
