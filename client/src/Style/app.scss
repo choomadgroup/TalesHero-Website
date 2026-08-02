@@ -6139,20 +6139,20 @@ $nl-sans:     'Poppins', -apple-system, sans-serif;
   position: relative;
   border-radius: 22px;
   overflow: hidden;
-  background: #fff;
-  border: 1.5px solid #edeef4;
-  box-shadow: 0 4px 32px rgba(0,0,0,0.08);
+  background: linear-gradient(130deg, #08080f 0%, #120820 100%);
+  border: 1px solid rgba(255,255,255,0.07);
+  box-shadow: 0 16px 48px rgba(0,0,0,0.5);
   display: flex;
   align-items: stretch;
   min-height: 200px;
 
-  // Subtle pink accent blob (light version)
+  // Pink/purple glow blob
   &__glow {
     position: absolute;
     inset: 0;
     background:
-      radial-gradient(ellipse at 10% 50%, rgba(233,30,99,0.07) 0%, transparent 55%),
-      radial-gradient(ellipse at 90% 30%, rgba(120,40,200,0.05) 0%, transparent 50%);
+      radial-gradient(ellipse at 20% 50%, rgba(233,30,99,0.22) 0%, transparent 55%),
+      radial-gradient(ellipse at 85% 30%, rgba(120,40,200,0.15) 0%, transparent 50%);
     pointer-events: none;
     z-index: 0;
   }
@@ -6215,7 +6215,7 @@ $nl-sans:     'Poppins', -apple-system, sans-serif;
     margin: 0;
     font-size: clamp(1.35rem, 3vw, 1.75rem);
     font-weight: 900;
-    color: #1a1a2e;
+    color: #fff;
     letter-spacing: -0.5px;
     line-height: 1.1;
     white-space: nowrap;
@@ -6226,7 +6226,7 @@ $nl-sans:     'Poppins', -apple-system, sans-serif;
   &__charname {
     font-size: 12px;
     font-weight: 700;
-    color: #e91e63;
+    color: rgba(233,30,99,0.75);
     letter-spacing: 0.3px;
   }
 
@@ -6242,7 +6242,7 @@ $nl-sans:     'Poppins', -apple-system, sans-serif;
   &__exp-lv {
     font-size: 11px;
     font-weight: 900;
-    color: #e91e63;
+    color: #f6c940;
     letter-spacing: 0.3px;
     white-space: nowrap;
     flex-shrink: 0;
@@ -6251,7 +6251,7 @@ $nl-sans:     'Poppins', -apple-system, sans-serif;
   &__exp-pct {
     font-size: 10px;
     font-weight: 700;
-    color: rgba(0,0,0,0.35);
+    color: rgba(255,255,255,0.4);
     white-space: nowrap;
     flex-shrink: 0;
   }
@@ -6260,7 +6260,7 @@ $nl-sans:     'Poppins', -apple-system, sans-serif;
     flex: 1;
     min-width: 60px;
     height: 6px;
-    background: rgba(0,0,0,0.08);
+    background: rgba(255,255,255,0.08);
     border-radius: 100px;
     overflow: hidden;
   }
@@ -6269,7 +6269,7 @@ $nl-sans:     'Poppins', -apple-system, sans-serif;
     height: 100%;
     border-radius: 100px;
     background: linear-gradient(90deg, #e91e63 0%, #f06292 100%);
-    box-shadow: 0 0 8px rgba(233,30,99,0.35);
+    box-shadow: 0 0 10px rgba(233,30,99,0.5);
     min-width: 2px;
   }
 
@@ -6287,31 +6287,32 @@ $nl-sans:     'Poppins', -apple-system, sans-serif;
     gap: 5px;
     padding: 5px 11px;
     border-radius: 100px;
-    background: #fafafa;
-    border: 1.5px solid #edeef4;
+    background: rgba(255,255,255,0.05);
+    backdrop-filter: blur(6px);
+    border: 1px solid rgba(255,255,255,0.1);
 
     strong {
       font-size: 13px;
       font-weight: 800;
-      color: #1a1a2e;
+      color: #fff;
       letter-spacing: -0.2px;
     }
 
     &--cash {
-      border-color: rgba(245,158,11,0.35);
-      background: rgba(245,158,11,0.05);
+      border-color: rgba(245,158,11,0.4);
+      box-shadow: 0 0 14px rgba(245,158,11,0.12);
       svg { color: #f59e0b; }
     }
 
     &--tr {
-      border-color: rgba(59,130,246,0.35);
-      background: rgba(59,130,246,0.05);
+      border-color: rgba(59,130,246,0.4);
+      box-shadow: 0 0 14px rgba(59,130,246,0.12);
       svg { color: #3b82f6; }
     }
 
     &--mau {
-      border-color: rgba(139,92,246,0.35);
-      background: rgba(139,92,246,0.05);
+      border-color: rgba(139,92,246,0.4);
+      box-shadow: 0 0 14px rgba(139,92,246,0.12);
       svg { color: #8b5cf6; }
     }
   }
@@ -6321,7 +6322,7 @@ $nl-sans:     'Poppins', -apple-system, sans-serif;
     font-weight: 800;
     letter-spacing: 0.5px;
     text-transform: uppercase;
-    color: rgba(0,0,0,0.35);
+    color: rgba(255,255,255,0.45);
   }
 
   // Right: character art
