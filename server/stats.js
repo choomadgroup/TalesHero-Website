@@ -15,3 +15,20 @@ export default async function stats(req, res) {
     res.status(500).json({ accounts: null, online: null });
   }
 }
+
+/** GET /api/stats/online-players — daftar nickname yang sedang online */
+export async function onlinePlayers(req, res) {
+  try {
+    const rows = await query(
+      `SELECT ui.fdNickname
+       FROM userinfologin ul
+       JOIN userinfo ui ON ui.fdUserNum = ul.fdUserNum
+       WHERE ul.fdServerNum > 0
+       ORDER BY ui.fdNickname ASC
+       LIMIT 100`,
+    );
+    res.status(200).json(rows.map(r => r.fdNickname));
+  } catch {
+    res.status(500).json([]);
+  }
+}

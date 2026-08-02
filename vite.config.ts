@@ -187,6 +187,20 @@ const apiPlugin = {
       turnstileConfig(req, res);
     });
 
+    // Stats: daftar nickname online (harus sebelum /api/stats agar tidak kena prefix-match)
+    server.middlewares.use('/api/stats/online-players', async (req: any, res: any, next: any) => {
+      if (req.method !== 'GET') { next(); return; }
+      try {
+        addJsonResponseHelpers(res);
+        const { onlinePlayers } = await import('./server/stats.js');
+        await onlinePlayers(req, res);
+      } catch {
+        res.statusCode = 500;
+        res.setHeader('Content-Type', 'application/json');
+        res.end(JSON.stringify([]));
+      }
+    });
+
     // Stats: jumlah akun terdaftar
     server.middlewares.use('/api/stats', async (req: any, res: any, next: any) => {
       if (req.method !== 'GET') { next(); return; }

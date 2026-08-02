@@ -17,7 +17,7 @@ import {
   adminToggleRedeemCode, adminDeleteRedeemCode, adminSearchItem,
 } from './admin-redeem.js';
 import turnstileConfig from './auth/turnstile-config.js';
-import stats    from './stats.js';
+import stats, { onlinePlayers } from './stats.js';
 import { migrate } from './db.js';
 import { applySecurityHeaders } from './security.js';
 import { connectMongoDB } from './mongodb.js';
@@ -44,6 +44,7 @@ app.get('/healthz', (_req, res) => {
   res.json({ ok: true });
 });
 app.get('/api/config/turnstile', turnstileConfig);
+app.get('/api/stats/online-players', onlinePlayers);
 app.get('/api/stats', stats);
 
 const blockedPublicPath = /^\/(?:client\/src|server|attached_assets|\.local|\.agents|node_modules)(?:\/|$)|^\/(?:vite\.config\.ts|package\.json|pnpm-lock\.yaml|tsconfig(?:\.[^/]+)?|\.env(?:\.[^/]*)?)$/i;
