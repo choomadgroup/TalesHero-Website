@@ -2053,6 +2053,14 @@ footer.site-footer {
   }
 }
 
+// Light page shell for the logged-in account view
+.cs-page--account {
+  background: #f2f3f7;
+  align-items: flex-start;
+  padding-top: 36px;
+  padding-bottom: 60px;
+}
+
 .cs-page__chars {
   display: flex;
   align-items: flex-end;

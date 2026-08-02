@@ -269,17 +269,7 @@ export default function Akun() {
     return (
         <>
         <Header />
-        <div className="cs-page cs-page--login">
-            <div className="cs-page__bg">
-                {STARS.map(s => (
-                    <span key={s.id} className="cs-page__star" style={{
-                        left: s.left, top: s.top,
-                        width: s.size, height: s.size,
-                        animationDelay: s.delay, animationDuration: s.duration,
-                    }} />
-                ))}
-            </div>
-
+        <div className="cs-page cs-page--account">
             <motion.div
                 className="cs-page__card cs-page__card--account"
                 initial={{ opacity: 0, y: 40 }}
@@ -367,26 +357,6 @@ export default function Akun() {
                             </div>
                         </div>
 
-                        {/* Right: character art */}
-                        {charData && (
-                            <div className="akun-hero-banner__art-wrap">
-                                <AnimatePresence mode="wait">
-                                    <motion.img
-                                        key={charData.name}
-                                        src={asset(`/Image/Karakter/Art/${charData.file}`)}
-                                        alt={charData.name}
-                                        className="akun-hero-banner__art"
-                                        initial={{ opacity: 0, x: 20 }}
-                                        animate={{ opacity: 1, x: 0 }}
-                                        exit={{ opacity: 0 }}
-                                        transition={{ duration: 0.45 }}
-                                        onError={e => { (e.currentTarget as HTMLImageElement).style.display = 'none'; }}
-                                    />
-                                </AnimatePresence>
-                                {/* fade-to-left gradient */}
-                                <div className="akun-hero-banner__art-fade" />
-                            </div>
-                        )}
                     </div>
 
                     {/* ═══ BODY: info panel + settings ═══ */}
