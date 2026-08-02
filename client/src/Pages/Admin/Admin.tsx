@@ -526,9 +526,9 @@ function RedeemCreateForm({ onSave, onCancel }: {
   };
 
   return (
-    <div style={{ background:'#f8fafc', border:'1.5px solid #e2e8f0', borderRadius:12, padding:'24px 28px', marginBottom:24 }}>
+    <div style={{ background:'#0d0d20', border:'1px solid rgba(0,229,255,0.18)', borderRadius:12, padding:'24px 28px', marginBottom:24 }}>
       <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:20 }}>
-        <h3 style={{ margin:0, fontSize:'0.95rem', fontWeight:700, color:'#0f172a' }}>Buat Kode Redeem Baru</h3>
+        <h3 style={{ margin:0, fontSize:'0.95rem', fontWeight:700, color:'#c8d0ff' }}>Buat Kode Redeem Baru</h3>
         <button className="admin-btn admin-btn--ghost" onClick={onCancel} disabled={saving}>Batal</button>
       </div>
 
@@ -536,7 +536,7 @@ function RedeemCreateForm({ onSave, onCancel }: {
 
       <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:'14px 20px' }}>
         <div className="admin-form-field" style={{ gridColumn:'1/-1' }}>
-          <label>Kode <span style={{ color:'#94a3b8', fontWeight:400, fontSize:12 }}>(kosongkan untuk generate otomatis)</span></label>
+          <label>Kode <span style={{ color:'#6a7494', fontWeight:400, fontSize:12 }}>(kosongkan untuk generate otomatis)</span></label>
           <input value={form.code} onChange={e => set('code', e.target.value.toUpperCase())}
             placeholder="TRH-XXXX-XXXX atau kosongkan" style={{ fontFamily:'monospace', letterSpacing:1 }} />
         </div>
@@ -560,30 +560,30 @@ function RedeemCreateForm({ onSave, onCancel }: {
         </div>
 
         <div className="admin-form-field" style={{ gridColumn:'1/-1', position:'relative' }}>
-          <label>Item <span style={{ color:'#94a3b8', fontWeight:400, fontSize:12 }}>(cari nama atau nomor item)</span></label>
+          <label>Item <span style={{ color:'#6a7494', fontWeight:400, fontSize:12 }}>(cari nama atau nomor item)</span></label>
           {form.item_num > 0 ? (
-            <div style={{ display:'flex', alignItems:'center', gap:10, padding:'8px 12px', background:'#eff6ff', border:'1.5px solid #bfdbfe', borderRadius:8 }}>
-              <span style={{ fontSize:13, color:'#1e40af', fontWeight:600 }}>#{form.item_num}</span>
-              <span style={{ fontSize:13, color:'#1e40af', flex:1 }}>{form.item_name}</span>
+            <div style={{ display:'flex', alignItems:'center', gap:10, padding:'8px 12px', background:'rgba(0,229,255,0.07)', border:'1px solid rgba(0,229,255,0.25)', borderRadius:8 }}>
+              <span style={{ fontSize:13, color:'#31f2ff', fontWeight:600 }}>#{form.item_num}</span>
+              <span style={{ fontSize:13, color:'#c8d0ff', flex:1 }}>{form.item_name}</span>
               <button type="button" onClick={clearItem}
-                style={{ background:'none', border:'none', cursor:'pointer', color:'#64748b', fontSize:16, lineHeight:1, padding:'0 2px' }}>×</button>
+                style={{ background:'none', border:'none', cursor:'pointer', color:'#6a7494', fontSize:16, lineHeight:1, padding:'0 2px' }}>×</button>
             </div>
           ) : (
             <>
               <input value={itemQuery} onChange={e => handleItemSearch(e.target.value)}
                 placeholder="Ketik nama atau nomor item…" />
               {(itemSearching || itemResults.length > 0) && (
-                <div style={{ position:'absolute', top:'100%', left:0, right:0, background:'#fff', border:'1.5px solid #e2e8f0', borderRadius:8, boxShadow:'0 4px 16px rgba(0,0,0,.1)', zIndex:50, maxHeight:200, overflowY:'auto' }}>
-                  {itemSearching && <div style={{ padding:'10px 14px', fontSize:13, color:'#64748b' }}>Mencari…</div>}
+                <div style={{ position:'absolute', top:'100%', left:0, right:0, background:'#0b0b1e', border:'1px solid rgba(0,229,255,0.2)', borderRadius:8, boxShadow:'0 4px 24px rgba(0,0,0,.5)', zIndex:50, maxHeight:200, overflowY:'auto' }}>
+                  {itemSearching && <div style={{ padding:'10px 14px', fontSize:13, color:'#6a7494' }}>Mencari…</div>}
                   {!itemSearching && itemResults.length === 0 && itemQuery.trim().length >= 2 && (
-                    <div style={{ padding:'10px 14px', fontSize:13, color:'#64748b' }}>Item tidak ditemukan</div>
+                    <div style={{ padding:'10px 14px', fontSize:13, color:'#6a7494' }}>Item tidak ditemukan</div>
                   )}
                   {itemResults.map(it => (
                     <button key={it.fdItemNum} type="button" onClick={() => pickItem(it)}
-                      style={{ display:'block', width:'100%', textAlign:'left', padding:'8px 14px', background:'none', border:'none', cursor:'pointer', fontSize:13, color:'#0f172a' }}
-                      onMouseOver={e => (e.currentTarget.style.background='#f1f5f9')}
+                      style={{ display:'block', width:'100%', textAlign:'left', padding:'8px 14px', background:'none', border:'none', cursor:'pointer', fontSize:13, color:'#c8d0ff' }}
+                      onMouseOver={e => (e.currentTarget.style.background='rgba(0,229,255,0.06)')}
                       onMouseOut={e => (e.currentTarget.style.background='none')}>
-                      <span style={{ color:'#94a3b8', marginRight:8, fontFamily:'monospace' }}>#{it.fdItemNum}</span>
+                      <span style={{ color:'#6a7494', marginRight:8, fontFamily:'monospace' }}>#{it.fdItemNum}</span>
                       {it.fdItemName}
                     </button>
                   ))}
@@ -610,7 +610,7 @@ function RedeemCreateForm({ onSave, onCancel }: {
         </div>
 
         <div className="admin-form-field" style={{ gridColumn:'1/-1' }}>
-          <label>Catatan internal <span style={{ color:'#94a3b8', fontWeight:400, fontSize:12 }}>(opsional)</span></label>
+          <label>Catatan internal <span style={{ color:'#6a7494', fontWeight:400, fontSize:12 }}>(opsional)</span></label>
           <input value={form.note} onChange={e => set('note', e.target.value)} placeholder="Misal: event ulang tahun server" />
         </div>
       </div>
