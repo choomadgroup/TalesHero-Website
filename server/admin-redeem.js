@@ -1,12 +1,28 @@
 // ============================================================
 //  Tales Hero Indonesia — Admin Redeem Code CRUD
 //  GET    /api/admin/redeem        — list semua kode
-//  POST   /api/admin/redeem        — buat kode baru
+//  POST   /api/admin/redeem        — buat kode baru (multi-item)
 //  PATCH  /api/admin/redeem/:id    — nonaktifkan / aktifkan
+//  DELETE /api/admin/redeem/:id    — hapus kode
 // ============================================================
 
 import { query } from './db.js';
 import { getAdminUser } from './admin-session.js';
+
+// ── Auto-migrate: tambah fdRewardItems jika belum ada ─────────
+export async function migrateRedeemTable() {
+  try {
+    await query(
+      `ALTER TABLE tblredeem_code ADD COLUMN fdRewardItems TEXT NULL AFTER fdDeliveryTarget`,
+    );
+    console.log('[admin-redeem] Added fdRewardItems column to tblredeem_code');
+  } catch (err) {
+    // Kolom sudah ada — bukan error
+    if (!err.message?.includes('Duplicate column')) {
+      console.warn('[admin-redeem/migrate]', err.message);
+    }
+  }
+}
 
 // ── Helpers ───────────────────────────────────────────────────
 
@@ -42,7 +58,7 @@ export async function adminGetRedeemCodes(req, res) {
     const codes = await query(
       `SELECT fdRedeemId, fdCode,
               fdRewardCash, fdRewardTR, COALESCE(fdRewardMAU, 0) AS fdRewardMAU,
-              fdRewardItemNum, fdRewardItemName, fdDeliveryTarget,
+              fdRewardItemNum, fdRewardItemName, fdDeliveryTarget, fdRewardItems,
               fdNote, fdIsActive, fdClaimCount,
               fdCreatedByNickname, fdCreatedAt, fdExpiredAt
        FROM tblredeem_code
@@ -95,29 +111,48 @@ export async function adminCreateRedeemCode(req, res) {
 
     const {
       code: rawCode,
-      cash_amount = 0,
-      tr_amount   = 0,
-      mau_amount  = 0,
-      item_num    = 0,
-      item_name   = '',
+      cash_amount   = 0,
+      tr_amount     = 0,
+      mau_amount    = 0,
+      items         = [],          // array of { num, name, delivery }
+      // legacy single-item fields (backward compat)
+      item_num      = 0,
+      item_name     = '',
       delivery_target = 'Giftbox',
-      note        = '',
-      expires_days = 3,
+      note          = '',
+      expires_days  = 7,
     } = req.body ?? {};
 
+    const cash = Number(cash_amount) || 0;
+    const tr   = Number(tr_amount)   || 0;
+    const mau  = Number(mau_amount)  || 0;
+
+    // Normalise items array — support both new `items` array and legacy single-item
+    let rewardItems = [];
+    if (Array.isArray(items) && items.length > 0) {
+      rewardItems = items
+        .filter(it => Number(it.num) > 0)
+        .map(it => ({
+          num:      Number(it.num),
+          name:     String(it.name ?? '').trim() || `Item #${it.num}`,
+          delivery: it.delivery === 'Warehouse' ? 'Warehouse' : 'Giftbox',
+        }));
+    } else if (Number(item_num) > 0) {
+      rewardItems = [{
+        num:      Number(item_num),
+        name:     String(item_name ?? '').trim() || `Item #${item_num}`,
+        delivery: delivery_target === 'Warehouse' ? 'Warehouse' : 'Giftbox',
+      }];
+    }
+
     // Validasi reward — minimal salah satu harus diisi
-    const cash   = Number(cash_amount)  || 0;
-    const tr     = Number(tr_amount)    || 0;
-    const mau    = Number(mau_amount)   || 0;
-    const itemNum = Number(item_num)    || 0;
-    if (cash <= 0 && tr <= 0 && mau <= 0 && itemNum <= 0) {
+    if (cash <= 0 && tr <= 0 && mau <= 0 && rewardItems.length === 0) {
       return res.status(400).json({ message: 'Isi minimal satu reward: Cash, TR, MAU, atau Item.' });
     }
 
     // Resolve kode — generate kalau kosong
     let code = (rawCode ?? '').trim().toUpperCase();
     if (!code) {
-      // Pastikan unik
       for (let i = 0; i < 10; i++) {
         const candidate = generateCode();
         const existing = await query(
@@ -127,7 +162,6 @@ export async function adminCreateRedeemCode(req, res) {
         if (existing.length === 0) { code = candidate; break; }
       }
     } else {
-      // Cek duplikat manual
       const existing = await query(
         `SELECT fdRedeemId FROM tblredeem_code WHERE fdCode = ? LIMIT 1`,
         [code],
@@ -141,49 +175,51 @@ export async function adminCreateRedeemCode(req, res) {
     }
 
     // Hitung expired
-    const days   = Math.max(1, Math.min(365, Number(expires_days) || 3));
+    const days      = Math.max(1, Math.min(365, Number(expires_days) || 7));
     const expiredAt = new Date(Date.now() + days * 24 * 60 * 60 * 1000);
 
     // Ambil UserNum admin dari database game
     const creatorUserNum = await getUserNumByUsername(admin.username);
 
-    // Resolve item name jika ada itemNum tapi name kosong
-    let resolvedItemName = (item_name ?? '').trim();
-    if (itemNum > 0 && !resolvedItemName) {
-      const itemRows = await query(
-        `SELECT fdItemName FROM tblavataritemdesc WHERE fdItemNum = ? LIMIT 1`,
-        [itemNum],
-      );
-      resolvedItemName = itemRows[0]?.fdItemName ?? `Item #${itemNum}`;
+    // Resolve item names jika name kosong
+    for (const it of rewardItems) {
+      if (!it.name || it.name === `Item #${it.num}`) {
+        const rows = await query(
+          `SELECT fdItemName FROM tblavataritemdesc WHERE fdItemNum = ? LIMIT 1`,
+          [it.num],
+        );
+        if (rows[0]?.fdItemName) it.name = rows[0].fdItemName;
+      }
     }
+
+    // Untuk kolom legacy, simpan item pertama
+    const firstItem   = rewardItems[0] ?? null;
+    const legacyNum   = firstItem?.num   ?? null;
+    const legacyName  = firstItem?.name  ?? null;
+    const legacyDel   = firstItem?.delivery ?? null;
+    // JSON untuk multi-item (null jika 0 item)
+    const itemsJson   = rewardItems.length > 0 ? JSON.stringify(rewardItems) : null;
 
     await query(
       `INSERT INTO tblredeem_code
          (fdCode, fdRewardCash, fdRewardTR, fdRewardMAU,
-          fdRewardItemNum, fdRewardItemName, fdDeliveryTarget,
+          fdRewardItemNum, fdRewardItemName, fdDeliveryTarget, fdRewardItems,
           fdNote, fdIsActive, fdClaimCount,
           fdCreatedByUserNum, fdCreatedByUserId, fdCreatedByNickname,
           fdExpiredAt)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, 1, 0, ?, ?, ?, ?)`,
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 1, 0, ?, ?, ?, ?)`,
       [
-        code,
-        cash,
-        tr,
-        mau,
-        itemNum || null,
-        itemNum ? resolvedItemName : null,
-        itemNum ? (delivery_target === 'Warehouse' ? 'Warehouse' : 'Giftbox') : null,
+        code, cash, tr, mau,
+        legacyNum, legacyName, legacyDel, itemsJson,
         note.trim() || null,
-        creatorUserNum,
-        admin.username,
-        admin.nickname,
+        creatorUserNum, admin.username, admin.nickname,
         expiredAt,
       ],
     );
 
     const [created] = await query(
       `SELECT fdRedeemId, fdCode, fdRewardCash, fdRewardTR, COALESCE(fdRewardMAU, 0) AS fdRewardMAU,
-              fdRewardItemNum, fdRewardItemName, fdDeliveryTarget,
+              fdRewardItemNum, fdRewardItemName, fdDeliveryTarget, fdRewardItems,
               fdNote, fdIsActive, fdClaimCount,
               fdCreatedByNickname, fdCreatedAt, fdExpiredAt
        FROM tblredeem_code WHERE fdCode = ? LIMIT 1`,

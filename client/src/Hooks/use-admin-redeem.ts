@@ -1,37 +1,57 @@
 import { useState, useEffect, useCallback } from 'react';
 
+export interface RedeemItem {
+  num:      number;
+  name:     string;
+  delivery: 'Giftbox' | 'Warehouse';
+}
+
 export interface RedeemCode {
-  fdRedeemId:         number;
-  fdCode:             string;
-  fdRewardCash:       number;
-  fdRewardTR:         number;
-  fdRewardMAU:        number;
-  fdRewardItemNum:    number | null;
-  fdRewardItemName:   string | null;
-  fdDeliveryTarget:   string | null;
-  fdNote:             string | null;
-  fdIsActive:         number;
-  fdClaimCount:       number;
+  fdRedeemId:          number;
+  fdCode:              string;
+  fdRewardCash:        number;
+  fdRewardTR:          number;
+  fdRewardMAU:         number;
+  fdRewardItemNum:     number | null;
+  fdRewardItemName:    string | null;
+  fdDeliveryTarget:    string | null;
+  fdRewardItems:       string | null;   // JSON array of RedeemItem (new multi-item)
+  fdNote:              string | null;
+  fdIsActive:          number;
+  fdClaimCount:        number;
   fdCreatedByNickname: string;
-  fdCreatedAt:        string;
-  fdExpiredAt:        string;
+  fdCreatedAt:         string;
+  fdExpiredAt:         string;
 }
 
 export interface RedeemFormData {
-  code:            string;
-  cash_amount:     number;
-  tr_amount:       number;
-  mau_amount:      number;
-  item_num:        number;
-  item_name:       string;
-  delivery_target: 'Giftbox' | 'Warehouse';
-  note:            string;
-  expires_days:    number;
+  code:         string;
+  cash_amount:  number;
+  tr_amount:    number;
+  mau_amount:   number;
+  items:        RedeemItem[];
+  note:         string;
+  expires_days: number;
 }
 
 export interface ItemResult {
   fdItemNum:  number;
   fdItemName: string;
+}
+
+/** Parse fdRewardItems JSON, fall back to legacy single-item columns */
+export function parseRedeemItems(c: RedeemCode): RedeemItem[] {
+  if (c.fdRewardItems) {
+    try { return JSON.parse(c.fdRewardItems) as RedeemItem[]; } catch { /* fall through */ }
+  }
+  if (c.fdRewardItemNum) {
+    return [{
+      num:      c.fdRewardItemNum,
+      name:     c.fdRewardItemName ?? `Item #${c.fdRewardItemNum}`,
+      delivery: (c.fdDeliveryTarget as 'Giftbox' | 'Warehouse') ?? 'Giftbox',
+    }];
+  }
+  return [];
 }
 
 export function useAdminRedeem() {
@@ -50,10 +70,10 @@ export function useAdminRedeem() {
 
   const create = async (data: RedeemFormData): Promise<RedeemCode> => {
     const r = await fetch('/api/admin/redeem', {
-      method:  'POST',
+      method:      'POST',
       credentials: 'include',
-      headers: { 'Content-Type': 'application/json' },
-      body:    JSON.stringify(data),
+      headers:     { 'Content-Type': 'application/json' },
+      body:        JSON.stringify(data),
     });
     const body = await r.json();
     if (!r.ok) throw new Error(body.message ?? 'Gagal membuat kode');

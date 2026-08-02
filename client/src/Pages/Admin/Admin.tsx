@@ -3,7 +3,7 @@ import '@/Style/admin.scss';
 import { renderMarkdown } from '@/Lib/markdown';
 import { useAdminAuth, useAdminNews, type AdminNewsArticle, type NewsFormData, type AdminUser } from '@/Hooks/use-admin-news';
 import { useAdminDownloads, type DownloadPackage } from '@/Hooks/use-downloads';
-import { useAdminRedeem, searchItems, type RedeemCode, type RedeemFormData, type ItemResult } from '@/Hooks/use-admin-redeem';
+import { useAdminRedeem, searchItems, parseRedeemItems, type RedeemCode, type RedeemFormData, type RedeemItem, type ItemResult } from '@/Hooks/use-admin-redeem';
 import { useMusic } from '@/Hooks/use-music';
 import { GmPlayerSection, GmRequestsSection, GmLogsSection } from './GmTools';
 
@@ -474,9 +474,121 @@ function DownloadManager({ showToast }: { showToast: (msg: string) => void }) {
 // ─────────────────────────────────────────────────────────────────────────────
 const emptyRedeemForm = (): RedeemFormData => ({
   code: '', cash_amount: 0, tr_amount: 0, mau_amount: 0,
-  item_num: 0, item_name: '', delivery_target: 'Giftbox',
-  note: '', expires_days: 7,
+  items: [], note: '', expires_days: 7,
 });
+
+// ── Item image helper ──────────────────────────────────────────
+function ItemImg({ num, size = 36 }: { num: number; size?: number }) {
+  return (
+    <img
+      src={`/Image/Item/${num}.png`}
+      alt={`#${num}`}
+      width={size} height={size}
+      style={{ objectFit:'contain', borderRadius:4, background:'rgba(255,255,255,0.04)', flexShrink:0 }}
+      onError={e => { (e.target as HTMLImageElement).style.display='none'; }}
+    />
+  );
+}
+
+// ── Single item picker row inside the form ────────────────────
+function ItemPickerRow({ item, onChange, onRemove }: {
+  item: RedeemItem;
+  onChange: (updated: RedeemItem) => void;
+  onRemove: () => void;
+}) {
+  const [query, setQuery]       = useState('');
+  const [results, setResults]   = useState<ItemResult[]>([]);
+  const [searching, setSearch]  = useState(false);
+  const [open, setOpen]         = useState(false);
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const handleSearch = (q: string) => {
+    setQuery(q);
+    setOpen(true);
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    if (q.trim().length < 2) { setResults([]); return; }
+    debounceRef.current = setTimeout(async () => {
+      setSearch(true);
+      try { setResults(await searchItems(q)); }
+      finally { setSearch(false); }
+    }, 300);
+  };
+
+  const pick = (it: ItemResult) => {
+    onChange({ ...item, num: it.fdItemNum, name: it.fdItemName });
+    setQuery(it.fdItemName);
+    setResults([]);
+    setOpen(false);
+  };
+
+  return (
+    <div style={{ display:'flex', alignItems:'flex-start', gap:10, background:'rgba(0,229,255,0.05)', border:'1px solid rgba(0,229,255,0.18)', borderRadius:8, padding:'10px 12px' }}>
+      {/* image */}
+      <div style={{ width:40, height:40, display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}>
+        {item.num > 0
+          ? <ItemImg num={item.num} size={38} />
+          : <span style={{ fontSize:22 }}>🎁</span>
+        }
+      </div>
+
+      {/* fields */}
+      <div style={{ flex:1, minWidth:0 }}>
+        {item.num > 0 ? (
+          <div style={{ display:'flex', alignItems:'center', gap:6, flexWrap:'wrap' }}>
+            <span style={{ fontFamily:'monospace', fontSize:12, color:'#31f2ff', fontWeight:700 }}>#{item.num}</span>
+            <span style={{ fontSize:13, color:'#c8d0ff', flex:1, minWidth:0, overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{item.name}</span>
+            <button type="button"
+              onClick={() => { onChange({ ...item, num: 0, name: '' }); setQuery(''); }}
+              style={{ background:'none', border:'none', cursor:'pointer', color:'#6a7494', fontSize:14, padding:'0 2px', lineHeight:1 }}>✕ ganti</button>
+          </div>
+        ) : (
+          <div style={{ position:'relative' }}>
+            <input value={query} onChange={e => handleSearch(e.target.value)}
+              placeholder="Cari nama atau nomor item…"
+              style={{ width:'100%', boxSizing:'border-box' }}
+              onFocus={() => query.trim().length >= 2 && setOpen(true)}
+              onBlur={() => setTimeout(() => setOpen(false), 150)} />
+            {open && (searching || results.length > 0 || query.trim().length >= 2) && (
+              <div style={{ position:'absolute', top:'100%', left:0, right:0, background:'#0b0b1e', border:'1px solid rgba(0,229,255,0.2)', borderRadius:8, boxShadow:'0 4px 24px rgba(0,0,0,.6)', zIndex:60, maxHeight:220, overflowY:'auto', marginTop:2 }}>
+                {searching && <div style={{ padding:'10px 14px', fontSize:13, color:'#6a7494' }}>Mencari…</div>}
+                {!searching && results.length === 0 && query.trim().length >= 2 && (
+                  <div style={{ padding:'10px 14px', fontSize:13, color:'#6a7494' }}>Item tidak ditemukan</div>
+                )}
+                {results.map(it => (
+                  <button key={it.fdItemNum} type="button" onMouseDown={() => pick(it)}
+                    style={{ display:'flex', alignItems:'center', gap:10, width:'100%', textAlign:'left', padding:'7px 12px', background:'none', border:'none', cursor:'pointer', fontSize:13, color:'#c8d0ff' }}
+                    onMouseOver={e => (e.currentTarget.style.background='rgba(0,229,255,0.08)')}
+                    onMouseOut={e => (e.currentTarget.style.background='none')}>
+                    <ItemImg num={it.fdItemNum} size={28} />
+                    <span style={{ fontFamily:'monospace', color:'#6a7494', fontSize:11, flexShrink:0 }}>#{it.fdItemNum}</span>
+                    <span style={{ overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{it.fdItemName}</span>
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* delivery select — only shown when item is picked */}
+        {item.num > 0 && (
+          <div style={{ marginTop:6 }}>
+            <select value={item.delivery}
+              onChange={e => onChange({ ...item, delivery: e.target.value as 'Giftbox' | 'Warehouse' })}
+              style={{ fontSize:12, padding:'3px 8px' }}>
+              <option value="Giftbox">📦 Giftbox</option>
+              <option value="Warehouse">🏪 Warehouse</option>
+            </select>
+          </div>
+        )}
+      </div>
+
+      {/* remove button */}
+      <button type="button" onClick={onRemove}
+        style={{ background:'none', border:'none', cursor:'pointer', color:'#ef4444', fontSize:18, lineHeight:1, padding:'0 2px', flexShrink:0, marginTop:2 }}
+        title="Hapus item ini">×</button>
+    </div>
+  );
+}
 
 function RedeemCreateForm({ onSave, onCancel }: {
   onSave: (data: RedeemFormData) => Promise<void>;
@@ -485,43 +597,26 @@ function RedeemCreateForm({ onSave, onCancel }: {
   const [form, setForm] = useState<RedeemFormData>(emptyRedeemForm);
   const [saving, setSaving] = useState(false);
   const [error, setError]   = useState('');
-  const [itemQuery, setItemQuery] = useState('');
-  const [itemResults, setItemResults] = useState<ItemResult[]>([]);
-  const [itemSearching, setItemSearching] = useState(false);
-  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const set = <K extends keyof RedeemFormData>(k: K, v: RedeemFormData[K]) =>
     setForm(f => ({ ...f, [k]: v }));
 
-  const handleItemSearch = (q: string) => {
-    setItemQuery(q);
-    if (debounceRef.current) clearTimeout(debounceRef.current);
-    if (q.trim().length < 2) { setItemResults([]); return; }
-    debounceRef.current = setTimeout(async () => {
-      setItemSearching(true);
-      try { setItemResults(await searchItems(q)); }
-      finally { setItemSearching(false); }
-    }, 300);
-  };
+  const addItem = () =>
+    setForm(f => ({ ...f, items: [...f.items, { num: 0, name: '', delivery: 'Giftbox' }] }));
 
-  const pickItem = (item: ItemResult) => {
-    set('item_num', item.fdItemNum);
-    set('item_name', item.fdItemName);
-    setItemQuery(item.fdItemName);
-    setItemResults([]);
-  };
+  const updateItem = (idx: number, updated: RedeemItem) =>
+    setForm(f => ({ ...f, items: f.items.map((it, i) => i === idx ? updated : it) }));
 
-  const clearItem = () => {
-    set('item_num', 0); set('item_name', '');
-    setItemQuery(''); setItemResults([]);
-  };
+  const removeItem = (idx: number) =>
+    setForm(f => ({ ...f, items: f.items.filter((_, i) => i !== idx) }));
 
   const save = async () => {
-    if (form.cash_amount <= 0 && form.tr_amount <= 0 && form.mau_amount <= 0 && form.item_num <= 0) {
+    const validItems = form.items.filter(it => it.num > 0);
+    if (form.cash_amount <= 0 && form.tr_amount <= 0 && form.mau_amount <= 0 && validItems.length === 0) {
       setError('Isi minimal satu reward: Cash, TR, MAU, atau Item.'); return;
     }
     setSaving(true); setError('');
-    try { await onSave(form); }
+    try { await onSave({ ...form, items: validItems }); }
     catch (e: any) { setError(e.message ?? 'Gagal membuat kode'); setSaving(false); }
   };
 
@@ -553,63 +648,45 @@ function RedeemCreateForm({ onSave, onCancel }: {
             onChange={e => set('tr_amount', Number(e.target.value))} placeholder="0" />
         </div>
 
-        <div className="admin-form-field">
+        <div className="admin-form-field" style={{ gridColumn:'1/-1' }}>
           <label>MAU (Point)</label>
           <input type="number" min={0} value={form.mau_amount || ''}
             onChange={e => set('mau_amount', Number(e.target.value))} placeholder="0" />
         </div>
 
-        <div className="admin-form-field" style={{ gridColumn:'1/-1', position:'relative' }}>
-          <label>Item <span style={{ color:'#6a7494', fontWeight:400, fontSize:12 }}>(cari nama atau nomor item)</span></label>
-          {form.item_num > 0 ? (
-            <div style={{ display:'flex', alignItems:'center', gap:10, padding:'8px 12px', background:'rgba(0,229,255,0.07)', border:'1px solid rgba(0,229,255,0.25)', borderRadius:8 }}>
-              <span style={{ fontSize:13, color:'#31f2ff', fontWeight:600 }}>#{form.item_num}</span>
-              <span style={{ fontSize:13, color:'#c8d0ff', flex:1 }}>{form.item_name}</span>
-              <button type="button" onClick={clearItem}
-                style={{ background:'none', border:'none', cursor:'pointer', color:'#6a7494', fontSize:16, lineHeight:1, padding:'0 2px' }}>×</button>
+        {/* ── Multi-item section ── */}
+        <div style={{ gridColumn:'1/-1' }}>
+          <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:8 }}>
+            <label style={{ fontSize:12, fontWeight:700, color:'#6a7494', textTransform:'uppercase', letterSpacing:'0.05em' }}>
+              Item Reward <span style={{ color:'#6a7494', fontWeight:400, textTransform:'none', letterSpacing:0 }}>({form.items.length} item)</span>
+            </label>
+            <button type="button" onClick={addItem}
+              style={{ display:'flex', alignItems:'center', gap:5, fontSize:12, fontWeight:600, color:'#00e5ff', background:'rgba(0,229,255,0.08)', border:'1px solid rgba(0,229,255,0.2)', borderRadius:6, padding:'4px 10px', cursor:'pointer' }}>
+              <IconPlus /> Tambah Item
+            </button>
+          </div>
+          {form.items.length === 0 ? (
+            <div style={{ textAlign:'center', padding:'14px 0', color:'#6a7494', fontSize:13, border:'1px dashed rgba(0,229,255,0.12)', borderRadius:8 }}>
+              Klik "Tambah Item" untuk menambahkan item reward
             </div>
           ) : (
-            <>
-              <input value={itemQuery} onChange={e => handleItemSearch(e.target.value)}
-                placeholder="Ketik nama atau nomor item…" />
-              {(itemSearching || itemResults.length > 0) && (
-                <div style={{ position:'absolute', top:'100%', left:0, right:0, background:'#0b0b1e', border:'1px solid rgba(0,229,255,0.2)', borderRadius:8, boxShadow:'0 4px 24px rgba(0,0,0,.5)', zIndex:50, maxHeight:200, overflowY:'auto' }}>
-                  {itemSearching && <div style={{ padding:'10px 14px', fontSize:13, color:'#6a7494' }}>Mencari…</div>}
-                  {!itemSearching && itemResults.length === 0 && itemQuery.trim().length >= 2 && (
-                    <div style={{ padding:'10px 14px', fontSize:13, color:'#6a7494' }}>Item tidak ditemukan</div>
-                  )}
-                  {itemResults.map(it => (
-                    <button key={it.fdItemNum} type="button" onClick={() => pickItem(it)}
-                      style={{ display:'block', width:'100%', textAlign:'left', padding:'8px 14px', background:'none', border:'none', cursor:'pointer', fontSize:13, color:'#c8d0ff' }}
-                      onMouseOver={e => (e.currentTarget.style.background='rgba(0,229,255,0.06)')}
-                      onMouseOut={e => (e.currentTarget.style.background='none')}>
-                      <span style={{ color:'#6a7494', marginRight:8, fontFamily:'monospace' }}>#{it.fdItemNum}</span>
-                      {it.fdItemName}
-                    </button>
-                  ))}
-                </div>
-              )}
-            </>
+            <div style={{ display:'flex', flexDirection:'column', gap:8 }}>
+              {form.items.map((it, idx) => (
+                <ItemPickerRow key={idx} item={it}
+                  onChange={updated => updateItem(idx, updated)}
+                  onRemove={() => removeItem(idx)} />
+              ))}
+            </div>
           )}
         </div>
 
-        {form.item_num > 0 && (
-          <div className="admin-form-field">
-            <label>Kirim ke</label>
-            <select value={form.delivery_target} onChange={e => set('delivery_target', e.target.value as 'Giftbox' | 'Warehouse')}>
-              <option value="Giftbox">Giftbox</option>
-              <option value="Warehouse">Warehouse</option>
-            </select>
-          </div>
-        )}
-
-        <div className="admin-form-field" style={form.item_num > 0 ? {} : { gridColumn:'1/-1' }}>
+        <div className="admin-form-field">
           <label>Berlaku (hari)</label>
           <input type="number" min={1} max={365} value={form.expires_days}
             onChange={e => set('expires_days', Math.max(1, Number(e.target.value)))} />
         </div>
 
-        <div className="admin-form-field" style={{ gridColumn:'1/-1' }}>
+        <div className="admin-form-field">
           <label>Catatan internal <span style={{ color:'#6a7494', fontWeight:400, fontSize:12 }}>(opsional)</span></label>
           <input value={form.note} onChange={e => set('note', e.target.value)} placeholder="Misal: event ulang tahun server" />
         </div>
@@ -751,12 +828,13 @@ function RedeemManager({ adminUser, showToast }: { adminUser: AdminUser | null; 
                         {c.fdRewardCash  > 0 && <div>💰 {c.fdRewardCash.toLocaleString('id-ID')} Cash</div>}
                         {c.fdRewardTR    > 0 && <div>⚔ {c.fdRewardTR.toLocaleString('id-ID')} TR</div>}
                         {c.fdRewardMAU   > 0 && <div>✨ {c.fdRewardMAU.toLocaleString('id-ID')} MAU</div>}
-                        {c.fdRewardItemNum && (
-                          <div title={`#${c.fdRewardItemNum}`}>
-                            🎁 {c.fdRewardItemName ?? `Item #${c.fdRewardItemNum}`}
-                            {c.fdDeliveryTarget && <span style={{ color:'#94a3b8', marginLeft:4 }}>({c.fdDeliveryTarget})</span>}
+                        {parseRedeemItems(c).map((it, idx) => (
+                          <div key={idx} style={{ display:'flex', alignItems:'center', gap:5 }} title={`#${it.num}`}>
+                            <ItemImg num={it.num} size={20} />
+                            <span>{it.name}</span>
+                            <span style={{ color:'#94a3b8', fontSize:11 }}>({it.delivery})</span>
                           </div>
-                        )}
+                        ))}
                       </td>
                       <td style={{ fontSize:13, textAlign:'center', fontWeight:600, color: c.fdClaimCount > 0 ? '#0f172a' : '#cbd5e1' }}>
                         {c.fdClaimCount}

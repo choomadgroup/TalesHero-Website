@@ -6,10 +6,11 @@
 //  (tabel dari admin tools) yang sudah ada di tr_game_db.
 //
 //  Reward yang didukung:
-//    - fdRewardCash  → tambah ke userinfofrompublisher.fdCash
-//    - fdRewardTR    → tambah ke userinfogame.fdGameMoney
-//    - fdRewardItemNum → kirim ke tblgift (Giftbox) atau
-//                        userstoragegiftitem (Warehouse)
+//    - fdRewardCash    → tambah ke userinfofrompublisher.fdCash
+//    - fdRewardTR      → tambah ke userinfogame.fdGameMoney
+//    - fdRewardMAU     → tambah ke userinfopoint
+//    - fdRewardItems   → multi-item (JSON), kirim ke tblgift / userstoragegiftitem
+//    - fdRewardItemNum → single-item legacy fallback
 // ============================================================
 
 import { query } from './db.js';
@@ -44,7 +45,7 @@ async function deliverToGiftbox(senderUserNum, senderNickname, receiverUserNum, 
 
 // ── Helper: kirim item ke Warehouse (userstoragegiftitem) ────
 async function deliverToWarehouse(receiverUserNum, itemNum, senderNickname, memo) {
-  // fdUniqueNum tidak AUTO_INCREMENT — generate pakai timestamp µs + userNum
+  // fdUniqueNum tidak AUTO_INCREMENT — generate pakai timestamp µs + userNum + random
   const uniqueNum = BigInt(Date.now()) * 10000n + BigInt(receiverUserNum % 10000);
   await query(
     `INSERT INTO userstoragegiftitem
@@ -91,7 +92,7 @@ async function redeem(req, res) {
     const codeRows = await query(
       `SELECT fdRedeemId, fdCode,
               fdRewardCash, fdRewardTR, COALESCE(fdRewardMAU, 0) AS fdRewardMAU,
-              fdRewardItemNum, fdRewardItemName, fdDeliveryTarget,
+              fdRewardItemNum, fdRewardItemName, fdDeliveryTarget, fdRewardItems,
               fdIsActive, fdClaimCount, fdExpiredAt
        FROM tblredeem_code
        WHERE fdCode = ?
@@ -126,14 +127,27 @@ async function redeem(req, res) {
       return res.status(409).json({ message: 'Kamu sudah pernah menggunakan kode ini sebelumnya.' });
     }
 
-    // 8. Terapkan reward ─────────────────────────────────────
-    const cash   = Number(rc.fdRewardCash)   || 0;
-    const tr     = Number(rc.fdRewardTR)     || 0;
-    const mau    = Number(rc.fdRewardMAU)    || 0;
-    const itemNum = rc.fdRewardItemNum ? Number(rc.fdRewardItemNum) : null;
-    const delivery = rc.fdDeliveryTarget ?? 'Giftbox';
-    const memo   = `Redeem Code: ${rc.fdCode}`;
-    const SYSTEM_USER_NUM = 1; // UserNum pengirim sistem
+    // 8. Resolve item list — new multi-item JSON takes priority ─
+    let rewardItems = [];
+    if (rc.fdRewardItems) {
+      try { rewardItems = JSON.parse(rc.fdRewardItems); } catch { /* ignore */ }
+    }
+    // Fallback: legacy single-item columns
+    if (rewardItems.length === 0 && rc.fdRewardItemNum) {
+      rewardItems = [{
+        num:      Number(rc.fdRewardItemNum),
+        name:     rc.fdRewardItemName ?? `Item #${rc.fdRewardItemNum}`,
+        delivery: rc.fdDeliveryTarget ?? 'Giftbox',
+      }];
+    }
+
+    // 9. Terapkan reward ─────────────────────────────────────
+    const cash = Number(rc.fdRewardCash) || 0;
+    const tr   = Number(rc.fdRewardTR)   || 0;
+    const mau  = Number(rc.fdRewardMAU)  || 0;
+    const memo = `Redeem Code: ${rc.fdCode}`;
+    const SYSTEM_USER_NUM  = 1;
+    const SYSTEM_NICKNAME  = '[GM]System';
 
     if (cash > 0) {
       await query(
@@ -161,49 +175,49 @@ async function redeem(req, res) {
       );
     }
 
-    if (itemNum) {
-      const senderNickname = '[GM]System';
+    // Deliver all items
+    for (const it of rewardItems) {
+      const itemNum  = Number(it.num);
+      const delivery = it.delivery === 'Warehouse' ? 'Warehouse' : 'Giftbox';
+      if (!itemNum) continue;
       if (delivery === 'Warehouse') {
-        await deliverToWarehouse(userNum, itemNum, senderNickname, memo);
+        await deliverToWarehouse(userNum, itemNum, SYSTEM_NICKNAME, memo);
       } else {
-        // Default: Giftbox
-        await deliverToGiftbox(SYSTEM_USER_NUM, senderNickname, userNum, itemNum, memo);
+        await deliverToGiftbox(SYSTEM_USER_NUM, SYSTEM_NICKNAME, userNum, itemNum, memo);
       }
     }
 
-    // 9. Catat claim di tblredeem_code_claim
+    // 10. Catat claim di tblredeem_code_claim
+    // legacy columns: store first item only
+    const firstItem = rewardItems[0] ?? null;
     await query(
       `INSERT INTO tblredeem_code_claim
          (fdRedeemId, fdCode, fdUserNum, fdUserId, fdNickname,
           fdClaimedCash, fdClaimedTR, fdClaimedMAU, fdClaimedItemNum, fdClaimedItemName, fdDeliveryTarget)
        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
-        rc.fdRedeemId,
-        rc.fdCode,
-        userNum,
-        username,
-        nickname,
-        cash,
-        tr,
-        mau,
-        itemNum,
-        rc.fdRewardItemName ?? null,
-        itemNum ? delivery : null,
+        rc.fdRedeemId, rc.fdCode, userNum, username, nickname,
+        cash, tr, mau,
+        firstItem?.num   ?? null,
+        firstItem?.name  ?? null,
+        firstItem?.delivery ?? null,
       ],
     );
 
-    // 10. Tambah claim count
+    // 11. Tambah claim count
     await query(
       `UPDATE tblredeem_code SET fdClaimCount = fdClaimCount + 1 WHERE fdRedeemId = ?`,
       [rc.fdRedeemId],
     );
 
-    // 11. Susun pesan sukses
+    // 12. Susun pesan sukses
     const parts = [];
-    if (cash > 0)   parts.push(`${Number(cash).toLocaleString('id-ID')} Cash`);
-    if (tr > 0)     parts.push(`${Number(tr).toLocaleString('id-ID')} TR`);
-    if (mau > 0)    parts.push(`${Number(mau).toLocaleString('id-ID')} MAU`);
-    if (itemNum)    parts.push(`${rc.fdRewardItemName ?? 'Item'} (${delivery})`);
+    if (cash > 0) parts.push(`${Number(cash).toLocaleString('id-ID')} Cash`);
+    if (tr   > 0) parts.push(`${Number(tr).toLocaleString('id-ID')} TR`);
+    if (mau  > 0) parts.push(`${Number(mau).toLocaleString('id-ID')} MAU`);
+    for (const it of rewardItems) {
+      parts.push(`${it.name} (${it.delivery})`);
+    }
     const rewardSummary = parts.join(' + ') || 'Hadiah spesial';
 
     return res.status(200).json({
@@ -211,11 +225,7 @@ async function redeem(req, res) {
       reward: {
         cash,
         tr,
-        item: itemNum ? {
-          num:      itemNum,
-          name:     rc.fdRewardItemName ?? null,
-          delivery,
-        } : null,
+        items: rewardItems,
         summary: rewardSummary,
       },
     });

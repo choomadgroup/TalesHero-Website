@@ -15,6 +15,7 @@ import redeem from './redeem.js';
 import {
   adminGetRedeemCodes, adminCreateRedeemCode,
   adminToggleRedeemCode, adminDeleteRedeemCode, adminSearchItem,
+  migrateRedeemTable,
 } from './admin-redeem.js';
 import turnstileConfig from './auth/turnstile-config.js';
 import stats    from './stats.js';
@@ -176,6 +177,7 @@ app.use((req, res) => {
   res.status(404).json({ message: 'Not found' });
 });
 
+migrateRedeemTable().catch(err => console.error('[admin-redeem/migrate]', err.message));
 migrate()
   .then(() => console.log('[Database] tales_hero_web_users sukses terhubung.'))
   .catch(err => console.error('[Database] migrate error:', err.message));
