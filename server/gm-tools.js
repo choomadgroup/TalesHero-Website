@@ -787,33 +787,51 @@ export async function setPieroColor(req, res, targetUserNum) {
     if (!targets.length) return json(res, 404, { message: 'Player tidak ditemukan.' });
     if (!targets[0].Attribute)
       return json(res, 400, { message: 'Player belum diset sebagai Piero. Aktifkan Piero terlebih dahulu.' });
-    // query() returns results = rows from pool.query().
-    // For a CALL that SELECTs a result set, mysql2 returns:
-    //   results = [ [{ ret: N }, ...], OkPacket ]
-    // So results[0][0].ret is the stored-procedure return code.
-    const resultSets = await query('CALL usp_GM_SetPieroColor(?, ?)', [targets[0].fdNickname, colorIndex]);
 
-    // Extract ret — be defensive about shape differences across mysql2 versions
-    let ret = 0;
-    if (Array.isArray(resultSets)) {
-      const firstSet = Array.isArray(resultSets[0]) ? resultSets[0] : resultSets;
-      const firstRow = firstSet[0];
-      if (firstRow && typeof firstRow === 'object') {
-        const retVal = firstRow.ret ?? firstRow.Ret ?? firstRow.RET;
-        if (retVal !== undefined) ret = Number(retVal);
+    // Use a dedicated connection so we can safely iterate result sets from CALL.
+    // mysql2 CALL returns: [ [resultSet1_rows, ...], [resultSet2_rows, ...], OkPacket ]
+    // PHP does pdo->nextRowset() to skip empty sets — we replicate that here.
+    const conn = await pool.getConnection();
+    let ret = -1; // -1 = "ret not found in any result set"
+    try {
+      const [rows] = await conn.query(
+        'CALL usp_GM_SetPieroColor(?, ?)',
+        [targets[0].fdNickname, colorIndex],
+      );
+
+      // rows is the full results array from the CALL:
+      // e.g. [ [{ ret: 0 }], OkPacket ]  or  [ [], [{ ret: 0 }], OkPacket ]
+      // Walk every element; the first array-of-objects that has a 'ret' key wins.
+      const sets = Array.isArray(rows) ? rows : [rows];
+      for (const set of sets) {
+        if (!Array.isArray(set) || set.length === 0) continue;
+        const row = set[0];
+        if (!row || typeof row !== 'object') continue;
+        // Case-insensitive search for the 'ret' column
+        const key = Object.keys(row).find(k => k.toLowerCase() === 'ret');
+        if (key !== undefined) {
+          ret = Number(row[key]);
+          break;
+        }
       }
+    } finally {
+      conn.release();
     }
 
+    console.log(`[gm/setPieroColor] nickname=${targets[0].fdNickname} colorIndex=${colorIndex} ret=${ret}`);
+
+    // ret=-1 means SP ran without returning a result set (treat as success — SP
+    // older versions may not SELECT a return code).
     if (ret === 1) return json(res, 400, { message: 'Kode warna Piero tidak valid (ret=1).' });
     if (ret === 2) return json(res, 400, {
       message: `Nickname "${targets[0].fdNickname}" tidak ditemukan oleh stored procedure (ret=2). ` +
-               `Pastikan karakter dengan nickname tersebut ada di game dan tidak mengandung spasi/karakter khusus.`,
+               `Pastikan karakter dengan nickname tersebut ada di game.`,
     });
     if (ret === 3) return json(res, 400, {
       message: `Karakter "${targets[0].fdNickname}" bukan Piero menurut stored procedure (ret=3). ` +
                `Coba aktifkan/nonaktifkan ulang status Piero, lalu ganti warna kembali.`,
     });
-    if (ret !== 0) return json(res, 400, { message: `Stored procedure mengembalikan kode error tidak dikenal: ret=${ret}` });
+    if (ret > 3) return json(res, 400, { message: `Stored procedure error: ret=${ret}` });
 
     await logAction(admin, 'SET_PIERO_COLOR', `UserNum:${targetUserNum}`,
       `Piero color -> ${color} (${targets[0].fdNickname})`);
