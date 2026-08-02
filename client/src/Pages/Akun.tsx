@@ -294,46 +294,47 @@ export default function Akun() {
                     {/* ═══ LEFT — Character Showcase ═══ */}
                     <div className="akun-showcase">
 
-                        {/* Full character art card */}
-                        <div className="akun-char-panel">
-                            <div className="akun-char-panel__bg" />
-                            <AnimatePresence mode="wait">
-                                <motion.img
-                                    key={charData?.name ?? 'default'}
-                                    src={charData
-                                        ? asset(`/Image/Karakter/Avatar/${charData.file}`)
-                                        : asset('/Image/Account/IMG-DEFAULT-01.png')}
-                                    alt={charData?.name ?? 'Karakter'}
-                                    className="akun-char-panel__img"
-                                    initial={{ opacity: 0, scale: 1.05 }}
-                                    animate={{ opacity: 1, scale: 1 }}
-                                    exit={{ opacity: 0 }}
-                                    transition={{ duration: 0.4, ease: 'easeOut' }}
-                                    onError={(e) => {
-                                        (e.currentTarget as HTMLImageElement).src =
-                                            asset('/Image/Account/IMG-DEFAULT-01.png');
-                                    }}
-                                />
-                            </AnimatePresence>
-                            {/* Level badge — top right */}
-                            <div className="akun-char-panel__level-badge">
-                                <span className="akun-char-panel__level-num">Lv. {user.level}</span>
-                                <span className="akun-char-panel__exp-pct">{user.expPct.toFixed(1)}%</span>
+                        {/* Hero row: circular avatar + greeting */}
+                        <div className="akun-hero-row">
+                            <div className="akun-hero-row__avatar-wrap">
+                                <AnimatePresence mode="wait">
+                                    <motion.img
+                                        key={charData?.name ?? 'none'}
+                                        src={charData
+                                            ? asset(`/Image/Karakter/Avatar/${charData.file}`)
+                                            : asset('/Image/Account/IMG-DEFAULT-01.png')}
+                                        alt={charData?.name ?? 'Karakter'}
+                                        className="akun-hero-row__avatar"
+                                        initial={{ opacity: 0, scale: 0.88 }}
+                                        animate={{ opacity: 1, scale: 1 }}
+                                        exit={{ opacity: 0, scale: 0.92 }}
+                                        transition={{ duration: 0.32, ease: 'easeOut' }}
+                                        onError={(e) => {
+                                            (e.currentTarget as HTMLImageElement).src =
+                                                asset('/Image/Account/IMG-DEFAULT-01.png');
+                                        }}
+                                    />
+                                </AnimatePresence>
                             </div>
-                            {/* Bottom overlay */}
                             <AnimatePresence mode="wait">
                                 <motion.div
-                                    key={`overlay-${charData?.name ?? 'none'}`}
-                                    className="akun-char-panel__overlay"
-                                    initial={{ opacity: 0 }}
-                                    animate={{ opacity: 1 }}
+                                    key={`greeting-${charData?.name ?? 'none'}`}
+                                    className="akun-hero-row__text"
+                                    initial={{ opacity: 0, x: 10 }}
+                                    animate={{ opacity: 1, x: 0 }}
                                     exit={{ opacity: 0 }}
-                                    transition={{ duration: 0.3 }}
+                                    transition={{ duration: 0.28 }}
                                 >
-                                    <span className="akun-char-panel__hello">✦ Halo! Aku ✦</span>
-                                    {charData && <span className="akun-char-panel__badge">{charData.name}</span>}
-                                    <p className="akun-char-panel__name">{user.nickname || user.username}</p>
-                                    {charData && <p className="akun-char-panel__quote">{charData.quote}</p>}
+                                    <span className="akun-hero-row__hello">
+                                        <span className="akun-hero-row__hello-accent">✦ Halo!</span>
+                                        {' '}<span className="akun-hero-row__hello-plain">Aku</span>
+                                    </span>
+                                    <strong className="akun-hero-row__nick">
+                                        {user.nickname || user.username}
+                                    </strong>
+                                    {charData && (
+                                        <span className="akun-hero-row__char">{charData.name}</span>
+                                    )}
                                 </motion.div>
                             </AnimatePresence>
                         </div>

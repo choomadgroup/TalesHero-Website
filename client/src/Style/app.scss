@@ -5676,12 +5676,13 @@ $nl-sans:     'Poppins', -apple-system, sans-serif;
   }
 }
 
-// ── EXP Bar (game HUD style) ──
+// ── EXP Bar ──
 .akun-exp-card {
-  background: linear-gradient(135deg, #6c2fa0 0%, #a0257a 60%, #c8305c 100%);
+  background: #fff;
   border-radius: 14px;
   padding: 12px 16px;
-  box-shadow: 0 4px 20px rgba(168,38,120,0.35);
+  border: 1.5px solid #f0f0f7;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.07);
 
   &__header {
     display: flex;
@@ -5693,23 +5694,22 @@ $nl-sans:     'Poppins', -apple-system, sans-serif;
   &__level {
     font-size: 12px;
     font-weight: 900;
-    color: #ffe066;
+    color: #e91e63;
     letter-spacing: 0.5px;
     text-transform: uppercase;
-    text-shadow: 0 1px 4px rgba(0,0,0,0.3);
   }
 
   &__pct {
     font-size: 11px;
     font-weight: 800;
-    color: rgba(255,255,255,0.85);
+    color: #888;
     letter-spacing: 0.3px;
   }
 
   &__bar-bg {
     width: 100%;
     height: 10px;
-    background: rgba(255,255,255,0.2);
+    background: #f0f0f7;
     border-radius: 100px;
     overflow: hidden;
   }
@@ -5717,8 +5717,8 @@ $nl-sans:     'Poppins', -apple-system, sans-serif;
   &__bar-fill {
     height: 100%;
     border-radius: 100px;
-    background: linear-gradient(90deg, #ffe066 0%, #fff 100%);
-    box-shadow: 0 0 10px rgba(255,224,102,0.6);
+    background: linear-gradient(90deg, #e91e63 0%, #f06292 100%);
+    box-shadow: 0 0 8px rgba(233,30,99,0.3);
     transition: width 0.6s ease;
     min-width: 2px;
   }
