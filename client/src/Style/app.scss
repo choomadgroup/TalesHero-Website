@@ -9,7 +9,7 @@ $cursor-url: url('/Image/Other/cursor-taleshero.png');
 
 *, *::before, *::after {
   box-sizing: border-box;
-  cursor: $cursor-url, auto;
+  cursor: $cursor-url, auto !important;
 }
 
 // Interactive elements would normally get `cursor: pointer` — keep custom cursor
@@ -18,18 +18,18 @@ a, button, label, select,
 input[type="button"], input[type="submit"], input[type="reset"],
 input[type="checkbox"], input[type="radio"],
 summary, [tabindex]:not([tabindex="-1"]) {
-  cursor: $cursor-url, pointer;
+  cursor: $cursor-url, pointer !important;
 }
 
 // Disabled elements
 [disabled], [aria-disabled="true"] {
-  cursor: $cursor-url, not-allowed;
+  cursor: $cursor-url, not-allowed !important;
 }
 
 // Text inputs keep a text cursor that still shows on top of ours
 input:not([type="button"]):not([type="submit"]):not([type="reset"]):not([type="checkbox"]):not([type="radio"]),
 textarea {
-  cursor: $cursor-url, text;
+  cursor: $cursor-url, text !important;
 }
 
 html, body { overflow-x: hidden; }
