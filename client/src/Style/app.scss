@@ -6123,6 +6123,7 @@ $nl-sans:     'Poppins', -apple-system, sans-serif;
   display: flex;
   flex-direction: column;
   gap: 20px;
+  text-align: left; // override cs-page__card center
 }
 
 // ── Hero Banner ──────────────────────────────────────────────────────
@@ -6135,7 +6136,7 @@ $nl-sans:     'Poppins', -apple-system, sans-serif;
   box-shadow: 0 16px 48px rgba(0,0,0,0.5);
   display: flex;
   align-items: stretch;
-  min-height: 220px;
+  min-height: 260px;          // tall enough for full character art
 
   // Pink/purple glow blob
   &__glow {
@@ -6154,10 +6155,11 @@ $nl-sans:     'Poppins', -apple-system, sans-serif;
     z-index: 1;
     display: flex;
     align-items: center;
-    gap: 24px;
-    padding: 28px 32px;
+    gap: 20px;
+    padding: 28px 28px;
     flex: 1;
     min-width: 0;
+    text-align: left;
   }
 
   // Circular avatar
@@ -6182,13 +6184,15 @@ $nl-sans:     'Poppins', -apple-system, sans-serif;
     display: block;
   }
 
-  // Text identity
+  // Text identity — sits immediately to the right of the avatar
   &__identity {
     flex: 1;
     min-width: 0;
     display: flex;
     flex-direction: column;
     gap: 6px;
+    text-align: left;
+    align-items: flex-start;
   }
 
   &__eyebrow {
