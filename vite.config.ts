@@ -187,6 +187,20 @@ const apiPlugin = {
       turnstileConfig(req, res);
     });
 
+    // Server status (harus sebelum /api/stats)
+    server.middlewares.use('/api/stats/server-status', async (req: any, res: any, next: any) => {
+      if (req.method !== 'GET') { next(); return; }
+      try {
+        addJsonResponseHelpers(res);
+        const { serverStatus } = await import('./server/stats.js');
+        await serverStatus(req, res);
+      } catch {
+        res.statusCode = 200;
+        res.setHeader('Content-Type', 'application/json');
+        res.end(JSON.stringify({ status: 'offline', onlineCount: 0 }));
+      }
+    });
+
     // Stats: daftar nickname online (harus sebelum /api/stats agar tidak kena prefix-match)
     server.middlewares.use('/api/stats/online-players', async (req: any, res: any, next: any) => {
       if (req.method !== 'GET') { next(); return; }
