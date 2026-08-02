@@ -101,6 +101,7 @@ export default function HeroBanner() {
     const [showOnlineTip, setShowOnlineTip]     = useState(false);
     const [onlinePlayers, setOnlinePlayers]     = useState<string[] | null>(null);
     const [loadingPlayers, setLoadingPlayers]   = useState(false);
+    const [playerSearch, setPlayerSearch]       = useState('');
     const onlineBadgeRef  = useRef<HTMLSpanElement>(null);
     const hideTimerRef    = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -230,29 +231,61 @@ export default function HeroBanner() {
                                                     border: '1px solid rgba(86,145,240,0.35)',
                                                     borderRadius: 10,
                                                     padding: '10px 14px',
-                                                    minWidth: 180,
-                                                    maxWidth: 240,
-                                                    maxHeight: 220,
-                                                    overflowY: 'auto',
+                                                    minWidth: 200,
+                                                    maxWidth: 260,
                                                     boxShadow: '0 6px 32px rgba(0,0,0,0.5)',
                                                     zIndex: 200,
                                                     whiteSpace: 'normal',
                                                     cursor: 'default',
                                                 }}>
+                                                {/* header */}
                                                 <span style={{ display: 'block', fontSize: 10, fontWeight: 700, color: '#5691f0', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 7 }}>
                                                     Player Online
                                                 </span>
-                                                {loadingPlayers && (
-                                                    <span style={{ fontSize: 12, color: '#94a3b8' }}>Memuat…</span>
+
+                                                {/* search — hanya tampil kalau sudah ada data */}
+                                                {!loadingPlayers && onlinePlayers && onlinePlayers.length > 0 && (
+                                                    <input
+                                                        type="text"
+                                                        placeholder="Cari nama…"
+                                                        value={playerSearch}
+                                                        onChange={e => setPlayerSearch(e.target.value)}
+                                                        style={{
+                                                            display: 'block',
+                                                            width: '100%',
+                                                            marginBottom: 8,
+                                                            padding: '4px 8px',
+                                                            borderRadius: 6,
+                                                            border: '1px solid rgba(86,145,240,0.3)',
+                                                            background: 'rgba(86,145,240,0.07)',
+                                                            color: '#c8d0ff',
+                                                            fontSize: 11.5,
+                                                            outline: 'none',
+                                                            boxSizing: 'border-box',
+                                                            fontFamily: 'inherit',
+                                                        }}
+                                                    />
                                                 )}
-                                                {!loadingPlayers && onlinePlayers !== null && onlinePlayers.length === 0 && (
-                                                    <span style={{ fontSize: 12, color: '#94a3b8' }}>Tidak ada player online</span>
-                                                )}
-                                                {!loadingPlayers && onlinePlayers && onlinePlayers.map((nick, i) => (
-                                                    <span key={i} style={{ display: 'block', fontSize: 12, color: '#e2e8f0', padding: '2px 0', borderBottom: i < onlinePlayers.length - 1 ? '1px solid rgba(255,255,255,0.05)' : 'none' }}>
-                                                        {nick}
-                                                    </span>
-                                                ))}
+
+                                                {/* list */}
+                                                {(() => {
+                                                    if (loadingPlayers) return <span style={{ fontSize: 12, color: '#94a3b8' }}>Memuat…</span>;
+                                                    if (!onlinePlayers || onlinePlayers.length === 0) return <span style={{ fontSize: 12, color: '#94a3b8' }}>Tidak ada player online</span>;
+                                                    const filtered = playerSearch.trim()
+                                                        ? onlinePlayers.filter(n => n.toLowerCase().includes(playerSearch.toLowerCase()))
+                                                        : onlinePlayers;
+                                                    if (filtered.length === 0) return <span style={{ fontSize: 12, color: '#94a3b8' }}>Tidak ditemukan</span>;
+                                                    return (
+                                                        <span style={{ display: 'block', maxHeight: 190, overflowY: 'auto' }}>
+                                                            {filtered.map((nick, i) => (
+                                                                <span key={nick} style={{ display: 'block', fontSize: 12, color: '#e2e8f0', padding: '2px 0', borderBottom: i < filtered.length - 1 ? '1px solid rgba(255,255,255,0.05)' : 'none' }}>
+                                                                    {nick}
+                                                                </span>
+                                                            ))}
+                                                        </span>
+                                                    );
+                                                })()}
+
                                                 {/* arrow */}
                                                 <span style={{ position: 'absolute', bottom: -6, left: '50%', width: 10, height: 10, background: 'rgba(10,10,24,0.97)', border: '1px solid rgba(86,145,240,0.35)', borderTop: 'none', borderLeft: 'none', transform: 'translateX(-50%) rotate(45deg)' }} />
                                             </span>

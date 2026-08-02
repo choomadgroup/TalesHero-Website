@@ -159,11 +159,30 @@ interface GmStats {
 }
 
 export function GmStatsBar() {
-  const [stats, setStats] = useState<GmStats | null>(null);
+  const [stats, setStats]         = useState<GmStats | null>(null);
+  const [resetting, setResetting] = useState(false);
+  const [resetMsg, setResetMsg]   = useState<{ text: string; ok: boolean } | null>(null);
 
-  useEffect(() => {
+  const loadStats = useCallback(() => {
     gmFetch('/stats').then(setStats).catch(() => null);
   }, []);
+
+  useEffect(() => { loadStats(); }, [loadStats]);
+
+  const handleReset = useCallback(async () => {
+    if (!confirm('Reset semua data online? Lakukan ini hanya jika game server sedang mati / crash.')) return;
+    setResetting(true);
+    setResetMsg(null);
+    try {
+      const res = await gmFetch('/reset-online', { method: 'POST' });
+      setResetMsg({ text: res.message ?? 'Reset berhasil.', ok: true });
+      loadStats(); // refresh angka
+    } catch (e: any) {
+      setResetMsg({ text: e.message ?? 'Gagal reset.', ok: false });
+    } finally {
+      setResetting(false);
+    }
+  }, [loadStats]);
 
   if (!stats) return null;
 
@@ -183,20 +202,48 @@ export function GmStatsBar() {
   ];
 
   return (
-    <div style={S.statsGrid}>
-      {items.map(({ label, value, color, note }) => (
-        <div key={label} style={S.statCard}>
-          <span style={{ fontSize: 11.5, color: '#6a7494', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-            {label}
-          </span>
-          <span style={{ fontSize: 22, fontWeight: 700, color, lineHeight: 1.2 }}>{value}</span>
-          {note && (
-            <span style={{ fontSize: 9.5, color: '#3a4060', fontFamily: 'monospace', marginTop: 2, lineHeight: 1.3 }}>
-              {note}
+    <div>
+      <div style={S.statsGrid}>
+        {items.map(({ label, value, color, note }) => (
+          <div key={label} style={S.statCard}>
+            <span style={{ fontSize: 11.5, color: '#6a7494', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+              {label}
             </span>
-          )}
-        </div>
-      ))}
+            <span style={{ fontSize: 22, fontWeight: 700, color, lineHeight: 1.2 }}>{value}</span>
+            {note && (
+              <span style={{ fontSize: 9.5, color: '#3a4060', fontFamily: 'monospace', marginTop: 2, lineHeight: 1.3 }}>
+                {note}
+              </span>
+            )}
+          </div>
+        ))}
+      </div>
+
+      {/* Reset online count */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 24 }}>
+        <button
+          onClick={handleReset}
+          disabled={resetting}
+          style={{
+            ...S.btn,
+            background: resetting ? '#1e1e3a' : '#1a1a2e',
+            color: resetting ? '#6a7494' : '#ef4444',
+            border: '1px solid rgba(239,68,68,0.35)',
+            fontSize: 12,
+            padding: '6px 14px',
+          }}
+        >
+          {resetting ? '⏳ Mereset…' : '⚠ Reset Online Count'}
+        </button>
+        {resetMsg && (
+          <span style={{ fontSize: 12, color: resetMsg.ok ? '#10b981' : '#ef4444' }}>
+            {resetMsg.text}
+          </span>
+        )}
+        <span style={{ fontSize: 11, color: '#3a4060', marginLeft: 'auto' }}>
+          Gunakan hanya saat game server crash / offline
+        </span>
+      </div>
     </div>
   );
 }

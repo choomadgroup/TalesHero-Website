@@ -87,6 +87,21 @@ const PLAYER_SELECT = `
 
 // ── Stats ─────────────────────────────────────────────────────────────────────
 
+/** POST /api/admin/gm/reset-online — set semua fdServerNum ke 0 */
+export async function resetOnlineCount(req, res) {
+  const admin = getAdminUser(req);
+  if (!admin) return json(res, 401, { message: 'Akses ditolak.' });
+  try {
+    const result = await query('UPDATE userinfologin SET fdServerNum = 0 WHERE fdServerNum > 0');
+    const affected = result.affectedRows ?? 0;
+    console.log(`[gm/reset-online] ${admin.username} reset ${affected} stale online rows.`);
+    return json(res, 200, { message: `Reset berhasil. ${affected} baris dibersihkan.`, affected });
+  } catch (err) {
+    console.error('[gm/reset-online]', err.message);
+    return json(res, 500, { message: 'Gagal mereset data online.' });
+  }
+}
+
 export async function getStats(req, res) {
   const admin = getAdminUser(req);
   if (!admin) return json(res, 401, { message: 'Akses ditolak.' });
@@ -1061,6 +1076,7 @@ export async function gmToolsRouter(req, res, next) {
   const m = req.method;
 
   if (resource === 'stats'              && m === 'GET')   return getStats(req, res);
+  if (resource === 'reset-online'       && m === 'POST')  return resetOnlineCount(req, res);
   if (resource === 'items'              && m === 'GET')   return searchGmItems(req, res);
   if (resource === 'logs'               && m === 'GET')   return getLogs(req, res);
   if (resource === 'security-questions' && m === 'GET')   return json(res, 200, SECURITY_QUESTIONS);
