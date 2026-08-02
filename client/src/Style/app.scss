@@ -6098,32 +6098,511 @@ $nl-sans:     'Poppins', -apple-system, sans-serif;
   }
 }
 
-// ── Responsive ──
+// ── Responsive (legacy layout) ──
 @media (max-width: 900px) {
   .akun-layout {
     grid-template-columns: 1fr;
     max-width: 600px;
     margin: 0 auto;
   }
-
-  .akun-showcase {
-    position: static;
-  }
+  .akun-showcase { position: static; }
 }
 
 @media (max-width: 520px) {
-  .akun-char-panel {
-    height: 300px;
+  .akun-char-panel { height: 300px; }
+  .akun-char-picker__grid { grid-template-columns: repeat(auto-fill, minmax(82px, 1fr)); }
+  .akun-char-picker__item-img-wrap { width: 60px; height: 75px; }
+}
+
+// ═══════════════════════════════════════════════════════════════════
+//  AKUN V2 — Dark revamp
+// ═══════════════════════════════════════════════════════════════════
+
+.akun-v2 {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+// ── Hero Banner ──────────────────────────────────────────────────────
+.akun-hero-banner {
+  position: relative;
+  border-radius: 22px;
+  overflow: hidden;
+  background: linear-gradient(130deg, #08080f 0%, #120820 100%);
+  border: 1px solid rgba(255,255,255,0.07);
+  box-shadow: 0 16px 48px rgba(0,0,0,0.5);
+  display: flex;
+  align-items: stretch;
+  min-height: 220px;
+
+  // Pink/purple glow blob
+  &__glow {
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(ellipse at 20% 50%, rgba(233,30,99,0.22) 0%, transparent 55%),
+      radial-gradient(ellipse at 85% 30%, rgba(120,40,200,0.15) 0%, transparent 50%);
+    pointer-events: none;
+    z-index: 0;
   }
 
-  .akun-char-picker__grid {
-    grid-template-columns: repeat(auto-fill, minmax(82px, 1fr));
+  // Left side: avatar + identity
+  &__left {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    padding: 28px 32px;
+    flex: 1;
+    min-width: 0;
   }
 
-  .akun-char-picker__item-img-wrap {
-    width: 60px;
-    height: 75px;
+  // Circular avatar
+  &__avatar-wrap {
+    flex: 0 0 auto;
+    width: 96px;
+    height: 96px;
+    border-radius: 50%;
+    background: #1a1a2e;
+    overflow: hidden;
+    box-shadow:
+      0 0 0 3px rgba(233,30,99,0.4),
+      0 0 0 6px rgba(233,30,99,0.1),
+      0 0 28px rgba(233,30,99,0.25);
   }
+
+  &__avatar {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center top;
+    display: block;
+  }
+
+  // Text identity
+  &__identity {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  &__eyebrow {
+    font-size: 9.5px;
+    font-weight: 800;
+    letter-spacing: 1.8px;
+    text-transform: uppercase;
+    color: rgba(233,30,99,0.7);
+  }
+
+  &__nick {
+    margin: 0;
+    font-size: clamp(1.35rem, 3vw, 1.75rem);
+    font-weight: 900;
+    color: #fff;
+    letter-spacing: -0.5px;
+    line-height: 1.1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  &__charname {
+    font-size: 12px;
+    font-weight: 700;
+    color: rgba(233,30,99,0.75);
+    letter-spacing: 0.3px;
+  }
+
+  // EXP bar
+  &__exp {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    margin-top: 2px;
+  }
+
+  &__exp-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  &__exp-lv {
+    font-size: 11px;
+    font-weight: 900;
+    color: #f6c940;
+    letter-spacing: 0.3px;
+  }
+
+  &__exp-pct {
+    font-size: 10px;
+    font-weight: 700;
+    color: rgba(255,255,255,0.4);
+  }
+
+  &__exp-track {
+    width: 100%;
+    max-width: 260px;
+    height: 6px;
+    background: rgba(255,255,255,0.08);
+    border-radius: 100px;
+    overflow: hidden;
+  }
+
+  &__exp-fill {
+    height: 100%;
+    border-radius: 100px;
+    background: linear-gradient(90deg, #e91e63 0%, #f06292 100%);
+    box-shadow: 0 0 10px rgba(233,30,99,0.5);
+    min-width: 2px;
+  }
+
+  // Currency chips row
+  &__chips {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-top: 4px;
+  }
+
+  &__chip {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    padding: 5px 11px;
+    border-radius: 100px;
+    background: rgba(255,255,255,0.05);
+    backdrop-filter: blur(6px);
+    border: 1px solid rgba(255,255,255,0.1);
+
+    strong {
+      font-size: 13px;
+      font-weight: 800;
+      color: #fff;
+      letter-spacing: -0.2px;
+    }
+
+    &--cash {
+      border-color: rgba(245,158,11,0.4);
+      box-shadow: 0 0 14px rgba(245,158,11,0.12);
+      svg { color: #f59e0b; }
+    }
+
+    &--tr {
+      border-color: rgba(59,130,246,0.4);
+      box-shadow: 0 0 14px rgba(59,130,246,0.12);
+      svg { color: #3b82f6; }
+    }
+
+    &--mau {
+      border-color: rgba(139,92,246,0.4);
+      box-shadow: 0 0 14px rgba(139,92,246,0.12);
+      svg { color: #8b5cf6; }
+    }
+  }
+
+  &__chip-label {
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.45);
+  }
+
+  // Right: character art
+  &__art-wrap {
+    position: relative;
+    flex: 0 0 auto;
+    width: 200px;
+    align-self: stretch;
+    overflow: hidden;
+  }
+
+  &__art {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    height: 115%;
+    width: auto;
+    max-width: 220px;
+    object-fit: contain;
+    object-position: bottom right;
+    filter: drop-shadow(0 8px 24px rgba(0,0,0,0.6));
+    z-index: 1;
+  }
+
+  // Gradient from art towards left (blend with bg)
+  &__art-fade {
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    width: 60%;
+    background: linear-gradient(to right, #08080f 0%, transparent 100%);
+    z-index: 2;
+    pointer-events: none;
+  }
+}
+
+// ── Body grid ────────────────────────────────────────────────────────
+.akun-v2-body {
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  gap: 20px;
+  align-items: start;
+}
+
+// ── Info Panel (dark left card) ───────────────────────────────────────
+.akun-info-panel {
+  background: #0d0d1e;
+  border: 1px solid rgba(255,255,255,0.07);
+  border-radius: 18px;
+  padding: 20px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+
+  &__title {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    margin: 0 0 4px;
+    font-size: 12px;
+    font-weight: 900;
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.25);
+    padding-bottom: 10px;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+
+    svg { color: #e91e63; opacity: 0.8; }
+  }
+
+  &__row {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    padding: 10px 12px;
+    background: rgba(255,255,255,0.03);
+    border-radius: 10px;
+    border-left: 3px solid rgba(233,30,99,0.4);
+  }
+
+  &__label {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 9px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: rgba(255,255,255,0.3);
+
+    svg { opacity: 0.6; }
+  }
+
+  &__value {
+    font-size: 13px;
+    font-weight: 700;
+    color: #c8d0ff;
+    word-break: break-all;
+    margin-top: 1px;
+  }
+
+  &__quote {
+    margin: 6px 0 0;
+    padding: 12px 14px;
+    border-radius: 10px;
+    background: rgba(233,30,99,0.06);
+    border: 1px solid rgba(233,30,99,0.15);
+    font-size: 11.5px;
+    font-style: italic;
+    color: rgba(255,255,255,0.4);
+    line-height: 1.55;
+  }
+}
+
+// ── Settings V2 ───────────────────────────────────────────────────────
+.akun-settings-v2 {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  min-width: 0;
+}
+
+// ── Tab bar ──────────────────────────────────────────────────────────
+.akun-tabs {
+  display: flex;
+  gap: 4px;
+  padding: 6px;
+  background: #0d0d1e;
+  border: 1px solid rgba(255,255,255,0.07);
+  border-radius: 14px 14px 0 0;
+  border-bottom: none;
+}
+
+.akun-tab-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  border-radius: 9px;
+  border: none;
+  background: transparent;
+  color: rgba(255,255,255,0.35);
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+
+  &:hover:not(.akun-tab-btn--active) {
+    background: rgba(255,255,255,0.05);
+    color: rgba(255,255,255,0.6);
+  }
+
+  &--active {
+    background: rgba(233,30,99,0.15);
+    color: #f06292;
+    box-shadow: inset 0 0 0 1px rgba(233,30,99,0.25);
+  }
+
+  svg { opacity: 0.8; }
+}
+
+// ── Tab panel ────────────────────────────────────────────────────────
+.akun-tab-panel {
+  background: #0d0d1e;
+  border: 1px solid rgba(255,255,255,0.07);
+  border-top: none;
+  border-radius: 0 0 14px 14px;
+  padding: 20px;
+
+  // Dark-theme overrides for form components inside tab panels
+  .akun-profile-form {
+    background: rgba(255,255,255,0.03);
+    border-color: rgba(255,255,255,0.07);
+    box-shadow: none;
+    margin-bottom: 16px;
+
+    &:last-child { margin-bottom: 0; }
+  }
+
+  .akun-section-title {
+    color: #c8d0ff;
+    border-bottom-color: rgba(255,255,255,0.07);
+  }
+
+  .akun-input-label { color: rgba(255,255,255,0.35); }
+
+  .akun-input {
+    background: rgba(255,255,255,0.05);
+    border-color: rgba(255,255,255,0.1);
+    color: #c8d0ff;
+
+    &:disabled { background: rgba(255,255,255,0.03); color: rgba(255,255,255,0.2); border-color: rgba(255,255,255,0.06); }
+    &:focus { border-color: #e91e63; background: rgba(233,30,99,0.06); box-shadow: 0 0 0 3px rgba(233,30,99,0.12); }
+    option { background: #0d0d1e; }
+  }
+
+  .akun-locked-value {
+    background: rgba(255,255,255,0.04);
+    border-color: rgba(255,255,255,0.08);
+    color: rgba(255,255,255,0.35);
+  }
+
+  .akun-lock-note,
+  .akun-form-hint { color: rgba(255,255,255,0.2); }
+
+  .akun-btn--outline {
+    background: rgba(255,255,255,0.05);
+    border-color: rgba(255,255,255,0.12);
+    color: rgba(255,255,255,0.5);
+    &:hover { border-color: #e91e63; color: #e91e63; background: rgba(233,30,99,0.08); }
+  }
+
+  .akun-btn--logout {
+    background: rgba(198,40,40,0.08);
+    border-color: rgba(198,40,40,0.3);
+    color: #ef9a9a;
+    &:hover { background: linear-gradient(135deg, #c62828, #b71c1c); color: #fff; border-color: transparent; }
+  }
+
+  .akun-success-notice {
+    background: rgba(46,125,50,0.12);
+    border-color: rgba(46,125,50,0.25);
+    color: #81c784;
+  }
+
+  .akun-inline-error {
+    background: rgba(198,40,40,0.1);
+    border-color: rgba(198,40,40,0.25);
+    color: #ef9a9a;
+  }
+
+  .akun-inline-success {
+    background: rgba(46,125,50,0.1);
+    border-color: rgba(46,125,50,0.2);
+    color: #81c784;
+  }
+
+  .daftar-field__label { color: rgba(255,255,255,0.45); }
+
+  .daftar-field__input-wrap {
+    background: rgba(255,255,255,0.04);
+    border-color: rgba(255,255,255,0.1);
+
+    &:focus-within { border-color: #e91e63; }
+  }
+
+  .daftar-field__input {
+    background: transparent;
+    color: #c8d0ff;
+    &::placeholder { color: rgba(255,255,255,0.2); }
+  }
+
+  .daftar-field__icon { color: rgba(255,255,255,0.25); }
+}
+
+// ── Responsive — akun v2 ─────────────────────────────────────────────
+@media (max-width: 900px) {
+  .akun-v2-body {
+    grid-template-columns: 1fr;
+  }
+
+  .akun-hero-banner {
+    &__art-wrap { width: 160px; }
+    &__left { padding: 22px 20px; gap: 16px; }
+  }
+}
+
+@media (max-width: 600px) {
+  .akun-hero-banner {
+    min-height: unset;
+
+    &__art-wrap { display: none; }
+
+    &__left { padding: 20px 18px; gap: 14px; }
+
+    &__avatar-wrap { width: 72px; height: 72px; }
+
+    &__nick { font-size: 1.2rem; }
+
+    &__exp-track { max-width: 100%; }
+  }
+
+  .akun-tabs { flex-wrap: wrap; }
+
+  .akun-tab-btn { font-size: 12px; padding: 7px 12px; }
+
+  .akun-tab-panel { padding: 16px 14px; }
+
+  .akun-info-panel { padding: 16px 14px; }
 }
 
 // Header — logged-in account avatar and dropdown

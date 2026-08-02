@@ -12,6 +12,7 @@ import {
     IoLogOutOutline, IoLockClosedOutline, IoEye, IoEyeOff,
     IoCheckmarkCircle, IoGameControllerOutline,
     IoCashOutline, IoCreateOutline, IoStarOutline,
+    IoIdCardOutline,
 } from 'react-icons/io5';
 
 const CHANGE_PASS_API = '/auth/change-password';
@@ -30,8 +31,6 @@ const STARS = Array.from({ length: 16 }, (_, i) => ({
     size: `${4 + (i % 4)}px`,
 }));
 
-// Characters with art files in /Image/Karakter/Art/
-// Names must match CHAR_NAME_MAP values in server/auth/me.js exactly
 const ALL_CHARACTERS = [
     { name: 'Abel',         file: 'Abel.png',         quote: 'Keberanian sejati bukan soal tanpa rasa takut, tapi tetap melangkah meski takut!' },
     { name: 'BigBo',        file: 'BigBo.png',        quote: 'Ukuranku besar, semangatku jauh lebih besar lagi!' },
@@ -69,7 +68,6 @@ const ALL_CHARACTERS = [
     { name: 'YeonOh',       file: 'YeonOh.png',       quote: 'Setiap langkah adalah tarian, setiap tarian adalah kemenangan.' },
 ];
 
-// Names that have confirmed art files in /Image/Karakter/Art/
 const CHARS_WITH_ART = new Set([
     'Abel','BigBo','Bloody Vera','Cain','Celia','Chloe','Damyeon','Dewi','DnD',
     'Elims','Harang','Haru','Hidden Rough','Jab','Jaka','Kai','LaLa','Luci',
@@ -77,15 +75,16 @@ const CHARS_WITH_ART = new Set([
     'Sid','Siho','Tifanny','Vera','Wukong','Xionell','YeonOh',
 ]);
 
+type SettingsTab = 'profil' | 'keamanan' | 'sesi';
 
-interface ChangeForm { secAnswer: string; newPassword: string; confirm: string; }
+interface ChangeForm   { secAnswer: string; newPassword: string; confirm: string; }
 interface ChangeErrors { secAnswer?: string; newPassword?: string; confirm?: string; api?: string; }
 
 function validateChange(f: ChangeForm): ChangeErrors {
     const errs: ChangeErrors = {};
-    if (!f.secAnswer.trim())      errs.secAnswer   = 'Jawaban keamanan wajib diisi.';
-    if (f.newPassword.length < 8) errs.newPassword = 'Kata sandi baru minimal 8 karakter.';
-    if (f.newPassword !== f.confirm) errs.confirm  = 'Konfirmasi kata sandi tidak cocok.';
+    if (!f.secAnswer.trim())         errs.secAnswer   = 'Jawaban keamanan wajib diisi.';
+    if (f.newPassword.length < 8)    errs.newPassword = 'Kata sandi baru minimal 8 karakter.';
+    if (f.newPassword !== f.confirm) errs.confirm     = 'Konfirmasi kata sandi tidak cocok.';
     return errs;
 }
 
@@ -96,14 +95,16 @@ export default function Akun() {
     });
 
     const { user, loading: authLoading, logout, updateUser } = useAuth();
-    const [, setLocation]  = useLocation();
+    const [, setLocation] = useLocation();
 
-    // Character resolved directly from game — no manual picker, no localStorage
     const charData = (user?.character && CHARS_WITH_ART.has(user.character))
         ? ALL_CHARACTERS.find(c => c.name === user.character) ?? null
         : null;
 
-    // Form states
+    // ── Tabs ─────────────────────────────────────────────────
+    const [activeTab, setActiveTab] = useState<SettingsTab>('profil');
+
+    // ── Form states ──────────────────────────────────────────
     const [showForm,     setShowForm]     = useState(false);
     const [showPass,     setShowPass]     = useState(false);
     const [showConfirm,  setShowConfirm]  = useState(false);
@@ -111,22 +112,26 @@ export default function Akun() {
     const [passChanged,  setPassChanged]  = useState(false);
     const [form,         setForm]         = useState<ChangeForm>({ secAnswer: '', newPassword: '', confirm: '' });
     const [errors,       setErrors]       = useState<ChangeErrors>({});
-    const [profileForm,    setProfileForm]    = useState({ username: '', email: '' });
+
+    const [profileForm,     setProfileForm]     = useState({ username: '', email: '' });
     const [profilePassword, setProfilePassword] = useState('');
     const [profileLoading,  setProfileLoading]  = useState(false);
     const [profileMessage,  setProfileMessage]  = useState('');
     const [profileError,    setProfileError]    = useState('');
-    const [securityForm,    setSecurityForm]    = useState({ question: '', answer: '' });
+
+    const [securityForm,     setSecurityForm]     = useState({ question: '', answer: '' });
     const [securityPassword, setSecurityPassword] = useState('');
     const [securityLoading,  setSecurityLoading]  = useState(false);
     const [securityMessage,  setSecurityMessage]  = useState('');
     const [securityError,    setSecurityError]    = useState('');
+
     const [loggingOut, setLoggingOut] = useState(false);
 
     useEffect(() => {
         if (user) setProfileForm({ username: user.username, email: user.email });
     }, [user?.username, user?.email]);
 
+    // ── Loading / guest ───────────────────────────────────────
     if (authLoading) {
         return (
             <>
@@ -155,12 +160,8 @@ export default function Akun() {
                         }} />
                     ))}
                 </div>
-                <motion.div
-                    className="cs-page__card"
-                    initial={{ opacity: 0, y: 30 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.45 }}
-                >
+                <motion.div className="cs-page__card"
+                    initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.45 }}>
                     <div className="akun-card akun-card--guest" style={{ textAlign: 'center' }}>
                         <IoPersonCircleOutline size={56} color="#ccc" />
                         <p style={{ margin: '16px 0 8px', fontWeight: 700, color: '#1a1a2e' }}>Kamu belum login</p>
@@ -176,6 +177,7 @@ export default function Akun() {
         );
     }
 
+    // ── Handlers ──────────────────────────────────────────────
     const handleProfileSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setProfileLoading(true);
@@ -263,6 +265,7 @@ export default function Akun() {
         setTimeout(() => { logout(); setLocation('/'); }, 800);
     };
 
+    // ── Render ────────────────────────────────────────────────
     return (
         <>
         <Header />
@@ -285,274 +288,387 @@ export default function Akun() {
             >
                 <AnimatePresence mode="wait">
                 {loggingOut ? (
-                    <div key="logout-skeleton" style={{ padding: '8px 0' }}>
+                    <div key="logout-skeleton" style={{ padding: '8px 0', width: '100%' }}>
                         <FormSkeleton variant="logout" label="Sedang keluar..." />
                     </div>
                 ) : (
-                <div key="akun-content" className="akun-layout">
+                <div key="akun-content" className="akun-v2">
 
-                    {/* ═══ LEFT — Character Showcase ═══ */}
-                    <div className="akun-showcase">
+                    {/* ═══ HERO BANNER ═══ */}
+                    <div className="akun-hero-banner">
+                        {/* decorative bg glow */}
+                        <div className="akun-hero-banner__glow" />
 
-                        {/* Hero row: circular avatar + greeting */}
-                        <div className="akun-hero-row">
-                            <div className="akun-hero-row__avatar-wrap">
+                        {/* Left: identity + stats */}
+                        <div className="akun-hero-banner__left">
+
+                            {/* Avatar */}
+                            <div className="akun-hero-banner__avatar-wrap">
                                 <AnimatePresence mode="wait">
                                     <motion.img
-                                        key={charData?.name ?? 'none'}
+                                        key={charData?.name ?? 'default'}
                                         src={charData
                                             ? asset(`/Image/Karakter/Avatar/${charData.file}`)
                                             : asset('/Image/Account/IMG-DEFAULT-01.png')}
-                                        alt={charData?.name ?? 'Karakter'}
-                                        className="akun-hero-row__avatar"
-                                        initial={{ opacity: 0, scale: 0.88 }}
+                                        alt={charData?.name ?? 'Avatar'}
+                                        className="akun-hero-banner__avatar"
+                                        initial={{ opacity: 0, scale: 0.9 }}
                                         animate={{ opacity: 1, scale: 1 }}
-                                        exit={{ opacity: 0, scale: 0.92 }}
-                                        transition={{ duration: 0.32, ease: 'easeOut' }}
-                                        onError={(e) => {
+                                        exit={{ opacity: 0 }}
+                                        transition={{ duration: 0.3 }}
+                                        onError={e => {
                                             (e.currentTarget as HTMLImageElement).src =
                                                 asset('/Image/Account/IMG-DEFAULT-01.png');
                                         }}
                                     />
                                 </AnimatePresence>
                             </div>
-                            <AnimatePresence mode="wait">
-                                <motion.div
-                                    key={`greeting-${charData?.name ?? 'none'}`}
-                                    className="akun-hero-row__text"
-                                    initial={{ opacity: 0, x: 10 }}
-                                    animate={{ opacity: 1, x: 0 }}
-                                    exit={{ opacity: 0 }}
-                                    transition={{ duration: 0.28 }}
-                                >
-                                    <span className="akun-hero-row__hello">
-                                        <span className="akun-hero-row__hello-accent">✦ Halo!</span>
-                                        {' '}<span className="akun-hero-row__hello-plain">Aku</span>
+
+                            {/* Identity text */}
+                            <div className="akun-hero-banner__identity">
+                                <span className="akun-hero-banner__eyebrow">✦ TALES HERO INDONESIA</span>
+                                <h1 className="akun-hero-banner__nick">{user.nickname || user.username}</h1>
+                                {charData && (
+                                    <span className="akun-hero-banner__charname">{charData.name}</span>
+                                )}
+
+                                {/* EXP bar */}
+                                <div className="akun-hero-banner__exp">
+                                    <div className="akun-hero-banner__exp-meta">
+                                        <span className="akun-hero-banner__exp-lv">Lv. {user.level}</span>
+                                        <span className="akun-hero-banner__exp-pct">EXP {user.expPct.toFixed(1)}%</span>
+                                    </div>
+                                    <div className="akun-hero-banner__exp-track">
+                                        <motion.div
+                                            className="akun-hero-banner__exp-fill"
+                                            initial={{ width: 0 }}
+                                            animate={{ width: `${user.expPct}%` }}
+                                            transition={{ duration: 0.9, ease: 'easeOut', delay: 0.3 }}
+                                        />
+                                    </div>
+                                </div>
+
+                                {/* Currency chips */}
+                                <div className="akun-hero-banner__chips">
+                                    <div className="akun-hero-banner__chip akun-hero-banner__chip--cash">
+                                        <IoCashOutline size={12} />
+                                        <span className="akun-hero-banner__chip-label">Cash</span>
+                                        <strong>{Number(user.cash ?? 0).toLocaleString('id-ID')}</strong>
+                                    </div>
+                                    <div className="akun-hero-banner__chip akun-hero-banner__chip--tr">
+                                        <IoGameControllerOutline size={12} />
+                                        <span className="akun-hero-banner__chip-label">TR</span>
+                                        <strong>{Number(user.tr ?? 0).toLocaleString('id-ID')}</strong>
+                                    </div>
+                                    <div className="akun-hero-banner__chip akun-hero-banner__chip--mau">
+                                        <IoStarOutline size={12} />
+                                        <span className="akun-hero-banner__chip-label">MAU</span>
+                                        <strong>{Number(user.mau ?? 0).toLocaleString('id-ID')}</strong>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Right: character art */}
+                        {charData && (
+                            <div className="akun-hero-banner__art-wrap">
+                                <AnimatePresence mode="wait">
+                                    <motion.img
+                                        key={charData.name}
+                                        src={asset(`/Image/Karakter/Art/${charData.file}`)}
+                                        alt={charData.name}
+                                        className="akun-hero-banner__art"
+                                        initial={{ opacity: 0, x: 20 }}
+                                        animate={{ opacity: 1, x: 0 }}
+                                        exit={{ opacity: 0 }}
+                                        transition={{ duration: 0.45 }}
+                                        onError={e => { (e.currentTarget as HTMLImageElement).style.display = 'none'; }}
+                                    />
+                                </AnimatePresence>
+                                {/* fade-to-left gradient */}
+                                <div className="akun-hero-banner__art-fade" />
+                            </div>
+                        )}
+                    </div>
+
+                    {/* ═══ BODY: info panel + settings ═══ */}
+                    <div className="akun-v2-body">
+
+                        {/* Left: info panel */}
+                        <div className="akun-info-panel">
+                            <p className="akun-info-panel__title">
+                                <IoIdCardOutline size={14} /> Info Akun
+                            </p>
+
+                            {user.gameId != null && (
+                                <div className="akun-info-panel__row">
+                                    <span className="akun-info-panel__label">
+                                        <IoGameControllerOutline size={11} /> Game ID
                                     </span>
-                                    <strong className="akun-hero-row__nick">
-                                        {user.nickname || user.username}
-                                    </strong>
-                                    {charData && (
-                                        <span className="akun-hero-row__char">{charData.name}</span>
-                                    )}
-                                </motion.div>
-                            </AnimatePresence>
-                        </div>
-
-                        {/* EXP Bar — styled like the in-game HUD */}
-                        <div className="akun-exp-card">
-                            <div className="akun-exp-card__header">
-                                <span className="akun-exp-card__level">Lv. {user.level}</span>
-                                <span className="akun-exp-card__pct">EXP {user.expPct.toFixed(2)}%</span>
+                                    <span className="akun-info-panel__value">{user.gameId || '—'}</span>
+                                </div>
+                            )}
+                            <div className="akun-info-panel__row">
+                                <span className="akun-info-panel__label">
+                                    <IoPersonCircleOutline size={11} /> Username
+                                </span>
+                                <span className="akun-info-panel__value">{user.username}</span>
                             </div>
-                            <div className="akun-exp-card__bar-bg">
-                                <div
-                                    className="akun-exp-card__bar-fill"
-                                    style={{ width: `${user.expPct}%` }}
-                                />
-                            </div>
-                        </div>
-
-                        {/* Balance grid */}
-                        <div className="akun-balance-grid">
-                            <div className="akun-balance-card akun-balance-card--cash">
-                                <span className="akun-balance-card__label"><IoCashOutline size={13} /> Cash</span>
-                                <strong>{Number(user.cash ?? 0).toLocaleString('id-ID')}</strong>
-                            </div>
-                            <div className="akun-balance-card akun-balance-card--tr">
-                                <span className="akun-balance-card__label"><IoGameControllerOutline size={13} /> TR</span>
-                                <strong>{Number(user.tr ?? 0).toLocaleString('id-ID')}</strong>
-                            </div>
-                            <div className="akun-balance-card akun-balance-card--mau">
-                                <span className="akun-balance-card__label"><IoStarOutline size={13} /> MAU</span>
-                                <strong>{Number(user.mau ?? 0).toLocaleString('id-ID')}</strong>
-                            </div>
-                        </div>
-
-                        {/* Info rows */}
-                        <div className="akun-info">
                             {user.email && (
-                                <div className="akun-info__row">
-                                    <span className="akun-info__label"><IoMailOutline size={11} /> Email</span>
-                                    <span className="akun-info__value">{user.email}</span>
+                                <div className="akun-info-panel__row">
+                                    <span className="akun-info-panel__label">
+                                        <IoMailOutline size={11} /> Email
+                                    </span>
+                                    <span className="akun-info-panel__value">{user.email}</span>
                                 </div>
                             )}
                             {user.secQuestion && (
-                                <div className="akun-info__row">
-                                    <span className="akun-info__label"><IoShieldCheckmarkOutline size={11} /> Pertanyaan Keamanan</span>
-                                    <span className="akun-info__value">{user.secQuestion}</span>
+                                <div className="akun-info-panel__row">
+                                    <span className="akun-info-panel__label">
+                                        <IoShieldCheckmarkOutline size={11} /> Pertanyaan Keamanan
+                                    </span>
+                                    <span className="akun-info-panel__value">{user.secQuestion}</span>
                                 </div>
                             )}
-                            {user.gameId != null && (
-                                <div className="akun-info__row">
-                                    <span className="akun-info__label"><IoGameControllerOutline size={11} /> Game ID</span>
-                                    <span className="akun-info__value">{user.gameId || '—'}</span>
+                            {charData && (
+                                <div className="akun-info-panel__row">
+                                    <span className="akun-info-panel__label">
+                                        <IoStarOutline size={11} /> Karakter
+                                    </span>
+                                    <span className="akun-info-panel__value">{charData.name}</span>
                                 </div>
+                            )}
+
+                            {/* Character quote */}
+                            {charData && (
+                                <blockquote className="akun-info-panel__quote">
+                                    "{charData.quote}"
+                                </blockquote>
                             )}
                         </div>
 
-                    </div>
+                        {/* Right: settings with tabs */}
+                        <div className="akun-settings-v2">
 
-                    {/* ═══ RIGHT — Settings ═══ */}
-                    <div className="akun-settings">
-
-                        {/* Edit profil */}
-                        <form className="akun-profile-form" onSubmit={handleProfileSubmit}>
-                            <p className="akun-section-title"><IoCreateOutline size={14} /> Edit Profil</p>
-                            {profileError   && <p className="akun-inline-error">{profileError}</p>}
-                            {profileMessage && <p className="akun-inline-success"><IoCheckmarkCircle size={14} /> {profileMessage}</p>}
-                            <label className="akun-input-label" htmlFor="akun-username">Username</label>
-                            <input id="akun-username" className="akun-input" value={profileForm.username} disabled readOnly />
-                            <p className="akun-lock-note">Username tidak dapat diubah setelah akun didaftarkan.</p>
-                            {user.email ? (
-                                <>
-                                    <label className="akun-input-label">Email</label>
-                                    <div className="akun-locked-value"><IoMailOutline size={14} /> {user.email}</div>
-                                    <p className="akun-lock-note">Email sudah terdaftar dan tidak dapat diubah.</p>
-                                </>
-                            ) : (
-                                <>
-                                    <label className="akun-input-label" htmlFor="akun-email">Email</label>
-                                    <input id="akun-email" className="akun-input" type="email" value={profileForm.email}
-                                        onChange={e => setProfileForm(f => ({ ...f, email: e.target.value }))}
-                                        autoComplete="email" placeholder="Masukkan email kamu" />
-                                    <label className="akun-input-label" htmlFor="akun-email-password">Kata Sandi Saat Ini</label>
-                                    <input id="akun-email-password" className="akun-input" type="password" value={profilePassword}
-                                        onChange={e => setProfilePassword(e.target.value)}
-                                        placeholder="Untuk konfirmasi keamanan" autoComplete="current-password" />
-                                    <button className="akun-btn akun-btn--pink" type="submit" disabled={profileLoading || !profileForm.email.trim()}>
-                                        {profileLoading ? 'Menyimpan...' : 'Simpan Email'}
+                            {/* Tab bar */}
+                            <div className="akun-tabs" role="tablist">
+                                {([
+                                    { id: 'profil',   label: 'Profil',    icon: <IoCreateOutline size={14} /> },
+                                    { id: 'keamanan', label: 'Keamanan',  icon: <IoShieldCheckmarkOutline size={14} /> },
+                                    { id: 'sesi',     label: 'Sesi',      icon: <IoLogOutOutline size={14} /> },
+                                ] as { id: SettingsTab; label: string; icon: React.ReactNode }[]).map(tab => (
+                                    <button
+                                        key={tab.id}
+                                        role="tab"
+                                        aria-selected={activeTab === tab.id}
+                                        className={`akun-tab-btn${activeTab === tab.id ? ' akun-tab-btn--active' : ''}`}
+                                        onClick={() => setActiveTab(tab.id)}
+                                    >
+                                        {tab.icon} {tab.label}
                                     </button>
-                                </>
-                            )}
-                        </form>
+                                ))}
+                            </div>
 
-                        {/* Security question (only if not set) */}
-                        {!user.secQuestion && (
-                            <form className="akun-profile-form" onSubmit={handleSecuritySubmit}>
-                                <p className="akun-section-title"><IoShieldCheckmarkOutline size={14} /> Atur Pertanyaan Keamanan</p>
-                                <p className="akun-form-hint">Pertanyaan ini hanya dapat diatur satu kali dan akan digunakan untuk reset kata sandi.</p>
-                                {securityError   && <p className="akun-inline-error">{securityError}</p>}
-                                {securityMessage && <p className="akun-inline-success"><IoCheckmarkCircle size={14} /> {securityMessage}</p>}
-                                <label className="akun-input-label" htmlFor="akun-security-question">Pilih Pertanyaan</label>
-                                <select id="akun-security-question" className="akun-input"
-                                    value={securityForm.question}
-                                    onChange={e => setSecurityForm(f => ({ ...f, question: e.target.value }))} required>
-                                    <option value="">— Pilih pertanyaan —</option>
-                                    {SECURITY_QUESTIONS.map(q => <option key={q} value={q}>{q}</option>)}
-                                </select>
-                                <label className="akun-input-label" htmlFor="akun-security-answer">Jawaban</label>
-                                <input id="akun-security-answer" className="akun-input" value={securityForm.answer}
-                                    onChange={e => setSecurityForm(f => ({ ...f, answer: e.target.value }))}
-                                    placeholder="Masukkan jawaban kamu" required />
-                                <label className="akun-input-label" htmlFor="akun-security-password">Kata Sandi Saat Ini</label>
-                                <input id="akun-security-password" className="akun-input" type="password" value={securityPassword}
-                                    onChange={e => setSecurityPassword(e.target.value)}
-                                    placeholder="Untuk konfirmasi keamanan" autoComplete="current-password" required />
-                                <button className="akun-btn akun-btn--pink" type="submit" disabled={securityLoading}>
-                                    {securityLoading ? 'Menyimpan...' : 'Simpan Pertanyaan'}
-                                </button>
-                            </form>
-                        )}
+                            {/* Tab panels */}
+                            <AnimatePresence mode="wait">
 
-                        {/* Change password */}
-                        <div className="akun-profile-form">
-                            <p className="akun-section-title"><IoLockClosedOutline size={14} /> Ubah Kata Sandi</p>
+                            {/* ── PROFIL ── */}
+                            {activeTab === 'profil' && (
+                                <motion.div key="profil"
+                                    className="akun-tab-panel"
+                                    initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
+                                    transition={{ duration: 0.18 }}>
 
-                            <AnimatePresence>
-                            {passChanged && (
-                                <motion.div className="akun-success-notice"
-                                    initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}>
-                                    <IoCheckmarkCircle size={16} /> Kata sandi berhasil diubah!
-                                </motion.div>
-                            )}
-                            </AnimatePresence>
+                                    <form className="akun-profile-form" onSubmit={handleProfileSubmit}>
+                                        <p className="akun-section-title"><IoCreateOutline size={14} /> Edit Profil</p>
+                                        {profileError   && <p className="akun-inline-error">{profileError}</p>}
+                                        {profileMessage && <p className="akun-inline-success"><IoCheckmarkCircle size={14} /> {profileMessage}</p>}
 
-                            <AnimatePresence>
-                            {showForm && (
-                                <motion.div
-                                    initial={{ opacity: 0, height: 0 }}
-                                    animate={{ opacity: 1, height: 'auto' }}
-                                    exit={{ opacity: 0, height: 0 }}
-                                    style={{ overflow: 'hidden' }}
-                                >
-                                    {errors.api && <p className="daftar-field__error" style={{ marginBottom: 10 }}>{errors.api}</p>}
-                                    <form onSubmit={handleChangePass} noValidate>
-                                        <div className={`daftar-field${errors.secAnswer ? ' daftar-field--error' : ''}`}>
-                                            <label className="daftar-field__label">
-                                                {user.secQuestion ? `"${user.secQuestion}"` : 'Jawaban Keamanan'}
-                                            </label>
-                                            <div className="daftar-field__input-wrap">
-                                                <IoShieldCheckmarkOutline className="daftar-field__icon" />
-                                                <input type="text" className="daftar-field__input"
-                                                    placeholder="Jawaban keamanan kamu"
-                                                    value={form.secAnswer} onChange={set('secAnswer')} />
-                                            </div>
-                                            {errors.secAnswer && <p className="daftar-field__error">{errors.secAnswer}</p>}
-                                        </div>
-                                        <div className={`daftar-field${errors.newPassword ? ' daftar-field--error' : ''}`}>
-                                            <label className="daftar-field__label">Kata Sandi Baru</label>
-                                            <div className="daftar-field__input-wrap">
-                                                <IoLockClosedOutline className="daftar-field__icon" />
-                                                <input type={showPass ? 'text' : 'password'} className="daftar-field__input"
-                                                    placeholder="Min. 8 karakter" value={form.newPassword} onChange={set('newPassword')} />
-                                                <button type="button" className="daftar-field__eye" onClick={() => setShowPass(v => !v)}>
-                                                    {showPass ? <IoEyeOff size={18} /> : <IoEye size={18} />}
+                                        <label className="akun-input-label" htmlFor="akun-username">Username</label>
+                                        <input id="akun-username" className="akun-input" value={profileForm.username} disabled readOnly />
+                                        <p className="akun-lock-note">Username tidak dapat diubah setelah akun didaftarkan.</p>
+
+                                        {user.email ? (
+                                            <>
+                                                <label className="akun-input-label">Email</label>
+                                                <div className="akun-locked-value"><IoMailOutline size={14} /> {user.email}</div>
+                                                <p className="akun-lock-note">Email sudah terdaftar dan tidak dapat diubah.</p>
+                                            </>
+                                        ) : (
+                                            <>
+                                                <label className="akun-input-label" htmlFor="akun-email">Email</label>
+                                                <input id="akun-email" className="akun-input" type="email"
+                                                    value={profileForm.email}
+                                                    onChange={e => setProfileForm(f => ({ ...f, email: e.target.value }))}
+                                                    autoComplete="email" placeholder="Masukkan email kamu" />
+                                                <label className="akun-input-label" htmlFor="akun-email-password">Kata Sandi Saat Ini</label>
+                                                <input id="akun-email-password" className="akun-input" type="password"
+                                                    value={profilePassword}
+                                                    onChange={e => setProfilePassword(e.target.value)}
+                                                    placeholder="Untuk konfirmasi keamanan" autoComplete="current-password" />
+                                                <button className="akun-btn akun-btn--pink" type="submit"
+                                                    disabled={profileLoading || !profileForm.email.trim()}>
+                                                    {profileLoading ? 'Menyimpan...' : 'Simpan Email'}
                                                 </button>
-                                            </div>
-                                            {errors.newPassword && <p className="daftar-field__error">{errors.newPassword}</p>}
-                                        </div>
-                                        <div className={`daftar-field${errors.confirm ? ' daftar-field--error' : ''}`}>
-                                            <label className="daftar-field__label">Konfirmasi Kata Sandi Baru</label>
-                                            <div className="daftar-field__input-wrap">
-                                                <IoLockClosedOutline className="daftar-field__icon" />
-                                                <input type={showConfirm ? 'text' : 'password'} className="daftar-field__input"
-                                                    placeholder="Ulangi kata sandi baru" value={form.confirm} onChange={set('confirm')} />
-                                                <button type="button" className="daftar-field__eye" onClick={() => setShowConfirm(v => !v)}>
-                                                    {showConfirm ? <IoEyeOff size={18} /> : <IoEye size={18} />}
-                                                </button>
-                                            </div>
-                                            {errors.confirm && <p className="daftar-field__error">{errors.confirm}</p>}
-                                            <button type="button" className="login-forgot__link"
-                                                style={{ display: 'block', marginTop: '6px', textAlign: 'right', width: '100%' }}
-                                                onClick={() => setLocation('/forgot-password')}>
-                                                Lupa Pertanyaan Keamanan?
-                                            </button>
-                                        </div>
-                                        <div className="akun-form-actions">
-                                            <button type="submit" className="akun-btn akun-btn--pink" disabled={loading}>
-                                                {loading ? 'Menyimpan...' : 'Simpan Perubahan'}
-                                            </button>
-                                            <button type="button" className="akun-btn akun-btn--outline"
-                                                onClick={() => { setShowForm(false); setErrors({}); }}>
-                                                Batal
-                                            </button>
-                                        </div>
+                                            </>
+                                        )}
                                     </form>
                                 </motion.div>
                             )}
-                            </AnimatePresence>
 
-                            {!showForm && (
-                                <button className="akun-btn akun-btn--outline akun-btn--block" style={{ marginTop: 4 }}
-                                    onClick={() => { setShowForm(true); setPassChanged(false); }}>
-                                    <IoLockClosedOutline size={15} /> Ubah Kata Sandi
-                                </button>
+                            {/* ── KEAMANAN ── */}
+                            {activeTab === 'keamanan' && (
+                                <motion.div key="keamanan"
+                                    className="akun-tab-panel"
+                                    initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
+                                    transition={{ duration: 0.18 }}>
+
+                                    {/* Security question — only if not set */}
+                                    {!user.secQuestion && (
+                                        <form className="akun-profile-form" onSubmit={handleSecuritySubmit}>
+                                            <p className="akun-section-title"><IoShieldCheckmarkOutline size={14} /> Atur Pertanyaan Keamanan</p>
+                                            <p className="akun-form-hint">Pertanyaan ini hanya dapat diatur satu kali dan akan digunakan untuk reset kata sandi.</p>
+                                            {securityError   && <p className="akun-inline-error">{securityError}</p>}
+                                            {securityMessage && <p className="akun-inline-success"><IoCheckmarkCircle size={14} /> {securityMessage}</p>}
+                                            <label className="akun-input-label" htmlFor="akun-security-question">Pilih Pertanyaan</label>
+                                            <select id="akun-security-question" className="akun-input"
+                                                value={securityForm.question}
+                                                onChange={e => setSecurityForm(f => ({ ...f, question: e.target.value }))} required>
+                                                <option value="">— Pilih pertanyaan —</option>
+                                                {SECURITY_QUESTIONS.map(q => <option key={q} value={q}>{q}</option>)}
+                                            </select>
+                                            <label className="akun-input-label" htmlFor="akun-security-answer">Jawaban</label>
+                                            <input id="akun-security-answer" className="akun-input"
+                                                value={securityForm.answer}
+                                                onChange={e => setSecurityForm(f => ({ ...f, answer: e.target.value }))}
+                                                placeholder="Masukkan jawaban kamu" required />
+                                            <label className="akun-input-label" htmlFor="akun-security-password">Kata Sandi Saat Ini</label>
+                                            <input id="akun-security-password" className="akun-input" type="password"
+                                                value={securityPassword}
+                                                onChange={e => setSecurityPassword(e.target.value)}
+                                                placeholder="Untuk konfirmasi keamanan" autoComplete="current-password" required />
+                                            <button className="akun-btn akun-btn--pink" type="submit" disabled={securityLoading}>
+                                                {securityLoading ? 'Menyimpan...' : 'Simpan Pertanyaan'}
+                                            </button>
+                                        </form>
+                                    )}
+
+                                    {/* Change password */}
+                                    <div className="akun-profile-form">
+                                        <p className="akun-section-title"><IoLockClosedOutline size={14} /> Ubah Kata Sandi</p>
+
+                                        <AnimatePresence>
+                                        {passChanged && (
+                                            <motion.div className="akun-success-notice"
+                                                initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}>
+                                                <IoCheckmarkCircle size={16} /> Kata sandi berhasil diubah!
+                                            </motion.div>
+                                        )}
+                                        </AnimatePresence>
+
+                                        <AnimatePresence>
+                                        {showForm && (
+                                            <motion.div
+                                                initial={{ opacity: 0, height: 0 }}
+                                                animate={{ opacity: 1, height: 'auto' }}
+                                                exit={{ opacity: 0, height: 0 }}
+                                                style={{ overflow: 'hidden' }}>
+                                                {errors.api && <p className="daftar-field__error" style={{ marginBottom: 10 }}>{errors.api}</p>}
+                                                <form onSubmit={handleChangePass} noValidate>
+                                                    <div className={`daftar-field${errors.secAnswer ? ' daftar-field--error' : ''}`}>
+                                                        <label className="daftar-field__label">
+                                                            {user.secQuestion ? `"${user.secQuestion}"` : 'Jawaban Keamanan'}
+                                                        </label>
+                                                        <div className="daftar-field__input-wrap">
+                                                            <IoShieldCheckmarkOutline className="daftar-field__icon" />
+                                                            <input type="text" className="daftar-field__input"
+                                                                placeholder="Jawaban keamanan kamu"
+                                                                value={form.secAnswer} onChange={set('secAnswer')} />
+                                                        </div>
+                                                        {errors.secAnswer && <p className="daftar-field__error">{errors.secAnswer}</p>}
+                                                    </div>
+                                                    <div className={`daftar-field${errors.newPassword ? ' daftar-field--error' : ''}`}>
+                                                        <label className="daftar-field__label">Kata Sandi Baru</label>
+                                                        <div className="daftar-field__input-wrap">
+                                                            <IoLockClosedOutline className="daftar-field__icon" />
+                                                            <input type={showPass ? 'text' : 'password'} className="daftar-field__input"
+                                                                placeholder="Min. 8 karakter" value={form.newPassword} onChange={set('newPassword')} />
+                                                            <button type="button" className="daftar-field__eye" onClick={() => setShowPass(v => !v)}>
+                                                                {showPass ? <IoEyeOff size={18} /> : <IoEye size={18} />}
+                                                            </button>
+                                                        </div>
+                                                        {errors.newPassword && <p className="daftar-field__error">{errors.newPassword}</p>}
+                                                    </div>
+                                                    <div className={`daftar-field${errors.confirm ? ' daftar-field--error' : ''}`}>
+                                                        <label className="daftar-field__label">Konfirmasi Kata Sandi Baru</label>
+                                                        <div className="daftar-field__input-wrap">
+                                                            <IoLockClosedOutline className="daftar-field__icon" />
+                                                            <input type={showConfirm ? 'text' : 'password'} className="daftar-field__input"
+                                                                placeholder="Ulangi kata sandi baru" value={form.confirm} onChange={set('confirm')} />
+                                                            <button type="button" className="daftar-field__eye" onClick={() => setShowConfirm(v => !v)}>
+                                                                {showConfirm ? <IoEyeOff size={18} /> : <IoEye size={18} />}
+                                                            </button>
+                                                        </div>
+                                                        {errors.confirm && <p className="daftar-field__error">{errors.confirm}</p>}
+                                                        <button type="button" className="login-forgot__link"
+                                                            style={{ display: 'block', marginTop: '6px', textAlign: 'right', width: '100%' }}
+                                                            onClick={() => setLocation('/forgot-password')}>
+                                                            Lupa Pertanyaan Keamanan?
+                                                        </button>
+                                                    </div>
+                                                    <div className="akun-form-actions">
+                                                        <button type="submit" className="akun-btn akun-btn--pink" disabled={loading}>
+                                                            {loading ? 'Menyimpan...' : 'Simpan Perubahan'}
+                                                        </button>
+                                                        <button type="button" className="akun-btn akun-btn--outline"
+                                                            onClick={() => { setShowForm(false); setErrors({}); }}>
+                                                            Batal
+                                                        </button>
+                                                    </div>
+                                                </form>
+                                            </motion.div>
+                                        )}
+                                        </AnimatePresence>
+
+                                        {!showForm && (
+                                            <button className="akun-btn akun-btn--outline akun-btn--block" style={{ marginTop: 4 }}
+                                                onClick={() => { setShowForm(true); setPassChanged(false); }}>
+                                                <IoLockClosedOutline size={15} /> Ubah Kata Sandi
+                                            </button>
+                                        )}
+                                    </div>
+                                </motion.div>
                             )}
+
+                            {/* ── SESI ── */}
+                            {activeTab === 'sesi' && (
+                                <motion.div key="sesi"
+                                    className="akun-tab-panel"
+                                    initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
+                                    transition={{ duration: 0.18 }}>
+
+                                    <div className="akun-profile-form">
+                                        <p className="akun-section-title"><IoLogOutOutline size={14} /> Sesi Aktif</p>
+                                        <p style={{ fontSize: 13, color: '#6a7494', marginBottom: 20, lineHeight: 1.6 }}>
+                                            Kamu sedang masuk sebagai <strong style={{ color: '#c8d0ff' }}>{user.nickname || user.username}</strong>.
+                                            Klik tombol di bawah untuk keluar dari akun ini.
+                                        </p>
+                                        <button className="akun-btn akun-btn--logout" onClick={handleLogout}>
+                                            <IoLogOutOutline size={16} /> Keluar dari Akun
+                                        </button>
+                                    </div>
+                                </motion.div>
+                            )}
+
+                            </AnimatePresence>
                         </div>
-
-                        {/* Logout */}
-                        <button className="akun-btn akun-btn--logout" onClick={handleLogout}>
-                            <IoLogOutOutline size={16} /> Keluar dari Akun
-                        </button>
-
                     </div>
+
                 </div>
                 )}
                 </AnimatePresence>
             </motion.div>
         </div>
-
         <Footer />
         </>
     );
