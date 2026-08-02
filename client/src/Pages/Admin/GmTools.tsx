@@ -86,12 +86,13 @@ async function gmFetch(path: string, opts?: RequestInit) {
 
 // ── Piero colours ─────────────────────────────────────────────────────────────
 
-const PIERO_COLORS = ['Red', 'Orange', 'Yellow', 'Green', 'Blue', 'Navy', 'Purple', 'Angel', 'Devil', 'Winter', 'Black'];
+// Only indices 0–6 are accepted by usp_GM_SetPieroColor.
+// Angel/Devil/Winter/Black are character types in the DB, not color codes.
+const PIERO_COLORS = ['Red', 'Orange', 'Yellow', 'Green', 'Blue', 'Navy', 'Purple'];
 
 const PIERO_SWATCH: Record<string, string> = {
   Red:    '#ef4444', Orange: '#f97316', Yellow: '#eab308', Green:  '#22c55e',
-  Blue:   '#3b82f6', Navy:   '#1e3a8a', Purple: '#a855f7', Angel:  '#e0f2fe',
-  Devil:  '#7f1d1d', Winter: '#bae6fd', Black:  '#1e293b',
+  Blue:   '#3b82f6', Navy:   '#1e3a8a', Purple: '#a855f7',
 };
 
 // ── Role colour ───────────────────────────────────────────────────────────────

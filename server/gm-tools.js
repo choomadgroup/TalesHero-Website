@@ -754,8 +754,9 @@ export async function setPieroAccount(req, res, targetUserNum) {
 
 // ── Set Piero Color ───────────────────────────────────────────────────────────
 
-const PIERO_COLORS = ['Red', 'Orange', 'Yellow', 'Green', 'Blue', 'Navy', 'Purple', 'Angel', 'Devil', 'Winter', 'Black'];
-// Stored procedure usp_GM_SetPieroColor(nickname, colorIndex) expects an integer 0–10
+// Stored procedure usp_GM_SetPieroColor(nickname, colorIndex) hanya menerima indeks 0–6.
+// Angel/Devil/Winter/Black adalah tipe karakter di DB, bukan kode warna — SP menolaknya (ret=1).
+const PIERO_COLORS = ['Red', 'Orange', 'Yellow', 'Green', 'Blue', 'Navy', 'Purple'];
 const PIERO_COLOR_INDEX = Object.fromEntries(PIERO_COLORS.map((c, i) => [c, i]));
 
 export async function setPieroColor(req, res, targetUserNum) {
