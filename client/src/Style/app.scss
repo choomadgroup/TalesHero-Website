@@ -6537,61 +6537,6 @@ $nl-sans:     'Poppins', -apple-system, sans-serif;
   .akun-info-panel { padding: 16px 14px; }
 }
 
-// ── Server status badge (navbar) ─────────────────────────────────────
-.game-server-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 4px 10px;
-  border-radius: 100px;
-  font-size: 11.5px;
-  font-weight: 700;
-  letter-spacing: 0.2px;
-  border: 1px solid transparent;
-  transition: opacity 0.2s;
-  white-space: nowrap;
-
-  &__dot {
-    width: 7px;
-    height: 7px;
-    border-radius: 50%;
-    flex-shrink: 0;
-  }
-
-  &--online {
-    background: rgba(16,185,129,0.12);
-    color: #059669;
-    border-color: rgba(16,185,129,0.3);
-    .game-server-badge__dot {
-      background: #10b981;
-      box-shadow: 0 0 6px rgba(16,185,129,0.7);
-      animation: badge-pulse 2s ease-in-out infinite;
-    }
-  }
-
-  &--offline {
-    background: rgba(239,68,68,0.1);
-    color: #dc2626;
-    border-color: rgba(239,68,68,0.25);
-    .game-server-badge__dot { background: #ef4444; }
-  }
-
-  &--maintenance {
-    background: rgba(245,158,11,0.1);
-    color: #d97706;
-    border-color: rgba(245,158,11,0.3);
-    .game-server-badge__dot {
-      background: #f59e0b;
-      animation: badge-pulse 1.5s ease-in-out infinite;
-    }
-  }
-}
-
-@keyframes badge-pulse {
-  0%, 100% { opacity: 1; transform: scale(1); }
-  50%       { opacity: 0.5; transform: scale(0.85); }
-}
-
 // Header — logged-in account avatar and dropdown
 .game-account-menu {
   position: relative;

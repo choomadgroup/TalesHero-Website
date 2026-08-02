@@ -7,7 +7,6 @@ import { MdHeadset, MdHeadsetOff } from 'react-icons/md';
 import { IoPersonCircleOutline, IoLogOutOutline, IoGiftOutline } from 'react-icons/io5';
 import { useMusic } from '@/Hooks/use-music';
 import { useAuth } from '@/Hooks/use-auth';
-import { useServerStatus } from '@/Hooks/use-server-status';
 import RedeemModal from '@/Components/RedeemModal';
 
 // Nav links route-based
@@ -38,7 +37,6 @@ const Header = ({ light = false }: { light?: boolean }) => {
     const { musicOn, toggleMusic } = useMusic();
     // ── Auth ────────────────────────────────────────────────────────
     const { user, logout } = useAuth();
-    const { status: serverStatus } = useServerStatus();
     // ───────────────────────────────────────────────────────────────
 
     useEffect(() => {
@@ -133,16 +131,6 @@ const Header = ({ light = false }: { light?: boolean }) => {
                             </span>
                         ))}
                     </nav>
-
-                    {/* Server status badge */}
-                    {serverStatus && (
-                        <span className={`game-server-badge game-server-badge--${serverStatus}`}>
-                            <span className="game-server-badge__dot" />
-                            {serverStatus === 'online'      && 'Online'}
-                            {serverStatus === 'offline'     && 'Offline'}
-                            {serverStatus === 'maintenance' && 'Maintenance'}
-                        </span>
-                    )}
 
                     {/* CTA + burger */}
                     <div className="game-header__actions">

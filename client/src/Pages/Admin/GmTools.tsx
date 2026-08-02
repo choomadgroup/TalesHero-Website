@@ -160,34 +160,14 @@ interface GmStats {
 
 export function GmStatsBar() {
   const [stats, setStats]                   = useState<GmStats | null>(null);
-  const [resetting, setResetting]           = useState(false);
-  const [resetMsg, setResetMsg]             = useState<{ text: string; ok: boolean } | null>(null);
-  const [maintenance, setMaintenance]       = useState(false);
-  const [togglingMaint, setTogglingMaint]   = useState(false);
+  const [resetting, setResetting] = useState(false);
+  const [resetMsg, setResetMsg]   = useState<{ text: string; ok: boolean } | null>(null);
 
   const loadStats = useCallback(() => {
     gmFetch('/stats').then(setStats).catch(() => null);
   }, []);
 
-  useEffect(() => {
-    loadStats();
-    // Load current maintenance status
-    fetch('/api/stats/server-status')
-      .then(r => r.ok ? r.json() : null)
-      .then(d => { if (d) setMaintenance(d.status === 'maintenance'); })
-      .catch(() => null);
-  }, [loadStats]);
-
-  const handleToggleMaint = useCallback(async () => {
-    const next = !maintenance;
-    if (next && !confirm('Aktifkan mode maintenance? Semua pemain akan melihat server offline.')) return;
-    setTogglingMaint(true);
-    try {
-      const res = await gmFetch('/maintenance', { method: 'POST', body: JSON.stringify({ enabled: next }) });
-      setMaintenance(!!res.maintenance);
-    } catch { /* silent */ }
-    finally { setTogglingMaint(false); }
-  }, [maintenance]);
+  useEffect(() => { loadStats(); }, [loadStats]);
 
   const handleReset = useCallback(async () => {
     if (!confirm('Reset semua data online? Lakukan ini hanya jika game server sedang mati / crash.')) return;
@@ -237,26 +217,6 @@ export function GmStatsBar() {
             )}
           </div>
         ))}
-      </div>
-
-      {/* Maintenance mode toggle */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 10 }}>
-        <button
-          onClick={handleToggleMaint}
-          disabled={togglingMaint}
-          style={{
-            ...S.btn,
-            background: maintenance ? '#0d2b1a' : '#1a1a2e',
-            color: maintenance ? '#10b981' : '#f59e0b',
-            border: `1px solid ${maintenance ? 'rgba(16,185,129,0.4)' : 'rgba(245,158,11,0.35)'}`,
-            fontSize: 12, padding: '6px 14px',
-          }}
-        >
-          {togglingMaint ? '⏳ Mengubah…' : maintenance ? '✅ Maintenance AKTIF — Klik nonaktifkan' : '🔧 Aktifkan Mode Maintenance'}
-        </button>
-        <span style={{ fontSize: 11, color: '#3a4060', marginLeft: 'auto' }}>
-          Tampilkan server sebagai "Maintenance" ke semua pemain
-        </span>
       </div>
 
       {/* Reset online count */}

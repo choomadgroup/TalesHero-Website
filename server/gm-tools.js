@@ -26,7 +26,6 @@
 import crypto from 'node:crypto';
 import { query, pool } from './db.js';
 import { getAdminUser } from './admin-session.js';
-import { isMaintenanceMode, setMaintenanceMode } from './state.js';
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -89,16 +88,6 @@ const PLAYER_SELECT = `
 // ── Stats ─────────────────────────────────────────────────────────────────────
 
 /** POST /api/admin/gm/reset-online — set semua fdServerNum ke 0 */
-/** POST /api/admin/gm/maintenance — toggle mode maintenance server */
-export async function toggleMaintenance(req, res) {
-  const admin = getAdminUser(req);
-  if (!admin) return json(res, 401, { message: 'Akses ditolak.' });
-  const { enabled } = req.body ?? {};
-  setMaintenanceMode(!!enabled);
-  console.log(`[gm/maintenance] ${admin.username} set maintenance=${!!enabled}`);
-  return json(res, 200, { ok: true, maintenance: isMaintenanceMode() });
-}
-
 export async function resetOnlineCount(req, res) {
   const admin = getAdminUser(req);
   if (!admin) return json(res, 401, { message: 'Akses ditolak.' });
@@ -1088,7 +1077,6 @@ export async function gmToolsRouter(req, res, next) {
 
   if (resource === 'stats'              && m === 'GET')   return getStats(req, res);
   if (resource === 'reset-online'       && m === 'POST')  return resetOnlineCount(req, res);
-  if (resource === 'maintenance'        && m === 'POST')  return toggleMaintenance(req, res);
   if (resource === 'items'              && m === 'GET')   return searchGmItems(req, res);
   if (resource === 'logs'               && m === 'GET')   return getLogs(req, res);
   if (resource === 'security-questions' && m === 'GET')   return json(res, 200, SECURITY_QUESTIONS);

@@ -1,5 +1,4 @@
 import { query } from './db.js';
-import { isMaintenanceMode } from './state.js';
 
 export default async function stats(req, res) {
   try {
@@ -14,23 +13,6 @@ export default async function stats(req, res) {
     });
   } catch {
     res.status(500).json({ accounts: null, online: null });
-  }
-}
-
-/** GET /api/stats/server-status — status server: online / offline / maintenance */
-export async function serverStatus(req, res) {
-  try {
-    if (isMaintenanceMode()) {
-      return res.status(200).json({ status: 'maintenance', onlineCount: 0 });
-    }
-    const rows = await query('SELECT COUNT(*) AS total FROM userinfologin WHERE fdServerNum > 0');
-    const onlineCount = Number(rows[0].total);
-    return res.status(200).json({
-      status: onlineCount > 0 ? 'online' : 'offline',
-      onlineCount,
-    });
-  } catch {
-    return res.status(200).json({ status: 'offline', onlineCount: 0 });
   }
 }
 
