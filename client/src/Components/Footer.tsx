@@ -24,7 +24,7 @@ const SOCIALS = [
     },
     {
         icon: <MessageCircle size={20} strokeWidth={1.5} />,
-        href: "https://discord.gg/rTyNWEQhxB",
+        href: "https://discord.gg/tw7m5zWdfK",
         label: "Discord",
     },
     {
