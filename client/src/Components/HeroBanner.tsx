@@ -107,14 +107,14 @@ export default function HeroBanner() {
     const closeTip = () => { hideTimerRef.current = setTimeout(() => setShowOnlineTip(false), 120); };
 
     const fetchOnlinePlayers = useCallback(async () => {
-        if (loadingPlayers) return;
+        if (loadingPlayers || onlinePlayers !== null) return; // sudah punya data, skip
         setLoadingPlayers(true);
         try {
             const r = await fetch('/api/stats/online-players');
             if (r.ok) { const d = await r.json(); setOnlinePlayers(Array.isArray(d) ? d : []); }
         } catch { /* silent */ }
         finally { setLoadingPlayers(false); }
-    }, [loadingPlayers]);
+    }, [loadingPlayers, onlinePlayers]);
 
     const next = useCallback(() => {
         setCurrent((c) => (c + 1) % SLIDES.length);
