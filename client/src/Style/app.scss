@@ -5389,18 +5389,26 @@ $nl-sans:     'Poppins', -apple-system, sans-serif;
   }
 
   &__hello {
-    font-size: 12px;
-    color: #aaa;
-    font-weight: 600;
-    letter-spacing: 0.2px;
+    font-size: 16px;
+    font-weight: 800;
+    letter-spacing: 0.1px;
+    line-height: 1.2;
+  }
+
+  &__hello-accent {
+    color: #e91e63;
+  }
+
+  &__hello-plain {
+    color: #1a1a2e;
   }
 
   &__nick {
-    font-size: 1.55rem;
+    font-size: 1.25rem;
     font-weight: 900;
     color: #1a1a2e;
     line-height: 1.1;
-    letter-spacing: -0.5px;
+    letter-spacing: -0.3px;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;

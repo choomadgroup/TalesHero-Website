@@ -308,7 +308,7 @@ export default function Akun() {
                                         transition={{ duration: 0.32, ease: 'easeOut' }}
                                         onError={(e) => {
                                             (e.currentTarget as HTMLImageElement).src =
-                                                asset('/Image/Karakter/Avatar/Piero.png');
+                                                asset('/Image/Account/IMG-DEFAULT-01.png');
                                         }}
                                     />
                                 </AnimatePresence>
@@ -322,7 +322,10 @@ export default function Akun() {
                                     exit={{ opacity: 0 }}
                                     transition={{ duration: 0.28 }}
                                 >
-                                    <span className="akun-hero-row__hello">Halo Aku</span>
+                                    <span className="akun-hero-row__hello">
+                                        <span className="akun-hero-row__hello-accent">✦ Halo!</span>
+                                        {' '}<span className="akun-hero-row__hello-plain">Aku</span>
+                                    </span>
                                     <strong className="akun-hero-row__nick">
                                         {user.nickname || user.username}
                                     </strong>
