@@ -101,7 +101,16 @@ export default function HeroBanner() {
     const [showOnlineTip, setShowOnlineTip]     = useState(false);
     const [onlinePlayers, setOnlinePlayers]     = useState<string[] | null>(null);
     const [loadingPlayers, setLoadingPlayers]   = useState(false);
-    const onlineBadgeRef = useRef<HTMLSpanElement>(null);
+    const onlineBadgeRef  = useRef<HTMLSpanElement>(null);
+    const hideTimerRef    = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+    const openTip  = () => {
+        if (hideTimerRef.current) clearTimeout(hideTimerRef.current);
+        setShowOnlineTip(true);
+    };
+    const closeTip = () => {
+        hideTimerRef.current = setTimeout(() => setShowOnlineTip(false), 120);
+    };
 
     const fetchOnlinePlayers = useCallback(async () => {
         if (loadingPlayers) return;
@@ -200,33 +209,36 @@ export default function HeroBanner() {
                                         ref={onlineBadgeRef}
                                         className="hero-banner__online-badge"
                                         style={{ position: 'relative' }}
-                                        onMouseEnter={() => { setShowOnlineTip(true); fetchOnlinePlayers(); }}
-                                        onMouseLeave={() => setShowOnlineTip(false)}
+                                        onMouseEnter={() => { openTip(); fetchOnlinePlayers(); }}
+                                        onMouseLeave={closeTip}
                                     >
                                         <span className="hero-banner__online-dot" />
                                         <IoWifi size={13} />
                                         {onlineCount.toLocaleString('id-ID')} Online
 
-                                        {/* Tooltip */}
+                                        {/* Tooltip — pointerEvents aktif agar bisa di-scroll */}
                                         {showOnlineTip && (
-                                            <span style={{
-                                                position: 'absolute',
-                                                bottom: 'calc(100% + 10px)',
-                                                left: '50%',
-                                                transform: 'translateX(-50%)',
-                                                background: 'rgba(10,10,24,0.97)',
-                                                border: '1px solid rgba(86,145,240,0.35)',
-                                                borderRadius: 10,
-                                                padding: '10px 14px',
-                                                minWidth: 160,
-                                                maxWidth: 240,
-                                                maxHeight: 220,
-                                                overflowY: 'auto',
-                                                boxShadow: '0 6px 32px rgba(0,0,0,0.5)',
-                                                zIndex: 200,
-                                                pointerEvents: 'none',
-                                                whiteSpace: 'normal',
-                                            }}>
+                                            <span
+                                                onMouseEnter={openTip}
+                                                onMouseLeave={closeTip}
+                                                style={{
+                                                    position: 'absolute',
+                                                    bottom: 'calc(100% + 8px)',
+                                                    left: '50%',
+                                                    transform: 'translateX(-50%)',
+                                                    background: 'rgba(10,10,24,0.97)',
+                                                    border: '1px solid rgba(86,145,240,0.35)',
+                                                    borderRadius: 10,
+                                                    padding: '10px 14px',
+                                                    minWidth: 180,
+                                                    maxWidth: 240,
+                                                    maxHeight: 220,
+                                                    overflowY: 'auto',
+                                                    boxShadow: '0 6px 32px rgba(0,0,0,0.5)',
+                                                    zIndex: 200,
+                                                    whiteSpace: 'normal',
+                                                    cursor: 'default',
+                                                }}>
                                                 <span style={{ display: 'block', fontSize: 10, fontWeight: 700, color: '#5691f0', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 7 }}>
                                                     Player Online
                                                 </span>
