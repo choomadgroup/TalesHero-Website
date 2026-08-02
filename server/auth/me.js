@@ -1,35 +1,40 @@
 import { query } from '../db.js';
 import { getSessionUsername } from './session.js';
 
-// fdChar → character name
+// fdCharacter → character name (from tblavatarcharactersetting)
 const CHAR_NAME_MAP = {
-  1:  'Jaka',
-  2:  'Mingming',
-  3:  'Tifanny',
-  4:  'BigBo',
-  5:  'DnD',
-  6:  'Narcius',
-  7:  'Maki',
-  8:  'Rough',
-  9:  'Dewi',
-  10: 'Kai',
-  11: 'Rina',
-  12: 'Rini',
-  13: 'Abel',
-  14: 'Haru',
-  15: 'Vera',
-  16: 'Wukong',
-  17: 'Hidden Rough',
-  18: 'Siho',
-  19: 'Luci',
-  20: 'Miho',
-  22: 'R',
-  23: 'Harang',
-  24: 'LaLa',
-  25: 'Elims',
-  26: 'Cain',
-  27: 'YeonOh',
-  28: 'Bloody Vera',
+  1:   'Jaka',
+  2:   'Mingming',
+  3:   'Tifanny',
+  4:   'BigBo',
+  5:   'DnD',
+  6:   'Narcius',
+  7:   'Maki',
+  8:   'Rough',
+  9:   'Dewi',
+  10:  'Kai',
+  11:  'Rina',
+  12:  'Rini',
+  13:  'Abel',
+  14:  'Haru',
+  15:  'Vera',
+  16:  'Wukong',
+  17:  'Hidden Rough',
+  18:  'Siho',
+  19:  'Luci',
+  20:  'Miho',
+  21:  'Deva',
+  22:  'R',
+  23:  'Harang',
+  24:  'LaLa',
+  25:  'Elims',
+  26:  'Cain',
+  27:  'YeonOh',
+  28:  'Bloody Vera',
+  212: 'Maid Mingming',
+  213: 'Bloody Vera',
+  214: 'Elims',
+  215: 'Cain',
 };
 
 // ── Level thresholds (cached after first load) ─────────────────────────────
@@ -71,31 +76,15 @@ async function findUser(username) {
               i.fdNickname, i.fdUserNum,
               ig.fdGameMoney, ig.fdExp AS igExp,
               ig.fdAvatarCharacterSettingNum,
-              cpk.fdChar,
-              (
-                -- Pick the base character item with the highest XP — that's the main char
-                SELECT ad.fdCharacter
-                FROM tblavataruser au
-                JOIN tblavataritemdesc ad ON ad.fdItemNum = au.fdItemDescNum
-                WHERE au.fdUserNum = i.fdUserNum
-                  AND au.fdUsing = 1
-                  AND ad.fdType = 1
-                  AND ad.fdPosition = 0
-                  AND ad.fdCharacter > 0
-                ORDER BY au.fdExp DESC
-                LIMIT 1
-              ) AS fdCharFromInv,
+              acs.fdCharacter AS fdChar,
               COALESCE(uip.TotalPoint, 0) AS mauTotal,
               w.email, w.sec_question AS secQuestion
        FROM userinfofrompublisher g
        LEFT JOIN userinfo i ON i.fdUID = g.fdUserID
        LEFT JOIN userinfogame ig ON ig.fdUserNum = i.fdUserNum
-       LEFT JOIN (
-         SELECT fdItemNum, MIN(fdChar) AS fdChar
-         FROM essenavataritemcpkref
-         WHERE fdChar > 0
-         GROUP BY fdItemNum
-       ) cpk ON cpk.fdItemNum = ig.fdAvatarCharacterSettingNum
+       LEFT JOIN tblavatarcharactersetting acs
+         ON acs.fdUserNum = i.fdUserNum
+         AND acs.fdItemCharacterSettingNum = ig.fdAvatarCharacterSettingNum
        LEFT JOIN (
          SELECT fdUserNum, SUM(fdPoint) AS TotalPoint
          FROM userinfopoint GROUP BY fdUserNum
@@ -110,12 +99,10 @@ async function findUser(username) {
   const user = rows[0];
   if (!user) return null;
 
-  // Inventory (highest-XP base char) wins; cpkref is last resort
-  const fdChar = (user.fdCharFromInv && user.fdCharFromInv > 0)
-    ? user.fdCharFromInv
-    : (user.fdChar && user.fdChar > 0)
-      ? user.fdChar
-      : null;
+  // tblavatarcharactersetting.fdCharacter is the authoritative current character.
+  // The row is keyed by fdItemCharacterSettingNum = userinfogame.fdAvatarCharacterSettingNum,
+  // which the game updates every time the player switches character.
+  const fdChar = (user.fdChar && user.fdChar > 0) ? user.fdChar : null;
   const character = fdChar != null ? (CHAR_NAME_MAP[fdChar] ?? null) : null;
 
   const { level, expPct } = computeLevel(user.igExp, thresholds);

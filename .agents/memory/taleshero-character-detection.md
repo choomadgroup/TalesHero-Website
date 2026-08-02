@@ -1,34 +1,24 @@
 ---
 name: Tales Hero character detection
-description: How to correctly detect a player's base character from the game DB
+description: How to reliably detect the currently active character for a logged-in player
 ---
 
-# Character Detection
+## Rule
+Join `tblavatarcharactersetting` on:
+```sql
+acs.fdUserNum = i.fdUserNum
+AND acs.fdItemCharacterSettingNum = ig.fdAvatarCharacterSettingNum
+```
+Use `acs.fdCharacter` — this is the exact character the player is using right now.
 
-## The Rule
-`userinfogame.fdAvatarCharacterSettingNum` tracks the **fashion/costume SET** currently worn,
-not the base character the player IS. A player wearing Elims fashion on Cain will have an Elims
-item number in this field → cpkref returns fdChar=25 (Elims) even though the player IS Cain.
+**Why:** `fdAvatarCharacterSettingNum` in `userinfogame` is a pointer to the player's current character-slot row in `tblavatarcharactersetting`. The game updates this row's `fdCharacter` column every time the player switches character. Every other approach is unreliable:
+- All owned base-character (pos=0) inventory items share `fdUsing=1` and `fdExp=10000` — indistinguishable.
+- `essenavataritemcpkref` via `fdAvatarCharacterSettingNum` can return null (settingNum doesn't exist in cpkref for many users) or return a fashion-item character (wrong when player wears cross-character fashion).
 
-**Correct approach:** query `tblavataruser JOIN tblavataritemdesc` for equipped items
-(`fdUsing=1`) where `fdType=1 AND fdPosition=0` — these are base character unlock items.
-`tblavataritemdesc.fdCharacter` on such a row is the true base character ID.
+**How to apply:** Only this join + `fdCharacter` from `tblavatarcharactersetting` should be used. Do not fall back to inventory-based detection.
 
-**Why:** Discovered by querying tblavataritemdesc and finding that Cain (#83404) and Elims
-(#83403) both have `fdType=1, fdPosition=0, fdItemKind=0` whereas all fashion items are `fdType=2`.
-
-## Priority in me.js
-1. `inv.fdCharFromInv` — base character from inventory (fdType=1, fdPosition=0, fdUsing=1) — most reliable
-2. `cpk.fdChar` — from fdAvatarCharacterSettingNum via cpkref — last resort (may return fashion character)
-
-## localStorage (Akun.tsx)
-Old format stored numeric index → treated as stale and cleared on load.
-New format stores character NAME (string) so old sessions cannot override game detection.
-Game character always wins unless user has an explicit name-based override for a DIFFERENT character.
-
-## Key table facts
-- `tblavataritemdesc.fdType=1, fdPosition=0` → base character item
-- `tblavataritemdesc.fdType=2` → fashion/accessory item
-- `tblavataruser.fdUsing=1` → currently equipped
-- `tblavataruser.fdCharacter` → which character the item belongs to
-- CHAR_NAME_MAP in me.js: Cain=26, Elims=25
+## Known character IDs (fdCharacter → name)
+1=Jaka, 2=Mingming, 3=Tifanny, 4=BigBo, 5=DnD, 6=Narcius, 7=Maki, 8=Rough, 9=Dewi, 10=Kai,
+11=Rina, 12=Rini, 13=Abel, 14=Haru, 15=Vera, 16=Wukong, 17=Hidden Rough, 18=Siho, 19=Luci,
+20=Miho, 21=Deva, 22=R, 23=Harang, 24=LaLa, 25=Elims, 26=Cain, 27=YeonOh, 28=Bloody Vera,
+212=Maid Mingming, 213=Bloody Vera (alt), 214=Elims (alt), 215=Cain (alt)
