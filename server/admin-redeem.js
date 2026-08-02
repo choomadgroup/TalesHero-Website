@@ -9,21 +9,6 @@
 import { query } from './db.js';
 import { getAdminUser } from './admin-session.js';
 
-// ── Auto-migrate: tambah fdRewardItems jika belum ada ─────────
-export async function migrateRedeemTable() {
-  try {
-    await query(
-      `ALTER TABLE tblredeem_code ADD COLUMN fdRewardItems TEXT NULL AFTER fdDeliveryTarget`,
-    );
-    console.log('[admin-redeem] Added fdRewardItems column to tblredeem_code');
-  } catch (err) {
-    // Kolom sudah ada — bukan error
-    if (!err.message?.includes('Duplicate column')) {
-      console.warn('[admin-redeem/migrate]', err.message);
-    }
-  }
-}
-
 // ── Helpers ───────────────────────────────────────────────────
 
 function rand(len) {

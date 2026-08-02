@@ -15,7 +15,6 @@ import redeem from './redeem.js';
 import {
   adminGetRedeemCodes, adminCreateRedeemCode,
   adminToggleRedeemCode, adminDeleteRedeemCode, adminSearchItem,
-  migrateRedeemTable,
 } from './admin-redeem.js';
 import turnstileConfig from './auth/turnstile-config.js';
 import stats    from './stats.js';
@@ -177,13 +176,12 @@ app.use((req, res) => {
   res.status(404).json({ message: 'Not found' });
 });
 
-// Run migrations sequentially before accepting traffic
-(async () => {
-  try { await migrateRedeemTable(); } catch (err) { console.error('[admin-redeem/migrate]', err.message); }
-  try { await migrate(); console.log('[Database] tales_hero_web_users sukses terhubung.'); }
-  catch (err) { console.error('[Database] migrate error:', err.message); }
-  connectMongoDB().catch(err => console.error('[MongoDB] startup error:', err.message));
-  app.listen(port, '0.0.0.0', () => {
-    console.log(`Tales Hero production server listening on port ${port}`);
-  });
-})();
+migrate()
+  .then(() => console.log('[Database] tales_hero_web_users sukses terhubung.'))
+  .catch(err => console.error('[Database] migrate error:', err.message));
+
+connectMongoDB().catch(err => console.error('[MongoDB] startup error:', err.message));
+
+app.listen(port, '0.0.0.0', () => {
+  console.log(`Tales Hero production server listening on port ${port}`);
+});

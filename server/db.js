@@ -107,6 +107,16 @@ async function migrate() {
     if (error?.code !== 'ER_DUP_FIELDNAME') throw error;
   }
 
+  // Tambah kolom fdRewardItems (multi-item JSON) ke tblredeem_code (jika belum ada).
+  try {
+    await pool.query(`
+      ALTER TABLE tblredeem_code
+      ADD COLUMN fdRewardItems TEXT NULL AFTER fdDeliveryTarget
+    `);
+  } catch (error) {
+    if (error?.code !== 'ER_DUP_FIELDNAME') throw error;
+  }
+
   // Tambah kolom MAU ke tblredeem_code (jika belum ada).
   try {
     await pool.query(`
