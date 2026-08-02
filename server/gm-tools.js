@@ -771,10 +771,41 @@ export async function setPieroColor(req, res, targetUserNum) {
     if (!targets.length) return json(res, 404, { message: 'Player tidak ditemukan.' });
     if (!targets[0].Attribute)
       return json(res, 400, { message: 'Player belum diset sebagai Piero. Aktifkan Piero terlebih dahulu.' });
-    await query('CALL usp_GM_SetPieroColor(?, ?)', [targets[0].fdNickname, colorIndex]);
+    // query() returns results = rows from pool.query().
+    // For a CALL that SELECTs a result set, mysql2 returns:
+    //   results = [ [{ ret: N }, ...], OkPacket ]
+    // So results[0][0].ret is the stored-procedure return code.
+    const resultSets = await query('CALL usp_GM_SetPieroColor(?, ?)', [targets[0].fdNickname, colorIndex]);
+    console.log('[gm/setPieroColor] SP result:', JSON.stringify(resultSets));
+
+    // Extract ret — be defensive about shape differences across mysql2 versions
+    let ret = 0;
+    if (Array.isArray(resultSets)) {
+      const firstSet = Array.isArray(resultSets[0]) ? resultSets[0] : resultSets;
+      const firstRow = firstSet[0];
+      if (firstRow && typeof firstRow === 'object') {
+        const retVal = firstRow.ret ?? firstRow.Ret ?? firstRow.RET;
+        if (retVal !== undefined) ret = Number(retVal);
+      }
+    }
+
+    if (ret === 1) return json(res, 400, { message: 'Kode warna Piero tidak valid (ret=1).' });
+    if (ret === 2) return json(res, 400, {
+      message: `Nickname "${targets[0].fdNickname}" tidak ditemukan oleh stored procedure (ret=2). ` +
+               `Pastikan karakter dengan nickname tersebut ada di game dan tidak mengandung spasi/karakter khusus.`,
+    });
+    if (ret === 3) return json(res, 400, {
+      message: `Karakter "${targets[0].fdNickname}" bukan Piero menurut stored procedure (ret=3). ` +
+               `Coba aktifkan/nonaktifkan ulang status Piero, lalu ganti warna kembali.`,
+    });
+    if (ret !== 0) return json(res, 400, { message: `Stored procedure mengembalikan kode error tidak dikenal: ret=${ret}` });
+
     await logAction(admin, 'SET_PIERO_COLOR', `UserNum:${targetUserNum}`,
       `Piero color -> ${color} (${targets[0].fdNickname})`);
-    return json(res, 200, { message: `Warna Piero ${targets[0].fdNickname} berhasil diubah menjadi ${color}.` });
+    return json(res, 200, {
+      message: `Warna Piero ${targets[0].fdNickname} berhasil diubah menjadi ${color}. ` +
+               `Efek warna akan terlihat setelah karakter login ulang ke game.`,
+    });
   } catch (err) {
     console.error('[gm/setPieroColor]', err.message);
     return json(res, 500, { message: err.message || 'Gagal mengubah warna Piero.' });
