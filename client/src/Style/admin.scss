@@ -730,6 +730,43 @@
   &:hover:not(:disabled) { background: rgba(255, 230, 0, 0.16); box-shadow: 0 0 10px rgba(255, 230, 0, 0.25); }
 }
 
+// Standalone — works anywhere (not only inside .admin-editor__footer)
+.btn-save-publish {
+  padding: 8px 20px;
+  border-radius: 6px;
+  font-size: 12.5px;
+  font-weight: 600;
+  background: transparent;
+  color: var(--cp-cyan);
+  border: 1px solid var(--cp-cyan);
+  cursor: pointer;
+  font-family: inherit;
+  text-shadow: 0 0 8px rgba(0, 229, 255, 0.5);
+  box-shadow: 0 0 12px rgba(0, 229, 255, 0.1);
+  transition: all 0.15s;
+  &:hover:not(:disabled) {
+    background: rgba(0, 229, 255, 0.08);
+    box-shadow: 0 0 20px rgba(0, 229, 255, 0.3);
+  }
+  &:disabled { opacity: 0.35; cursor: not-allowed; }
+}
+
+// Standalone "ghost" secondary action button
+.btn-draft {
+  padding: 8px 20px;
+  border-radius: 6px;
+  font-size: 12.5px;
+  font-weight: 600;
+  background: transparent;
+  color: var(--cp-text-mid);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.15s;
+  &:hover:not(:disabled) { color: var(--cp-text-bright); background: rgba(255, 255, 255, 0.04); }
+  &:disabled { opacity: 0.35; cursor: not-allowed; }
+}
+
 .admin-actions {
   display: flex;
   align-items: center;

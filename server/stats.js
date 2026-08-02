@@ -3,8 +3,9 @@ import { query } from './db.js';
 export default async function stats(req, res) {
   try {
     const [accountRows, onlineRows] = await Promise.all([
-      query('SELECT COUNT(*) AS total FROM tales_hero_web_users'),
-      query('SELECT COUNT(*) AS total FROM userinfologin WHERE fdServerNum = 1'),
+      // userinfofrompublisher = akun game sesungguhnya (bukan hanya web registrasi)
+      query('SELECT COUNT(*) AS total FROM userinfofrompublisher'),
+      query('SELECT COUNT(*) AS total FROM userinfologin WHERE fdServerNum > 0'),
     ]);
     res.status(200).json({
       accounts: Number(accountRows[0].total),

@@ -91,14 +91,16 @@ export async function getStats(req, res) {
   const admin = getAdminUser(req);
   if (!admin) return json(res, 401, { message: 'Akses ditolak.' });
   try {
-    const [[tp], [op], [tc], [tr], [pr]] = await Promise.all([
-      query('SELECT COUNT(*) AS total FROM userinfo'),
-      query('SELECT COUNT(*) AS total FROM userinfologin WHERE COALESCE(fdServerNum, 0) > 0'),
+    const [[ta], [tp], [op], [tc], [tr], [pr]] = await Promise.all([
+      query('SELECT COUNT(*) AS total FROM userinfofrompublisher'),   // total akun game
+      query('SELECT COUNT(*) AS total FROM userinfo'),                // total karakter dibuat
+      query('SELECT COUNT(*) AS total FROM userinfologin WHERE fdServerNum > 0'), // online (dari game server)
       query('SELECT COALESCE(SUM(fdCash), 0) AS total FROM userinfofrompublisher'),
       query('SELECT COALESCE(SUM(fdGameMoney), 0) AS total FROM userinfogame'),
       query("SELECT COUNT(*) AS total FROM tblgm_requests WHERE fdStatus = 'Pending'"),
     ]);
     return json(res, 200, {
+      totalAccounts:  Number(ta.total),
       totalPlayers:   Number(tp.total),
       onlinePlayers:  Number(op.total),
       totalCash:      Number(tc.total),
@@ -790,7 +792,6 @@ export async function setPieroColor(req, res, targetUserNum) {
     //   results = [ [{ ret: N }, ...], OkPacket ]
     // So results[0][0].ret is the stored-procedure return code.
     const resultSets = await query('CALL usp_GM_SetPieroColor(?, ?)', [targets[0].fdNickname, colorIndex]);
-    console.log('[gm/setPieroColor] SP result:', JSON.stringify(resultSets));
 
     // Extract ret — be defensive about shape differences across mysql2 versions
     let ret = 0;

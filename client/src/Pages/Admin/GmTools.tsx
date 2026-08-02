@@ -150,8 +150,9 @@ const S = {
 // ── GmStatsBar ────────────────────────────────────────────────────────────────
 
 interface GmStats {
-  totalPlayers:    number;
-  onlinePlayers:   number;
+  totalAccounts:   number; // userinfofrompublisher — akun game sesungguhnya
+  totalPlayers:    number; // userinfo — karakter yang pernah dibuat
+  onlinePlayers:   number; // userinfologin WHERE fdServerNum > 0 (dari game server; bisa stale jika server crash)
   totalCash:       number;
   totalTR:         number;
   pendingRequests: number;
@@ -167,22 +168,33 @@ export function GmStatsBar() {
   if (!stats) return null;
 
   const items = [
-    { label: 'Total Player', value: stats.totalPlayers.toLocaleString('id-ID'), color: '#6366f1' },
-    { label: 'Online',       value: stats.onlinePlayers.toLocaleString('id-ID'), color: '#10b981' },
-    { label: 'Total Cash',   value: stats.totalCash.toLocaleString('id-ID'),    color: '#f59e0b' },
-    { label: 'Total TR',     value: stats.totalTR.toLocaleString('id-ID'),      color: '#3b82f6' },
-    { label: 'Request Pending', value: stats.pendingRequests.toLocaleString('id-ID'),
-      color: stats.pendingRequests > 0 ? '#ef4444' : '#6a7494' },
+    { label: 'Total Akun',    value: stats.totalAccounts.toLocaleString('id-ID'),  color: '#6366f1',
+      note: 'userinfofrompublisher' },
+    { label: 'Total Karakter', value: stats.totalPlayers.toLocaleString('id-ID'),  color: '#8b5cf6',
+      note: 'userinfo' },
+    { label: 'Online',        value: stats.onlinePlayers.toLocaleString('id-ID'),  color: '#10b981',
+      note: 'fdServerNum > 0 (stale jika server crash)' },
+    { label: 'Total Cash',    value: stats.totalCash.toLocaleString('id-ID'),      color: '#f59e0b',
+      note: '' },
+    { label: 'Total TR',      value: stats.totalTR.toLocaleString('id-ID'),        color: '#3b82f6',
+      note: '' },
+    { label: 'Req. Pending',  value: stats.pendingRequests.toLocaleString('id-ID'),
+      color: stats.pendingRequests > 0 ? '#ef4444' : '#6a7494', note: '' },
   ];
 
   return (
     <div style={S.statsGrid}>
-      {items.map(({ label, value, color }) => (
+      {items.map(({ label, value, color, note }) => (
         <div key={label} style={S.statCard}>
           <span style={{ fontSize: 11.5, color: '#6a7494', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
             {label}
           </span>
           <span style={{ fontSize: 22, fontWeight: 700, color, lineHeight: 1.2 }}>{value}</span>
+          {note && (
+            <span style={{ fontSize: 9.5, color: '#3a4060', fontFamily: 'monospace', marginTop: 2, lineHeight: 1.3 }}>
+              {note}
+            </span>
+          )}
         </div>
       ))}
     </div>
