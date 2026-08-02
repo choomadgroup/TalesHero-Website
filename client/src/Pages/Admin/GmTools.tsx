@@ -1,6 +1,5 @@
 // ============================================================
 //  Tales Hero Indonesia — GM Tools UI
-//  Semua fitur dari PHP admin tool teman diintegrasikan ke sini.
 //  Komponen yang diekspor:
 //    GmStatsBar        — baris statistik server
 //    GmPlayerSection   — cari player, kirim cash/TR/item, ban, role, inventory
@@ -104,23 +103,31 @@ const ROLE_COLOR: Record<string, string> = {
   Player:'#64748b',
 };
 
-// ── Inline sub-styles (complements admin.scss) ─────────────────────────────────
+// ── Security questions (matches backend SECURITY_QUESTIONS) ──────────────────
+
+const SECURITY_QUESTIONS = [
+  'Nama hewan kesayangan kamu?',
+  'Warna apa yang kamu suka?',
+  'Apa nama panggilan kamu?',
+];
+
+// ── Inline sub-styles (dark cyberpunk theme, complements admin.scss) ──────────
 
 const S = {
   card: {
-    background: '#fff',
-    border: '1px solid #e2e8f0',
+    background: '#0d0d20',
+    border: '1px solid rgba(0,229,255,0.14)',
     borderRadius: 12,
     padding: '20px 24px',
     marginBottom: 20,
   } as React.CSSProperties,
   row: { display: 'flex', gap: 12, flexWrap: 'wrap' as const, alignItems: 'flex-end' },
   field: { display: 'flex', flexDirection: 'column' as const, gap: 4, flex: 1, minWidth: 160 },
-  label: { fontSize: 12, fontWeight: 600, color: '#475569', marginBottom: 2 },
+  label: { fontSize: 12, fontWeight: 600, color: '#6a7494', marginBottom: 2 },
   input: {
-    padding: '8px 12px', borderRadius: 8, border: '1px solid #cbd5e1',
-    fontSize: 13.5, fontFamily: 'Poppins, sans-serif', background: '#fff',
-    outline: 'none', width: '100%', boxSizing: 'border-box' as const,
+    padding: '8px 12px', borderRadius: 8, border: '1px solid rgba(0,229,255,0.2)',
+    fontSize: 13.5, fontFamily: 'Poppins, sans-serif', background: '#070816',
+    color: '#c8d0ff', outline: 'none', width: '100%', boxSizing: 'border-box' as const,
   } as React.CSSProperties,
   btn: {
     padding: '8px 16px', borderRadius: 8, border: 'none', cursor: 'pointer',
@@ -132,7 +139,7 @@ const S = {
     gap: 14, marginBottom: 24,
   },
   statCard: {
-    background: '#fff', border: '1px solid #e2e8f0', borderRadius: 12,
+    background: '#0d0d20', border: '1px solid rgba(0,229,255,0.14)', borderRadius: 12,
     padding: '16px 20px', display: 'flex', flexDirection: 'column' as const, gap: 4,
   },
 };
@@ -162,14 +169,14 @@ export function GmStatsBar() {
     { label: 'Total Cash',   value: stats.totalCash.toLocaleString('id-ID'),    color: '#f59e0b' },
     { label: 'Total TR',     value: stats.totalTR.toLocaleString('id-ID'),      color: '#3b82f6' },
     { label: 'Request Pending', value: stats.pendingRequests.toLocaleString('id-ID'),
-      color: stats.pendingRequests > 0 ? '#ef4444' : '#64748b' },
+      color: stats.pendingRequests > 0 ? '#ef4444' : '#6a7494' },
   ];
 
   return (
     <div style={S.statsGrid}>
       {items.map(({ label, value, color }) => (
         <div key={label} style={S.statCard}>
-          <span style={{ fontSize: 11.5, color: '#94a3b8', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+          <span style={{ fontSize: 11.5, color: '#6a7494', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
             {label}
           </span>
           <span style={{ fontSize: 22, fontWeight: 700, color, lineHeight: 1.2 }}>{value}</span>
@@ -182,6 +189,15 @@ export function GmStatsBar() {
 // ── GmPlayerSection ───────────────────────────────────────────────────────────
 
 type PlayerTab = 'send' | 'inventory' | 'manage';
+
+interface PlayerWebAccount {
+  user_id:            string;
+  nickname:           string;
+  email:              string;
+  sec_question:       string;
+  sec_answer:         string;
+  web_account_exists: boolean;
+}
 
 export function GmPlayerSection({ adminUser, showToast }: {
   adminUser: AdminUser | null;
@@ -201,8 +217,8 @@ export function GmPlayerSection({ adminUser, showToast }: {
   // send cash / TR / MAU / EXP
   const [cashAmt, setCashAmt]   = useState('');
   const [trAmt, setTrAmt]       = useState('');
-  const [mauAmt, setMauAmt]       = useState('');
-  const [expAmt, setExpAmt]       = useState('');
+  const [mauAmt, setMauAmt]     = useState('');
+  const [expAmt, setExpAmt]     = useState('');
   const [pieroColor, setPieroColorVal] = useState<string>('');
 
   // send item
@@ -223,6 +239,13 @@ export function GmPlayerSection({ adminUser, showToast }: {
   const [newRole, setNewRole]   = useState('');
   const [newNick, setNewNick]   = useState('');
   const [newPw, setNewPw]       = useState('');
+
+  // player web account (Owner only)
+  const [playerWebAcct, setPlayerWebAcct] = useState<PlayerWebAccount | null>(null);
+  const [webAcctEmail, setWebAcctEmail]   = useState('');
+  const [webAcctSecQ, setWebAcctSecQ]     = useState('');
+  const [webAcctSecA, setWebAcctSecA]     = useState('');
+  const [webAcctLoading, setWebAcctLoading] = useState(false);
 
   const [loading, setLoading]   = useState(false);
   const [error, setError]       = useState('');
@@ -260,6 +283,7 @@ export function GmPlayerSection({ adminUser, showToast }: {
     setSelItem(null); setItemQ(''); setItemResults([]);
     setBanReason(''); setNewRole(p.RoleName); setNewNick(p.fdNickname); setNewPw('');
     setInventory([]);
+    setPlayerWebAcct(null); setWebAcctEmail(''); setWebAcctSecQ(''); setWebAcctSecA('');
   };
 
   const refreshPlayer = async () => {
@@ -293,8 +317,26 @@ export function GmPlayerSection({ adminUser, showToast }: {
     finally { setInvLoading(false); }
   };
 
+  // load player web account
+  const loadPlayerWebAccount = useCallback(async () => {
+    if (!player || !isOwner) return;
+    setWebAcctLoading(true);
+    try {
+      const data: PlayerWebAccount = await gmFetch(`/players/${player.fdUserNum}/web-account`);
+      setPlayerWebAcct(data);
+      setWebAcctEmail(data.email ?? '');
+      setWebAcctSecQ(data.sec_question ?? '');
+      setWebAcctSecA('');
+    } catch { setPlayerWebAcct(null); }
+    finally { setWebAcctLoading(false); }
+  }, [player?.fdUserNum, isOwner]); // eslint-disable-line
+
   useEffect(() => {
     if (playerTab === 'inventory' && player) loadInventory();
+  }, [playerTab, player?.fdUserNum]); // eslint-disable-line
+
+  useEffect(() => {
+    if (playerTab === 'manage' && player && isOwner) loadPlayerWebAccount();
   }, [playerTab, player?.fdUserNum]); // eslint-disable-line
 
   // ── Send actions ────────────────────────────────────────────
@@ -376,6 +418,16 @@ export function GmPlayerSection({ adminUser, showToast }: {
     setPieroColorVal(''); return r;
   });
 
+  const doUpdateWebAccount = () => act(async () => {
+    const r = await gmFetch(`/players/${player!.fdUserNum}/web-account`, {
+      method: 'PATCH',
+      body: JSON.stringify({ email: webAcctEmail, sec_question: webAcctSecQ, sec_answer: webAcctSecA }),
+    });
+    setWebAcctSecA('');
+    await loadPlayerWebAccount();
+    return r;
+  });
+
   // ── Inventory actions ───────────────────────────────────────
   const doDeleteInv = (invNum: number) => act(async () => {
     const r = await gmFetch(`/players/${player!.fdUserNum}/inventory/${invNum}`, { method: 'DELETE' });
@@ -395,9 +447,10 @@ export function GmPlayerSection({ adminUser, showToast }: {
       onClick={() => setPlayerTab(tab)}
       style={{
         ...S.btn,
-        background: playerTab === tab ? '#6366f1' : '#f1f5f9',
-        color:      playerTab === tab ? '#fff' : '#374151',
+        background: playerTab === tab ? '#6366f1' : '#10102a',
+        color:      playerTab === tab ? '#fff' : '#c8d0ff',
         fontSize: 12,
+        border: playerTab === tab ? 'none' : '1px solid rgba(0,229,255,0.14)',
       }}
     >{label}</button>
   );
@@ -437,7 +490,7 @@ export function GmPlayerSection({ adminUser, showToast }: {
         {/* Search results */}
         {results.length > 0 && (
           <div style={{ ...S.card, padding: 0, overflow: 'hidden' }}>
-            <div style={{ padding: '14px 20px', borderBottom: '1px solid #e2e8f0', fontWeight: 700, fontSize: 13.5 }}>
+            <div style={{ padding: '14px 20px', borderBottom: '1px solid rgba(0,229,255,0.14)', fontWeight: 700, fontSize: 13.5, color: '#c8d0ff' }}>
               Hasil Pencarian ({results.length})
             </div>
             <div className="admin-table-wrapper">
@@ -450,7 +503,7 @@ export function GmPlayerSection({ adminUser, showToast }: {
                 </thead>
                 <tbody>
                   {results.map(p => (
-                    <tr key={p.fdUserNum} style={{ background: player?.fdUserNum === p.fdUserNum ? '#f0f9ff' : undefined }}>
+                    <tr key={p.fdUserNum} style={{ background: player?.fdUserNum === p.fdUserNum ? 'rgba(49,242,255,0.05)' : undefined }}>
                       <td style={{ fontFamily: 'monospace', fontSize: 12 }}>{p.fdUserNum}</td>
                       <td style={{ fontWeight: 600 }}>{p.fdNickname}</td>
                       <td>
@@ -487,20 +540,20 @@ export function GmPlayerSection({ adminUser, showToast }: {
         {player && (
           <div style={S.card}>
             {/* Player info header */}
-            <div style={{ display: 'flex', gap: 20, flexWrap: 'wrap', marginBottom: 18, paddingBottom: 16, borderBottom: '1px solid #e2e8f0' }}>
+            <div style={{ display: 'flex', gap: 20, flexWrap: 'wrap', marginBottom: 18, paddingBottom: 16, borderBottom: '1px solid rgba(0,229,255,0.14)' }}>
               <div style={{ flex: 2, minWidth: 220 }}>
-                <div style={{ fontSize: 11, fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 6 }}>
+                <div style={{ fontSize: 11, fontWeight: 700, color: '#6a7494', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 6 }}>
                   Player Aktif
                 </div>
-                <div style={{ fontSize: 18, fontWeight: 800, color: '#0f172a', marginBottom: 4 }}>
+                <div style={{ fontSize: 18, fontWeight: 800, color: '#c8d0ff', marginBottom: 4 }}>
                   {player.fdNickname}
                   <span style={{ marginLeft: 8, padding: '2px 8px', borderRadius: 20, fontSize: 11, fontWeight: 700,
                     background: ROLE_COLOR[player.RoleName] ?? '#64748b', color: '#fff', verticalAlign: 'middle' }}>
                     {player.RoleName}
                   </span>
                 </div>
-                <div style={{ fontSize: 12, color: '#64748b' }}>
-                  UserNum: <b>{player.fdUserNum}</b> · ID: <b>{player.UserId || '–'}</b>
+                <div style={{ fontSize: 12, color: '#6a7494' }}>
+                  UserNum: <b style={{ color: '#c8d0ff' }}>{player.fdUserNum}</b> · ID: <b style={{ color: '#c8d0ff' }}>{player.UserId || '–'}</b>
                   {player.IsBanned ? <span style={{ marginLeft: 8, color: '#ef4444', fontWeight: 700 }}>🔴 BANNED</span>
                     : <span style={{ marginLeft: 8, color: '#10b981', fontWeight: 600 }}>🟢 Normal</span>}
                   {player.Attribute === 1 && (
@@ -511,33 +564,33 @@ export function GmPlayerSection({ adminUser, showToast }: {
               </div>
               <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap' }}>
                 <div style={{ textAlign: 'center' }}>
-                  <div style={{ fontSize: 10, color: '#94a3b8', fontWeight: 700, letterSpacing: '0.05em' }}>CASH</div>
+                  <div style={{ fontSize: 10, color: '#6a7494', fontWeight: 700, letterSpacing: '0.05em' }}>CASH</div>
                   <div style={{ fontSize: 16, fontWeight: 800, color: '#f59e0b' }}>
                     {Number(player.Cash).toLocaleString('id-ID')}
                   </div>
                 </div>
                 <div style={{ textAlign: 'center' }}>
-                  <div style={{ fontSize: 10, color: '#94a3b8', fontWeight: 700, letterSpacing: '0.05em' }}>TR</div>
+                  <div style={{ fontSize: 10, color: '#6a7494', fontWeight: 700, letterSpacing: '0.05em' }}>TR</div>
                   <div style={{ fontSize: 16, fontWeight: 800, color: '#3b82f6' }}>
                     {Number(player.GameMoney).toLocaleString('id-ID')}
                   </div>
                 </div>
                 <div style={{ textAlign: 'center' }}>
-                  <div style={{ fontSize: 10, color: '#94a3b8', fontWeight: 700, letterSpacing: '0.05em' }}>MAU</div>
+                  <div style={{ fontSize: 10, color: '#6a7494', fontWeight: 700, letterSpacing: '0.05em' }}>MAU</div>
                   <div style={{ fontSize: 16, fontWeight: 800, color: '#7c3aed' }}>
                     {Number(player.Mau).toLocaleString('id-ID')}
                   </div>
                 </div>
                 <div style={{ textAlign: 'center' }}>
-                  <div style={{ fontSize: 10, color: '#94a3b8', fontWeight: 700, letterSpacing: '0.05em' }}>EXP</div>
+                  <div style={{ fontSize: 10, color: '#6a7494', fontWeight: 700, letterSpacing: '0.05em' }}>EXP</div>
                   <div style={{ fontSize: 16, fontWeight: 800, color: '#10b981' }}>
                     {Number(player.Exp).toLocaleString('id-ID')}
                   </div>
                 </div>
                 {player.fdLoginCount !== undefined && (
                   <div style={{ textAlign: 'center' }}>
-                    <div style={{ fontSize: 10, color: '#94a3b8', fontWeight: 700, letterSpacing: '0.05em' }}>LOGIN</div>
-                    <div style={{ fontSize: 16, fontWeight: 800, color: '#64748b' }}>
+                    <div style={{ fontSize: 10, color: '#6a7494', fontWeight: 700, letterSpacing: '0.05em' }}>LOGIN</div>
+                    <div style={{ fontSize: 16, fontWeight: 800, color: '#6a7494' }}>
                       {player.fdLoginCount?.toLocaleString('id-ID')}x
                     </div>
                   </div>
@@ -559,8 +612,8 @@ export function GmPlayerSection({ adminUser, showToast }: {
                 {/* ── Baris 1: Currency (Cash / TR / MAU) ── */}
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 12 }}>
                   {/* Cash */}
-                  <div style={{ background: '#fefce8', border: '1px solid #fde68a', borderRadius: 10, padding: '14px 16px' }}>
-                    <div style={{ fontWeight: 700, marginBottom: 10, fontSize: 13, color: '#92400e' }}>💰 Cash</div>
+                  <div style={{ background: 'rgba(245,158,11,0.1)', border: '1px solid rgba(245,158,11,0.3)', borderRadius: 10, padding: '14px 16px' }}>
+                    <div style={{ fontWeight: 700, marginBottom: 10, fontSize: 13, color: '#f59e0b' }}>💰 Cash</div>
                     <input style={S.input} type="number" min="1" placeholder="Jumlah"
                       value={cashAmt} onChange={e => setCashAmt(e.target.value)} />
                     <button
@@ -572,8 +625,8 @@ export function GmPlayerSection({ adminUser, showToast }: {
                   </div>
 
                   {/* TR */}
-                  <div style={{ background: '#eff6ff', border: '1px solid #bfdbfe', borderRadius: 10, padding: '14px 16px' }}>
-                    <div style={{ fontWeight: 700, marginBottom: 10, fontSize: 13, color: '#1e40af' }}>⚔️ TR</div>
+                  <div style={{ background: 'rgba(59,130,246,0.1)', border: '1px solid rgba(59,130,246,0.3)', borderRadius: 10, padding: '14px 16px' }}>
+                    <div style={{ fontWeight: 700, marginBottom: 10, fontSize: 13, color: '#60a5fa' }}>⚔️ TR</div>
                     <input style={S.input} type="number" min="1" placeholder="Jumlah"
                       value={trAmt} onChange={e => setTrAmt(e.target.value)} />
                     <button
@@ -585,8 +638,8 @@ export function GmPlayerSection({ adminUser, showToast }: {
                   </div>
 
                   {/* MAU */}
-                  <div style={{ background: '#f5f3ff', border: '1px solid #ddd6fe', borderRadius: 10, padding: '14px 16px' }}>
-                    <div style={{ fontWeight: 700, marginBottom: 10, fontSize: 13, color: '#5b21b6' }}>✨ MAU</div>
+                  <div style={{ background: 'rgba(124,58,237,0.1)', border: '1px solid rgba(124,58,237,0.3)', borderRadius: 10, padding: '14px 16px' }}>
+                    <div style={{ fontWeight: 700, marginBottom: 10, fontSize: 13, color: '#a78bfa' }}>✨ MAU</div>
                     <input style={S.input} type="number" min="1" placeholder="Jumlah"
                       value={mauAmt} onChange={e => setMauAmt(e.target.value)} />
                     <button
@@ -600,8 +653,8 @@ export function GmPlayerSection({ adminUser, showToast }: {
 
                 {/* ── Baris 2: EXP Player (Owner only) ── */}
                 {isOwner && (
-                  <div style={{ background: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: 10, padding: '14px 16px' }}>
-                    <div style={{ fontWeight: 700, marginBottom: 10, fontSize: 13, color: '#065f46' }}>🌟 EXP Player <span style={{ fontSize: 11, fontWeight: 400, color: '#6b7280' }}>(Owner only — langsung diterapkan)</span></div>
+                  <div style={{ background: 'rgba(16,185,129,0.1)', border: '1px solid rgba(16,185,129,0.3)', borderRadius: 10, padding: '14px 16px' }}>
+                    <div style={{ fontWeight: 700, marginBottom: 10, fontSize: 13, color: '#34d399' }}>🌟 EXP Player <span style={{ fontSize: 11, fontWeight: 400, color: '#6a7494' }}>(Owner only — langsung diterapkan)</span></div>
                     <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
                       <input style={{ ...S.input, flex: 1 }} type="number" min="1" placeholder="Jumlah EXP"
                         value={expAmt} onChange={e => setExpAmt(e.target.value)} />
@@ -616,8 +669,8 @@ export function GmPlayerSection({ adminUser, showToast }: {
                 )}
 
                 {/* ── Baris 3: Item ── */}
-                <div style={{ background: '#fff7ed', border: '1px solid #fed7aa', borderRadius: 10, padding: '14px 16px' }}>
-                  <div style={{ fontWeight: 700, marginBottom: 10, fontSize: 13, color: '#9a3412' }}>🎁 Kirim Item</div>
+                <div style={{ background: 'rgba(249,115,22,0.1)', border: '1px solid rgba(249,115,22,0.3)', borderRadius: 10, padding: '14px 16px' }}>
+                  <div style={{ fontWeight: 700, marginBottom: 10, fontSize: 13, color: '#fb923c' }}>🎁 Kirim Item</div>
                   <div style={{ display: 'flex', gap: 6, marginBottom: 8 }}>
                     <input style={{ ...S.input, flex: 1 }} placeholder="Cari nama atau #kode item"
                       value={itemQ} onChange={e => setItemQ(e.target.value)}
@@ -626,35 +679,36 @@ export function GmPlayerSection({ adminUser, showToast }: {
                       onClick={searchItems}>🔍 Cari</button>
                   </div>
                   {itemResults.length > 0 && (
-                    <div style={{ maxHeight: 140, overflowY: 'auto', border: '1px solid #fed7aa', borderRadius: 6, marginBottom: 8 }}>
+                    <div style={{ maxHeight: 140, overflowY: 'auto', border: '1px solid rgba(249,115,22,0.3)', borderRadius: 6, marginBottom: 8 }}>
                       {itemResults.map(item => (
                         <div key={item.fdItemNum}
                           onClick={() => { setSelItem(item); setItemResults([]); setItemQ(item.fdItemName); }}
                           style={{ padding: '7px 12px', cursor: 'pointer', fontSize: 12,
-                            background: selItem?.fdItemNum === item.fdItemNum ? '#ffedd5' : '#fff',
-                            borderBottom: '1px solid #fff7ed',
+                            background: selItem?.fdItemNum === item.fdItemNum ? 'rgba(249,115,22,0.2)' : '#070816',
+                            borderBottom: '1px solid rgba(249,115,22,0.1)', color: '#c8d0ff',
                           }}
                         >
-                          <span style={{ fontFamily: 'monospace', color: '#94a3b8', marginRight: 6 }}>#{item.fdItemNum}</span>
+                          <span style={{ fontFamily: 'monospace', color: '#6a7494', marginRight: 6 }}>#{item.fdItemNum}</span>
                           {item.fdItemName}
                         </div>
                       ))}
                     </div>
                   )}
                   {selItem && (
-                    <div style={{ marginBottom: 8, padding: '6px 12px', background: '#ffedd5', borderRadius: 6, fontSize: 12, display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <div style={{ marginBottom: 8, padding: '6px 12px', background: 'rgba(249,115,22,0.15)', borderRadius: 6, fontSize: 12, display: 'flex', alignItems: 'center', gap: 8, color: '#c8d0ff' }}>
                       <span style={{ color: '#10b981', fontWeight: 700 }}>✓</span>
                       <span><b>#{selItem.fdItemNum}</b> {selItem.fdItemName}</span>
                       <button type="button" onClick={() => { setSelItem(null); setItemQ(''); }}
-                        style={{ marginLeft: 'auto', background: 'none', border: 'none', cursor: 'pointer', color: '#94a3b8', fontSize: 16, lineHeight: 1 }}>×</button>
+                        style={{ marginLeft: 'auto', background: 'none', border: 'none', cursor: 'pointer', color: '#6a7494', fontSize: 16, lineHeight: 1 }}>×</button>
                     </div>
                   )}
                   <div style={{ display: 'flex', gap: 8, marginBottom: 8 }}>
                     {(['Giftbox', 'Warehouse'] as const).map(d => (
                       <button key={d} onClick={() => setDelivery(d)}
                         style={{ ...S.btn, flex: 1, justifyContent: 'center', fontSize: 12,
-                          background: delivery === d ? '#f97316' : '#f1f5f9',
-                          color: delivery === d ? '#fff' : '#374151' }}
+                          background: delivery === d ? '#f97316' : '#10102a',
+                          color: delivery === d ? '#fff' : '#c8d0ff',
+                          border: delivery === d ? 'none' : '1px solid rgba(0,229,255,0.14)' }}
                       >{d}</button>
                     ))}
                   </div>
@@ -684,8 +738,8 @@ export function GmPlayerSection({ adminUser, showToast }: {
 
                 {/* Extend Exp modal */}
                 {extendTarget && (
-                  <div style={{ background: '#f0f9ff', border: '1px solid #bae6fd', borderRadius: 10, padding: '14px 18px', marginBottom: 14 }}>
-                    <div style={{ fontWeight: 700, fontSize: 13, marginBottom: 8 }}>
+                  <div style={{ background: 'rgba(14,165,233,0.1)', border: '1px solid rgba(14,165,233,0.3)', borderRadius: 10, padding: '14px 18px', marginBottom: 14 }}>
+                    <div style={{ fontWeight: 700, fontSize: 13, marginBottom: 8, color: '#c8d0ff' }}>
                       Tambah Exp — {extendTarget.name}
                     </div>
                     <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
@@ -695,12 +749,12 @@ export function GmPlayerSection({ adminUser, showToast }: {
                         onClick={doExtendExp} disabled={loading || !extendExp}>
                         {isOwner ? 'Tambah' : 'Request'}
                       </button>
-                      <button style={{ ...S.btn, background: '#f1f5f9', color: '#374151' }}
+                      <button style={{ ...S.btn, background: '#10102a', color: '#c8d0ff', border: '1px solid rgba(0,229,255,0.14)' }}
                         onClick={() => { setExtendTarget(null); setExtendExp(''); }}>
                         Batal
                       </button>
                     </div>
-                    <div style={{ fontSize: 11, color: '#64748b', marginTop: 6 }}>
+                    <div style={{ fontSize: 11, color: '#6a7494', marginTop: 6 }}>
                       Exp akan ditambah dan masa berlaku item diset permanen (2099).
                     </div>
                   </div>
@@ -716,10 +770,10 @@ export function GmPlayerSection({ adminUser, showToast }: {
                     </thead>
                     <tbody>
                       {invLoading && (
-                        <tr><td colSpan={6} style={{ textAlign: 'center', color: '#94a3b8', padding: 24 }}>Memuat…</td></tr>
+                        <tr><td colSpan={6} style={{ textAlign: 'center', color: '#6a7494', padding: 24 }}>Memuat…</td></tr>
                       )}
                       {!invLoading && inventory.length === 0 && (
-                        <tr><td colSpan={6} style={{ textAlign: 'center', color: '#94a3b8', padding: 24 }}>
+                        <tr><td colSpan={6} style={{ textAlign: 'center', color: '#6a7494', padding: 24 }}>
                           Inventory kosong.
                         </td></tr>
                       )}
@@ -727,13 +781,13 @@ export function GmPlayerSection({ adminUser, showToast }: {
                         const expired = item.fdExpireDateTime && new Date(item.fdExpireDateTime) < new Date();
                         return (
                           <tr key={item.fdNum}>
-                            <td style={{ fontFamily: 'monospace', fontSize: 11, color: '#94a3b8' }}>{item.fdNum}</td>
+                            <td style={{ fontFamily: 'monospace', fontSize: 11, color: '#6a7494' }}>{item.fdNum}</td>
                             <td>
                               <div style={{ fontWeight: 600, fontSize: 13 }}>{item.ItemName}</div>
-                              <div style={{ fontSize: 11, color: '#94a3b8' }}>#{item.fdItemDescNum}</div>
+                              <div style={{ fontSize: 11, color: '#6a7494' }}>#{item.fdItemDescNum}</div>
                             </td>
                             <td style={{ fontSize: 12 }}>{item.fdExp.toLocaleString('id-ID')}</td>
-                            <td style={{ fontSize: 12, color: expired ? '#ef4444' : '#64748b' }}>
+                            <td style={{ fontSize: 12, color: expired ? '#ef4444' : '#6a7494' }}>
                               {item.fdExpireDateTime
                                 ? new Date(item.fdExpireDateTime).toLocaleDateString('id-ID')
                                 : '∞ Permanen'}
@@ -763,7 +817,7 @@ export function GmPlayerSection({ adminUser, showToast }: {
                   </table>
                 </div>
                 {!isOwner && (
-                  <div style={{ fontSize: 12, color: '#94a3b8', marginTop: 8 }}>
+                  <div style={{ fontSize: 12, color: '#6a7494', marginTop: 8 }}>
                     GM: hapus dan extend exp akan membuat request ke Owner.
                   </div>
                 )}
@@ -774,8 +828,8 @@ export function GmPlayerSection({ adminUser, showToast }: {
             {playerTab === 'manage' && isOwner && (
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 16 }}>
                 {/* Ban / Unban */}
-                <div style={{ background: '#fff5f5', border: '1px solid #fecaca', borderRadius: 10, padding: '16px 18px' }}>
-                  <div style={{ fontWeight: 700, marginBottom: 12, fontSize: 13.5 }}>
+                <div style={{ background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.3)', borderRadius: 10, padding: '16px 18px' }}>
+                  <div style={{ fontWeight: 700, marginBottom: 12, fontSize: 13.5, color: '#c8d0ff' }}>
                     {player.IsBanned ? '🔓 Unban Player' : '🔨 Ban Player'}
                   </div>
                   <div style={S.field}>
@@ -792,8 +846,8 @@ export function GmPlayerSection({ adminUser, showToast }: {
                 </div>
 
                 {/* Change Role */}
-                <div style={{ background: '#faf5ff', border: '1px solid #e9d5ff', borderRadius: 10, padding: '16px 18px' }}>
-                  <div style={{ fontWeight: 700, marginBottom: 12, fontSize: 13.5 }}>🏷️ Ubah Role</div>
+                <div style={{ background: 'rgba(124,58,237,0.1)', border: '1px solid rgba(124,58,237,0.3)', borderRadius: 10, padding: '16px 18px' }}>
+                  <div style={{ fontWeight: 700, marginBottom: 12, fontSize: 13.5, color: '#c8d0ff' }}>🏷️ Ubah Role</div>
                   <div style={S.field}>
                     <label style={S.label}>Role Baru</label>
                     <select style={{ ...S.input, cursor: 'pointer' }} value={newRole} onChange={e => setNewRole(e.target.value)}>
@@ -810,8 +864,8 @@ export function GmPlayerSection({ adminUser, showToast }: {
                 </div>
 
                 {/* Change Nickname */}
-                <div style={{ background: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: 10, padding: '16px 18px' }}>
-                  <div style={{ fontWeight: 700, marginBottom: 12, fontSize: 13.5 }}>✏️ Ubah Nickname</div>
+                <div style={{ background: 'rgba(16,185,129,0.1)', border: '1px solid rgba(16,185,129,0.3)', borderRadius: 10, padding: '16px 18px' }}>
+                  <div style={{ fontWeight: 700, marginBottom: 12, fontSize: 13.5, color: '#c8d0ff' }}>✏️ Ubah Nickname</div>
                   <div style={S.field}>
                     <label style={S.label}>Nickname Baru</label>
                     <input style={S.input} placeholder="Nickname baru"
@@ -824,8 +878,8 @@ export function GmPlayerSection({ adminUser, showToast }: {
                 </div>
 
                 {/* Change Password */}
-                <div style={{ background: '#fffbeb', border: '1px solid #fde68a', borderRadius: 10, padding: '16px 18px' }}>
-                  <div style={{ fontWeight: 700, marginBottom: 12, fontSize: 13.5 }}>🔑 Reset Password</div>
+                <div style={{ background: 'rgba(245,158,11,0.1)', border: '1px solid rgba(245,158,11,0.3)', borderRadius: 10, padding: '16px 18px' }}>
+                  <div style={{ fontWeight: 700, marginBottom: 12, fontSize: 13.5, color: '#c8d0ff' }}>🔑 Reset Password</div>
                   <div style={S.field}>
                     <label style={S.label}>Password Baru (min 6 karakter)</label>
                     <input style={S.input} type="password" placeholder="Password baru"
@@ -839,8 +893,8 @@ export function GmPlayerSection({ adminUser, showToast }: {
                 </div>
 
                 {/* Piero Account */}
-                <div style={{ background: '#f0f9ff', border: '1px solid #bae6fd', borderRadius: 10, padding: '16px 18px' }}>
-                  <div style={{ fontWeight: 700, marginBottom: 12, fontSize: 13.5 }}>
+                <div style={{ background: 'rgba(14,165,233,0.1)', border: '1px solid rgba(14,165,233,0.3)', borderRadius: 10, padding: '16px 18px' }}>
+                  <div style={{ fontWeight: 700, marginBottom: 12, fontSize: 13.5, color: '#c8d0ff' }}>
                     ⭐ Piero Account
                     {player.Attribute === 1 && (
                       <span style={{ marginLeft: 8, padding: '2px 8px', borderRadius: 20, fontSize: 11,
@@ -849,7 +903,7 @@ export function GmPlayerSection({ adminUser, showToast }: {
                   </div>
                   {player.Attribute === 1 ? (
                     <button
-                      style={{ ...S.btn, background: '#94a3b8', color: '#fff', marginBottom: 12, width: '100%', justifyContent: 'center' }}
+                      style={{ ...S.btn, background: '#6a7494', color: '#fff', marginBottom: 12, width: '100%', justifyContent: 'center' }}
                       onClick={() => { if (confirm('Nonaktifkan Piero untuk player ini?')) doSetPiero(false); }}
                       disabled={loading}
                     >
@@ -894,7 +948,7 @@ export function GmPlayerSection({ adminUser, showToast }: {
                             title={c}
                             onClick={() => setPieroColorVal(c)}
                             style={{
-                              width: 22, height: 22, borderRadius: '50%', border: pieroColor === c ? '2px solid #0ea5e9' : '2px solid transparent',
+                              width: 22, height: 22, borderRadius: '50%', border: pieroColor === c ? '2px solid #00e5ff' : '2px solid transparent',
                               background: PIERO_SWATCH[c], cursor: 'pointer', padding: 0, outline: 'none',
                             }}
                           />
@@ -903,6 +957,65 @@ export function GmPlayerSection({ adminUser, showToast }: {
                     </div>
                   )}
                 </div>
+
+                {/* Player Web Account (Email & Security Question) */}
+                <div style={{ background: 'rgba(99,102,241,0.1)', border: '1px solid rgba(99,102,241,0.3)', borderRadius: 10, padding: '16px 18px', gridColumn: 'span 2' }}>
+                  <div style={{ fontWeight: 700, marginBottom: 4, fontSize: 13.5, color: '#c8d0ff' }}>
+                    🌐 Akun Web Player
+                    {playerWebAcct && (
+                      <span style={{ marginLeft: 8, padding: '2px 8px', borderRadius: 20, fontSize: 10, fontWeight: 700,
+                        background: playerWebAcct.web_account_exists ? 'rgba(16,185,129,0.3)' : 'rgba(100,116,139,0.3)',
+                        color: playerWebAcct.web_account_exists ? '#34d399' : '#6a7494' }}>
+                        {playerWebAcct.web_account_exists ? 'Terdaftar' : 'Belum ada'}
+                      </span>
+                    )}
+                  </div>
+                  <div style={{ fontSize: 11, color: '#6a7494', marginBottom: 14 }}>
+                    Update email dan pertanyaan keamanan akun web player (tabel tales_hero_web_users).
+                  </div>
+                  {webAcctLoading ? (
+                    <div style={{ color: '#6a7494', fontSize: 13, padding: '10px 0' }}>Memuat info akun web…</div>
+                  ) : (
+                    <>
+                      {playerWebAcct && playerWebAcct.email && (
+                        <div style={{ fontSize: 12, color: '#6a7494', marginBottom: 10, padding: '6px 10px', background: 'rgba(0,0,0,0.2)', borderRadius: 6 }}>
+                          📧 Email saat ini: <span style={{ color: '#c8d0ff' }}>{playerWebAcct.email}</span>
+                          {playerWebAcct.sec_question && (
+                            <><br/>🔐 Pertanyaan: <span style={{ color: '#c8d0ff' }}>{playerWebAcct.sec_question}</span></>
+                          )}
+                        </div>
+                      )}
+                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px 14px' }}>
+                        <div style={S.field}>
+                          <label style={S.label}>Email Baru</label>
+                          <input style={S.input} type="email" placeholder="email@player.com"
+                            value={webAcctEmail} onChange={e => setWebAcctEmail(e.target.value)} />
+                        </div>
+                        <div style={S.field}>
+                          <label style={S.label}>Pertanyaan Keamanan</label>
+                          <select style={{ ...S.input, cursor: 'pointer' }}
+                            value={webAcctSecQ} onChange={e => setWebAcctSecQ(e.target.value)}>
+                            <option value="">-- Pilih Pertanyaan --</option>
+                            {SECURITY_QUESTIONS.map(q => <option key={q} value={q}>{q}</option>)}
+                          </select>
+                        </div>
+                        <div style={{ ...S.field, gridColumn: '1/-1' }}>
+                          <label style={S.label}>Jawaban Keamanan Baru</label>
+                          <input style={S.input} type="text" placeholder="Jawaban baru"
+                            value={webAcctSecA} onChange={e => setWebAcctSecA(e.target.value)} />
+                        </div>
+                      </div>
+                      <button
+                        style={{ ...S.btn, background: '#6366f1', color: '#fff', marginTop: 12, fontSize: 12 }}
+                        onClick={doUpdateWebAccount}
+                        disabled={loading || !webAcctEmail || !webAcctSecQ || !webAcctSecA}
+                      >
+                        ✓ Simpan Akun Web
+                      </button>
+                    </>
+                  )}
+                </div>
+
               </div>
             )}
           </div>
@@ -989,14 +1102,14 @@ export function GmRequestsSection({ adminUser, showToast }: {
 
         {/* Reject modal */}
         {rejectId && (
-          <div style={{ background: '#fff5f5', border: '1px solid #fecaca', borderRadius: 12, padding: '18px 22px', marginBottom: 20 }}>
-            <div style={{ fontWeight: 700, marginBottom: 10 }}>Tolak Request #{rejectId}</div>
+          <div style={{ background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.3)', borderRadius: 12, padding: '18px 22px', marginBottom: 20 }}>
+            <div style={{ fontWeight: 700, marginBottom: 10, color: '#c8d0ff' }}>Tolak Request #{rejectId}</div>
             <div style={{ display: 'flex', gap: 10 }}>
               <input style={{ ...S.input, flex: 1 }} placeholder="Alasan penolakan (opsional)"
                 value={rejectNote} onChange={e => setRejectNote(e.target.value)} />
               <button style={{ ...S.btn, background: '#ef4444', color: '#fff' }}
                 onClick={doReject} disabled={acting}>Tolak</button>
-              <button style={{ ...S.btn, background: '#f1f5f9', color: '#374151' }}
+              <button style={{ ...S.btn, background: '#10102a', color: '#c8d0ff', border: '1px solid rgba(0,229,255,0.14)' }}
                 onClick={() => { setRejectId(null); setRejectNote(''); }}>Batal</button>
             </div>
           </div>
@@ -1004,13 +1117,13 @@ export function GmRequestsSection({ adminUser, showToast }: {
 
         {/* Pending */}
         <div style={{ ...S.card, padding: 0, overflow: 'hidden', marginBottom: 24 }}>
-          <div style={{ padding: '14px 20px', background: '#fff7ed', borderBottom: '1px solid #fed7aa', fontWeight: 700, fontSize: 13.5 }}>
+          <div style={{ padding: '14px 20px', background: 'rgba(249,115,22,0.1)', borderBottom: '1px solid rgba(249,115,22,0.3)', fontWeight: 700, fontSize: 13.5, color: '#fb923c' }}>
             ⏳ Pending ({pending.length})
           </div>
           {loading
-            ? <div style={{ padding: 24, textAlign: 'center', color: '#94a3b8' }}>Memuat…</div>
+            ? <div style={{ padding: 24, textAlign: 'center', color: '#6a7494' }}>Memuat…</div>
             : pending.length === 0
-            ? <div style={{ padding: 24, textAlign: 'center', color: '#94a3b8' }}>Tidak ada request pending.</div>
+            ? <div style={{ padding: 24, textAlign: 'center', color: '#6a7494' }}>Tidak ada request pending.</div>
             : (
               <div className="admin-table-wrapper">
                 <table className="admin-table">
@@ -1022,14 +1135,14 @@ export function GmRequestsSection({ adminUser, showToast }: {
                     {pending.map(r => (
                       <tr key={r.fdRequestId}>
                         <td><span style={{ fontWeight: 700, fontSize: 12 }}>{typeLabel[r.fdType] ?? r.fdType}</span></td>
-                        <td style={{ fontSize: 12 }}>{r.fdRequestedByNickname}<br/><span style={{ color: '#94a3b8' }}>{r.fdRequestedByUserId}</span></td>
+                        <td style={{ fontSize: 12 }}>{r.fdRequestedByNickname}<br/><span style={{ color: '#6a7494' }}>{r.fdRequestedByUserId}</span></td>
                         <td style={{ fontSize: 12 }}>{r.fdTargetNickname}</td>
                         <td style={{ fontSize: 12 }}>
                           {r.fdAmount > 0 && <div>{Number(r.fdAmount).toLocaleString('id-ID')}</div>}
                           {r.fdItemName && <div>🎁 {r.fdItemName} {r.fdDeliveryTarget && `(${r.fdDeliveryTarget})`}</div>}
-                          {r.fdNote && <div style={{ color: '#94a3b8', fontSize: 11 }}>{r.fdNote.slice(0, 80)}</div>}
+                          {r.fdNote && <div style={{ color: '#6a7494', fontSize: 11 }}>{r.fdNote.slice(0, 80)}</div>}
                         </td>
-                        <td style={{ fontSize: 11, color: '#94a3b8', whiteSpace: 'nowrap' }}>
+                        <td style={{ fontSize: 11, color: '#6a7494', whiteSpace: 'nowrap' }}>
                           {new Date(r.fdRequestedAt).toLocaleString('id-ID')}
                         </td>
                         {isOwner && (
@@ -1054,7 +1167,7 @@ export function GmRequestsSection({ adminUser, showToast }: {
         {/* History */}
         {history.length > 0 && (
           <div style={{ ...S.card, padding: 0, overflow: 'hidden' }}>
-            <div style={{ padding: '14px 20px', borderBottom: '1px solid #e2e8f0', fontWeight: 700, fontSize: 13.5 }}>
+            <div style={{ padding: '14px 20px', borderBottom: '1px solid rgba(0,229,255,0.14)', fontWeight: 700, fontSize: 13.5, color: '#c8d0ff' }}>
               📋 Riwayat ({history.length})
             </div>
             <div className="admin-table-wrapper">
@@ -1078,7 +1191,7 @@ export function GmRequestsSection({ adminUser, showToast }: {
                           {r.fdStatus}
                         </span>
                       </td>
-                      <td style={{ fontSize: 11, color: '#94a3b8', whiteSpace: 'nowrap' }}>
+                      <td style={{ fontSize: 11, color: '#6a7494', whiteSpace: 'nowrap' }}>
                         {new Date(r.fdRequestedAt).toLocaleString('id-ID')}
                       </td>
                     </tr>
@@ -1110,22 +1223,28 @@ export function GmLogsSection({ adminUser }: { adminUser: AdminUser | null }) {
   useEffect(() => { load(); }, [load]);
 
   const actionColor: Record<string, string> = {
-    SEND_CASH:         '#f59e0b',
-    SEND_TR:           '#3b82f6',
-    SEND_MAU:          '#7c3aed',
-    SEND_EXP:          '#10b981',
-    SEND_ITEM:         '#10b981',
-    BAN_PLAYER:        '#ef4444',
-    UNBAN_PLAYER:      '#10b981',
-    UPDATE_ROLE:       '#7c3aed',
-    CHANGE_NICKNAME:   '#6366f1',
-    CHANGE_PASSWORD:   '#f97316',
-    DELETE_INVENTORY:  '#dc2626',
-    EXTEND_INVENTORY_EXP: '#3b82f6',
-    APPROVE_REQUEST:   '#10b981',
-    REJECT_REQUEST:    '#ef4444',
-    SET_PIERO_ACCOUNT: '#0ea5e9',
-    SET_PIERO_COLOR:   '#0284c7',
+    SEND_CASH:                       '#f59e0b',
+    SEND_TR:                         '#3b82f6',
+    SEND_MAU:                        '#7c3aed',
+    SEND_EXP:                        '#10b981',
+    SEND_ITEM:                       '#10b981',
+    BAN_PLAYER:                      '#ef4444',
+    UNBAN_PLAYER:                    '#10b981',
+    UPDATE_ROLE:                     '#7c3aed',
+    CHANGE_NICKNAME:                 '#6366f1',
+    CHANGE_PASSWORD:                 '#f97316',
+    DELETE_INVENTORY:                '#dc2626',
+    EXTEND_INVENTORY_EXP:            '#3b82f6',
+    APPROVE_REQUEST:                 '#10b981',
+    REJECT_REQUEST:                  '#ef4444',
+    SET_PIERO_ACCOUNT:               '#0ea5e9',
+    SET_PIERO_COLOR:                 '#0284c7',
+    UPDATE_WEB_ACCOUNT:              '#6366f1',
+    OWNER_UPDATE_PLAYER_WEB_ACCOUNT: '#6366f1',
+    OWNER_CHANGE_PLAYER_PASSWORD:    '#f97316',
+    OWNER_CHANGE_PLAYER_NICKNAME:    '#6366f1',
+    OWNER_SET_PIERO_ACCOUNT:         '#0ea5e9',
+    OWNER_SET_PIERO_COLOR:           '#0284c7',
   };
 
   return (
@@ -1140,9 +1259,9 @@ export function GmLogsSection({ adminUser }: { adminUser: AdminUser | null }) {
         {error && <div className="admin-error" style={{ marginBottom: 16 }}>{error}</div>}
         <div style={{ ...S.card, padding: 0, overflow: 'hidden' }}>
           {loading
-            ? <div style={{ padding: 32, textAlign: 'center', color: '#94a3b8' }}>Memuat log…</div>
+            ? <div style={{ padding: 32, textAlign: 'center', color: '#6a7494' }}>Memuat log…</div>
             : logs.length === 0
-            ? <div style={{ padding: 32, textAlign: 'center', color: '#94a3b8' }}>Belum ada log aktivitas.</div>
+            ? <div style={{ padding: 32, textAlign: 'center', color: '#6a7494' }}>Belum ada log aktivitas.</div>
             : (
               <div className="admin-table-wrapper">
                 <table className="admin-table">
@@ -1161,13 +1280,13 @@ export function GmLogsSection({ adminUser }: { adminUser: AdminUser | null }) {
                         </td>
                         <td style={{ fontSize: 12 }}>
                           {log.fdActorNickname}
-                          <div style={{ fontSize: 11, color: '#94a3b8' }}>{log.fdActorUserId}</div>
+                          <div style={{ fontSize: 11, color: '#6a7494' }}>{log.fdActorUserId}</div>
                         </td>
                         <td style={{ fontSize: 12, fontFamily: 'monospace' }}>{log.fdTargetInfo}</td>
-                        <td style={{ fontSize: 12, color: '#64748b', maxWidth: 220, wordBreak: 'break-word' }}>
+                        <td style={{ fontSize: 12, color: '#6a7494', maxWidth: 220, wordBreak: 'break-word' }}>
                           {log.fdDetail}
                         </td>
-                        <td style={{ fontSize: 11, color: '#94a3b8', whiteSpace: 'nowrap' }}>
+                        <td style={{ fontSize: 11, color: '#6a7494', whiteSpace: 'nowrap' }}>
                           {new Date(log.fdLoggedAt).toLocaleString('id-ID')}
                         </td>
                       </tr>

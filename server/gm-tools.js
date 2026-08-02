@@ -781,6 +781,191 @@ export async function setPieroColor(req, res, targetUserNum) {
   }
 }
 
+// ── Security Questions ────────────────────────────────────────────────────────
+
+export const SECURITY_QUESTIONS = [
+  'Nama hewan kesayangan kamu?',
+  'Warna apa yang kamu suka?',
+  'Apa nama panggilan kamu?',
+];
+
+// ── Own Account ───────────────────────────────────────────────────────────────
+
+async function getWebAccount(userId) {
+  try {
+    const rows = await query(
+      'SELECT id, username, email, sec_question, sec_answer, created_at FROM tales_hero_web_users WHERE username = ? LIMIT 1',
+      [userId],
+    );
+    return rows[0] ?? null;
+  } catch {
+    return null; // table may not exist yet
+  }
+}
+
+export async function getOwnAccount(req, res) {
+  const admin = getAdminUser(req);
+  if (!admin) return json(res, 401, { message: 'Akses ditolak.' });
+  try {
+    const webAcct = await getWebAccount(admin.username);
+    return json(res, 200, {
+      user_id:             admin.username,
+      user_num:            admin.userNum ?? 0,
+      nickname:            admin.nickname,
+      email:               webAcct?.email ?? '',
+      sec_question:        webAcct?.sec_question ?? '',
+      sec_answer:          webAcct?.sec_answer ?? '',
+      web_account_exists:  webAcct !== null,
+    });
+  } catch (err) {
+    console.error('[gm/getOwnAccount]', err.message);
+    return json(res, 500, { message: 'Gagal memuat info akun.' });
+  }
+}
+
+export async function changeOwnNickname(req, res) {
+  const admin = getAdminUser(req);
+  if (!admin) return json(res, 401, { message: 'Akses ditolak.' });
+  const nickname = String(req.body?.nickname ?? '').trim();
+  if (!nickname) return json(res, 400, { message: 'Nickname baru wajib diisi.' });
+  if (nickname.length < 3) return json(res, 400, { message: 'Nickname minimal 3 karakter.' });
+  try {
+    await query('UPDATE userinfo SET fdNickname = ? WHERE fdUserNum = ?', [nickname, admin.userNum]);
+    // Update session so the new nickname is reflected immediately
+    const session = req.session ?? {};
+    if (session.admin) session.admin.nickname = nickname;
+    await logAction(admin, 'CHANGE_NICKNAME', `UserNum:${admin.userNum}`, `Nickname -> ${nickname}`);
+    return json(res, 200, { message: `Nickname berhasil diubah menjadi "${nickname}".`, nickname });
+  } catch (err) {
+    console.error('[gm/changeOwnNickname]', err.message);
+    return json(res, 500, { message: 'Gagal mengubah nickname.' });
+  }
+}
+
+export async function changeOwnPassword(req, res) {
+  const admin = getAdminUser(req);
+  if (!admin) return json(res, 401, { message: 'Akses ditolak.' });
+  const newPassword  = String(req.body?.newPassword  ?? '').trim();
+  const confirmPassword = String(req.body?.confirmPassword ?? '').trim();
+  if (!newPassword || !confirmPassword) return json(res, 400, { message: 'Password baru dan konfirmasi wajib diisi.' });
+  if (newPassword !== confirmPassword)   return json(res, 400, { message: 'Konfirmasi password tidak sama.' });
+  if (newPassword.length < 8)  return json(res, 400, { message: 'Password minimal 8 karakter.' });
+  if (!/[A-Z]/.test(newPassword)) return json(res, 400, { message: 'Password harus mengandung huruf besar.' });
+  if (!/[a-z]/.test(newPassword)) return json(res, 400, { message: 'Password harus mengandung huruf kecil.' });
+  if (!/[0-9]/.test(newPassword)) return json(res, 400, { message: 'Password harus mengandung angka.' });
+  if (!/[^A-Za-z0-9]/.test(newPassword)) return json(res, 400, { message: 'Password harus mengandung simbol.' });
+  try {
+    const md5 = (await import('crypto')).createHash('md5').update(newPassword).digest('hex');
+    await query(
+      'UPDATE userinfofrompublisher SET fdPassword = ? WHERE CAST(fdUserID AS CHAR) = ?',
+      [md5, admin.username],
+    );
+    await logAction(admin, 'CHANGE_PASSWORD', `UserId:${admin.username}`, 'Password login diubah');
+    return json(res, 200, { message: 'Password berhasil diubah.' });
+  } catch (err) {
+    console.error('[gm/changeOwnPassword]', err.message);
+    return json(res, 500, { message: 'Gagal mengubah password.' });
+  }
+}
+
+export async function updateOwnProfile(req, res) {
+  const admin = getAdminUser(req);
+  if (!admin) return json(res, 401, { message: 'Akses ditolak.' });
+  const email       = String(req.body?.email       ?? '').trim();
+  const secQuestion = String(req.body?.sec_question ?? '').trim();
+  const secAnswer   = String(req.body?.sec_answer   ?? '').trim();
+  if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))
+    return json(res, 400, { message: 'Email tidak valid.' });
+  if (!secQuestion) return json(res, 400, { message: 'Pertanyaan keamanan wajib dipilih.' });
+  if (!SECURITY_QUESTIONS.includes(secQuestion))
+    return json(res, 400, { message: 'Pertanyaan keamanan tidak valid.' });
+  if (!secAnswer)   return json(res, 400, { message: 'Jawaban keamanan wajib diisi.' });
+  try {
+    const md5 = (await import('crypto')).createHash('md5').update(secAnswer).digest('hex');
+    const existing = await getWebAccount(admin.username);
+    if (existing) {
+      await query(
+        'UPDATE tales_hero_web_users SET email=?, sec_question=?, sec_answer_hash=?, sec_answer=? WHERE username=?',
+        [email, secQuestion, md5, secAnswer, admin.username],
+      );
+    } else {
+      await query(
+        'INSERT INTO tales_hero_web_users (username, email, sec_question, sec_answer_hash, sec_answer, created_at) VALUES (?, ?, ?, ?, ?, NOW())',
+        [admin.username, email, secQuestion, md5, secAnswer],
+      );
+    }
+    await logAction(admin, 'UPDATE_WEB_ACCOUNT', `UserId:${admin.username}`, 'Email dan security question diperbarui');
+    return json(res, 200, { message: 'Profil akun web berhasil diperbarui.' });
+  } catch (err) {
+    console.error('[gm/updateOwnProfile]', err.message);
+    return json(res, 500, { message: 'Gagal memperbarui profil. Pastikan tabel tales_hero_web_users sudah ada.' });
+  }
+}
+
+// ── Player Web Account ────────────────────────────────────────────────────────
+
+export async function getPlayerWebAccount(req, res, targetUserNum) {
+  const admin = getAdminUser(req);
+  if (!admin) return json(res, 401, { message: 'Akses ditolak.' });
+  if (!isOwner(admin)) return json(res, 403, { message: 'Hanya Owner yang bisa melihat akun web player.' });
+  try {
+    const targets = await query(`${PLAYER_SELECT} WHERE ui.fdUserNum = ? LIMIT 1`, [targetUserNum]);
+    if (!targets.length) return json(res, 404, { message: 'Player tidak ditemukan.' });
+    const userId  = String(targets[0].UserId ?? '');
+    const webAcct = await getWebAccount(userId);
+    return json(res, 200, {
+      user_id:            userId,
+      nickname:           targets[0].fdNickname,
+      email:              webAcct?.email ?? '',
+      sec_question:       webAcct?.sec_question ?? '',
+      sec_answer:         webAcct?.sec_answer ?? '',
+      web_account_exists: webAcct !== null,
+    });
+  } catch (err) {
+    console.error('[gm/getPlayerWebAccount]', err.message);
+    return json(res, 500, { message: 'Gagal memuat akun web player.' });
+  }
+}
+
+export async function updatePlayerWebAccount(req, res, targetUserNum) {
+  const admin = getAdminUser(req);
+  if (!admin) return json(res, 401, { message: 'Akses ditolak.' });
+  if (!isOwner(admin)) return json(res, 403, { message: 'Hanya Owner yang bisa mengubah akun web player.' });
+  const email       = String(req.body?.email       ?? '').trim();
+  const secQuestion = String(req.body?.sec_question ?? '').trim();
+  const secAnswer   = String(req.body?.sec_answer   ?? '').trim();
+  if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))
+    return json(res, 400, { message: 'Email player tidak valid.' });
+  if (!secQuestion) return json(res, 400, { message: 'Pertanyaan keamanan wajib dipilih.' });
+  if (!SECURITY_QUESTIONS.includes(secQuestion))
+    return json(res, 400, { message: 'Pertanyaan keamanan tidak valid.' });
+  if (!secAnswer)   return json(res, 400, { message: 'Jawaban keamanan wajib diisi.' });
+  try {
+    const targets = await query(`${PLAYER_SELECT} WHERE ui.fdUserNum = ? LIMIT 1`, [targetUserNum]);
+    if (!targets.length) return json(res, 404, { message: 'Player tidak ditemukan.' });
+    const userId  = String(targets[0].UserId ?? '');
+    const md5     = (await import('crypto')).createHash('md5').update(secAnswer).digest('hex');
+    const existing = await getWebAccount(userId);
+    if (existing) {
+      await query(
+        'UPDATE tales_hero_web_users SET email=?, sec_question=?, sec_answer_hash=?, sec_answer=? WHERE username=?',
+        [email, secQuestion, md5, secAnswer, userId],
+      );
+    } else {
+      await query(
+        'INSERT INTO tales_hero_web_users (username, email, sec_question, sec_answer_hash, sec_answer, created_at) VALUES (?, ?, ?, ?, ?, NOW())',
+        [userId, email, secQuestion, md5, secAnswer],
+      );
+    }
+    await logAction(admin, 'OWNER_UPDATE_PLAYER_WEB_ACCOUNT', `UserNum:${targetUserNum}`,
+      `Email/security question player diperbarui untuk username ${userId}`);
+    return json(res, 200, { message: `Akun web ${targets[0].fdNickname} berhasil diperbarui.` });
+  } catch (err) {
+    console.error('[gm/updatePlayerWebAccount]', err.message);
+    return json(res, 500, { message: 'Gagal memperbarui akun web player. Pastikan tabel tales_hero_web_users sudah ada.' });
+  }
+}
+
 // ── Item search ───────────────────────────────────────────────────────────────
 
 export async function searchGmItems(req, res) {
@@ -811,24 +996,35 @@ export async function gmToolsRouter(req, res, next) {
   const [resource, id, sub, subId, subAction] = segments;
   const m = req.method;
 
-  if (resource === 'stats'   && m === 'GET') return getStats(req, res);
-  if (resource === 'items'   && m === 'GET') return searchGmItems(req, res);
-  if (resource === 'logs'    && m === 'GET') return getLogs(req, res);
+  if (resource === 'stats'              && m === 'GET')   return getStats(req, res);
+  if (resource === 'items'              && m === 'GET')   return searchGmItems(req, res);
+  if (resource === 'logs'               && m === 'GET')   return getLogs(req, res);
+  if (resource === 'security-questions' && m === 'GET')   return json(res, 200, SECURITY_QUESTIONS);
+
+  // ── Own account ───────────────────────────────────────────────────────────
+  if (resource === 'account') {
+    if (!id && m === 'GET')                         return getOwnAccount(req, res);
+    if (id === 'nickname' && m === 'PATCH')         return changeOwnNickname(req, res);
+    if (id === 'password' && m === 'PATCH')         return changeOwnPassword(req, res);
+    if (id === 'profile'  && m === 'PATCH')         return updateOwnProfile(req, res);
+  }
 
   if (resource === 'players') {
     if (!id  && m === 'GET') return searchPlayers(req, res);
     if ( id && !sub && m === 'GET') return getPlayerDetail(req, res, Number(id));
-    if ( id && sub === 'cash'      && m === 'POST')   return sendCash(req, res, Number(id));
-    if ( id && sub === 'tr'        && m === 'POST')   return sendTR(req, res, Number(id));
-    if ( id && sub === 'mau'       && m === 'POST')   return sendMau(req, res, Number(id));
-    if ( id && sub === 'exp'       && m === 'POST')   return sendExp(req, res, Number(id));
-    if ( id && sub === 'item'      && m === 'POST')   return sendItem(req, res, Number(id));
+    if ( id && sub === 'cash'        && m === 'POST')   return sendCash(req, res, Number(id));
+    if ( id && sub === 'tr'          && m === 'POST')   return sendTR(req, res, Number(id));
+    if ( id && sub === 'mau'         && m === 'POST')   return sendMau(req, res, Number(id));
+    if ( id && sub === 'exp'         && m === 'POST')   return sendExp(req, res, Number(id));
+    if ( id && sub === 'item'        && m === 'POST')   return sendItem(req, res, Number(id));
     if ( id && sub === 'ban'         && m === 'PATCH')  return setBan(req, res, Number(id));
     if ( id && sub === 'role'        && m === 'PATCH')  return setRole(req, res, Number(id));
     if ( id && sub === 'nickname'    && m === 'PATCH')  return setNickname(req, res, Number(id));
     if ( id && sub === 'password'    && m === 'PATCH')  return setPassword(req, res, Number(id));
     if ( id && sub === 'piero'       && m === 'PATCH')  return setPieroAccount(req, res, Number(id));
     if ( id && sub === 'piero-color' && m === 'PATCH')  return setPieroColor(req, res, Number(id));
+    if ( id && sub === 'web-account' && m === 'GET')    return getPlayerWebAccount(req, res, Number(id));
+    if ( id && sub === 'web-account' && m === 'PATCH')  return updatePlayerWebAccount(req, res, Number(id));
     if ( id && sub === 'inventory' && !subId  && m === 'GET')    return getInventory(req, res, Number(id));
     if ( id && sub === 'inventory' &&  subId  && !subAction && m === 'DELETE')
       return deleteInventoryItem(req, res, Number(id), Number(subId));

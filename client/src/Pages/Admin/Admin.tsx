@@ -24,6 +24,7 @@ const IconLogout    = () => <svg width="15" height="15" fill="none" stroke="curr
 const IconPlus      = () => <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>;
 const IconRefresh   = () => <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 11-2.12-9.36L23 10"/></svg>;
 const IconRedeem    = () => <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 00-4 0v2"/><line x1="12" y1="12" x2="12" y2="16"/><line x1="10" y1="14" x2="14" y2="14"/></svg>;
+const IconAccount   = () => <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>;
 
 // ── empty form ────────────────────────────────────────────────────────────────
 const emptyForm = (): NewsFormData => ({
@@ -798,9 +799,182 @@ function RedeemManager({ adminUser, showToast }: { adminUser: AdminUser | null; 
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
+// Account section — admin can change own nickname / password / email / sec-Q
+// ─────────────────────────────────────────────────────────────────────────────
+const SECURITY_QUESTIONS = [
+  'Nama hewan kesayangan kamu?',
+  'Warna apa yang kamu suka?',
+  'Apa nama panggilan kamu?',
+];
+
+function AccountSection({ adminUser, showToast }: {
+  adminUser: AdminUser | null;
+  showToast: (msg: string) => void;
+}) {
+  const [data, setData]       = useState<{ nickname: string; email: string; sec_question: string } | null>(null);
+  const [pageLoad, setPageLoad] = useState(true);
+
+  const [newNick,   setNewNick]   = useState('');
+  const [nickBusy,  setNickBusy]  = useState(false);
+  const [nickErr,   setNickErr]   = useState('');
+
+  const [newPw,     setNewPw]     = useState('');
+  const [confirmPw, setConfirmPw] = useState('');
+  const [pwBusy,    setPwBusy]    = useState(false);
+  const [pwErr,     setPwErr]     = useState('');
+
+  const [email,     setEmail]     = useState('');
+  const [secQ,      setSecQ]      = useState('');
+  const [secA,      setSecA]      = useState('');
+  const [profBusy,  setProfBusy]  = useState(false);
+  const [profErr,   setProfErr]   = useState('');
+
+  useEffect(() => {
+    fetch('/api/admin/gm/account', { credentials: 'include' })
+      .then(r => r.json())
+      .then(d => {
+        setData(d);
+        setNewNick(d.nickname ?? '');
+        setEmail(d.email ?? '');
+        setSecQ(d.sec_question ?? '');
+      })
+      .catch(() => setData(null))
+      .finally(() => setPageLoad(false));
+  }, []);
+
+  const api = async (
+    url: string, body: object,
+    setBusy: (v: boolean) => void,
+    setErr:  (v: string) => void,
+    onOk?: (b: any) => void,
+  ) => {
+    setBusy(true); setErr('');
+    try {
+      const r    = await fetch(url, { method: 'PATCH', credentials: 'include', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+      const json = await r.json();
+      if (!r.ok) throw new Error(json.message);
+      showToast(json.message ?? 'Berhasil.');
+      onOk?.(json);
+    } catch (e: any) { setErr(e.message); }
+    finally { setBusy(false); }
+  };
+
+  const changeNickname = () =>
+    api('/api/admin/gm/account/nickname', { nickname: newNick },
+      setNickBusy, setNickErr,
+      (b) => setData(d => d ? { ...d, nickname: b.nickname } : null));
+
+  const changePassword = () =>
+    api('/api/admin/gm/account/password', { newPassword: newPw, confirmPassword: confirmPw },
+      setPwBusy, setPwErr,
+      () => { setNewPw(''); setConfirmPw(''); });
+
+  const updateProfile = () =>
+    api('/api/admin/gm/account/profile', { email, sec_question: secQ, sec_answer: secA },
+      setProfBusy, setProfErr,
+      () => { setSecA(''); setData(d => d ? { ...d, email, sec_question: secQ } : null); });
+
+  return (
+    <div>
+      <div className="admin-topbar"><h1>Akun Saya</h1></div>
+      <div className="admin-content">
+        {pageLoad ? (
+          <div className="admin-loading">Memuat info akun…</div>
+        ) : (
+          <div style={{ maxWidth: 700, display: 'flex', flexDirection: 'column', gap: 20 }}>
+
+            {/* Info card */}
+            {data && (
+              <div style={{ background: '#0d0d20', border: '1px solid rgba(0,229,255,0.14)', borderRadius: 12, padding: '20px 24px' }}>
+                <div style={{ fontSize: 11, fontWeight: 700, color: '#6a7494', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 8 }}>Info Akun</div>
+                <div style={{ fontSize: 16, fontWeight: 800, color: '#c8d0ff' }}>
+                  {data.nickname}
+                  <span style={{ marginLeft: 8, fontSize: 12, padding: '2px 8px', borderRadius: 20, fontWeight: 700,
+                    background: ROLE_COLORS[adminUser?.role ?? ''] ?? '#64748b', color: '#fff', verticalAlign: 'middle' }}>
+                    {adminUser?.role}
+                  </span>
+                </div>
+                <div style={{ fontSize: 12, color: '#6a7494', marginTop: 4 }}>@{adminUser?.username}</div>
+                {data.email && <div style={{ fontSize: 12, color: '#6a7494', marginTop: 2 }}>📧 {data.email}</div>}
+                {data.sec_question && <div style={{ fontSize: 12, color: '#6a7494', marginTop: 2 }}>🔐 {data.sec_question}</div>}
+              </div>
+            )}
+
+            {/* Change Nickname */}
+            <div style={{ background: 'rgba(99,102,241,0.1)', border: '1px solid rgba(99,102,241,0.3)', borderRadius: 12, padding: '20px 24px' }}>
+              <div style={{ fontWeight: 700, marginBottom: 14, fontSize: 13.5, color: '#c8d0ff' }}>✏️ Ubah Nickname</div>
+              {nickErr && <div className="admin-error" style={{ marginBottom: 10 }}>{nickErr}</div>}
+              <div className="admin-form-field">
+                <label>Nickname Baru</label>
+                <input value={newNick} onChange={e => setNewNick(e.target.value)} placeholder="Nickname baru (min 3 karakter)" />
+              </div>
+              <button className="btn-save-publish" disabled={nickBusy || newNick.trim().length < 3} onClick={changeNickname} style={{ marginTop: 4 }}>
+                {nickBusy ? 'Menyimpan…' : '✓ Simpan Nickname'}
+              </button>
+            </div>
+
+            {/* Change Password */}
+            <div style={{ background: 'rgba(245,158,11,0.08)', border: '1px solid rgba(245,158,11,0.3)', borderRadius: 12, padding: '20px 24px' }}>
+              <div style={{ fontWeight: 700, marginBottom: 6, fontSize: 13.5, color: '#c8d0ff' }}>🔑 Ubah Password</div>
+              <div style={{ fontSize: 12, color: '#6a7494', marginBottom: 14 }}>
+                Min 8 karakter, harus mengandung huruf besar, huruf kecil, angka, dan simbol.
+              </div>
+              {pwErr && <div className="admin-error" style={{ marginBottom: 10 }}>{pwErr}</div>}
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px 16px' }}>
+                <div className="admin-form-field">
+                  <label>Password Baru</label>
+                  <input type="password" value={newPw} onChange={e => setNewPw(e.target.value)} placeholder="Password baru" />
+                </div>
+                <div className="admin-form-field">
+                  <label>Konfirmasi Password</label>
+                  <input type="password" value={confirmPw} onChange={e => setConfirmPw(e.target.value)} placeholder="Ulang password baru" />
+                </div>
+              </div>
+              <button className="btn-save-publish" disabled={pwBusy || !newPw || !confirmPw} onClick={changePassword} style={{ marginTop: 4 }}>
+                {pwBusy ? 'Menyimpan…' : '🔑 Ubah Password'}
+              </button>
+            </div>
+
+            {/* Email & Security Question */}
+            <div style={{ background: 'rgba(16,185,129,0.08)', border: '1px solid rgba(16,185,129,0.3)', borderRadius: 12, padding: '20px 24px' }}>
+              <div style={{ fontWeight: 700, marginBottom: 6, fontSize: 13.5, color: '#c8d0ff' }}>📧 Email & Pertanyaan Keamanan</div>
+              <div style={{ fontSize: 12, color: '#6a7494', marginBottom: 14 }}>
+                Digunakan untuk verifikasi dan pemulihan akun. Wajib diisi untuk mengaktifkan fitur keamanan.
+              </div>
+              {profErr && <div className="admin-error" style={{ marginBottom: 10 }}>{profErr}</div>}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                <div className="admin-form-field">
+                  <label>Email</label>
+                  <input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="email@kamu.com" />
+                </div>
+                <div className="admin-form-field">
+                  <label>Pertanyaan Keamanan</label>
+                  <select value={secQ} onChange={e => setSecQ(e.target.value)}>
+                    <option value="">-- Pilih Pertanyaan --</option>
+                    {SECURITY_QUESTIONS.map(q => <option key={q} value={q}>{q}</option>)}
+                  </select>
+                </div>
+                <div className="admin-form-field">
+                  <label>Jawaban Keamanan</label>
+                  <input type="text" value={secA} onChange={e => setSecA(e.target.value)} placeholder="Jawaban (selalu dibutuhkan saat mengubah)" />
+                </div>
+              </div>
+              <button className="btn-save-publish" disabled={profBusy || !email || !secQ || !secA} onClick={updateProfile} style={{ marginTop: 4 }}>
+                {profBusy ? 'Menyimpan…' : '✓ Simpan Profil'}
+              </button>
+            </div>
+
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
 // Dashboard shell
 // ─────────────────────────────────────────────────────────────────────────────
-type Section = 'news' | 'downloads' | 'redeem' | 'players' | 'requests' | 'logs';
+type Section = 'news' | 'downloads' | 'redeem' | 'players' | 'requests' | 'logs' | 'account';
 
 function AdminDashboard({ onLogout, adminUser }: { onLogout: () => void; adminUser: AdminUser | null }) {
   const { articles, loading, refresh, create, update, remove, togglePublish } = useAdminNews();
@@ -897,6 +1071,11 @@ function AdminDashboard({ onLogout, adminUser }: { onLogout: () => void; adminUs
             onClick={() => goSection('logs')}>
             <IconLog /> GM — Logs
           </button>
+          <div className="admin-sidebar__nav-divider" />
+          <button className={`admin-nav-link${section === 'account' ? ' admin-nav-link--active' : ''}`}
+            onClick={() => goSection('account')}>
+            <IconAccount /> Akun Saya
+          </button>
         </nav>
         <div className="admin-sidebar__footer">
           <button className="admin-nav-link" onClick={onLogout}><IconLogout /> Keluar</button>
@@ -931,6 +1110,7 @@ function AdminDashboard({ onLogout, adminUser }: { onLogout: () => void; adminUs
         {section === 'players'  && <GmPlayerSection  adminUser={adminUser} showToast={showToast} />}
         {section === 'requests' && <GmRequestsSection adminUser={adminUser} showToast={showToast} />}
         {section === 'logs'     && <GmLogsSection     adminUser={adminUser} />}
+        {section === 'account'  && <AccountSection    adminUser={adminUser} showToast={showToast} />}
       </main>
 
       {/* delete modal */}
