@@ -20,6 +20,7 @@ import {
   adminToggleRedeemCode, adminDeleteRedeemCode, adminSearchItem,
 } from './server/admin-redeem.js';
 import changePassword from './server/auth/change-password.js';
+import changeNickname from './server/auth/change-nickname.js';
 import updateProfile from './server/auth/update-profile.js';
 import forgotPassword from './server/auth/forgot-password.js';
 import emailResetPassword from './server/auth/email-reset-password.js';
@@ -71,6 +72,11 @@ const routeMeta: Record<string, { title: string; description: string; robots?: s
   '/akun': {
     title: 'Akun — Tales Hero Indonesia',
     description: 'Kelola akun Tales Hero Indonesia-mu.',
+    robots: 'noindex, nofollow',
+  },
+  '/nickname': {
+    title: 'Ganti Nickname — Tales Hero Indonesia',
+    description: 'Ganti nickname akun Tales Hero Indonesia-mu.',
     robots: 'noindex, nofollow',
   },
   '/support': {
@@ -324,6 +330,18 @@ const apiPlugin = {
         addJsonResponseHelpers(res);
         req.body = await parseBody(req);
         await changePassword(req, res);
+      } catch (e) {
+        res.statusCode = 500;
+        res.setHeader('Content-Type', 'application/json');
+        res.end(JSON.stringify({ message: 'Server error' }));
+      }
+    });
+    server.middlewares.use('/auth/change-nickname', async (req: any, res: any, next: any) => {
+      if (req.method !== 'POST') { next(); return; }
+      try {
+        addJsonResponseHelpers(res);
+        req.body = await parseBody(req);
+        await changeNickname(req, res);
       } catch (e) {
         res.statusCode = 500;
         res.setHeader('Content-Type', 'application/json');

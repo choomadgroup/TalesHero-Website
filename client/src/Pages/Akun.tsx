@@ -316,7 +316,7 @@ export default function Akun() {
 
                             {/* Identity text */}
                             <div className="akun-hero-banner__identity">
-                                <span className="akun-hero-banner__eyebrow">✦ TALES HERO INDONESIA</span>
+                                <span className="akun-hero-banner__eyebrow">✦ Halo! Aku dikenal</span>
                                 <h1 className="akun-hero-banner__nick">{user.nickname || user.username}</h1>
                                 {charData && (
                                     <span className="akun-hero-banner__charname">{charData.name}</span>
@@ -446,7 +446,7 @@ export default function Akun() {
                                             <>
                                                 <label className="akun-input-label">Email</label>
                                                 <div className="akun-locked-value"><IoMailOutline size={14} /> {user.email}</div>
-                                                <p className="akun-lock-note">Email sudah terdaftar dan tidak dapat diubah.</p>
+                                                <p className="akun-lock-note">Email sudah terdaftar dan tidak dapat diubah, Mungkin dapat diubah di pembaruan berikutnya.</p>
                                             </>
                                         ) : (
                                             <>

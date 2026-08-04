@@ -16,6 +16,7 @@ import GuidesKarakter from '@/Pages/Guides/Karakter';
 import NewsListPage from '@/Pages/News/NewsListPage';
 import NewsArticlePage from '@/Pages/News/NewsArticlePage';
 import AdminPage from '@/Pages/Admin/Admin';
+import Nickname from '@/Pages/Nickname';
 import NotFound from '@/Pages/Not-Found';
 
 function Router() {
@@ -27,6 +28,7 @@ function Router() {
             <Route path="/reset-password" component={ResetPasswordEmail} />
             <Route path="/daftar" component={Daftar} />
             <Route path="/akun" component={Akun} />
+            <Route path="/nickname" component={Nickname} />
             <Route path="/download" component={Download} />
             <Route path="/support" component={Support} />
             <Route path="/guides/pengantar" component={GuidesPengantar} />

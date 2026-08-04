@@ -4,7 +4,7 @@ import { useLocation } from 'wouter';
 import { GiBookmarklet } from 'react-icons/gi';
 import { HiMenuAlt3, HiX, HiChevronDown, HiLogin, HiUserAdd, HiDownload, HiQuestionMarkCircle, HiNewspaper } from 'react-icons/hi';
 import { MdHeadset, MdHeadsetOff } from 'react-icons/md';
-import { IoPersonCircleOutline, IoLogOutOutline, IoGiftOutline } from 'react-icons/io5';
+import { IoPersonCircleOutline, IoLogOutOutline, IoGiftOutline, IoCreateOutline } from 'react-icons/io5';
 import { useMusic } from '@/Hooks/use-music';
 import { useAuth } from '@/Hooks/use-auth';
 import RedeemModal from '@/Components/RedeemModal';
@@ -178,6 +178,14 @@ const Header = ({ light = false }: { light?: boolean }) => {
                                             Info Akun
                                         </button>
                                         <button
+                                            className="game-account-dropdown__item"
+                                            onClick={() => { setLocation('/nickname'); setAccountOpen(false); }}
+                                            role="menuitem"
+                                        >
+                                            <IoCreateOutline size={17} />
+                                            Ganti Nickname
+                                        </button>
+                                        <button
                                             className="game-account-dropdown__item game-account-dropdown__item--redeem"
                                             onClick={() => { setRedeemOpen(true); setAccountOpen(false); }}
                                             role="menuitem"
@@ -270,6 +278,13 @@ const Header = ({ light = false }: { light?: boolean }) => {
                                     >
                                         <IoPersonCircleOutline size={16} />
                                         Halo {user.username}
+                                    </button>
+                                    <button
+                                        className="game-login-btn game-login-btn--full"
+                                        onClick={() => { setLocation('/nickname'); setOpened(false); }}
+                                    >
+                                        <IoCreateOutline size={16} />
+                                        Ganti Nickname
                                     </button>
                                     <button
                                         className="game-login-btn game-login-btn--full"

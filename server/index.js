@@ -5,6 +5,7 @@ import express from 'express';
 import register from './auth/register.js';
 import login from './auth/login.js';
 import changePassword from './auth/change-password.js';
+import changeNickname from './auth/change-nickname.js';
 import updateProfile from './auth/update-profile.js';
 import forgotPassword from './auth/forgot-password.js';
 import emailResetPassword from './auth/email-reset-password.js';
@@ -48,7 +49,7 @@ app.get('/api/stats/online-players', onlinePlayers);
 app.get('/api/stats', stats);
 
 const blockedPublicPath = /^\/(?:client\/src|server|attached_assets|\.local|\.agents|node_modules)(?:\/|$)|^\/(?:vite\.config\.ts|package\.json|pnpm-lock\.yaml|tsconfig(?:\.[^/]+)?|\.env(?:\.[^/]*)?)$/i;
-const privatePagePath = /^\/(?:forgot-password|reset-password|akun|dashboard\/admin)(?:\/|$)/i;
+const privatePagePath = /^\/(?:forgot-password|reset-password|akun|nickname|dashboard\/admin)(?:\/|$)/i;
 
 // Never let source, backend modules, workspace metadata, or environment files
 // reach the public production server, even through the SPA fallback.
@@ -92,6 +93,7 @@ app.post('/auth/login', login);
 app.get('/auth/me', me);
 app.post('/auth/logout', logout);
 app.post('/auth/change-password', changePassword);
+app.post('/auth/change-nickname', changeNickname);
 app.post('/auth/update-profile', updateProfile);
 app.post('/auth/forgot-password', forgotPassword);
 app.post('/auth/email-reset-password', emailResetPassword);
