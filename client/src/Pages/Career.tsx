@@ -9,7 +9,7 @@ import {
     IoLogoDiscord, IoCheckmarkCircle, IoChevronDown,
     IoDocumentTextOutline, IoLinkOutline, IoGameControllerOutline,
     IoLanguageOutline, IoHeadsetOutline, IoColorPaletteOutline,
-    IoShieldCheckmarkOutline, IoAlertCircleOutline,
+    IoShieldCheckmarkOutline, IoAlertCircleOutline, IoCodeSlashOutline,
 } from 'react-icons/io5';
 
 // ── Position definitions ──────────────────────────────────────────────────────
@@ -101,6 +101,29 @@ const POSITIONS = [
             'Memiliki portofolio karya desain grafis (wajib dilampirkan)',
             'Memahami estetika game anime/fantasy',
             'Mampu bekerja dengan brief dan revisi yang cepat',
+        ],
+    },
+    {
+        id: 'Developer',
+        icon: <IoCodeSlashOutline size={28} />,
+        color: '#06b6d4',
+        colorLight: 'rgba(6,182,212,0.10)',
+        colorBorder: 'rgba(6,182,212,0.25)',
+        title: 'Developer',
+        short: 'Membangun dan mengembangkan fitur-fitur Tales Hero Indonesia.',
+        tasks: [
+            'Mengembangkan dan memelihara website Tales Hero Indonesia',
+            'Membuat fitur baru berdasarkan kebutuhan tim dan komunitas',
+            'Memperbaiki bug dan meningkatkan performa aplikasi',
+            'Berkolaborasi dengan tim desain untuk implementasi UI/UX',
+            'Mengelola database dan integrasi dengan sistem game',
+        ],
+        requirements: [
+            'Menguasai salah satu atau lebih: JavaScript/TypeScript, React, Node.js',
+            'Memahami konsep REST API, database (MySQL/MongoDB)',
+            'Familiar dengan Git dan workflow pengembangan tim',
+            'Mampu bekerja mandiri dan berkomunikasi aktif dengan tim',
+            'Diutamakan yang memiliki portofolio project web yang bisa ditunjukkan',
         ],
     },
     {

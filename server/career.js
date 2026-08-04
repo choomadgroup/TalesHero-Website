@@ -5,7 +5,7 @@
 import { isMongoConnected } from './mongodb.js';
 import { CareerApplication } from './models/career-application.js';
 
-const ALLOWED_POSITIONS = ['Game Master', 'Translator', 'Customer Service', 'Graphics Designer', 'Moderator'];
+const ALLOWED_POSITIONS = ['Game Master', 'Translator', 'Customer Service', 'Graphics Designer', 'Moderator', 'Developer'];
 
 // ── POST /api/career/apply ────────────────────────────────────────────────────
 export async function submitApplication(req, res) {
