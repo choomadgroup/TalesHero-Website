@@ -276,11 +276,10 @@ export function GmPlayerSection({ adminUser, showToast }: {
   const [player, setPlayer]     = useState<GmPlayer | null>(null);
   const [playerTab, setPlayerTab] = useState<PlayerTab>('send');
 
-  // send cash / TR / MAU / EXP
+  // send cash / TR / MAU
   const [cashAmt, setCashAmt]   = useState('');
   const [trAmt, setTrAmt]       = useState('');
   const [mauAmt, setMauAmt]     = useState('');
-  const [expAmt, setExpAmt]     = useState('');
   const [pieroColor, setPieroColorVal] = useState<string>('');
 
   // send item
@@ -293,8 +292,6 @@ export function GmPlayerSection({ adminUser, showToast }: {
   const [invQ, setInvQ]         = useState('');
   const [inventory, setInventory] = useState<GmInventoryItem[]>([]);
   const [invLoading, setInvLoading] = useState(false);
-  const [extendTarget, setExtendTarget] = useState<{ invNum: number; name: string } | null>(null);
-  const [extendExp, setExtendExp] = useState('');
 
   // manage (Owner only)
   const [banReason, setBanReason] = useState('');
@@ -416,13 +413,6 @@ export function GmPlayerSection({ adminUser, showToast }: {
     setMauAmt(''); return r;
   });
 
-  const doSendExp = () => act(async () => {
-    const r = await gmFetch(`/players/${player!.fdUserNum}/exp`, {
-      method: 'POST', body: JSON.stringify({ amount: Number(expAmt) }),
-    });
-    setExpAmt(''); return r;
-  });
-
   const doSendTR = () => act(async () => {
     const r = await gmFetch(`/players/${player!.fdUserNum}/tr`, {
       method: 'POST', body: JSON.stringify({ amount: Number(trAmt) }),
@@ -494,13 +484,6 @@ export function GmPlayerSection({ adminUser, showToast }: {
   const doDeleteInv = (invNum: number) => act(async () => {
     const r = await gmFetch(`/players/${player!.fdUserNum}/inventory/${invNum}`, { method: 'DELETE' });
     await loadInventory(); return r;
-  });
-
-  const doExtendExp = () => act(async () => {
-    const r = await gmFetch(`/players/${player!.fdUserNum}/inventory/${extendTarget!.invNum}/extend`, {
-      method: 'PATCH', body: JSON.stringify({ expAmount: Number(extendExp) }),
-    });
-    setExtendTarget(null); setExtendExp(''); await loadInventory(); return r;
   });
 
   // ── Render ────────────────────────────────────────────────────
@@ -643,12 +626,6 @@ export function GmPlayerSection({ adminUser, showToast }: {
                     {Number(player.Mau).toLocaleString('id-ID')}
                   </div>
                 </div>
-                <div style={{ textAlign: 'center' }}>
-                  <div style={{ fontSize: 10, color: '#6a7494', fontWeight: 700, letterSpacing: '0.05em' }}>EXP</div>
-                  <div style={{ fontSize: 16, fontWeight: 800, color: '#10b981' }}>
-                    {Number(player.Exp).toLocaleString('id-ID')}
-                  </div>
-                </div>
                 {player.fdLoginCount !== undefined && (
                   <div style={{ textAlign: 'center' }}>
                     <div style={{ fontSize: 10, color: '#6a7494', fontWeight: 700, letterSpacing: '0.05em' }}>LOGIN</div>
@@ -713,24 +690,7 @@ export function GmPlayerSection({ adminUser, showToast }: {
                   </div>
                 </div>
 
-                {/* ── Baris 2: EXP Player (Owner only) ── */}
-                {isOwner && (
-                  <div style={{ background: 'rgba(16,185,129,0.1)', border: '1px solid rgba(16,185,129,0.3)', borderRadius: 10, padding: '14px 16px' }}>
-                    <div style={{ fontWeight: 700, marginBottom: 10, fontSize: 13, color: '#34d399' }}>🌟 EXP Player <span style={{ fontSize: 11, fontWeight: 400, color: '#6a7494' }}>(Owner only — langsung diterapkan)</span></div>
-                    <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-                      <input style={{ ...S.input, flex: 1 }} type="number" min="1" placeholder="Jumlah EXP"
-                        value={expAmt} onChange={e => setExpAmt(e.target.value)} />
-                      <button
-                        style={{ ...S.btn, background: '#10b981', color: '#fff', whiteSpace: 'nowrap', fontSize: 12 }}
-                        onClick={doSendExp} disabled={loading || !expAmt}
-                      >
-                        ✓ Tambah EXP
-                      </button>
-                    </div>
-                  </div>
-                )}
-
-                {/* ── Baris 3: Item ── */}
+                {/* ── Baris 2: Item ── */}
                 <div style={{ background: 'rgba(249,115,22,0.1)', border: '1px solid rgba(249,115,22,0.3)', borderRadius: 10, padding: '14px 16px' }}>
                   <div style={{ fontWeight: 700, marginBottom: 10, fontSize: 13, color: '#fb923c' }}>🎁 Kirim Item</div>
                   <div style={{ display: 'flex', gap: 6, marginBottom: 8 }}>
@@ -798,35 +758,11 @@ export function GmPlayerSection({ adminUser, showToast }: {
                   </button>
                 </div>
 
-                {/* Extend Exp modal */}
-                {extendTarget && (
-                  <div style={{ background: 'rgba(14,165,233,0.1)', border: '1px solid rgba(14,165,233,0.3)', borderRadius: 10, padding: '14px 18px', marginBottom: 14 }}>
-                    <div style={{ fontWeight: 700, fontSize: 13, marginBottom: 8, color: '#c8d0ff' }}>
-                      Tambah Exp — {extendTarget.name}
-                    </div>
-                    <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-                      <input style={{ ...S.input, maxWidth: 180 }} type="number" min="1" max="1000000000"
-                        placeholder="Jumlah exp" value={extendExp} onChange={e => setExtendExp(e.target.value)} />
-                      <button style={{ ...S.btn, background: '#3b82f6', color: '#fff' }}
-                        onClick={doExtendExp} disabled={loading || !extendExp}>
-                        {isOwner ? 'Tambah' : 'Request'}
-                      </button>
-                      <button style={{ ...S.btn, background: '#10102a', color: '#c8d0ff', border: '1px solid rgba(0,229,255,0.14)' }}
-                        onClick={() => { setExtendTarget(null); setExtendExp(''); }}>
-                        Batal
-                      </button>
-                    </div>
-                    <div style={{ fontSize: 11, color: '#6a7494', marginTop: 6 }}>
-                      Exp akan ditambah dan masa berlaku item diset permanen (2099).
-                    </div>
-                  </div>
-                )}
-
                 <div className="admin-table-wrapper">
                   <table className="admin-table">
                     <thead>
                       <tr>
-                        <th>#</th><th>Item</th><th>Exp</th><th>Berlaku</th><th>Count</th>
+                        <th>#</th><th>Item</th><th>Berlaku</th><th>Count</th>
                         {(isOwner) && <th>Aksi</th>}
                       </tr>
                     </thead>
@@ -848,7 +784,6 @@ export function GmPlayerSection({ adminUser, showToast }: {
                               <div style={{ fontWeight: 600, fontSize: 13 }}>{item.ItemName}</div>
                               <div style={{ fontSize: 11, color: '#6a7494' }}>#{item.fdItemDescNum}</div>
                             </td>
-                            <td style={{ fontSize: 12 }}>{item.fdExp.toLocaleString('id-ID')}</td>
                             <td style={{ fontSize: 12, color: expired ? '#ef4444' : '#6a7494' }}>
                               {item.fdExpireDateTime
                                 ? new Date(item.fdExpireDateTime).toLocaleDateString('id-ID')
@@ -858,18 +793,11 @@ export function GmPlayerSection({ adminUser, showToast }: {
                             <td style={{ fontSize: 12 }}>{item.fdCount}</td>
                             {(isOwner) && (
                               <td>
-                                <div style={{ display: 'flex', gap: 6 }}>
-                                  <button
-                                    style={{ ...S.btn, background: '#3b82f6', color: '#fff', padding: '4px 10px', fontSize: 11 }}
-                                    onClick={() => { setExtendTarget({ invNum: item.fdNum, name: item.ItemName }); setExtendExp(''); }}
-                                    disabled={loading}
-                                  >+Exp</button>
-                                  <button
-                                    style={{ ...S.btn, background: '#ef4444', color: '#fff', padding: '4px 10px', fontSize: 11 }}
-                                    onClick={() => { if (confirm(`Hapus ${item.ItemName}?`)) doDeleteInv(item.fdNum); }}
-                                    disabled={loading}
-                                  >Hapus</button>
-                                </div>
+                                <button
+                                  style={{ ...S.btn, background: '#ef4444', color: '#fff', padding: '4px 10px', fontSize: 11 }}
+                                  onClick={() => { if (confirm(`Hapus ${item.ItemName}?`)) doDeleteInv(item.fdNum); }}
+                                  disabled={loading}
+                                >Hapus</button>
                               </td>
                             )}
                           </tr>
@@ -880,7 +808,7 @@ export function GmPlayerSection({ adminUser, showToast }: {
                 </div>
                 {!isOwner && (
                   <div style={{ fontSize: 12, color: '#6a7494', marginTop: 8 }}>
-                    GM: hapus dan extend exp akan membuat request ke Owner.
+                    GM: hapus item akan membuat request ke Owner.
                   </div>
                 )}
               </div>
