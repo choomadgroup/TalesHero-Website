@@ -7518,3 +7518,153 @@ input, textarea, select {
     &--mau   { color: #7b5ea7; }
   }
 }
+
+// ─── Nickname page additions ──────────────────────────────────
+.nickname-page__cooldown {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 11px 14px;
+  margin-bottom: 14px;
+  border-radius: 11px;
+  background: #fff8e1;
+  border: 1px solid #ffe082;
+  color: #8a6200;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.45;
+
+  svg { flex: 0 0 auto; margin-top: 1px; color: #f5a623; }
+}
+
+.nickname-page__cost-box {
+  background: #fafafa;
+  border: 1.5px solid #f0f0f7;
+  border-radius: 13px;
+  overflow: hidden;
+}
+
+.nickname-page__cost-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  border-bottom: 1px solid #f0f0f7;
+
+  &:last-of-type { border-bottom: none; }
+}
+
+.nickname-page__cost-icon {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+}
+
+.nickname-page__cost-label {
+  flex: 1;
+  font-size: 13px;
+  font-weight: 700;
+  color: #1a1a2e;
+}
+
+.nickname-page__cost-amount {
+  font-size: 13px;
+  font-weight: 900;
+}
+
+.nickname-page__cost-note {
+  margin: 0;
+  padding: 9px 14px;
+  border-top: 1px solid #f0f0f7;
+  font-size: 11.5px;
+  color: #aaa;
+  text-align: center;
+  line-height: 1.5;
+  background: #f7f7fb;
+}
+
+.nickname-page__logs {
+  margin-top: 18px;
+  border: 1.5px solid #f0f0f7;
+  border-radius: 13px;
+  overflow: hidden;
+  margin-bottom: 16px;
+}
+
+.nickname-page__logs-header {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 10px 14px;
+  background: #f7f7fb;
+  border-bottom: 1px solid #f0f0f7;
+  font-size: 12px;
+  font-weight: 800;
+  color: #555;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+
+  svg { color: #e91e63; }
+}
+
+.nickname-page__logs-count {
+  font-weight: 700;
+  text-transform: none;
+  color: #e91e63;
+  letter-spacing: 0;
+}
+
+.nickname-page__logs-empty {
+  margin: 0;
+  padding: 14px;
+  font-size: 12.5px;
+  color: #bbb;
+  text-align: center;
+}
+
+.nickname-page__logs-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.nickname-page__logs-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 10px 14px;
+  border-bottom: 1px solid #f6f6fa;
+  &:last-child { border-bottom: none; }
+}
+
+.nickname-page__logs-names {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.nickname-page__logs-old {
+  font-size: 12.5px;
+  color: #999;
+  text-decoration: line-through;
+}
+
+.nickname-page__logs-arrow {
+  font-size: 11px;
+  color: #ccc;
+}
+
+.nickname-page__logs-new {
+  font-size: 12.5px;
+  font-weight: 800;
+  color: #1a1a2e;
+}
+
+.nickname-page__logs-date {
+  font-size: 10.5px;
+  color: #bbb;
+  flex: 0 0 auto;
+  white-space: nowrap;
+}

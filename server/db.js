@@ -152,6 +152,19 @@ async function migrate() {
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
   `);
 
+  // ── Nickname change log ──────────────────────────────────────
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS nickname_change_logs (
+      id           INT AUTO_INCREMENT PRIMARY KEY,
+      username     VARCHAR(50)  NOT NULL,
+      old_nickname VARCHAR(50)  NOT NULL DEFAULT '',
+      new_nickname VARCHAR(50)  NOT NULL,
+      changed_at   DATETIME     DEFAULT CURRENT_TIMESTAMP,
+      INDEX idx_ncl_username (username),
+      INDEX idx_ncl_changed (username, changed_at)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+  `);
+
   await pool.query(`
     CREATE TABLE IF NOT EXISTS redeem_code_uses (
       id         INT AUTO_INCREMENT PRIMARY KEY,

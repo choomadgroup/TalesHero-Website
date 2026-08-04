@@ -21,6 +21,7 @@ import {
 } from './server/admin-redeem.js';
 import changePassword from './server/auth/change-password.js';
 import changeNickname from './server/auth/change-nickname.js';
+import nicknameLogs from './server/auth/nickname-logs.js';
 import updateProfile from './server/auth/update-profile.js';
 import forgotPassword from './server/auth/forgot-password.js';
 import emailResetPassword from './server/auth/email-reset-password.js';
@@ -342,6 +343,17 @@ const apiPlugin = {
         addJsonResponseHelpers(res);
         req.body = await parseBody(req);
         await changeNickname(req, res);
+      } catch (e) {
+        res.statusCode = 500;
+        res.setHeader('Content-Type', 'application/json');
+        res.end(JSON.stringify({ message: 'Server error' }));
+      }
+    });
+    server.middlewares.use('/auth/nickname-logs', async (req: any, res: any, next: any) => {
+      if (req.method !== 'GET') { next(); return; }
+      try {
+        addJsonResponseHelpers(res);
+        await nicknameLogs(req, res);
       } catch (e) {
         res.statusCode = 500;
         res.setHeader('Content-Type', 'application/json');

@@ -2,46 +2,50 @@
 //  Tales Hero Indonesia — Ganti Nickname
 //  POST /auth/change-nickname
 //
-//  Body JSON: { nickname, payMethod }
-//  payMethod: 'tr' | 'cash' | 'mau'
+//  Body JSON: { nickname }
 //
-//  Harga:  TR  200.000  |  Cash  150.000  |  MAU  78.000
-//  Syarat: minimal 5 karakter, alfanumerik + spasi + underscore,
-//          tidak mengandung kata toxic / badwords.
+//  Biaya (harus cukup semua):
+//    TR    50.000
+//    Cash  15.000
+//    MAU   20.000
+//
+//  Cooldown: sekali setiap 14 hari
+//  Syarat  : 5–10 karakter, huruf (A-Z a-z) & angka (0-9) saja
 // ============================================================
 
 import { query } from '../db.js';
 import { getSessionUsername } from './session.js';
 
-// ── Biaya per metode pembayaran ──────────────────────────────
-const PRICE = { tr: 200_000, cash: 150_000, mau: 78_000 };
+const PRICE_TR   = 50_000;
+const PRICE_CASH = 15_000;
+const PRICE_MAU  = 20_000;
+const COOLDOWN_DAYS = 14;
 
-// ── Daftar badwords / kata tidak pantas ─────────────────────
+// ── Daftar badwords ──────────────────────────────────────────
 const BADWORDS = [
-  // Indonesian
   'anjing','anjir','babi','bangsat','bajingan','brengsek','sialan','goblok',
   'tolol','idiot','bodoh','asu','kampret','memek','kontol','ngentot','jancok',
   'cok','tai','taik','pepek','titit','genjot','ngentod','pelacur','sundal',
   'lonte','bajing','setan','iblis','keparat','bejat','bokep','bugil',
-  // English
   'fuck','shit','bitch','asshole','bastard','cunt','dick','pussy','cock',
   'nigger','faggot','retard','whore','slut',
 ];
 
 function containsBadword(str) {
-  const lower = str.toLowerCase().replace(/\s+/g, '');
+  const lower = str.toLowerCase();
   return BADWORDS.some(w => lower.includes(w));
 }
 
 // ── Validasi nickname ────────────────────────────────────────
 function validateNickname(nickname) {
   if (!nickname || typeof nickname !== 'string') return 'Nickname tidak boleh kosong.';
-  const trimmed = nickname.trim();
-  if (trimmed.length < 5)  return 'Nickname minimal 5 karakter.';
-  if (trimmed.length > 10) return 'Nickname maksimal 10 karakter.';
-  if (!/^[a-zA-Z0-9]+$/.test(trimmed)) return 'Nickname hanya boleh mengandung huruf dan angka (tanpa spasi atau underscore).';
-  if (containsBadword(trimmed)) return 'Nickname mengandung kata yang tidak diperbolehkan.';
-  return null; // valid
+  if (nickname.length < 5)  return 'Nickname minimal 5 karakter.';
+  if (nickname.length > 10) return 'Nickname maksimal 10 karakter.';
+  if (/\s/.test(nickname))  return 'Nickname tidak boleh mengandung spasi.';
+  if (!/^[a-zA-Z0-9]+$/.test(nickname))
+    return 'Nickname hanya boleh mengandung huruf (A-Z, a-z) dan angka (0-9). Karakter spesial tidak diizinkan.';
+  if (containsBadword(nickname)) return 'Nickname mengandung kata yang tidak diperbolehkan.';
+  return null;
 }
 
 async function changeNickname(req, res) {
@@ -50,22 +54,35 @@ async function changeNickname(req, res) {
     if (!username)
       return res.status(401).json({ message: 'Silakan login terlebih dahulu.' });
 
-    const { nickname, payMethod } = req.body ?? {};
+    const { nickname } = req.body ?? {};
 
-    // ── 1. Validasi input ─────────────────────────────────
+    // ── 1. Validasi nickname ──────────────────────────────
     const nicknameError = validateNickname(nickname);
     if (nicknameError) return res.status(400).json({ message: nicknameError });
 
-    const method = String(payMethod ?? '').toLowerCase();
-    if (!PRICE[method])
-      return res.status(400).json({ message: 'Metode pembayaran tidak valid.' });
+    const newNickname = nickname;
 
-    const price = PRICE[method];
-    const newNickname = nickname.trim();
+    // ── 2. Cek cooldown 14 hari ───────────────────────────
+    const lastChange = await query(
+      `SELECT changed_at FROM nickname_change_logs
+       WHERE username = ? ORDER BY changed_at DESC LIMIT 1`,
+      [username],
+    );
+    if (lastChange.length > 0) {
+      const msElapsed = Date.now() - new Date(lastChange[0].changed_at).getTime();
+      const daysElapsed = msElapsed / (1000 * 60 * 60 * 24);
+      if (daysElapsed < COOLDOWN_DAYS) {
+        const daysLeft = Math.ceil(COOLDOWN_DAYS - daysElapsed);
+        return res.status(400).json({
+          message: `Kamu baru saja mengganti nickname. Tunggu ${daysLeft} hari lagi sebelum bisa ganti kembali.`,
+          cooldownDaysLeft: daysLeft,
+        });
+      }
+    }
 
-    // ── 2. Ambil data user (balance + userNum) ────────────
+    // ── 3. Ambil data user ────────────────────────────────
     const rows = await query(
-      `SELECT g.fdCash, ig.fdGameMoney, i.fdUserNum,
+      `SELECT g.fdCash, ig.fdGameMoney, i.fdUserNum, i.fdNickname,
               COALESCE(uip.fdPoint, 0) AS mauPoint
        FROM userinfofrompublisher g
        LEFT JOIN userinfo i ON i.fdUID = g.fdUserID
@@ -76,46 +93,49 @@ async function changeNickname(req, res) {
        LIMIT 1`,
       [username],
     );
-
     if (!rows.length) return res.status(404).json({ message: 'Akun tidak ditemukan.' });
 
-    const { fdCash, fdGameMoney, fdUserNum, mauPoint } = rows[0];
+    const { fdCash, fdGameMoney, fdUserNum, fdNickname, mauPoint } = rows[0];
 
-    // ── 3. Cek saldo cukup ────────────────────────────────
-    if (method === 'cash' && Number(fdCash) < price)
-      return res.status(400).json({ message: `Cash tidak cukup. Dibutuhkan ${price.toLocaleString('id-ID')} Cash.` });
-    if (method === 'tr' && Number(fdGameMoney) < price)
-      return res.status(400).json({ message: `TR tidak cukup. Dibutuhkan ${price.toLocaleString('id-ID')} TR.` });
-    if (method === 'mau' && Number(mauPoint) < price)
-      return res.status(400).json({ message: `MAU tidak cukup. Dibutuhkan ${price.toLocaleString('id-ID')} MAU.` });
+    // ── 4. Cek semua saldo cukup ──────────────────────────
+    const shortages = [];
+    if (Number(fdGameMoney) < PRICE_TR)   shortages.push(`TR ${PRICE_TR.toLocaleString('id-ID')}`);
+    if (Number(fdCash)      < PRICE_CASH) shortages.push(`Cash ${PRICE_CASH.toLocaleString('id-ID')}`);
+    if (Number(mauPoint)    < PRICE_MAU)  shortages.push(`MAU ${PRICE_MAU.toLocaleString('id-ID')}`);
+    if (shortages.length > 0)
+      return res.status(400).json({
+        message: `Saldo tidak cukup: ${shortages.join(', ')}.`,
+      });
 
-    // ── 4. Kurangi saldo ──────────────────────────────────
-    if (method === 'cash') {
-      await query(
-        `UPDATE userinfofrompublisher SET fdCash = fdCash - ? WHERE fdUserID = ?`,
-        [price, username],
-      );
-    } else if (method === 'tr') {
-      await query(
-        `UPDATE userinfogame ig
-         JOIN userinfo i ON ig.fdUserNum = i.fdUserNum
-         SET ig.fdGameMoney = ig.fdGameMoney - ?
-         WHERE i.fdUID = ?`,
-        [price, username],
-      );
-    } else if (method === 'mau') {
-      await query(
-        `UPDATE userinfopoint
-         SET fdPoint = fdPoint - ?
-         WHERE fdUserNum = ? AND fdRewardCondition = 1201`,
-        [price, fdUserNum],
-      );
-    }
+    // ── 5. Potong semua biaya ─────────────────────────────
+    await query(
+      `UPDATE userinfofrompublisher SET fdCash = fdCash - ? WHERE fdUserID = ?`,
+      [PRICE_CASH, username],
+    );
+    await query(
+      `UPDATE userinfogame ig
+       JOIN userinfo i ON ig.fdUserNum = i.fdUserNum
+       SET ig.fdGameMoney = ig.fdGameMoney - ?
+       WHERE i.fdUID = ?`,
+      [PRICE_TR, username],
+    );
+    await query(
+      `UPDATE userinfopoint SET fdPoint = fdPoint - ?
+       WHERE fdUserNum = ? AND fdRewardCondition = 1201`,
+      [PRICE_MAU, fdUserNum],
+    );
 
-    // ── 5. Update nickname ────────────────────────────────
+    // ── 6. Update nickname di game ────────────────────────
     await query(
       `UPDATE userinfo SET fdNickname = ? WHERE fdUID = ?`,
       [newNickname, username],
+    );
+
+    // ── 7. Catat log perubahan ────────────────────────────
+    await query(
+      `INSERT INTO nickname_change_logs (username, old_nickname, new_nickname)
+       VALUES (?, ?, ?)`,
+      [username, fdNickname ?? '', newNickname],
     );
 
     return res.status(200).json({
