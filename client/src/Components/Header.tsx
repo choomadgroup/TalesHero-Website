@@ -14,6 +14,7 @@ const NAV_LINKS = [
     { label: 'News',     href: '/news',     icon: <HiNewspaper size={14} /> },
     { label: 'Download', href: '/download', icon: <HiDownload size={14} /> },
     { label: 'Support',  href: '/support',  icon: <HiQuestionMarkCircle size={14} /> },
+    { label: 'Karir',    href: '/career',   icon: <HiUserAdd size={14} /> },
 ];
 
 // Item dropdown Pengenalan Game

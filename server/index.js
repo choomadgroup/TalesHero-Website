@@ -32,6 +32,7 @@ import {
   publicGetDownloads, adminGetDownloads, adminUpdateDownload,
 } from './downloads.js';
 import { gmToolsRouter } from './gm-tools.js';
+import { submitApplication, getApplications, updateApplicationStatus, deleteApplication } from './career.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const publicDir = path.resolve(__dirname, '..', 'dist', 'public');
@@ -130,6 +131,12 @@ app.delete('/api/admin/news/:id',  (req, res) => adminDelete(req, res, req.param
 app.get('/api/downloads',                  publicGetDownloads);
 app.get('/api/admin/downloads',            adminGetDownloads);
 app.put('/api/admin/downloads/:id',        (req, res) => adminUpdateDownload(req, res, req.params.id));
+
+// ── Career Applications ───────────────────────────────────────────────────────
+app.post('/api/career/apply',                 submitApplication);
+app.get('/api/admin/career/applications',      getApplications);
+app.patch('/api/admin/career/applications/:id', (req, res) => updateApplicationStatus(req, res));
+app.delete('/api/admin/career/applications/:id', (req, res) => deleteApplication(req, res));
 
 // ── GM Tools ──────────────────────────────────────────────────────────────────
 app.use('/api/admin/gm', async (req, res, next) => {

@@ -17,6 +17,7 @@ import NewsListPage from '@/Pages/News/NewsListPage';
 import NewsArticlePage from '@/Pages/News/NewsArticlePage';
 import AdminPage from '@/Pages/Admin/Admin';
 import Nickname from '@/Pages/Nickname';
+import Career from '@/Pages/Career';
 import NotFound from '@/Pages/Not-Found';
 
 function Router() {
@@ -31,6 +32,7 @@ function Router() {
             <Route path="/nickname" component={Nickname} />
             <Route path="/download" component={Download} />
             <Route path="/support" component={Support} />
+            <Route path="/career" component={Career} />
             <Route path="/guides/pengantar" component={GuidesPengantar} />
             <Route path="/guides/karakter" component={GuidesKarakter} />
             <Route path="/news" component={NewsListPage} />

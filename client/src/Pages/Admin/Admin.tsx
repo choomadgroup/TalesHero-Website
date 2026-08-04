@@ -25,6 +25,7 @@ const IconPlus      = () => <svg width="14" height="14" fill="none" stroke="curr
 const IconRefresh   = () => <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 11-2.12-9.36L23 10"/></svg>;
 const IconRedeem    = () => <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 00-4 0v2"/><line x1="12" y1="12" x2="12" y2="16"/><line x1="10" y1="14" x2="14" y2="14"/></svg>;
 const IconAccount   = () => <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>;
+const IconCareer    = () => <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v2"/><line x1="12" y1="12" x2="12" y2="16"/><line x1="10" y1="14" x2="14" y2="14"/></svg>;
 
 // ── empty form ────────────────────────────────────────────────────────────────
 const emptyForm = (): NewsFormData => ({
@@ -1050,9 +1051,187 @@ function AccountSection({ adminUser, showToast }: {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
+// Career Applications section
+// ─────────────────────────────────────────────────────────────────────────────
+interface CareerApp {
+  _id: string;
+  fullName: string;
+  username: string;
+  email: string;
+  discord: string;
+  position: string;
+  motivation: string;
+  experience: string;
+  portfolio: string;
+  status: 'pending' | 'reviewed' | 'accepted' | 'rejected';
+  createdAt: string;
+}
+
+const STATUS_COLORS: Record<string, string> = {
+  pending:  '#f59e0b',
+  reviewed: '#3b82f6',
+  accepted: '#10b981',
+  rejected: '#ef4444',
+};
+const STATUS_LABELS: Record<string, string> = {
+  pending:  'Menunggu',
+  reviewed: 'Ditinjau',
+  accepted: 'Diterima',
+  rejected: 'Ditolak',
+};
+
+function CareerSection({ showToast }: { showToast: (m: string) => void }) {
+  const [apps, setApps]             = useState<CareerApp[]>([]);
+  const [total, setTotal]           = useState(0);
+  const [loading, setLoading]       = useState(false);
+  const [filterPos, setFilterPos]   = useState('');
+  const [filterSt, setFilterSt]     = useState('');
+  const [expanded, setExpanded]     = useState<string | null>(null);
+
+  const load = useCallback(async () => {
+    setLoading(true);
+    try {
+      const params = new URLSearchParams();
+      if (filterPos) params.set('position', filterPos);
+      if (filterSt)  params.set('status', filterSt);
+      const r = await fetch(`/api/admin/career/applications?${params}`);
+      const d = await r.json();
+      if (d.ok) { setApps(d.applications); setTotal(d.total); }
+    } finally { setLoading(false); }
+  }, [filterPos, filterSt]);
+
+  useEffect(() => { load(); }, [load]);
+
+  const updateStatus = async (id: string, status: string) => {
+    const r = await fetch(`/api/admin/career/applications/${id}`, {
+      method: 'PATCH', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ status }),
+    });
+    const d = await r.json();
+    if (d.ok) { showToast(`Status diubah: ${STATUS_LABELS[status]}`); load(); }
+    else showToast(d.message ?? 'Gagal mengubah status.');
+  };
+
+  const deleteApp = async (id: string, name: string) => {
+    if (!confirm(`Hapus lamaran dari ${name}?`)) return;
+    const r = await fetch(`/api/admin/career/applications/${id}`, { method: 'DELETE' });
+    const d = await r.json();
+    if (d.ok) { showToast('Lamaran dihapus.'); load(); }
+    else showToast(d.message ?? 'Gagal menghapus.');
+  };
+
+  const POSITIONS = ['Game Master','Translator','Customer Service','Graphics Designer','Moderator'];
+
+  return (
+    <div style={{ padding: '28px 32px', fontFamily: 'Poppins,sans-serif' }}>
+      <div style={{ display:'flex', alignItems:'center', gap:12, marginBottom:24 }}>
+        <h2 style={{ margin:0, fontSize:20, fontWeight:700, color:'#c8d0ff' }}>Lamaran Karir</h2>
+        <span style={{ background:'rgba(0,229,255,0.12)', color:'#00e5ff', border:'1px solid rgba(0,229,255,0.2)', borderRadius:20, padding:'2px 10px', fontSize:12, fontWeight:600 }}>
+          {total} lamaran
+        </span>
+      </div>
+
+      {/* Filters */}
+      <div style={{ display:'flex', gap:10, marginBottom:20, flexWrap:'wrap' }}>
+        <select style={{ background:'#10102a', color:'#c8d0ff', border:'1px solid rgba(0,229,255,0.14)', borderRadius:8, padding:'7px 12px', fontSize:13 }}
+          value={filterPos} onChange={e => setFilterPos(e.target.value)}>
+          <option value="">Semua Posisi</option>
+          {POSITIONS.map(p => <option key={p} value={p}>{p}</option>)}
+        </select>
+        <select style={{ background:'#10102a', color:'#c8d0ff', border:'1px solid rgba(0,229,255,0.14)', borderRadius:8, padding:'7px 12px', fontSize:13 }}
+          value={filterSt} onChange={e => setFilterSt(e.target.value)}>
+          <option value="">Semua Status</option>
+          {Object.entries(STATUS_LABELS).map(([v,l]) => <option key={v} value={v}>{l}</option>)}
+        </select>
+        <button style={{ background:'#6366f1', color:'#fff', border:'none', borderRadius:8, padding:'7px 14px', fontSize:13, fontWeight:600 }}
+          onClick={load} disabled={loading}>
+          {loading ? 'Memuat…' : '🔄 Refresh'}
+        </button>
+      </div>
+
+      {/* List */}
+      {apps.length === 0 && !loading && (
+        <div style={{ textAlign:'center', color:'#6a7494', padding:48, fontSize:14 }}>Belum ada lamaran masuk.</div>
+      )}
+
+      <div style={{ display:'flex', flexDirection:'column', gap:12 }}>
+        {apps.map(app => (
+          <div key={app._id} style={{ background:'#0a0a1f', border:'1px solid rgba(0,229,255,0.1)', borderRadius:12, overflow:'hidden' }}>
+            {/* Header row */}
+            <div style={{ display:'flex', alignItems:'center', gap:12, padding:'14px 18px', flexWrap:'wrap' }}>
+              <div style={{ flex:1, minWidth:0 }}>
+                <div style={{ display:'flex', alignItems:'center', gap:8, flexWrap:'wrap' }}>
+                  <span style={{ fontWeight:700, fontSize:14, color:'#c8d0ff' }}>{app.fullName}</span>
+                  <span style={{ fontSize:11, color:'#6a7494' }}>@{app.username}</span>
+                  <span style={{ background:'rgba(233,30,99,0.15)', color:'#e91e63', border:'1px solid rgba(233,30,99,0.25)', borderRadius:12, padding:'1px 8px', fontSize:11, fontWeight:600 }}>
+                    {app.position}
+                  </span>
+                  <span style={{ background:`${STATUS_COLORS[app.status]}22`, color:STATUS_COLORS[app.status], border:`1px solid ${STATUS_COLORS[app.status]}44`, borderRadius:12, padding:'1px 8px', fontSize:11, fontWeight:600 }}>
+                    {STATUS_LABELS[app.status]}
+                  </span>
+                </div>
+                <div style={{ fontSize:11, color:'#6a7494', marginTop:4, display:'flex', gap:12, flexWrap:'wrap' }}>
+                  <span>{app.email}</span>
+                  <span>Discord: {app.discord}</span>
+                  <span>{new Date(app.createdAt).toLocaleDateString('id-ID', { day:'numeric', month:'long', year:'numeric' })}</span>
+                </div>
+              </div>
+
+              {/* Actions */}
+              <div style={{ display:'flex', gap:6, flexShrink:0, flexWrap:'wrap' }}>
+                <select
+                  style={{ background:'#10102a', color:'#c8d0ff', border:'1px solid rgba(0,229,255,0.14)', borderRadius:7, padding:'4px 8px', fontSize:12 }}
+                  value={app.status}
+                  onChange={e => updateStatus(app._id, e.target.value)}
+                >
+                  {Object.entries(STATUS_LABELS).map(([v,l]) => <option key={v} value={v}>{l}</option>)}
+                </select>
+                <button
+                  style={{ background:'#1e293b', color:'#94a3b8', border:'1px solid rgba(0,229,255,0.1)', borderRadius:7, padding:'4px 10px', fontSize:12 }}
+                  onClick={() => setExpanded(expanded === app._id ? null : app._id)}
+                >
+                  {expanded === app._id ? '▲ Tutup' : '▼ Detail'}
+                </button>
+                <button
+                  style={{ background:'#7f1d1d', color:'#fca5a5', border:'none', borderRadius:7, padding:'4px 10px', fontSize:12 }}
+                  onClick={() => deleteApp(app._id, app.fullName)}
+                >
+                  Hapus
+                </button>
+              </div>
+            </div>
+
+            {/* Expandable detail */}
+            {expanded === app._id && (
+              <div style={{ borderTop:'1px solid rgba(0,229,255,0.08)', padding:'16px 18px', display:'flex', flexDirection:'column', gap:12 }}>
+                <div>
+                  <p style={{ margin:'0 0 4px', fontSize:11, fontWeight:700, color:'#6a7494', textTransform:'uppercase', letterSpacing:'0.05em' }}>Motivasi</p>
+                  <p style={{ margin:0, fontSize:13, color:'#c8d0ff', lineHeight:1.7, whiteSpace:'pre-wrap' }}>{app.motivation}</p>
+                </div>
+                <div>
+                  <p style={{ margin:'0 0 4px', fontSize:11, fontWeight:700, color:'#6a7494', textTransform:'uppercase', letterSpacing:'0.05em' }}>Pengalaman</p>
+                  <p style={{ margin:0, fontSize:13, color:'#c8d0ff', lineHeight:1.7, whiteSpace:'pre-wrap' }}>{app.experience}</p>
+                </div>
+                {app.portfolio && (
+                  <div>
+                    <p style={{ margin:'0 0 4px', fontSize:11, fontWeight:700, color:'#6a7494', textTransform:'uppercase', letterSpacing:'0.05em' }}>Portofolio</p>
+                    <a href={app.portfolio} target="_blank" rel="noopener noreferrer"
+                      style={{ fontSize:13, color:'#00e5ff', wordBreak:'break-all' }}>{app.portfolio}</a>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
 // Dashboard shell
 // ─────────────────────────────────────────────────────────────────────────────
-type Section = 'news' | 'downloads' | 'redeem' | 'players' | 'requests' | 'logs' | 'account';
+type Section = 'news' | 'downloads' | 'redeem' | 'players' | 'requests' | 'logs' | 'career' | 'account';
 
 function AdminDashboard({ onLogout, adminUser }: { onLogout: () => void; adminUser: AdminUser | null }) {
   const { articles, loading, refresh, create, update, remove, togglePublish } = useAdminNews();
@@ -1150,6 +1329,11 @@ function AdminDashboard({ onLogout, adminUser }: { onLogout: () => void; adminUs
             <IconLog /> GM — Logs
           </button>
           <div className="admin-sidebar__nav-divider" />
+          <button className={`admin-nav-link${section === 'career' ? ' admin-nav-link--active' : ''}`}
+            onClick={() => goSection('career')}>
+            <IconCareer /> Lamaran Karir
+          </button>
+          <div className="admin-sidebar__nav-divider" />
           <button className={`admin-nav-link${section === 'account' ? ' admin-nav-link--active' : ''}`}
             onClick={() => goSection('account')}>
             <IconAccount /> Akun Saya
@@ -1188,6 +1372,7 @@ function AdminDashboard({ onLogout, adminUser }: { onLogout: () => void; adminUs
         {section === 'players'  && <GmPlayerSection  adminUser={adminUser} showToast={showToast} />}
         {section === 'requests' && <GmRequestsSection adminUser={adminUser} showToast={showToast} />}
         {section === 'logs'     && <GmLogsSection     adminUser={adminUser} />}
+        {section === 'career'   && <CareerSection showToast={showToast} />}
         {section === 'account'  && <AccountSection    adminUser={adminUser} showToast={showToast} />}
       </main>
 
