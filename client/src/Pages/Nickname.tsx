@@ -21,9 +21,9 @@ import { MdStars, MdHistory } from 'react-icons/md';
 
 // ── Biaya tetap (harus bayar ketiganya) ──────────────────────
 const COST = [
-    { id: 'tr',   label: 'TR',   amount: 50_000,  icon: <GiTwoCoins size={16} />, color: '#f5a623' },
-    { id: 'cash', label: 'Cash', amount: 15_000,  icon: <IoCashOutline size={16} />, color: '#e83e8c' },
-    { id: 'mau',  label: 'MAU',  amount: 20_000,  icon: <MdStars size={16} />, color: '#7b5ea7' },
+    { id: 'tr',   label: 'TR',   amount: 150_000,  icon: <GiTwoCoins size={16} />, color: '#f5a623' },
+    { id: 'cash', label: 'Cash', amount: 250_000,  icon: <IoCashOutline size={16} />, color: '#e83e8c' },
+    { id: 'mau',  label: 'MAU',  amount: 78_000,  icon: <MdStars size={16} />, color: '#7b5ea7' },
 ];
 
 const STARS = Array.from({ length: 14 }, (_, i) => ({

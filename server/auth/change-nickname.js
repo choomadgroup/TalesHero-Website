@@ -16,9 +16,9 @@
 import { query } from '../db.js';
 import { getSessionUsername } from './session.js';
 
-const PRICE_TR   = 50_000;
-const PRICE_CASH = 15_000;
-const PRICE_MAU  = 20_000;
+const PRICE_TR   = 150_000;
+const PRICE_CASH = 250_000;
+const PRICE_MAU  = 78_000;
 const COOLDOWN_DAYS = 14;
 
 // ── Daftar badwords ──────────────────────────────────────────
