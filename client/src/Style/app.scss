@@ -6147,9 +6147,9 @@ $nl-sans:     'Poppins', -apple-system, sans-serif;
   position: relative;
   border-radius: 22px;
   overflow: hidden;
-  background: #fff;
-  border: 1px solid rgba(255,255,255,0.15);
-  box-shadow: 0 8px 32px rgba(0,0,0,0.25);
+  background: transparent;
+  border: 1px solid rgba(255,255,255,0.12);
+  box-shadow: 0 8px 32px rgba(0,0,0,0.2);
   display: flex;
   align-items: stretch;
   min-height: 200px;
@@ -6223,7 +6223,7 @@ $nl-sans:     'Poppins', -apple-system, sans-serif;
     margin: 0;
     font-size: clamp(1.35rem, 3vw, 1.75rem);
     font-weight: 900;
-    color: #1a1a2e;
+    color: #ffffff;
     letter-spacing: -0.5px;
     line-height: 1.1;
     white-space: nowrap;
@@ -6259,7 +6259,7 @@ $nl-sans:     'Poppins', -apple-system, sans-serif;
   &__exp-pct {
     font-size: 10px;
     font-weight: 700;
-    color: rgba(0,0,0,0.35);
+    color: rgba(255,255,255,0.5);
     white-space: nowrap;
     flex-shrink: 0;
   }
@@ -6268,7 +6268,7 @@ $nl-sans:     'Poppins', -apple-system, sans-serif;
     flex: 1;
     min-width: 60px;
     height: 6px;
-    background: rgba(0,0,0,0.08);
+    background: rgba(255,255,255,0.15);
     border-radius: 100px;
     overflow: hidden;
   }
@@ -6295,31 +6295,31 @@ $nl-sans:     'Poppins', -apple-system, sans-serif;
     gap: 5px;
     padding: 5px 11px;
     border-radius: 100px;
-    background: #fafafa;
-    border: 1.5px solid #edeef4;
+    background: rgba(255,255,255,0.08);
+    border: 1.5px solid rgba(255,255,255,0.15);
 
     strong {
       font-size: 13px;
       font-weight: 800;
-      color: #1a1a2e;
+      color: #ffffff;
       letter-spacing: -0.2px;
     }
 
     &--cash {
-      border-color: rgba(245,158,11,0.4);
-      background: rgba(245,158,11,0.05);
+      border-color: rgba(245,158,11,0.45);
+      background: rgba(245,158,11,0.12);
       svg { color: #f59e0b; }
     }
 
     &--tr {
-      border-color: rgba(59,130,246,0.4);
-      background: rgba(59,130,246,0.05);
+      border-color: rgba(59,130,246,0.45);
+      background: rgba(59,130,246,0.12);
       svg { color: #3b82f6; }
     }
 
     &--mau {
-      border-color: rgba(139,92,246,0.4);
-      background: rgba(139,92,246,0.05);
+      border-color: rgba(139,92,246,0.45);
+      background: rgba(139,92,246,0.12);
       svg { color: #8b5cf6; }
     }
   }
@@ -6329,7 +6329,7 @@ $nl-sans:     'Poppins', -apple-system, sans-serif;
     font-weight: 800;
     letter-spacing: 0.5px;
     text-transform: uppercase;
-    color: rgba(0,0,0,0.4);
+    color: rgba(255,255,255,0.5);
   }
 
   // Right: character art
