@@ -29,6 +29,12 @@ const BADWORDS = [
   'lonte','bajing','setan','iblis','keparat','bejat','bokep','bugil',
   'fuck','shit','bitch','asshole','bastard','cunt','dick','pussy','cock',
   'nigger','faggot','retard','whore','slut',
+  // ── Kata-kata yang menyerupai staff / tim resmi ───────────────
+  'staff','staf','admin','administrator','owner','developer','dev',
+  'moderator','mod','gm','gamemaster','game master','gamemast',
+  'operator','oper','manager','manajer','official','resmi',
+  'support','helpdesk','helpdesk','cs','csrep',
+  'superadmin','superadmin','sysadmin','sysop',
 ];
 
 function containsBadword(str) {
