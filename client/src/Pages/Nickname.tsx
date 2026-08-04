@@ -124,9 +124,9 @@ export default function Nickname() {
     function validate(val: string): string {
         if (!val.trim()) return 'Nickname tidak boleh kosong.';
         if (val.trim().length < 5) return 'Nickname minimal 5 karakter.';
-        if (val.trim().length > 20) return 'Nickname maksimal 20 karakter.';
-        if (!/^[a-zA-Z0-9 _]+$/.test(val.trim()))
-            return 'Hanya huruf, angka, spasi, dan underscore yang diizinkan.';
+        if (val.trim().length > 10) return 'Nickname maksimal 10 karakter.';
+        if (!/^[a-zA-Z0-9]+$/.test(val.trim()))
+            return 'Hanya huruf dan angka yang diizinkan (tanpa spasi atau underscore).';
         return '';
     }
 
@@ -266,8 +266,8 @@ export default function Nickname() {
                                     className={`akun-form-input${fieldError ? ' akun-form-input--error' : ''}`}
                                     value={nickname}
                                     onChange={handleNicknameChange}
-                                    placeholder="Min. 5 karakter, huruf & angka"
-                                    maxLength={20}
+                                    placeholder="5–10 karakter, huruf & angka"
+                                    maxLength={10}
                                     autoComplete="off"
                                     autoFocus
                                 />
@@ -275,12 +275,12 @@ export default function Nickname() {
                                     {fieldError
                                         ? <span className="akun-form-error">{fieldError}</span>
                                         : <span className="akun-form-hint">
-                                            Huruf, angka, spasi, underscore — minimal 5 karakter
+                                            Huruf dan angka saja — minimal 5, maksimal 10 karakter
                                           </span>
                                     }
                                     <span className="nickname-page__char-count"
-                                        style={{ color: nickname.length > 18 ? '#e83e8c' : undefined }}>
-                                        {nickname.length}/20
+                                        style={{ color: nickname.length > 8 ? '#e83e8c' : undefined }}>
+                                        {nickname.length}/10
                                     </span>
                                 </div>
                             </div>
@@ -349,8 +349,8 @@ export default function Nickname() {
 
                         {/* Syarat & ketentuan */}
                         <ul className="nickname-page__rules">
-                            <li>Minimal 5 karakter, maksimal 20 karakter</li>
-                            <li>Hanya huruf, angka, spasi, dan underscore (_)</li>
+                            <li>Minimal 5 karakter, maksimal 10 karakter</li>
+                            <li>Hanya huruf dan angka (tanpa spasi atau underscore)</li>
                             <li>Tidak boleh mengandung kata-kata tidak sopan</li>
                             <li>Pembayaran langsung dipotong saat konfirmasi</li>
                         </ul>

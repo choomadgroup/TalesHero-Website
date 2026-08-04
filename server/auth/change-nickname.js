@@ -38,8 +38,8 @@ function validateNickname(nickname) {
   if (!nickname || typeof nickname !== 'string') return 'Nickname tidak boleh kosong.';
   const trimmed = nickname.trim();
   if (trimmed.length < 5)  return 'Nickname minimal 5 karakter.';
-  if (trimmed.length > 20) return 'Nickname maksimal 20 karakter.';
-  if (!/^[a-zA-Z0-9 _]+$/.test(trimmed)) return 'Nickname hanya boleh mengandung huruf, angka, spasi, dan underscore.';
+  if (trimmed.length > 10) return 'Nickname maksimal 10 karakter.';
+  if (!/^[a-zA-Z0-9]+$/.test(trimmed)) return 'Nickname hanya boleh mengandung huruf dan angka (tanpa spasi atau underscore).';
   if (containsBadword(trimmed)) return 'Nickname mengandung kata yang tidak diperbolehkan.';
   return null; // valid
 }
