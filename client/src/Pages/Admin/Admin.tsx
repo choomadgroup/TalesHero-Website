@@ -1080,7 +1080,8 @@ const STATUS_LABELS: Record<string, string> = {
   rejected: 'Ditolak',
 };
 
-function CareerSection({ showToast }: { showToast: (m: string) => void }) {
+function CareerSection({ showToast, adminUser }: { showToast: (m: string) => void; adminUser: AdminUser | null }) {
+  const canManage = adminUser?.role === 'Owner';
   const ALL_POSITIONS = ['Game Master','Translator','Customer Service','Graphics Designer','Developer','Moderator'];
 
   const [apps, setApps]                 = useState<CareerApp[]>([]);
@@ -1155,26 +1156,32 @@ function CareerSection({ showToast }: { showToast: (m: string) => void }) {
         </span>
       </div>
 
-      {/* ── Position availability toggles ── */}
+      {/* ── Position availability toggles (Owner only) ── */}
       <div style={{ background:'#0a0a1f', border:'1px solid rgba(0,229,255,0.1)', borderRadius:12, padding:'16px 20px', marginBottom:24 }}>
         <p style={{ margin:'0 0 14px', fontSize:13, fontWeight:700, color:'#6a7494', textTransform:'uppercase', letterSpacing:'0.06em' }}>
           🎯 Ketersediaan Posisi
         </p>
+        {!canManage && (
+          <p style={{ margin:'0 0 12px', fontSize:12, color:'#6a7494' }}>
+            Hanya <strong style={{ color:'#f59e0b' }}>Owner</strong> yang dapat membuka/menutup posisi.
+          </p>
+        )}
         <div style={{ display:'flex', flexWrap:'wrap', gap:10 }}>
           {ALL_POSITIONS.map(pos => {
             const isOpen = posSettings[pos] !== false;
             const busy   = posLoading === pos;
             return (
               <button key={pos}
-                disabled={busy}
-                onClick={() => togglePosition(pos, !isOpen)}
+                disabled={!canManage || busy}
+                onClick={() => canManage && togglePosition(pos, !isOpen)}
                 style={{
                   display:'flex', alignItems:'center', gap:8,
                   background: isOpen ? 'rgba(16,185,129,0.12)' : 'rgba(239,68,68,0.10)',
                   border: `1.5px solid ${isOpen ? 'rgba(16,185,129,0.35)' : 'rgba(239,68,68,0.3)'}`,
                   borderRadius:8, padding:'6px 14px', fontSize:12.5, fontWeight:600,
                   color: isOpen ? '#34d399' : '#f87171',
-                  opacity: busy ? 0.5 : 1,
+                  opacity: (!canManage || busy) ? 0.5 : 1,
+                  cursor: canManage ? 'pointer' : 'default',
                 }}
               >
                 <span style={{ fontSize:10 }}>{isOpen ? '●' : '○'}</span>
@@ -1232,25 +1239,33 @@ function CareerSection({ showToast }: { showToast: (m: string) => void }) {
               </div>
 
               <div style={{ display:'flex', gap:6, flexShrink:0, flexWrap:'wrap' }}>
-                <select
-                  style={{ background:'#10102a', color:'#c8d0ff', border:'1px solid rgba(0,229,255,0.14)', borderRadius:7, padding:'4px 8px', fontSize:12 }}
-                  value={app.status}
-                  onChange={e => updateStatus(app._id, e.target.value)}
-                >
-                  {Object.entries(STATUS_LABELS).map(([v,l]) => <option key={v} value={v}>{l}</option>)}
-                </select>
+                {canManage ? (
+                  <select
+                    style={{ background:'#10102a', color:'#c8d0ff', border:'1px solid rgba(0,229,255,0.14)', borderRadius:7, padding:'4px 8px', fontSize:12 }}
+                    value={app.status}
+                    onChange={e => updateStatus(app._id, e.target.value)}
+                  >
+                    {Object.entries(STATUS_LABELS).map(([v,l]) => <option key={v} value={v}>{l}</option>)}
+                  </select>
+                ) : (
+                  <span style={{ background:`${STATUS_COLORS[app.status]}22`, color:STATUS_COLORS[app.status], border:`1px solid ${STATUS_COLORS[app.status]}44`, borderRadius:7, padding:'4px 10px', fontSize:12, fontWeight:600 }}>
+                    {STATUS_LABELS[app.status]}
+                  </span>
+                )}
                 <button
                   style={{ background:'#1e293b', color:'#94a3b8', border:'1px solid rgba(0,229,255,0.1)', borderRadius:7, padding:'4px 10px', fontSize:12 }}
                   onClick={() => setExpanded(expanded === app._id ? null : app._id)}
                 >
                   {expanded === app._id ? '▲ Tutup' : '▼ Detail'}
                 </button>
-                <button
-                  style={{ background:'#7f1d1d', color:'#fca5a5', border:'none', borderRadius:7, padding:'4px 10px', fontSize:12 }}
-                  onClick={() => deleteApp(app._id, (app as any).nickname || (app as any).fullName)}
-                >
-                  Hapus
-                </button>
+                {canManage && (
+                  <button
+                    style={{ background:'#7f1d1d', color:'#fca5a5', border:'none', borderRadius:7, padding:'4px 10px', fontSize:12 }}
+                    onClick={() => deleteApp(app._id, (app as any).nickname || (app as any).fullName)}
+                  >
+                    Hapus
+                  </button>
+                )}
               </div>
             </div>
 
@@ -1267,25 +1282,25 @@ function CareerSection({ showToast }: { showToast: (m: string) => void }) {
                 {(app as any).whyJoin && (
                   <div>
                     <p style={{ margin:'0 0 4px', fontSize:11, fontWeight:700, color:'#6a7494', textTransform:'uppercase', letterSpacing:'0.05em' }}>Kenapa Berminat Bergabung</p>
-                    <p style={{ margin:0, fontSize:13, color:'#c8d0ff', lineHeight:1.7, whiteSpace:'pre-wrap' }}>{(app as any).whyJoin}</p>
+                    <p style={{ margin:0, fontSize:13, color:'#c8d0ff', lineHeight:1.7, whiteSpace:'pre-wrap', wordBreak:'break-word', overflowWrap:'break-word' }}>{(app as any).whyJoin}</p>
                   </div>
                 )}
                 {(app as any).whatSkills && (
                   <div>
                     <p style={{ margin:'0 0 4px', fontSize:11, fontWeight:700, color:'#6a7494', textTransform:'uppercase', letterSpacing:'0.05em' }}>Yang Dimiliki / Ditawarkan</p>
-                    <p style={{ margin:0, fontSize:13, color:'#c8d0ff', lineHeight:1.7, whiteSpace:'pre-wrap' }}>{(app as any).whatSkills}</p>
+                    <p style={{ margin:0, fontSize:13, color:'#c8d0ff', lineHeight:1.7, whiteSpace:'pre-wrap', wordBreak:'break-word', overflowWrap:'break-word' }}>{(app as any).whatSkills}</p>
                   </div>
                 )}
                 {(app as any).whyChooseYou && (
                   <div>
                     <p style={{ margin:'0 0 4px', fontSize:11, fontWeight:700, color:'#6a7494', textTransform:'uppercase', letterSpacing:'0.05em' }}>Mengapa Harus Dipilih</p>
-                    <p style={{ margin:0, fontSize:13, color:'#c8d0ff', lineHeight:1.7, whiteSpace:'pre-wrap' }}>{(app as any).whyChooseYou}</p>
+                    <p style={{ margin:0, fontSize:13, color:'#c8d0ff', lineHeight:1.7, whiteSpace:'pre-wrap', wordBreak:'break-word', overflowWrap:'break-word' }}>{(app as any).whyChooseYou}</p>
                   </div>
                 )}
                 {app.experience && (
                   <div>
                     <p style={{ margin:'0 0 4px', fontSize:11, fontWeight:700, color:'#6a7494', textTransform:'uppercase', letterSpacing:'0.05em' }}>Pengalaman Relevan</p>
-                    <p style={{ margin:0, fontSize:13, color:'#c8d0ff', lineHeight:1.7, whiteSpace:'pre-wrap' }}>{app.experience}</p>
+                    <p style={{ margin:0, fontSize:13, color:'#c8d0ff', lineHeight:1.7, whiteSpace:'pre-wrap', wordBreak:'break-word', overflowWrap:'break-word' }}>{app.experience}</p>
                   </div>
                 )}
                 {app.portfolio && (
@@ -1448,7 +1463,7 @@ function AdminDashboard({ onLogout, adminUser }: { onLogout: () => void; adminUs
         {section === 'players'  && <GmPlayerSection  adminUser={adminUser} showToast={showToast} />}
         {section === 'requests' && <GmRequestsSection adminUser={adminUser} showToast={showToast} />}
         {section === 'logs'     && <GmLogsSection     adminUser={adminUser} />}
-        {section === 'career'   && <CareerSection showToast={showToast} />}
+        {section === 'career'   && <CareerSection showToast={showToast} adminUser={adminUser} />}
         {section === 'account'  && <AccountSection    adminUser={adminUser} showToast={showToast} />}
       </main>
 

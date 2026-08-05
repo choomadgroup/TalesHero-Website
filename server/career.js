@@ -130,6 +130,8 @@ export async function submitApplication(req, res) {
     else if (whatSkills.trim().length < 30) errs.push('"Apa yang kamu tawarkan" minimal 30 karakter.');
     if (!whyChooseYou?.trim())   errs.push('Kolom "Mengapa kami harus memilihmu" wajib diisi.');
     else if (whyChooseYou.trim().length < 30) errs.push('"Mengapa kami harus memilihmu" minimal 30 karakter.');
+    if (!experience?.trim())     errs.push('Pengalaman relevan wajib diisi.');
+    else if (experience.trim().length < 30) errs.push('Pengalaman relevan minimal 30 karakter.');
     if (typeof isAvailable !== 'boolean') errs.push('Jawab pertanyaan kesediaan waktu.');
     if (errs.length) return res.status(400).json({ ok: false, message: errs[0] });
 

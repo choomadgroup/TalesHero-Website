@@ -12,7 +12,7 @@ const careerApplicationSchema = new mongoose.Schema({
   whatSkills:      { type: String, required: true, maxlength: 2000 },   // apa yang kamu punya/tawarkan
   whyChooseYou:    { type: String, required: true, maxlength: 2000 },   // mengapa kami harus memilih kamu
   isAvailable:     { type: Boolean, required: true },                   // siap login di waktu diminta
-  experience:      { type: String, default: '', maxlength: 2000 },      // pengalaman relevan (optional)
+  experience:      { type: String, required: true, maxlength: 2000 },   // pengalaman relevan (wajib)
   portfolio:       { type: String, default: '', maxlength: 500 },
   status:          { type: String, enum: ['pending', 'reviewed', 'accepted', 'rejected'], default: 'pending' },
   statusUpdatedAt: { type: Date, default: null },

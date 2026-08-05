@@ -337,6 +337,8 @@ export default function Career() {
         else if (form.whatSkills.trim().length < 30) e.whatSkills = 'Minimal 30 karakter.';
         if (!form.whyChooseYou.trim())    e.whyChooseYou = 'Kolom ini wajib diisi.';
         else if (form.whyChooseYou.trim().length < 30) e.whyChooseYou = 'Minimal 30 karakter.';
+        if (!form.experience.trim())      e.experience   = 'Kolom ini wajib diisi.';
+        else if (form.experience.trim().length < 30) e.experience = 'Minimal 30 karakter.';
         if (form.isAvailable === null)    e.isAvailable  = 'Pilih salah satu jawaban.';
         setErrors(e);
         return Object.keys(e).length === 0;
@@ -545,16 +547,17 @@ export default function Career() {
                     {errors.whyChooseYou && <p className="career-form__err">{errors.whyChooseYou}</p>}
                 </div>
 
-                {/* ── Pengalaman (optional) ── */}
+                {/* ── Pengalaman (wajib) ── */}
                 <div className="career-form__field">
                     <label htmlFor="cf-experience">
-                        <IoDocumentTextOutline size={13} /> Pengalaman Relevan Sebelumnya
-                        <em>opsional</em>
+                        <IoDocumentTextOutline size={13} /> Pengalaman Relevan Sebelumnya <span>*</span>
+                        <em>min. 30 karakter</em>
                     </label>
                     <textarea id="cf-experience" rows={3}
                         placeholder="Pengalaman di server game lain, komunitas, atau pekerjaan sebelumnya yang relevan..."
                         value={form.experience} onChange={setField('experience')} maxLength={2000} />
                     <span className="career-form__char">{(form.experience ?? '').length}/2000</span>
+                    {errors.experience && <p className="career-form__err">{errors.experience}</p>}
                 </div>
 
                 {/* ── Portfolio (optional) ── */}
