@@ -556,13 +556,13 @@
   &--yes {
     background: #059669;
     border-color: transparent;
-    &:hover { background: darken(#059669, 8%); }
+    &:hover { background: #047857; }
   }
 
   &--no {
     background: #dc2626;
     border-color: transparent;
-    &:hover { background: darken(#dc2626, 8%); }
+    &:hover { background: #b91c1c; }
   }
 }
 
