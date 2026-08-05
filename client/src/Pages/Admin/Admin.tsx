@@ -1256,14 +1256,38 @@ function CareerSection({ showToast }: { showToast: (m: string) => void }) {
 
             {expanded === app._id && (
               <div style={{ borderTop:'1px solid rgba(0,229,255,0.08)', padding:'16px 18px', display:'flex', flexDirection:'column', gap:12 }}>
-                <div>
-                  <p style={{ margin:'0 0 4px', fontSize:11, fontWeight:700, color:'#6a7494', textTransform:'uppercase', letterSpacing:'0.05em' }}>Motivasi</p>
-                  <p style={{ margin:0, fontSize:13, color:'#c8d0ff', lineHeight:1.7, whiteSpace:'pre-wrap' }}>{app.motivation}</p>
+                {/* Meta row */}
+                <div style={{ display:'flex', gap:16, flexWrap:'wrap', fontSize:12, color:'#6a7494' }}>
+                  {(app as any).fullName && <span>👤 <strong style={{color:'#c8d0ff'}}>{(app as any).fullName}</strong></span>}
+                  {(app as any).birthDate && <span>🎂 {(app as any).birthDate}</span>}
+                  <span>{typeof (app as any).isAvailable === 'boolean'
+                    ? ((app as any).isAvailable ? '✅ Siap login sesuai jadwal' : '❌ Tidak siap login sesuai jadwal')
+                    : ''}</span>
                 </div>
-                <div>
-                  <p style={{ margin:'0 0 4px', fontSize:11, fontWeight:700, color:'#6a7494', textTransform:'uppercase', letterSpacing:'0.05em' }}>Pengalaman</p>
-                  <p style={{ margin:0, fontSize:13, color:'#c8d0ff', lineHeight:1.7, whiteSpace:'pre-wrap' }}>{app.experience}</p>
-                </div>
+                {(app as any).whyJoin && (
+                  <div>
+                    <p style={{ margin:'0 0 4px', fontSize:11, fontWeight:700, color:'#6a7494', textTransform:'uppercase', letterSpacing:'0.05em' }}>Kenapa Berminat Bergabung</p>
+                    <p style={{ margin:0, fontSize:13, color:'#c8d0ff', lineHeight:1.7, whiteSpace:'pre-wrap' }}>{(app as any).whyJoin}</p>
+                  </div>
+                )}
+                {(app as any).whatSkills && (
+                  <div>
+                    <p style={{ margin:'0 0 4px', fontSize:11, fontWeight:700, color:'#6a7494', textTransform:'uppercase', letterSpacing:'0.05em' }}>Yang Dimiliki / Ditawarkan</p>
+                    <p style={{ margin:0, fontSize:13, color:'#c8d0ff', lineHeight:1.7, whiteSpace:'pre-wrap' }}>{(app as any).whatSkills}</p>
+                  </div>
+                )}
+                {(app as any).whyChooseYou && (
+                  <div>
+                    <p style={{ margin:'0 0 4px', fontSize:11, fontWeight:700, color:'#6a7494', textTransform:'uppercase', letterSpacing:'0.05em' }}>Mengapa Harus Dipilih</p>
+                    <p style={{ margin:0, fontSize:13, color:'#c8d0ff', lineHeight:1.7, whiteSpace:'pre-wrap' }}>{(app as any).whyChooseYou}</p>
+                  </div>
+                )}
+                {app.experience && (
+                  <div>
+                    <p style={{ margin:'0 0 4px', fontSize:11, fontWeight:700, color:'#6a7494', textTransform:'uppercase', letterSpacing:'0.05em' }}>Pengalaman Relevan</p>
+                    <p style={{ margin:0, fontSize:13, color:'#c8d0ff', lineHeight:1.7, whiteSpace:'pre-wrap' }}>{app.experience}</p>
+                  </div>
+                )}
                 {app.portfolio && (
                   <div>
                     <p style={{ margin:'0 0 4px', fontSize:11, fontWeight:700, color:'#6a7494', textTransform:'uppercase', letterSpacing:'0.05em' }}>Portofolio</p>

@@ -524,6 +524,48 @@
   100% { background-position:  200% 0; }
 }
 
+// ── Yes / No toggle ──────────────────────────────────────────
+.career-form__yesno {
+  display: flex;
+  gap: 10px;
+  margin-top: 2px;
+}
+
+.career-form__yesno-btn {
+  flex: 1;
+  padding: 11px 16px;
+  border-radius: 10px;
+  border: 1.5px solid #e0e0e8;
+  background: #f7f7fc;
+  color: #555;
+  font-size: 13.5px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+
+  &:hover {
+    border-color: #c0c0d8;
+    background: #eeeef8;
+  }
+
+  &--active {
+    color: #fff;
+    border-color: transparent;
+  }
+
+  &--yes {
+    background: #059669;
+    border-color: transparent;
+    &:hover { background: darken(#059669, 8%); }
+  }
+
+  &--no {
+    background: #dc2626;
+    border-color: transparent;
+    &:hover { background: darken(#dc2626, 8%); }
+  }
+}
+
 // ── Success state ────────────────────────────────────────────
 .career-success {
   display: flex;
