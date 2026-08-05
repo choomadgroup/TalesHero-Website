@@ -32,6 +32,11 @@ import turnstileConfig from './server/auth/turnstile-config.js';
 import { ping, migrate } from './server/db.js';
 import { gmToolsRouter } from './server/gm-tools.js';
 import { applySecurityHeaders } from './server/security.js';
+import {
+  getPositions, getMyStatus, submitApplication,
+  getApplications, updateApplicationStatus, deleteApplication,
+  adminGetPositions, adminUpdatePosition,
+} from './server/career.js';
 
 import runtimeErrorOverlay from '@replit/vite-plugin-runtime-error-modal';
 
@@ -498,6 +503,56 @@ const apiPlugin = {
         res.statusCode = 500;
         res.setHeader('Content-Type', 'application/json');
         res.end(JSON.stringify({ message: 'Server error' }));
+      }
+    });
+
+    // ── Career: public routes ────────────────────────────────────────────────
+    server.middlewares.use('/api/career', async (req: any, res: any, next: any) => {
+      try {
+        addJsonResponseHelpers(res);
+        req.body  = ['POST', 'PUT', 'PATCH'].includes(req.method) ? await parseBody(req) : undefined;
+        req.query = Object.fromEntries(new URL('http://x' + req.url).searchParams.entries());
+        const urlPath = (req.url ?? '').split('?')[0];
+        if (urlPath === '/positions'  && req.method === 'GET')  await getPositions(req, res);
+        else if (urlPath === '/my-status' && req.method === 'GET')  await getMyStatus(req, res);
+        else if (urlPath === '/apply'     && req.method === 'POST') await submitApplication(req, res);
+        else next();
+      } catch (e) {
+        res.statusCode = 500;
+        res.setHeader('Content-Type', 'application/json');
+        res.end(JSON.stringify({ ok: false, message: 'Server error' }));
+      }
+    });
+
+    // ── Career: admin routes ─────────────────────────────────────────────────
+    server.middlewares.use('/api/admin/career', async (req: any, res: any, next: any) => {
+      try {
+        addJsonResponseHelpers(res);
+        req.body  = ['POST', 'PUT', 'PATCH'].includes(req.method) ? await parseBody(req) : undefined;
+        req.query = Object.fromEntries(new URL('http://x' + req.url).searchParams.entries());
+        const urlPath = (req.url ?? '').split('?')[0];
+        // /applications/<id>
+        const appIdMatch = urlPath.match(/^\/applications\/([a-f0-9]{24})$/i);
+        // /positions/<name>
+        const posMatch = urlPath.match(/^\/positions\/(.+)$/);
+        if (appIdMatch) {
+          req.params = { id: appIdMatch[1] };
+          if      (req.method === 'PATCH')  await updateApplicationStatus(req, res);
+          else if (req.method === 'DELETE') await deleteApplication(req, res);
+          else next();
+        } else if (urlPath === '/applications' && req.method === 'GET') {
+          await getApplications(req, res);
+        } else if (posMatch) {
+          req.params = { position: decodeURIComponent(posMatch[1]) };
+          if (req.method === 'PATCH') await adminUpdatePosition(req, res);
+          else next();
+        } else if (urlPath === '/positions' && req.method === 'GET') {
+          await adminGetPositions(req, res);
+        } else { next(); }
+      } catch (e) {
+        res.statusCode = 500;
+        res.setHeader('Content-Type', 'application/json');
+        res.end(JSON.stringify({ ok: false, message: 'Server error' }));
       }
     });
 
