@@ -32,7 +32,7 @@ import {
   publicGetDownloads, adminGetDownloads, adminUpdateDownload,
 } from './downloads.js';
 import { gmToolsRouter } from './gm-tools.js';
-import { submitApplication, getApplications, updateApplicationStatus, deleteApplication } from './career.js';
+import { submitApplication, getApplications, updateApplicationStatus, deleteApplication, getMyStatus, getPositions, adminGetPositions, adminUpdatePosition } from './career.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const publicDir = path.resolve(__dirname, '..', 'dist', 'public');
@@ -133,10 +133,14 @@ app.get('/api/admin/downloads',            adminGetDownloads);
 app.put('/api/admin/downloads/:id',        (req, res) => adminUpdateDownload(req, res, req.params.id));
 
 // ── Career Applications ───────────────────────────────────────────────────────
-app.post('/api/career/apply',                 submitApplication);
-app.get('/api/admin/career/applications',      getApplications);
-app.patch('/api/admin/career/applications/:id', (req, res) => updateApplicationStatus(req, res));
-app.delete('/api/admin/career/applications/:id', (req, res) => deleteApplication(req, res));
+app.get('/api/career/positions',                  getPositions);
+app.get('/api/career/my-status',                  getMyStatus);
+app.post('/api/career/apply',                     submitApplication);
+app.get('/api/admin/career/applications',          getApplications);
+app.patch('/api/admin/career/applications/:id',    (req, res) => updateApplicationStatus(req, res));
+app.delete('/api/admin/career/applications/:id',   (req, res) => deleteApplication(req, res));
+app.get('/api/admin/career/positions',             adminGetPositions);
+app.patch('/api/admin/career/positions/:position', (req, res) => adminUpdatePosition(req, res));
 
 // ── GM Tools ──────────────────────────────────────────────────────────────────
 app.use('/api/admin/gm', async (req, res, next) => {

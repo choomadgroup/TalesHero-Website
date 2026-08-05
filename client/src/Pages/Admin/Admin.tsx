@@ -1081,14 +1081,18 @@ const STATUS_LABELS: Record<string, string> = {
 };
 
 function CareerSection({ showToast }: { showToast: (m: string) => void }) {
-  const [apps, setApps]             = useState<CareerApp[]>([]);
-  const [total, setTotal]           = useState(0);
-  const [loading, setLoading]       = useState(false);
-  const [filterPos, setFilterPos]   = useState('');
-  const [filterSt, setFilterSt]     = useState('');
-  const [expanded, setExpanded]     = useState<string | null>(null);
+  const ALL_POSITIONS = ['Game Master','Translator','Customer Service','Graphics Designer','Developer','Moderator'];
 
-  const load = useCallback(async () => {
+  const [apps, setApps]                 = useState<CareerApp[]>([]);
+  const [total, setTotal]               = useState(0);
+  const [loading, setLoading]           = useState(false);
+  const [filterPos, setFilterPos]       = useState('');
+  const [filterSt, setFilterSt]         = useState('');
+  const [expanded, setExpanded]         = useState<string | null>(null);
+  const [posSettings, setPosSettings]   = useState<Record<string,boolean>>({});
+  const [posLoading, setPosLoading]     = useState<string | null>(null);
+
+  const loadApps = useCallback(async () => {
     setLoading(true);
     try {
       const params = new URLSearchParams();
@@ -1100,7 +1104,14 @@ function CareerSection({ showToast }: { showToast: (m: string) => void }) {
     } finally { setLoading(false); }
   }, [filterPos, filterSt]);
 
-  useEffect(() => { load(); }, [load]);
+  const loadPositions = useCallback(async () => {
+    const r = await fetch('/api/admin/career/positions');
+    const d = await r.json();
+    if (d.ok) setPosSettings(d.positions);
+  }, []);
+
+  useEffect(() => { loadApps(); }, [loadApps]);
+  useEffect(() => { loadPositions(); }, [loadPositions]);
 
   const updateStatus = async (id: string, status: string) => {
     const r = await fetch(`/api/admin/career/applications/${id}`, {
@@ -1108,7 +1119,7 @@ function CareerSection({ showToast }: { showToast: (m: string) => void }) {
       body: JSON.stringify({ status }),
     });
     const d = await r.json();
-    if (d.ok) { showToast(`Status diubah: ${STATUS_LABELS[status]}`); load(); }
+    if (d.ok) { showToast(`Status diubah: ${STATUS_LABELS[status]}`); loadApps(); }
     else showToast(d.message ?? 'Gagal mengubah status.');
   };
 
@@ -1116,11 +1127,24 @@ function CareerSection({ showToast }: { showToast: (m: string) => void }) {
     if (!confirm(`Hapus lamaran dari ${name}?`)) return;
     const r = await fetch(`/api/admin/career/applications/${id}`, { method: 'DELETE' });
     const d = await r.json();
-    if (d.ok) { showToast('Lamaran dihapus.'); load(); }
+    if (d.ok) { showToast('Lamaran dihapus.'); loadApps(); }
     else showToast(d.message ?? 'Gagal menghapus.');
   };
 
-  const POSITIONS = ['Game Master','Translator','Customer Service','Graphics Designer','Moderator'];
+  const togglePosition = async (position: string, available: boolean) => {
+    setPosLoading(position);
+    try {
+      const r = await fetch(`/api/admin/career/positions/${encodeURIComponent(position)}`, {
+        method: 'PATCH', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ available }),
+      });
+      const d = await r.json();
+      if (d.ok) {
+        setPosSettings(p => ({ ...p, [position]: available }));
+        showToast(`${position}: ${available ? 'Dibuka' : 'Ditutup'}`);
+      } else showToast(d.message ?? 'Gagal mengubah status posisi.');
+    } finally { setPosLoading(null); }
+  };
 
   return (
     <div style={{ padding: '28px 32px', fontFamily: 'Poppins,sans-serif' }}>
@@ -1131,12 +1155,43 @@ function CareerSection({ showToast }: { showToast: (m: string) => void }) {
         </span>
       </div>
 
-      {/* Filters */}
+      {/* ── Position availability toggles ── */}
+      <div style={{ background:'#0a0a1f', border:'1px solid rgba(0,229,255,0.1)', borderRadius:12, padding:'16px 20px', marginBottom:24 }}>
+        <p style={{ margin:'0 0 14px', fontSize:13, fontWeight:700, color:'#6a7494', textTransform:'uppercase', letterSpacing:'0.06em' }}>
+          🎯 Ketersediaan Posisi
+        </p>
+        <div style={{ display:'flex', flexWrap:'wrap', gap:10 }}>
+          {ALL_POSITIONS.map(pos => {
+            const isOpen = posSettings[pos] !== false;
+            const busy   = posLoading === pos;
+            return (
+              <button key={pos}
+                disabled={busy}
+                onClick={() => togglePosition(pos, !isOpen)}
+                style={{
+                  display:'flex', alignItems:'center', gap:8,
+                  background: isOpen ? 'rgba(16,185,129,0.12)' : 'rgba(239,68,68,0.10)',
+                  border: `1.5px solid ${isOpen ? 'rgba(16,185,129,0.35)' : 'rgba(239,68,68,0.3)'}`,
+                  borderRadius:8, padding:'6px 14px', fontSize:12.5, fontWeight:600,
+                  color: isOpen ? '#34d399' : '#f87171',
+                  opacity: busy ? 0.5 : 1,
+                }}
+              >
+                <span style={{ fontSize:10 }}>{isOpen ? '●' : '○'}</span>
+                {pos}
+                <span style={{ fontSize:10, fontWeight:400, opacity:0.7 }}>{isOpen ? 'Buka' : 'Tutup'}</span>
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* ── Filters ── */}
       <div style={{ display:'flex', gap:10, marginBottom:20, flexWrap:'wrap' }}>
         <select style={{ background:'#10102a', color:'#c8d0ff', border:'1px solid rgba(0,229,255,0.14)', borderRadius:8, padding:'7px 12px', fontSize:13 }}
           value={filterPos} onChange={e => setFilterPos(e.target.value)}>
           <option value="">Semua Posisi</option>
-          {POSITIONS.map(p => <option key={p} value={p}>{p}</option>)}
+          {ALL_POSITIONS.map(p => <option key={p} value={p}>{p}</option>)}
         </select>
         <select style={{ background:'#10102a', color:'#c8d0ff', border:'1px solid rgba(0,229,255,0.14)', borderRadius:8, padding:'7px 12px', fontSize:13 }}
           value={filterSt} onChange={e => setFilterSt(e.target.value)}>
@@ -1144,12 +1199,12 @@ function CareerSection({ showToast }: { showToast: (m: string) => void }) {
           {Object.entries(STATUS_LABELS).map(([v,l]) => <option key={v} value={v}>{l}</option>)}
         </select>
         <button style={{ background:'#6366f1', color:'#fff', border:'none', borderRadius:8, padding:'7px 14px', fontSize:13, fontWeight:600 }}
-          onClick={load} disabled={loading}>
+          onClick={loadApps} disabled={loading}>
           {loading ? 'Memuat…' : '🔄 Refresh'}
         </button>
       </div>
 
-      {/* List */}
+      {/* ── Application list ── */}
       {apps.length === 0 && !loading && (
         <div style={{ textAlign:'center', color:'#6a7494', padding:48, fontSize:14 }}>Belum ada lamaran masuk.</div>
       )}
@@ -1157,12 +1212,11 @@ function CareerSection({ showToast }: { showToast: (m: string) => void }) {
       <div style={{ display:'flex', flexDirection:'column', gap:12 }}>
         {apps.map(app => (
           <div key={app._id} style={{ background:'#0a0a1f', border:'1px solid rgba(0,229,255,0.1)', borderRadius:12, overflow:'hidden' }}>
-            {/* Header row */}
             <div style={{ display:'flex', alignItems:'center', gap:12, padding:'14px 18px', flexWrap:'wrap' }}>
               <div style={{ flex:1, minWidth:0 }}>
                 <div style={{ display:'flex', alignItems:'center', gap:8, flexWrap:'wrap' }}>
-                  <span style={{ fontWeight:700, fontSize:14, color:'#c8d0ff' }}>{app.fullName}</span>
-                  <span style={{ fontSize:11, color:'#6a7494' }}>@{app.username}</span>
+                  <span style={{ fontWeight:700, fontSize:14, color:'#c8d0ff' }}>{(app as any).nickname || (app as any).fullName}</span>
+                  <span style={{ fontSize:11, color:'#6a7494' }}>@{(app as any).gameUsername || (app as any).username}</span>
                   <span style={{ background:'rgba(233,30,99,0.15)', color:'#e91e63', border:'1px solid rgba(233,30,99,0.25)', borderRadius:12, padding:'1px 8px', fontSize:11, fontWeight:600 }}>
                     {app.position}
                   </span>
@@ -1177,7 +1231,6 @@ function CareerSection({ showToast }: { showToast: (m: string) => void }) {
                 </div>
               </div>
 
-              {/* Actions */}
               <div style={{ display:'flex', gap:6, flexShrink:0, flexWrap:'wrap' }}>
                 <select
                   style={{ background:'#10102a', color:'#c8d0ff', border:'1px solid rgba(0,229,255,0.14)', borderRadius:7, padding:'4px 8px', fontSize:12 }}
@@ -1194,14 +1247,13 @@ function CareerSection({ showToast }: { showToast: (m: string) => void }) {
                 </button>
                 <button
                   style={{ background:'#7f1d1d', color:'#fca5a5', border:'none', borderRadius:7, padding:'4px 10px', fontSize:12 }}
-                  onClick={() => deleteApp(app._id, app.fullName)}
+                  onClick={() => deleteApp(app._id, (app as any).nickname || (app as any).fullName)}
                 >
                   Hapus
                 </button>
               </div>
             </div>
 
-            {/* Expandable detail */}
             {expanded === app._id && (
               <div style={{ borderTop:'1px solid rgba(0,229,255,0.08)', padding:'16px 18px', display:'flex', flexDirection:'column', gap:12 }}>
                 <div>

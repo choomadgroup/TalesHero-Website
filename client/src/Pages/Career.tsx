@@ -1,15 +1,18 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import '@/Style/career.scss';
 import { usePageMeta } from '@/Hooks/use-page-meta';
+import { useAuth } from '@/Hooks/use-auth';
+import { useLocation } from 'wouter';
 import Header from '@/Components/Header';
 import Footer from '@/Components/Footer';
 import {
-    IoBriefcaseOutline, IoPersonOutline, IoMailOutline,
+    IoBriefcaseOutline, IoMailOutline,
     IoLogoDiscord, IoCheckmarkCircle, IoChevronDown,
     IoDocumentTextOutline, IoLinkOutline, IoGameControllerOutline,
     IoLanguageOutline, IoHeadsetOutline, IoColorPaletteOutline,
     IoShieldCheckmarkOutline, IoAlertCircleOutline, IoCodeSlashOutline,
+    IoPersonCircleOutline, IoLockClosedOutline, IoTimeOutline,
 } from 'react-icons/io5';
 
 // ── Position definitions ──────────────────────────────────────────────────────
@@ -150,35 +153,25 @@ const POSITIONS = [
     },
 ];
 
-// ── Form state ────────────────────────────────────────────────────────────────
+// ── Helpers ───────────────────────────────────────────────────────────────────
 
-interface FormData {
-    fullName: string;
-    username: string;
-    email: string;
-    discord: string;
-    position: string;
-    motivation: string;
-    experience: string;
-    portfolio: string;
+function daysUntil(isoDate: string): number {
+    const ms = new Date(isoDate).getTime() - Date.now();
+    return Math.max(1, Math.ceil(ms / (1000 * 60 * 60 * 24)));
 }
-
-const EMPTY_FORM: FormData = {
-    fullName: '', username: '', email: '', discord: '',
-    position: '', motivation: '', experience: '', portfolio: '',
-};
 
 // ── Position card ─────────────────────────────────────────────────────────────
 
-function PositionCard({ pos, onApply, index }: {
+function PositionCard({ pos, available, onApply, index }: {
     pos: typeof POSITIONS[number];
+    available: boolean;
     onApply: (id: string) => void;
     index: number;
 }) {
     const [open, setOpen] = useState(false);
     return (
         <motion.div
-            className="career-card"
+            className={`career-card${!available ? ' career-card--closed' : ''}`}
             style={{ '--card-color': pos.color, '--card-light': pos.colorLight, '--card-border': pos.colorBorder } as React.CSSProperties}
             initial={{ opacity: 0, y: 24 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -190,7 +183,15 @@ function PositionCard({ pos, onApply, index }: {
                     <span style={{ color: pos.color }}>{pos.icon}</span>
                 </div>
                 <div className="career-card__title-group">
-                    <h3 className="career-card__title" style={{ color: pos.color }}>{pos.title}</h3>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                        <h3 className="career-card__title" style={{ color: pos.color }}>{pos.title}</h3>
+                        {!available && (
+                            <span className="career-card__badge career-card__badge--closed">Ditutup</span>
+                        )}
+                        {available && (
+                            <span className="career-card__badge career-card__badge--open">Buka</span>
+                        )}
+                    </div>
                     <p className="career-card__short">{pos.short}</p>
                 </div>
             </div>
@@ -235,13 +236,19 @@ function PositionCard({ pos, onApply, index }: {
                     />
                     {open ? 'Sembunyikan' : 'Lihat Detail'}
                 </button>
-                <button
-                    className="career-card__apply"
-                    style={{ background: pos.color }}
-                    onClick={() => onApply(pos.id)}
-                >
-                    Lamar Sekarang
-                </button>
+                {available ? (
+                    <button
+                        className="career-card__apply"
+                        style={{ background: pos.color }}
+                        onClick={() => onApply(pos.id)}
+                    >
+                        Lamar Sekarang
+                    </button>
+                ) : (
+                    <span className="career-card__apply career-card__apply--closed">
+                        Tidak Tersedia
+                    </span>
+                )}
             </div>
         </motion.div>
     );
@@ -249,18 +256,66 @@ function PositionCard({ pos, onApply, index }: {
 
 // ── Main page ─────────────────────────────────────────────────────────────────
 
+interface MyStatus {
+    canApply: boolean;
+    reason?: 'pending' | 'reviewed' | 'accepted' | 'cooldown';
+    cooldownUntil?: string;
+    application?: { position: string; status: string; createdAt: string };
+}
+
+interface FormData {
+    discord: string;
+    position: string;
+    motivation: string;
+    experience: string;
+    portfolio: string;
+}
+
+const EMPTY_FORM: FormData = { discord: '', position: '', motivation: '', experience: '', portfolio: '' };
+
 export default function Career() {
     usePageMeta({
         title: 'Karir — Tales Hero Indonesia',
-        description: 'Bergabunglah dengan tim Tales Hero Indonesia. Kami membuka lowongan Game Master, Translator, Customer Service, Graphics Designer, dan Moderator.',
+        description: 'Bergabunglah dengan tim Tales Hero Indonesia. Kami membuka lowongan Game Master, Translator, Customer Service, Graphics Designer, Developer, dan Moderator.',
     });
 
-    const [form, setForm] = useState<FormData>(EMPTY_FORM);
-    const [errors, setErrors] = useState<Partial<FormData>>({});
+    const { user, loading: authLoading } = useAuth();
+    const [, setLocation] = useLocation();
+
+    // Availability
+    const [availability, setAvailability] = useState<Record<string, boolean>>({});
+    const [availLoading, setAvailLoading]  = useState(true);
+
+    // My status (cooldown / active application)
+    const [myStatus, setMyStatus]   = useState<MyStatus | null>(null);
+    const [statusLoading, setStatusLoading] = useState(false);
+
+    // Form
+    const [form, setForm]       = useState<FormData>(EMPTY_FORM);
+    const [errors, setErrors]   = useState<Partial<FormData>>({});
     const [loading, setLoading] = useState(false);
     const [success, setSuccess] = useState(false);
     const [apiError, setApiError] = useState('');
-    const formRef = (el: HTMLDivElement | null) => { if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' }); };
+
+    // Load position availability (public)
+    useEffect(() => {
+        fetch('/api/career/positions')
+            .then(r => r.json())
+            .then(d => { if (d.ok) setAvailability(d.positions); })
+            .catch(() => {})
+            .finally(() => setAvailLoading(false));
+    }, []);
+
+    // Load my status when user is logged in
+    useEffect(() => {
+        if (!user) { setMyStatus(null); return; }
+        setStatusLoading(true);
+        fetch('/api/career/my-status', { credentials: 'include' })
+            .then(r => r.json())
+            .then(d => { if (d.ok) setMyStatus(d); })
+            .catch(() => {})
+            .finally(() => setStatusLoading(false));
+    }, [user]);
 
     const set = (key: keyof FormData) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
         setForm(f => ({ ...f, [key]: e.target.value }));
@@ -275,15 +330,11 @@ export default function Career() {
 
     const validate = (): boolean => {
         const e: Partial<FormData> = {};
-        if (!form.fullName.trim())    e.fullName   = 'Nama lengkap wajib diisi.';
-        if (!form.username.trim())    e.username   = 'Username game wajib diisi.';
-        if (!form.email.trim())       e.email      = 'Email wajib diisi.';
-        else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) e.email = 'Format email tidak valid.';
-        if (!form.discord.trim())     e.discord    = 'Username Discord wajib diisi.';
-        if (!form.position)           e.position   = 'Pilih posisi yang ingin dilamar.';
-        if (!form.motivation.trim())  e.motivation = 'Motivasi wajib diisi.';
+        if (!form.discord.trim())    e.discord    = 'Username Discord wajib diisi.';
+        if (!form.position)          e.position   = 'Pilih posisi yang ingin dilamar.';
+        if (!form.motivation.trim()) e.motivation = 'Motivasi wajib diisi.';
         else if (form.motivation.trim().length < 50) e.motivation = 'Minimal 50 karakter.';
-        if (!form.experience.trim())  e.experience = 'Pengalaman wajib diisi.';
+        if (!form.experience.trim()) e.experience = 'Pengalaman wajib diisi.';
         setErrors(e);
         return Object.keys(e).length === 0;
     };
@@ -296,6 +347,7 @@ export default function Career() {
         try {
             const res  = await fetch('/api/career/apply', {
                 method: 'POST',
+                credentials: 'include',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(form),
             });
@@ -303,11 +355,190 @@ export default function Career() {
             if (!res.ok) { setApiError(data?.message ?? 'Gagal mengirim lamaran, coba lagi.'); return; }
             setSuccess(true);
             setForm(EMPTY_FORM);
+            // Refresh status
+            fetch('/api/career/my-status', { credentials: 'include' })
+                .then(r => r.json()).then(d => { if (d.ok) setMyStatus(d); }).catch(() => {});
         } catch {
             setApiError('Tidak dapat terhubung ke server. Coba lagi nanti.');
         } finally {
             setLoading(false);
         }
+    };
+
+    // ── Render form area ──────────────────────────────────────────────────────
+
+    const renderFormArea = () => {
+        // Auth loading
+        if (authLoading || statusLoading) {
+            return (
+                <div className="career-gate">
+                    <div className="career-gate__spinner" />
+                    <p>Memeriksa sesi...</p>
+                </div>
+            );
+        }
+
+        // Not logged in
+        if (!user) {
+            return (
+                <motion.div className="career-gate" initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}>
+                    <IoLockClosedOutline size={48} color="#e91e63" />
+                    <h3>Login untuk Melamar</h3>
+                    <p>Kamu harus login dengan akun Tales Hero Indonesia sebelum bisa mengisi formulir lamaran.</p>
+                    <div style={{ display: 'flex', gap: 12, justifyContent: 'center', flexWrap: 'wrap' }}>
+                        <button className="career-card__apply" style={{ background: '#e91e63' }}
+                            onClick={() => setLocation('/login')}>
+                            <IoPersonCircleOutline size={15} /> Masuk Sekarang
+                        </button>
+                        <button className="career-card__toggle" onClick={() => setLocation('/daftar')}>
+                            Daftar Akun
+                        </button>
+                    </div>
+                </motion.div>
+            );
+        }
+
+        // Success state
+        if (success) {
+            return (
+                <motion.div className="career-success" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }}>
+                    <IoCheckmarkCircle size={52} color="#10b981" />
+                    <h3>Lamaran Terkirim!</h3>
+                    <p>Terima kasih telah melamar, <strong>{user.nickname || user.username}</strong>! Kami akan menghubungimu via Discord atau Email dalam 3–7 hari kerja.</p>
+                </motion.div>
+            );
+        }
+
+        // Cooldown / active application states
+        if (myStatus && !myStatus.canApply) {
+            if (myStatus.reason === 'accepted') {
+                return (
+                    <motion.div className="career-gate career-gate--accepted" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+                        <IoCheckmarkCircle size={48} color="#10b981" />
+                        <h3>Selamat, Kamu Sudah Diterima! 🎉</h3>
+                        <p>Lamaranmu untuk posisi <strong>{myStatus.application?.position}</strong> telah diterima. Tim kami akan segera menghubungimu.</p>
+                    </motion.div>
+                );
+            }
+            if (myStatus.reason === 'pending' || myStatus.reason === 'reviewed') {
+                return (
+                    <motion.div className="career-gate" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+                        <IoTimeOutline size={48} color="#f59e0b" />
+                        <h3>Lamaran Sedang Diproses</h3>
+                        <p>Lamaranmu untuk posisi <strong>{myStatus.application?.position}</strong> sedang dalam proses review. Harap bersabar, kami akan menghubungimu segera.</p>
+                        <span className="career-gate__status career-gate__status--pending">
+                            Status: {myStatus.reason === 'reviewed' ? 'Sedang Ditinjau' : 'Menunggu Review'}
+                        </span>
+                    </motion.div>
+                );
+            }
+            if (myStatus.reason === 'cooldown' && myStatus.cooldownUntil) {
+                const days = daysUntil(myStatus.cooldownUntil);
+                return (
+                    <motion.div className="career-gate" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+                        <IoTimeOutline size={48} color="#6366f1" />
+                        <h3>Masa Tunggu Aktif</h3>
+                        <p>Kamu baru bisa melamar kembali dalam <strong>{days} hari</strong> lagi.</p>
+                        <span className="career-gate__status">
+                            Dapat melamar kembali: {new Date(myStatus.cooldownUntil).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}
+                        </span>
+                    </motion.div>
+                );
+            }
+        }
+
+        // Available positions only
+        const openPositions = POSITIONS.filter(p => availability[p.id] !== false);
+
+        // Form
+        return (
+            <motion.form className="career-form" onSubmit={handleSubmit} initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+                {apiError && (
+                    <div className="career-form__error-banner">
+                        <IoAlertCircleOutline size={16} /> {apiError}
+                    </div>
+                )}
+
+                {/* Nickname (auto-filled, readonly) */}
+                <div className="career-form__row">
+                    <div className="career-form__field">
+                        <label><IoGameControllerOutline size={13} /> Nickname Game</label>
+                        <input type="text" value={user.nickname || user.username} readOnly className="career-form__readonly" />
+                        <p className="career-form__hint">Otomatis dari akunmu</p>
+                    </div>
+                    <div className="career-form__field">
+                        <label><IoMailOutline size={13} /> Email</label>
+                        <input type="email" value={user.email || '—'} readOnly className="career-form__readonly" />
+                        <p className="career-form__hint">Otomatis dari akunmu</p>
+                    </div>
+                </div>
+
+                {/* Discord */}
+                <div className="career-form__field">
+                    <label htmlFor="cf-discord"><IoLogoDiscord size={13} /> Username Discord <span>*</span></label>
+                    <input id="cf-discord" type="text" placeholder="username#0000 atau @username"
+                        value={form.discord} onChange={set('discord')} maxLength={100} />
+                    {errors.discord && <p className="career-form__err">{errors.discord}</p>}
+                </div>
+
+                {/* Position */}
+                <div className="career-form__field">
+                    <label htmlFor="cf-position"><IoBriefcaseOutline size={13} /> Posisi yang Dilamar <span>*</span></label>
+                    <select id="cf-position" value={form.position} onChange={set('position')}>
+                        <option value="">— Pilih posisi —</option>
+                        {openPositions.map(p => <option key={p.id} value={p.id}>{p.title}</option>)}
+                    </select>
+                    {openPositions.length === 0 && (
+                        <p className="career-form__hint" style={{ color: '#e91e63' }}>Semua posisi sedang ditutup sementara.</p>
+                    )}
+                    {errors.position && <p className="career-form__err">{errors.position}</p>}
+                </div>
+
+                {/* Motivasi */}
+                <div className="career-form__field">
+                    <label htmlFor="cf-motivation">
+                        <IoDocumentTextOutline size={13} /> Motivasi Bergabung <span>*</span>
+                        <em>min. 50 karakter</em>
+                    </label>
+                    <textarea id="cf-motivation" rows={4}
+                        placeholder="Ceritakan kenapa kamu ingin bergabung dengan tim Tales Hero Indonesia dan apa yang bisa kamu kontribusikan..."
+                        value={form.motivation} onChange={set('motivation')} maxLength={2000} />
+                    <span className="career-form__char">{form.motivation.length}/2000</span>
+                    {errors.motivation && <p className="career-form__err">{errors.motivation}</p>}
+                </div>
+
+                {/* Pengalaman */}
+                <div className="career-form__field">
+                    <label htmlFor="cf-experience">
+                        <IoDocumentTextOutline size={13} /> Pengalaman Relevan <span>*</span>
+                    </label>
+                    <textarea id="cf-experience" rows={4}
+                        placeholder="Ceritakan pengalaman kamu yang relevan dengan posisi yang dilamar. Tidak ada pengalaman? Tulis keahlian dan semangat belajarmu!"
+                        value={form.experience} onChange={set('experience')} maxLength={2000} />
+                    <span className="career-form__char">{form.experience.length}/2000</span>
+                    {errors.experience && <p className="career-form__err">{errors.experience}</p>}
+                </div>
+
+                {/* Portfolio (optional) */}
+                <div className="career-form__field">
+                    <label htmlFor="cf-portfolio">
+                        <IoLinkOutline size={13} /> Link Portofolio / Sosmed
+                        <em>opsional — wajib untuk Graphics Designer & Developer</em>
+                    </label>
+                    <input id="cf-portfolio" type="text"
+                        placeholder="https://behance.net/kamu atau link lainnya"
+                        value={form.portfolio} onChange={set('portfolio')} maxLength={500} />
+                </div>
+
+                <button className="career-form__submit" type="submit"
+                    disabled={loading || openPositions.length === 0}>
+                    {loading
+                        ? <><span className="career-form__spinner" /> Mengirim...</>
+                        : <><IoBriefcaseOutline size={16} /> Kirim Lamaran</>
+                    }
+                </button>
+            </motion.form>
+        );
     };
 
     return (
@@ -317,11 +548,7 @@ export default function Career() {
             {/* ── Hero ── */}
             <section className="career-hero">
                 <div className="career-hero__inner">
-                    <motion.div
-                        initial={{ opacity: 0, y: 30 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.6 }}
-                    >
+                    <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
                         <span className="career-hero__badge">🌟 Bergabung Bersama Kami</span>
                         <h1 className="career-hero__title">Jadilah Bagian dari<br />Tim Tales Hero Indonesia</h1>
                         <p className="career-hero__desc">
@@ -338,28 +565,23 @@ export default function Career() {
             {/* ── Open Positions ── */}
             <section className="career-positions">
                 <div className="career-section-inner">
-                    <motion.h2
-                        className="career-section-title"
-                        initial={{ opacity: 0, y: 16 }}
-                        whileInView={{ opacity: 1, y: 0 }}
-                        viewport={{ once: true }}
-                        transition={{ duration: 0.4 }}
-                    >
+                    <motion.h2 className="career-section-title"
+                        initial={{ opacity: 0, y: 16 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.4 }}>
                         Posisi yang Tersedia
                     </motion.h2>
-                    <motion.p
-                        className="career-section-sub"
-                        initial={{ opacity: 0 }}
-                        whileInView={{ opacity: 1 }}
-                        viewport={{ once: true }}
-                        transition={{ delay: 0.1, duration: 0.4 }}
-                    >
+                    <motion.p className="career-section-sub"
+                        initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }} transition={{ delay: 0.1, duration: 0.4 }}>
                         Klik kartu untuk melihat detail jobdesk dan kualifikasi masing-masing posisi.
                     </motion.p>
                     <div className="career-grid">
-                        {POSITIONS.map((pos, i) => (
-                            <PositionCard key={pos.id} pos={pos} index={i} onApply={scrollToForm} />
-                        ))}
+                        {availLoading
+                            ? POSITIONS.map((_, i) => <div key={i} className="career-card career-card--skeleton" />)
+                            : POSITIONS.map((pos, i) => (
+                                <PositionCard key={pos.id} pos={pos} index={i}
+                                    available={availability[pos.id] !== false}
+                                    onApply={scrollToForm} />
+                            ))
+                        }
                     </div>
                 </div>
             </section>
@@ -367,135 +589,22 @@ export default function Career() {
             {/* ── Application Form ── */}
             <section className="career-apply" id="career-form">
                 <div className="career-section-inner career-section-inner--narrow">
-                    <motion.div
-                        initial={{ opacity: 0, y: 24 }}
-                        whileInView={{ opacity: 1, y: 0 }}
-                        viewport={{ once: true, amount: 0.1 }}
-                        transition={{ duration: 0.5 }}
-                    >
+                    <motion.div initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, amount: 0.1 }} transition={{ duration: 0.5 }}>
                         <h2 className="career-section-title">Formulir Lamaran</h2>
                         <p className="career-section-sub">
-                            Isi formulir berikut dengan jujur dan lengkap. Kami akan menghubungimu melalui Discord atau Email dalam 3–7 hari kerja.
+                            {user
+                                ? 'Isi formulir berikut dengan jujur dan lengkap. Kami akan menghubungimu dalam 3–7 hari kerja.'
+                                : 'Login terlebih dahulu untuk mengisi formulir lamaran.'}
                         </p>
-
                         <AnimatePresence mode="wait">
-                        {success ? (
-                            <motion.div
-                                key="success"
-                                className="career-success"
-                                initial={{ opacity: 0, scale: 0.95 }}
-                                animate={{ opacity: 1, scale: 1 }}
-                                transition={{ duration: 0.4 }}
-                            >
-                                <IoCheckmarkCircle size={52} color="#10b981" />
-                                <h3>Lamaran Terkirim!</h3>
-                                <p>Terima kasih telah melamar. Kami akan menghubungimu via Discord atau Email dalam 3–7 hari kerja.</p>
-                                <button className="career-card__apply" style={{ background: '#10b981', marginTop: 8 }}
-                                    onClick={() => setSuccess(false)}>
-                                    Kirim Lamaran Lain
-                                </button>
+                            <motion.div key={
+                                authLoading ? 'loading'
+                                : !user ? 'gate'
+                                : success ? 'success'
+                                : myStatus?.reason ?? 'form'
+                            }>
+                                {renderFormArea()}
                             </motion.div>
-                        ) : (
-                            <motion.form
-                                key="form"
-                                className="career-form"
-                                onSubmit={handleSubmit}
-                                initial={{ opacity: 0 }}
-                                animate={{ opacity: 1 }}
-                                transition={{ duration: 0.3 }}
-                            >
-                                {apiError && (
-                                    <div className="career-form__error-banner">
-                                        <IoAlertCircleOutline size={16} /> {apiError}
-                                    </div>
-                                )}
-
-                                {/* Row 1: Nama + Username */}
-                                <div className="career-form__row">
-                                    <div className="career-form__field">
-                                        <label htmlFor="cf-fullname"><IoPersonOutline size={13} /> Nama Lengkap <span>*</span></label>
-                                        <input id="cf-fullname" type="text" placeholder="Nama lengkap kamu"
-                                            value={form.fullName} onChange={set('fullName')} maxLength={100} />
-                                        {errors.fullName && <p className="career-form__err">{errors.fullName}</p>}
-                                    </div>
-                                    <div className="career-form__field">
-                                        <label htmlFor="cf-username"><IoGameControllerOutline size={13} /> Username Game <span>*</span></label>
-                                        <input id="cf-username" type="text" placeholder="Username in-game kamu"
-                                            value={form.username} onChange={set('username')} maxLength={50} />
-                                        {errors.username && <p className="career-form__err">{errors.username}</p>}
-                                    </div>
-                                </div>
-
-                                {/* Row 2: Email + Discord */}
-                                <div className="career-form__row">
-                                    <div className="career-form__field">
-                                        <label htmlFor="cf-email"><IoMailOutline size={13} /> Email <span>*</span></label>
-                                        <input id="cf-email" type="email" placeholder="email@kamu.com"
-                                            value={form.email} onChange={set('email')} maxLength={200} />
-                                        {errors.email && <p className="career-form__err">{errors.email}</p>}
-                                    </div>
-                                    <div className="career-form__field">
-                                        <label htmlFor="cf-discord"><IoLogoDiscord size={13} /> Username Discord <span>*</span></label>
-                                        <input id="cf-discord" type="text" placeholder="username#0000 atau @username"
-                                            value={form.discord} onChange={set('discord')} maxLength={100} />
-                                        {errors.discord && <p className="career-form__err">{errors.discord}</p>}
-                                    </div>
-                                </div>
-
-                                {/* Posisi */}
-                                <div className="career-form__field">
-                                    <label htmlFor="cf-position"><IoBriefcaseOutline size={13} /> Posisi yang Dilamar <span>*</span></label>
-                                    <select id="cf-position" value={form.position} onChange={set('position')}>
-                                        <option value="">— Pilih posisi —</option>
-                                        {POSITIONS.map(p => <option key={p.id} value={p.id}>{p.title}</option>)}
-                                    </select>
-                                    {errors.position && <p className="career-form__err">{errors.position}</p>}
-                                </div>
-
-                                {/* Motivasi */}
-                                <div className="career-form__field">
-                                    <label htmlFor="cf-motivation">
-                                        <IoDocumentTextOutline size={13} /> Motivasi Bergabung <span>*</span>
-                                        <em>min. 50 karakter</em>
-                                    </label>
-                                    <textarea id="cf-motivation" rows={4}
-                                        placeholder="Ceritakan kenapa kamu ingin bergabung dengan tim Tales Hero Indonesia dan apa yang bisa kamu kontribusikan..."
-                                        value={form.motivation} onChange={set('motivation')} maxLength={2000} />
-                                    <span className="career-form__char">{form.motivation.length}/2000</span>
-                                    {errors.motivation && <p className="career-form__err">{errors.motivation}</p>}
-                                </div>
-
-                                {/* Pengalaman */}
-                                <div className="career-form__field">
-                                    <label htmlFor="cf-experience">
-                                        <IoDocumentTextOutline size={13} /> Pengalaman Relevan <span>*</span>
-                                    </label>
-                                    <textarea id="cf-experience" rows={4}
-                                        placeholder="Ceritakan pengalaman kamu yang relevan dengan posisi yang dilamar. Tidak ada pengalaman? Tulis keahlian dan semangat belajarmu!"
-                                        value={form.experience} onChange={set('experience')} maxLength={2000} />
-                                    <span className="career-form__char">{form.experience.length}/2000</span>
-                                    {errors.experience && <p className="career-form__err">{errors.experience}</p>}
-                                </div>
-
-                                {/* Portfolio (optional) */}
-                                <div className="career-form__field">
-                                    <label htmlFor="cf-portfolio">
-                                        <IoLinkOutline size={13} /> Link Portofolio / Sosmed
-                                        <em>opsional — wajib untuk Graphics Designer</em>
-                                    </label>
-                                    <input id="cf-portfolio" type="text"
-                                        placeholder="https://behance.net/kamu atau link lainnya"
-                                        value={form.portfolio} onChange={set('portfolio')} maxLength={500} />
-                                </div>
-
-                                <button className="career-form__submit" type="submit" disabled={loading}>
-                                    {loading
-                                        ? <><span className="career-form__spinner" /> Mengirim...</>
-                                        : <><IoBriefcaseOutline size={16} /> Kirim Lamaran</>
-                                    }
-                                </button>
-                            </motion.form>
-                        )}
                         </AnimatePresence>
                     </motion.div>
                 </div>
