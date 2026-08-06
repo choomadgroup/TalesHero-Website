@@ -31,7 +31,7 @@ import logout from './server/auth/logout.js';
 import turnstileConfig from './server/auth/turnstile-config.js';
 import { ping, migrate } from './server/db.js';
 import { gmToolsRouter } from './server/gm-tools.js';
-import { publicGetItems } from './server/items.js';
+import { publicGetItems, publicGetItemImage } from './server/items.js';
 import { applySecurityHeaders } from './server/security.js';
 import {
   getPositions, getMyStatus, submitApplication,
@@ -232,6 +232,13 @@ const apiPlugin = {
       if (req.method !== 'GET') { next(); return; }
       try {
         addJsonResponseHelpers(res);
+        if ((req.url ?? '').startsWith('/image/')) {
+          const match = (req.url ?? '').match(/^\/image\/(head|foot|body|face)\/(\d+)\.png(?:\?.*)?$/i);
+          if (!match) { res.status(404).end(); return; }
+          req.params = { part: match[1], id: match[2] };
+          await publicGetItemImage(req, res);
+          return;
+        }
         req.query = Object.fromEntries(new URL(`http://x${req.url}`).searchParams.entries());
         await publicGetItems(req, res);
       } catch (e) {

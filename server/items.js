@@ -12,8 +12,53 @@ function positiveInt(value, fallback, max = Number.MAX_SAFE_INTEGER) {
 
 function imageCandidates(itemNum) {
   return IMAGE_PARTS.map((part) => (
-    `${CDN_BASE}/${part}/all_${part}_${itemNum}.png`
+    `/api/items/image/${part}/${itemNum}.png`
   ));
+}
+
+function parseImagePath(req) {
+  if (req.params?.part && req.params?.id != null) {
+    const part = String(req.params.part).toLowerCase();
+    const itemNum = Number(String(req.params.id).replace(/\.png$/i, ''));
+    if (!IMAGE_PARTS.includes(part) || !Number.isSafeInteger(itemNum)) return null;
+    return { part, itemNum };
+  }
+
+  const match = String(req.url ?? '').match(
+    /(?:^|\/)(head|foot|body|face)\/(?:all_\1_)?(\d+)\.png(?:\?|$)/i,
+  );
+  if (!match) return null;
+  return { part: match[1].toLowerCase(), itemNum: Number(match[2]) };
+}
+
+/**
+ * Serve a CDN icon through the same origin as the app.
+ * This keeps the browser CSP/CORP rules simple and gives us a clean 404
+ * for item IDs that are only present in the private/custom game resources.
+ */
+export async function publicGetItemImage(req, res) {
+  const image = parseImagePath(req);
+  if (!image || !Number.isSafeInteger(image.itemNum)) {
+    return res.status(404).end();
+  }
+
+  try {
+    const upstream = await fetch(
+      `${CDN_BASE}/${image.part}/all_${image.part}_${image.itemNum}.png`,
+      { signal: AbortSignal.timeout(8000) },
+    );
+    if (!upstream.ok) return res.status(404).end();
+
+    const contentType = upstream.headers.get('content-type') || 'image/png';
+    const body = Buffer.from(await upstream.arrayBuffer());
+    res.setHeader('Content-Type', contentType);
+    res.setHeader('Cache-Control', 'public, max-age=3600, stale-while-revalidate=86400');
+    res.setHeader('Cross-Origin-Resource-Policy', 'same-origin');
+    return res.status(200).send(body);
+  } catch (error) {
+    console.warn('[items/image]', error.message);
+    return res.status(404).end();
+  }
 }
 
 function normaliseItem(row, variants, realItemNum) {
@@ -137,7 +182,9 @@ export async function publicGetItems(req, res) {
     const total = Number(countRows[0]?.total ?? 0);
 
     const rows = await query(
-      `${source} ORDER BY itemNum DESC LIMIT ? OFFSET ?`,
+      // The public CDN contains the legacy item range. Put custom 900xxx/
+      // 970xxx definitions after it so the first page is useful immediately.
+      `${source} ORDER BY CASE WHEN itemNum >= 900000 THEN 1 ELSE 0 END ASC, itemNum DESC LIMIT ? OFFSET ?`,
       [...values, limit, offset],
     );
 

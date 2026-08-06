@@ -32,7 +32,7 @@ import {
   publicGetDownloads, adminGetDownloads, adminUpdateDownload,
 } from './downloads.js';
 import { gmToolsRouter } from './gm-tools.js';
-import { publicGetItems } from './items.js';
+import { publicGetItems, publicGetItemImage } from './items.js';
 import { submitApplication, getApplications, updateApplicationStatus, deleteApplication, getMyStatus, getPositions, adminGetPositions, adminUpdatePosition } from './career.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -51,6 +51,7 @@ app.get('/api/config/turnstile', turnstileConfig);
 app.get('/api/stats/online-players', onlinePlayers);
 app.get('/api/stats', stats);
 app.get('/api/items', publicGetItems);
+app.get('/api/items/image/:part/:id.png', publicGetItemImage);
 
 const blockedPublicPath = /^\/(?:client\/src|server|attached_assets|\.local|\.agents|node_modules)(?:\/|$)|^\/(?:vite\.config\.ts|package\.json|pnpm-lock\.yaml|tsconfig(?:\.[^/]+)?|\.env(?:\.[^/]*)?)$/i;
 const privatePagePath = /^\/(?:forgot-password|reset-password|akun|nickname|dashboard\/admin)(?:\/|$)/i;
