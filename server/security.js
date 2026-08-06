@@ -39,7 +39,7 @@ function applySecurityHeaders(req, res, next) {
       `script-src ${scriptSources}`,
       "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
       "font-src 'self' data: https://fonts.gstatic.com",
-      "img-src 'self' data: blob: https://taleshero.web.id https://www.taleshero.web.id",
+      "img-src 'self' data: blob: https://taleshero.web.id https://www.taleshero.web.id https://talesrunner.b-cdn.net",
       `connect-src ${connectSources}`,
       'frame-src https://challenges.cloudflare.com',
       "frame-ancestors 'none'",

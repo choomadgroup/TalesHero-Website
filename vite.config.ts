@@ -31,6 +31,7 @@ import logout from './server/auth/logout.js';
 import turnstileConfig from './server/auth/turnstile-config.js';
 import { ping, migrate } from './server/db.js';
 import { gmToolsRouter } from './server/gm-tools.js';
+import { publicGetItems } from './server/items.js';
 import { applySecurityHeaders } from './server/security.js';
 import {
   getPositions, getMyStatus, submitApplication,
@@ -223,6 +224,20 @@ const apiPlugin = {
         res.statusCode = 500;
         res.setHeader('Content-Type', 'application/json');
         res.end(JSON.stringify({ accounts: null }));
+      }
+    });
+
+    // Public item catalogue backed by the game database.
+    server.middlewares.use('/api/items', async (req: any, res: any, next: any) => {
+      if (req.method !== 'GET') { next(); return; }
+      try {
+        addJsonResponseHelpers(res);
+        req.query = Object.fromEntries(new URL(`http://x${req.url}`).searchParams.entries());
+        await publicGetItems(req, res);
+      } catch (e) {
+        res.statusCode = 500;
+        res.setHeader('Content-Type', 'application/json');
+        res.end(JSON.stringify({ message: 'Server error' }));
       }
     });
 

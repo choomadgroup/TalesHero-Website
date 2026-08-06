@@ -8,3 +8,4 @@
 - [Tales Hero email startup](taleshero-email-startup.md) — initialize Resend only when sending so an optional missing key cannot block Vite startup
 - [Tales Hero admin dashboard](taleshero-admin-dashboard.md) — admin news CRUD built; needs MONGODB_URI + ADMIN_PASSWORD secrets to activate persistence
 - [Tales Hero character detection](taleshero-character-detection.md) — use tblavataritemdesc fdType=1/fdPosition=0 for base char; fdAvatarCharacterSettingNum tracks fashion set, not base char
+- [Tales Hero item catalogue](taleshero-item-catalogue.md) — player items join fdItemDescNum to tblavataritemdesc; set variants come from tblavataritemdescex

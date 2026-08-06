@@ -13,6 +13,7 @@ import Download from '@/Pages/Download';
 import Support from '@/Pages/Support';
 import GuidesPengantar from '@/Pages/Guides/Pengantar';
 import GuidesKarakter from '@/Pages/Guides/Karakter';
+import GuidesItem from '@/Pages/Guides/Item';
 import NewsListPage from '@/Pages/News/NewsListPage';
 import NewsArticlePage from '@/Pages/News/NewsArticlePage';
 import AdminPage from '@/Pages/Admin/Admin';
@@ -35,6 +36,7 @@ function Router() {
             <Route path="/career" component={Career} />
             <Route path="/guides/pengantar" component={GuidesPengantar} />
             <Route path="/guides/karakter" component={GuidesKarakter} />
+            <Route path="/guides/item" component={GuidesItem} />
             <Route path="/news" component={NewsListPage} />
             <Route path="/news/:category/:slug" component={NewsArticlePage} />
             <Route path="/dashboard/admin" component={AdminPage} />
