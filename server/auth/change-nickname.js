@@ -103,7 +103,27 @@ async function changeNickname(req, res) {
 
     const { fdCash, fdGameMoney, fdUserNum, fdNickname, mauPoint } = rows[0];
 
-    // ── 4. Cek semua saldo cukup ──────────────────────────
+    if (String(fdNickname ?? '').toLowerCase() === newNickname.toLowerCase()) {
+      return res.status(400).json({
+        message: 'Nickname baru harus berbeda dari nickname saat ini.',
+      });
+    }
+
+    // ── 4. Pastikan nickname belum dipakai akun lain ─────────
+    // Gunakan perbandingan case-insensitive supaya "PlayerOne" dan
+    // "playerone" tidak bisa menjadi dua nickname yang berbeda.
+    const nicknameUsed = await query(
+      `SELECT fdUserNum FROM userinfo
+       WHERE LOWER(fdNickname) = LOWER(?) AND fdUserNum <> ? LIMIT 1`,
+      [newNickname, fdUserNum],
+    );
+    if (nicknameUsed.length > 0) {
+      return res.status(409).json({
+        message: 'Nickname tersebut sudah digunakan. Silakan pilih nickname lain.',
+      });
+    }
+
+    // ── 5. Cek semua saldo cukup ──────────────────────────
     const shortages = [];
     if (Number(fdGameMoney) < PRICE_TR)   shortages.push(`TR ${PRICE_TR.toLocaleString('id-ID')}`);
     if (Number(fdCash)      < PRICE_CASH) shortages.push(`Cash ${PRICE_CASH.toLocaleString('id-ID')}`);
@@ -113,7 +133,7 @@ async function changeNickname(req, res) {
         message: `Saldo tidak cukup: ${shortages.join(', ')}.`,
       });
 
-    // ── 5. Potong semua biaya ─────────────────────────────
+    // ── 6. Potong semua biaya ─────────────────────────────
     await query(
       `UPDATE userinfofrompublisher SET fdCash = fdCash - ? WHERE fdUserID = ?`,
       [PRICE_CASH, username],
@@ -131,13 +151,13 @@ async function changeNickname(req, res) {
       [PRICE_MAU, fdUserNum],
     );
 
-    // ── 6. Update nickname di game ────────────────────────
+    // ── 7. Update nickname di game ────────────────────────
     await query(
       `UPDATE userinfo SET fdNickname = ? WHERE fdUID = ?`,
       [newNickname, username],
     );
 
-    // ── 7. Catat log perubahan ────────────────────────────
+    // ── 8. Catat log perubahan ────────────────────────────
     await query(
       `INSERT INTO nickname_change_logs (username, old_nickname, new_nickname)
        VALUES (?, ?, ?)`,

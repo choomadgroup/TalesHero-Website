@@ -429,6 +429,21 @@ export async function setNickname(req, res, targetUserNum) {
   if (!nickname || nickname.length < 2 || nickname.length > 50)
     return json(res, 400, { message: 'Nickname harus 2–50 karakter.' });
   try {
+    const current = await query(
+      'SELECT fdNickname FROM userinfo WHERE fdUserNum = ? LIMIT 1',
+      [targetUserNum],
+    );
+    if (current.length > 0 && String(current[0].fdNickname ?? '').toLowerCase() === nickname.toLowerCase())
+      return json(res, 400, { message: 'Nickname baru harus berbeda dari nickname saat ini.' });
+
+    const existing = await query(
+      `SELECT fdUserNum FROM userinfo
+       WHERE LOWER(fdNickname) = LOWER(?) AND fdUserNum <> ? LIMIT 1`,
+      [nickname, targetUserNum],
+    );
+    if (existing.length > 0)
+      return json(res, 409, { message: 'Nickname tersebut sudah digunakan. Silakan pilih nickname lain.' });
+
     await query('UPDATE userinfo SET fdNickname = ? WHERE fdUserNum = ?', [nickname, targetUserNum]);
     await logAction(admin, 'CHANGE_NICKNAME', `UserNum:${targetUserNum}`, `Nickname -> ${nickname}`);
     return json(res, 200, { message: `Nickname berhasil diubah menjadi "${nickname}".` });
@@ -909,6 +924,17 @@ export async function changeOwnNickname(req, res) {
   if (!nickname) return json(res, 400, { message: 'Nickname baru wajib diisi.' });
   if (nickname.length < 3) return json(res, 400, { message: 'Nickname minimal 3 karakter.' });
   try {
+    if (String(admin.nickname ?? '').toLowerCase() === nickname.toLowerCase())
+      return json(res, 400, { message: 'Nickname baru harus berbeda dari nickname saat ini.' });
+
+    const existing = await query(
+      `SELECT fdUserNum FROM userinfo
+       WHERE LOWER(fdNickname) = LOWER(?) AND fdUserNum <> ? LIMIT 1`,
+      [nickname, admin.userNum],
+    );
+    if (existing.length > 0)
+      return json(res, 409, { message: 'Nickname tersebut sudah digunakan. Silakan pilih nickname lain.' });
+
     await query('UPDATE userinfo SET fdNickname = ? WHERE fdUserNum = ?', [nickname, admin.userNum]);
     // Update session so the new nickname is reflected immediately
     const session = req.session ?? {};

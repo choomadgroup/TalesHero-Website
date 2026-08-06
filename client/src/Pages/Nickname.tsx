@@ -124,6 +124,8 @@ export default function NicknamePage() {
     // ── Client-side validation ────────────────────────────────
     function validate(val: string): string {
         if (!val) return 'Nickname tidak boleh kosong.';
+        if (user?.nickname && val.toLowerCase() === user.nickname.toLowerCase())
+            return 'Nickname baru harus berbeda dari nickname saat ini.';
         if (val.length < 5)  return 'Nickname minimal 5 karakter.';
         if (val.length > 10) return 'Nickname maksimal 10 karakter.';
         if (/\s/.test(val))  return 'Nickname tidak boleh mengandung spasi.';
