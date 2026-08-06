@@ -3,6 +3,7 @@ import { query } from './db.js';
 const CDN_BASE = 'https://talesrunner.b-cdn.net/TalesRunner/itemimage';
 const IMAGE_PARTS = ['head', 'foot', 'body', 'face'];
 const MAX_LIMIT = 60;
+const PNG_SIGNATURE = Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]);
 
 function positiveInt(value, fallback, max = Number.MAX_SAFE_INTEGER) {
   const parsed = Number.parseInt(String(value ?? ''), 10);
@@ -49,12 +50,21 @@ export async function publicGetItemImage(req, res) {
     );
     if (!upstream.ok) return res.status(404).end();
 
-    const contentType = upstream.headers.get('content-type') || 'image/png';
     const body = Buffer.from(await upstream.arrayBuffer());
-    res.setHeader('Content-Type', contentType);
+    // Vite's dev response is a Node ServerResponse, not Express' response
+    // object, so use `end()` rather than Express-only `send()`. Check the
+    // body too: Bunny may return a successful HTML error page for a missing
+    // asset in some configurations.
+    if (body.length < PNG_SIGNATURE.length || !body.subarray(0, PNG_SIGNATURE.length).equals(PNG_SIGNATURE)) {
+      return res.status(404).end();
+    }
+
+    res.setHeader('Content-Type', 'image/png');
     res.setHeader('Cache-Control', 'public, max-age=3600, stale-while-revalidate=86400');
     res.setHeader('Cross-Origin-Resource-Policy', 'same-origin');
-    return res.status(200).send(body);
+    res.statusCode = 200;
+    res.end(body);
+    return res;
   } catch (error) {
     console.warn('[items/image]', error.message);
     return res.status(404).end();
