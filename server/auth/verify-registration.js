@@ -18,7 +18,7 @@ async function verifyRegistration(req, res) {
 
     const [rows] = await conn.query(
       `SELECT username, email, game_password_hash, sec_question,
-              sec_answer_hash, sec_answer
+              sec_answer_hash, sec_answer, created_ip
        FROM tales_hero_pending_registrations
        WHERE token_hash = ? AND expires_at > NOW()
        LIMIT 1`,
@@ -59,14 +59,15 @@ async function verifyRegistration(req, res) {
     );
     await conn.query(
       `INSERT INTO tales_hero_web_users
-       (username, email, sec_question, sec_answer_hash, sec_answer)
-       VALUES (?, ?, ?, ?, ?)`,
+       (username, email, sec_question, sec_answer_hash, sec_answer, registered_ip)
+       VALUES (?, ?, ?, ?, ?, ?)`,
       [
         pending.username,
         pending.email,
         pending.sec_question,
         pending.sec_answer_hash,
         pending.sec_answer,
+        pending.created_ip,
       ],
     );
     await conn.query(
@@ -74,6 +75,7 @@ async function verifyRegistration(req, res) {
       [hashToken(token)],
     );
     await conn.commit();
+    conn.release();
     conn = null;
 
     return res.status(200).json({

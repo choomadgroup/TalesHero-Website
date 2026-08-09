@@ -65,3 +65,30 @@ export function registrationRateLimit(req, { email, username }) {
 
   return null;
 }
+
+export function accountInfoRateLimit(req, email) {
+  const now = Date.now();
+  const ip = clientIp(req);
+  const checks = [
+    [`account-info:ip:${ip}`, 10, HOUR],
+    [`account-info:email:${digest(email.toLowerCase())}`, 3, HOUR],
+  ];
+
+  const blocked = checks
+    .map(([key, limit, window]) => {
+      const bucket = getBucket(key, now);
+      return bucket.count >= limit
+        ? Math.ceil((bucket.resetAt - now) / 1000)
+        : null;
+    })
+    .filter(Boolean);
+
+  if (blocked.length > 0) return { retryAfter: Math.max(...blocked) };
+
+  for (const [key, _limit, window] of checks) {
+    const bucket = getBucket(key, now);
+    bucket.count += 1;
+    bucket.resetAt = now + window;
+  }
+  return null;
+}

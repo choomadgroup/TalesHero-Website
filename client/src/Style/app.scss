@@ -7233,6 +7233,12 @@ $nl-sans:     'Poppins', -apple-system, sans-serif;
 
     &:hover:not(:disabled) { background: #faf5ff; }
   }
+
+  &--account {
+    border-color: #0d9488;
+    color: #0d9488;
+    &:hover:not(:disabled) { background: #0d9488; color: #fff; }
+  }
 }
 
 .reset-recovery-note {

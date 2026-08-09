@@ -26,6 +26,7 @@ import updateProfile from './server/auth/update-profile.js';
 import forgotPassword from './server/auth/forgot-password.js';
 import emailResetPassword from './server/auth/email-reset-password.js';
 import forgotSecurityQuestion from './server/auth/forgot-security-question.js';
+import accountInfo from './server/auth/account-info.js';
 import me from './server/auth/me.js';
 import logout from './server/auth/logout.js';
 import turnstileConfig from './server/auth/turnstile-config.js';
@@ -422,6 +423,7 @@ const apiPlugin = {
       ['/auth/forgot-password', forgotPassword],
       ['/auth/email-reset-password', emailResetPassword],
       ['/auth/forgot-security-question', forgotSecurityQuestion],
+      ['/auth/account-info', accountInfo],
     ] as const;
 
     for (const [route, handler] of emailRecoveryRoutes) {

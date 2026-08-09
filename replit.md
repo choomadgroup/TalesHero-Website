@@ -40,6 +40,7 @@ Website game online action adventure Tales Hero Indonesia — landing page + hal
 - Registrasi baru masuk ke pending registration dan baru membuat akun game setelah verifikasi email
 - API /auth/login — memeriksa username dan MD5 password game
 - API recovery email — reset kata sandi memakai link email, atau mengirim pertanyaan keamanan yang tersimpan ke email tanpa mengubahnya
+- Fitur pemulihan akun via email — mengirim username/Game ID, tanggal pembuatan, IP terdaftar yang disamarkan, dan link reset kata sandi
 - API /api/leaderboard — data 10 besar pemain (mock)
 
 ## User preferences
@@ -65,6 +66,7 @@ Secret yang dibutuhkan:
 - Rate limit register: 3 per IP per hari, 5 per email per jam, dan 5 per username per jam.
 - Email verifikasi dikirim melalui `RESEND_API_KEY`; `APP_BASE_URL` opsional untuk mengganti domain link verifikasi.
 - Data pending yang kedaluwarsa dibersihkan saat migrasi database.
+- Fitur temukan akun hanya mengirim detail ke email terdaftar; data akun dan IP tidak ditampilkan langsung di browser.
 
 ## Deploy ke Cloudflare Pages
 

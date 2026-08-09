@@ -125,6 +125,15 @@ async function migrate() {
     if (error?.code !== 'ER_DUP_FIELDNAME') throw error;
   }
 
+  try {
+    await pool.query(`
+      ALTER TABLE tales_hero_web_users
+      ADD COLUMN registered_ip VARCHAR(64) NOT NULL DEFAULT '' AFTER sec_answer
+    `);
+  } catch (error) {
+    if (error?.code !== 'ER_DUP_FIELDNAME') throw error;
+  }
+
   // Tambah kolom fdRewardItems (multi-item JSON) ke tblredeem_code (jika belum ada).
   try {
     await pool.query(`

@@ -211,7 +211,8 @@ export default function Daftar() {
                                 Demi menjaga keamanan server dan mengurangi akun palsu, syarat pendaftaran
                                 kini lebih ketat. Gunakan email aktif, selesaikan verifikasi keamanan, lalu
                                 klik link verifikasi yang dikirim ke email sebelum akunmu diaktifkan.
-                                Satu email hanya dapat digunakan untuk satu akun.
+                                Email ini digunakan untuk login, reset kata sandi, dan menemukan kembali
+                                pertanyaan keamanan jika kamu lupa. Satu email hanya dapat digunakan untuk satu akun.
                             </div>
 
                             {errors.api && (

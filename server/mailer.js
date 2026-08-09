@@ -255,6 +255,89 @@ export async function sendPasswordResetEmail(toEmail, toUsername, token) {
   if (error) throw new Error(`[mailer] Resend error: ${error.message}`);
 }
 
+export async function sendAccountInfoEmail({
+  toEmail,
+  username,
+  gameId,
+  createdAt,
+  registeredIp,
+  resetToken,
+}) {
+  const resend = getResendClient();
+  const link = `${APP_BASE_URL}/reset-password?token=${encodeURIComponent(resetToken)}`;
+  const safe = value => String(value ?? '-')
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;');
+
+  const bodyHtml = `
+    <p style="margin:0 0 6px;font-size:24px;font-weight:700;color:#111827;font-family:Arial,Helvetica,sans-serif">
+      Informasi Akun
+    </p>
+    <p style="margin:0 0 28px;font-size:14px;color:#6b7280;font-family:Arial,Helvetica,sans-serif;line-height:1.6;border-bottom:1px solid #f1f5f9;padding-bottom:20px">
+      Detail akun Tales Hero Indonesia yang terhubung dengan email ini
+    </p>
+    <p style="margin:0 0 16px;font-size:15px;color:#374151;font-family:Arial,Helvetica,sans-serif;line-height:1.7">
+      Berikut informasi akunmu. IP pendaftaran disamarkan untuk menjaga keamanan data.
+    </p>
+    <table cellpadding="0" cellspacing="0" role="presentation" width="100%" style="border-collapse:separate;border-spacing:0;margin:0 0 24px;border:1px solid #e2e8f0;border-radius:10px;overflow:hidden">
+      <tr><td style="padding:12px 16px;color:#64748b;font-size:12px;border-bottom:1px solid #f1f5f9">Username</td><td style="padding:12px 16px;color:#111827;font-size:14px;font-weight:700;text-align:right;border-bottom:1px solid #f1f5f9">${safe(username)}</td></tr>
+      <tr><td style="padding:12px 16px;color:#64748b;font-size:12px;border-bottom:1px solid #f1f5f9">Game ID</td><td style="padding:12px 16px;color:#111827;font-size:14px;font-weight:700;text-align:right;border-bottom:1px solid #f1f5f9">${safe(gameId)}</td></tr>
+      <tr><td style="padding:12px 16px;color:#64748b;font-size:12px;border-bottom:1px solid #f1f5f9">Tanggal pembuatan</td><td style="padding:12px 16px;color:#111827;font-size:14px;font-weight:700;text-align:right;border-bottom:1px solid #f1f5f9">${safe(createdAt)}</td></tr>
+      <tr><td style="padding:12px 16px;color:#64748b;font-size:12px">IP terdaftar</td><td style="padding:12px 16px;color:#111827;font-size:14px;font-weight:700;text-align:right">${safe(registeredIp)}</td></tr>
+    </table>
+    <table cellpadding="0" cellspacing="0" role="presentation" width="100%" style="margin:24px 0">
+      <tr><td align="center">
+        <a href="${link}" target="_blank" rel="noopener"
+           style="display:inline-block;padding:15px 48px;background:linear-gradient(135deg,#1d4ed8 0%,#2563eb 100%);color:#ffffff;text-decoration:none;font-weight:700;font-size:15px;font-family:Arial,Helvetica,sans-serif;border-radius:10px;letter-spacing:.4px">
+          Reset Kata Sandi
+        </a>
+      </td></tr>
+    </table>
+    <div style="background:#fffbeb;border:1px solid #fcd34d;border-radius:8px;padding:14px 18px">
+      <p style="margin:0;font-size:13px;color:#92400e;font-family:Arial,Helvetica,sans-serif;line-height:1.6">
+        Link reset berlaku selama 1 jam. Jika kamu tidak meminta informasi ini, abaikan email ini dan segera hubungi support.
+      </p>
+    </div>`;
+
+  const plainText = [
+    'Informasi Akun — Tales Hero Indonesia',
+    '',
+    `Username: ${username}`,
+    `Game ID: ${gameId ?? '-'}`,
+    `Tanggal pembuatan: ${createdAt}`,
+    `IP terdaftar: ${registeredIp}`,
+    '',
+    'Reset kata sandi (berlaku 1 jam):',
+    link,
+    '',
+    'Jika kamu tidak meminta informasi ini, abaikan email ini.',
+    `Bantuan: ${SOCIAL.support}`,
+  ].join('\n');
+
+  const { error } = await resend.emails.send({
+    from: FROM,
+    to: toEmail,
+    replyTo: REPLY_TO,
+    subject: 'Informasi Akun dan Reset Kata Sandi — Tales Hero Indonesia',
+    text: plainText,
+    html: emailShell(
+      'linear-gradient(90deg,#1d4ed8,#3b82f6)',
+      bodyHtml,
+      'Informasi akun Tales Hero Indonesia dan link reset kata sandi.',
+    ),
+    attachments: logoAttachment(),
+    headers: {
+      'List-Unsubscribe': `<mailto:${REPLY_TO}?subject=unsubscribe>`,
+      'X-Mailer': 'Tales Hero Indonesia Mailer',
+      'X-Entity-Ref-ID': `account-info-${toEmail}-${Date.now()}`,
+    },
+  });
+
+  if (error) throw new Error(`[mailer] Resend error: ${error.message}`);
+}
+
 // ── Security Question ──────────────────────────────────────────────────────
 
 export async function sendSecurityQuestionEmail(toEmail, toUsername, secQuestion, secAnswer) {

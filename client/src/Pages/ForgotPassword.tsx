@@ -16,8 +16,9 @@ import {
 
 const FORGOT_PASSWORD_EMAIL_API = '/auth/forgot-password';
 const FORGOT_SECURITY_EMAIL_API = '/auth/forgot-security-question';
+const ACCOUNT_INFO_API = '/auth/account-info';
 
-type EmailType = 'password' | 'security';
+type EmailType = 'password' | 'security' | 'account';
 
 export default function ForgotPassword() {
     usePageMeta({
@@ -64,6 +65,10 @@ export default function ForgotPassword() {
             setError('Username game atau email wajib diisi.');
             return;
         }
+        if (type === 'account' && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
+            setError('Untuk menemukan akun, masukkan email yang digunakan saat mendaftar.');
+            return;
+        }
         if (!captcha) {
             setError('Harap selesaikan verifikasi keamanan terlebih dahulu.');
             return;
@@ -72,11 +77,17 @@ export default function ForgotPassword() {
         setError('');
         try {
             const response = await fetch(
-                type === 'password' ? FORGOT_PASSWORD_EMAIL_API : FORGOT_SECURITY_EMAIL_API,
+                type === 'account'
+                    ? ACCOUNT_INFO_API
+                    : type === 'password' ? FORGOT_PASSWORD_EMAIL_API : FORGOT_SECURITY_EMAIL_API,
                 {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ identifier: value, captcha }),
+                    body: JSON.stringify(
+                        type === 'account'
+                            ? { email: value, captcha }
+                            : { identifier: value, captcha },
+                    ),
                 },
             );
             const data = await response.json().catch(() => ({}));
@@ -125,7 +136,9 @@ export default function ForgotPassword() {
                                 <p className="login-form-wrap__sub">
                                     {emailSent === 'password'
                                         ? 'Link reset kata sandi'
-                                        : 'Jawaban pertanyaan keamanan'}{' '}
+                                        : emailSent === 'security'
+                                            ? 'Jawaban pertanyaan keamanan'
+                                            : 'Informasi akun dan link reset kata sandi'}{' '}
                                     sudah dikirim ke{' '}
                                     <strong>{maskedEmail || 'email yang terdaftar di akunmu'}</strong>.
                                     <br />
@@ -156,7 +169,8 @@ export default function ForgotPassword() {
                                 <h1 className="login-form-wrap__title">Pemulihan Akun</h1>
                                 <p className="login-form-wrap__sub">
                                     Masukkan username game atau email terdaftar.
-                                    Email pemulihan akan dikirim otomatis ke email yang tersimpan di akunmu.
+                                     Email pemulihan akan dikirim otomatis ke email yang tersimpan di akunmu.
+                                     Untuk menemukan Game ID dan detail akun, gunakan email terdaftar.
                                 </p>
 
                                 {error && <div className="login-api-error">{error}</div>}
@@ -205,6 +219,15 @@ export default function ForgotPassword() {
                                             >
                                                 <IoShieldCheckmarkOutline size={17} />
                                                 {loading === 'security' ? 'Mengirim...' : 'Lupa Pertanyaan Keamanan?'}
+                                            </button>
+                                            <button
+                                                type="button"
+                                                className="reset-recovery-btn reset-recovery-btn--account"
+                                                disabled={loading !== null}
+                                                onClick={() => sendRecoveryEmail('account')}
+                                            >
+                                                <IoPersonOutline size={17} />
+                                                {loading === 'account' ? 'Mencari...' : 'Temukan Akun via Email'}
                                             </button>
                                         </div>
 
