@@ -37,6 +37,7 @@ Website game online action adventure Tales Hero Indonesia — landing page + hal
 - Landing page (/) dengan hero section, navigasi smooth scroll, footer
 - Halaman daftar (/daftar) — form registrasi hero dengan validasi email + password
 - API /auth/register — menyimpan akun baru ke `tr_game_db.userinfofrompublisher`
+- Registrasi baru masuk ke pending registration dan baru membuat akun game setelah verifikasi email
 - API /auth/login — memeriksa username dan MD5 password game
 - API recovery email — reset kata sandi memakai link email, atau mengirim pertanyaan keamanan yang tersimpan ke email tanpa mengubahnya
 - API /api/leaderboard — data 10 besar pemain (mock)
@@ -47,17 +48,23 @@ Website game online action adventure Tales Hero Indonesia — landing page + hal
 - Tidak suka `.replit-artifact` dan folder sistem muncul di GitHub — sudah di-gitignore
 - Nama panggilan untuk assistant: Madrols
 
-## Email (Nodemailer SMTP)
+## Email (Resend)
 
-Pengirim email sekarang pakai **nodemailer** via SMTP (bukan Resend).
+Pengirim email memakai **Resend** untuk email verifikasi akun dan pemulihan akun.
 
-Secrets yang dibutuhkan:
-- `EMAIL_USER` — alamat Gmail pengirim (mis. `noreply@gmail.com`)
-- `EMAIL_PASS` — Gmail App Password (bukan password biasa — aktifkan 2FA dulu, lalu buat di myaccount.google.com/apppasswords)
-- `SMTP_HOST` — opsional, default `smtp.gmail.com`
-- `SMTP_PORT` — opsional, default `465`
+Secret yang dibutuhkan:
+- `RESEND_API_KEY` — API key dari Resend
 
-FROM address otomatis diambil dari `EMAIL_USER` agar SPF/DKIM Gmail valid dan tidak masuk spam.
+`APP_BASE_URL` opsional dan dipakai untuk domain link verifikasi; default-nya `https://taleshero.web.id`.
+
+## Proteksi Registrasi
+
+- Cloudflare Turnstile diverifikasi server-side menggunakan `TURNSTILE_SITE_KEY` dan `TURNSTILE_SECRET_KEY`.
+- Pendaftaran disimpan sementara di `tales_hero_pending_registrations`; akun game belum dibuat sebelum link email diverifikasi.
+- Link verifikasi berlaku 30 menit dan memakai token hash satu kali.
+- Rate limit register: 3 per IP per hari, 5 per email per jam, dan 5 per username per jam.
+- Email verifikasi dikirim melalui `RESEND_API_KEY`; `APP_BASE_URL` opsional untuk mengganti domain link verifikasi.
+- Data pending yang kedaluwarsa dibersihkan saat migrasi database.
 
 ## Deploy ke Cloudflare Pages
 
