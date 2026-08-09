@@ -14,6 +14,8 @@ import crypto from 'node:crypto';
 import { pool } from '../db.js';
 import { ALLOWED_SECURITY_QUESTIONS } from './security-questions.js';
 import { captchaError, verifyRecaptcha } from './recaptcha.js';
+import { registrationRateLimit } from './rate-limit.js';
+import { sendRegistrationVerificationEmail } from '../mailer.js';
 
 function sha256(str) {
   return crypto.createHash('sha256').update(str, 'utf8').digest('hex');
@@ -75,10 +77,22 @@ async function register(req, res) {
     }
     if (!await verifyRecaptcha(captcha, req.ip)) return captchaError(res);
 
+    const rateLimit = registrationRateLimit(req, {
+      email: normalizedEmail,
+      username: username.trim(),
+    });
+    if (rateLimit) {
+      res.setHeader('Retry-After', String(rateLimit.retryAfter));
+      return res.status(429).json({
+        message: `Terlalu banyak percobaan pendaftaran. Coba lagi dalam ${Math.ceil(rateLimit.retryAfter / 60)} menit.`,
+      });
+    }
+
     conn = await pool.getConnection();
 
-    // ── 2. Cek username sudah terdaftar di akun game ──────
+    // ── 2. Simpan sebagai pending — akun game belum dibuat ──
     await conn.beginTransaction();
+    await conn.query('DELETE FROM tales_hero_pending_registrations WHERE expires_at <= NOW()');
 
     const [existing] = await conn.query(
       'SELECT fdUserID FROM userinfofrompublisher WHERE fdUserID = ? LIMIT 1',
@@ -98,35 +112,56 @@ async function register(req, res) {
       return res.status(409).json({ message: 'Email sudah terdaftar dan tidak dapat digunakan kembali.' });
     }
 
-    // ── 3. Simpan langsung ke tabel publisher game ────────
-    // The game server expects a lowercase MD5 digest in fdPassword.
-    await conn.query(
-      `INSERT INTO userinfofrompublisher (fdUserID, fdGameID, fdPassword, fdWhitelist)
-       VALUES (?, ?, ?, 1)`,
-      [username.trim(), username.trim(), gamePassword(password)]
+    const [pending] = await conn.query(
+      `SELECT username, email FROM tales_hero_pending_registrations
+       WHERE username = ? OR email = ? LIMIT 1`,
+      [username.trim(), normalizedEmail],
     );
+    if (pending.length > 0) {
+      const sameRequest = pending[0].username === username.trim()
+        && pending[0].email === normalizedEmail;
+      await conn.rollback();
+      return res.status(409).json({
+        message: sameRequest
+          ? 'Verifikasi email sebelumnya masih berlaku. Periksa inbox atau tunggu sampai link kedaluwarsa.'
+          : 'Username atau email sedang dipakai dalam pendaftaran yang belum diverifikasi.',
+      });
+    }
 
-    // ── 4. Simpan data website (email, pertanyaan keamanan) ──
+    const token = crypto.randomBytes(32).toString('hex');
+    const tokenHash = sha256(token);
+    const expiresAt = new Date(Date.now() + 30 * 60 * 1000);
+
     await conn.query(
-      `INSERT INTO tales_hero_web_users (username, email, sec_question, sec_answer_hash, sec_answer)
-       VALUES (?, ?, ?, ?, ?)
-       ON DUPLICATE KEY UPDATE
-         email           = VALUES(email),
-         sec_question    = VALUES(sec_question),
-         sec_answer_hash = VALUES(sec_answer_hash),
-         sec_answer      = VALUES(sec_answer)`,
+      `INSERT INTO tales_hero_pending_registrations
+       (username, email, game_password_hash, sec_question, sec_answer_hash, sec_answer, token_hash, expires_at, created_ip)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         username.trim(),
         normalizedEmail,
+        gamePassword(password),
         secQuestion,
         sha256(secAnswer.trim().toLowerCase()),
         secAnswer.trim(),
+        tokenHash,
+        expiresAt,
+        req.ip ?? req.socket?.remoteAddress ?? '',
       ],
     );
 
     await conn.commit();
+    conn.release();
+    conn = null;
+
+    try {
+      await sendRegistrationVerificationEmail(normalizedEmail, username.trim(), token);
+    } catch (emailError) {
+      await pool.query('DELETE FROM tales_hero_pending_registrations WHERE token_hash = ?', [tokenHash]);
+      throw emailError;
+    }
+
     return res.status(201).json({
-      message: 'Akun game berhasil dibuat. Email dan pertanyaan keamanan sudah tersimpan.',
+      message: 'Link verifikasi sudah dikirim ke email kamu. Akun game dibuat setelah email berhasil diverifikasi.',
     });
 
   } catch (err) {

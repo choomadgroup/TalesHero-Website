@@ -8,6 +8,7 @@ import Login from '@/Pages/Login';
 import ForgotPassword from '@/Pages/ForgotPassword';
 import ResetPasswordEmail from '@/Pages/ResetPasswordEmail';
 import Daftar from '@/Pages/Daftar';
+import VerifyRegistration from '@/Pages/VerifyRegistration';
 import Akun from '@/Pages/Akun';
 import Download from '@/Pages/Download';
 import Support from '@/Pages/Support';
@@ -29,6 +30,7 @@ function Router() {
             <Route path="/forgot-password" component={ForgotPassword} />
             <Route path="/reset-password" component={ResetPasswordEmail} />
             <Route path="/daftar" component={Daftar} />
+            <Route path="/verifikasi" component={VerifyRegistration} />
             <Route path="/akun" component={Akun} />
             <Route path="/nickname" component={Nickname} />
             <Route path="/download" component={Download} />

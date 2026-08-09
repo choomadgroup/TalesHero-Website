@@ -192,11 +192,11 @@ export default function Daftar() {
                             <IoCheckmarkCircle className="daftar-success__icon" />
                             <h2 className="daftar-success__title">Pendaftaran Berhasil!</h2>
                             <p className="daftar-success__desc">
-                                Selamat datang, <strong>{form.username}</strong>!<br />
-                                Akun game kamu sudah tersimpan dan siap dicoba di game.
+                                 Link verifikasi sudah dikirim ke email <strong>{form.email}</strong>.<br />
+                                 Klik link tersebut untuk mengaktifkan akun game kamu.
                             </p>
                             <button className="cs-page__btn cs-page__btn--pink" onClick={() => setLocation('/login')}>
-                                Masuk Sekarang
+                                 Kembali ke Login
                             </button>
                             <button className="daftar-success__home" onClick={() => setLocation('/')}>
                                 <IoHome size={14} /> Kembali ke Beranda

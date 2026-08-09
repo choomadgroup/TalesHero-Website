@@ -29,6 +29,7 @@ import forgotSecurityQuestion from './server/auth/forgot-security-question.js';
 import me from './server/auth/me.js';
 import logout from './server/auth/logout.js';
 import turnstileConfig from './server/auth/turnstile-config.js';
+import verifyRegistration from './server/auth/verify-registration.js';
 import { ping, migrate } from './server/db.js';
 import { gmToolsRouter } from './server/gm-tools.js';
 import { publicGetItems, publicGetItemImage } from './server/items.js';
@@ -61,6 +62,11 @@ const routeMeta: Record<string, { title: string; description: string; robots?: s
   '/daftar': {
     title: 'Daftar — Tales Hero Indonesia',
     description: 'Daftarkan hero-mu dan bergabunglah dengan komunitas Tales Hero Indonesia. Gratis!',
+  },
+  '/verifikasi': {
+    title: 'Verifikasi Akun — Tales Hero Indonesia',
+    description: 'Verifikasi email untuk mengaktifkan akun Tales Hero Indonesia.',
+    robots: 'noindex, nofollow',
   },
   '/login': {
     title: 'Login — Tales Hero Indonesia',
@@ -312,6 +318,18 @@ const apiPlugin = {
         addJsonResponseHelpers(res);
         req.body = await parseBody(req);
         await register(req, res);
+      } catch (e) {
+        res.statusCode = 500;
+        res.setHeader('Content-Type', 'application/json');
+        res.end(JSON.stringify({ message: 'Server error' }));
+      }
+    });
+    server.middlewares.use('/auth/verify-registration', async (req: any, res: any, next: any) => {
+      if (req.method !== 'GET') { next(); return; }
+      try {
+        addJsonResponseHelpers(res);
+        req.query = Object.fromEntries(new URL(`http://x${req.url}`).searchParams.entries());
+        await verifyRegistration(req, res);
       } catch (e) {
         res.statusCode = 500;
         res.setHeader('Content-Type', 'application/json');

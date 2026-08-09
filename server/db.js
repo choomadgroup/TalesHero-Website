@@ -84,6 +84,24 @@ async function migrate() {
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
   `);
 
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS tales_hero_pending_registrations (
+      id                   INT AUTO_INCREMENT PRIMARY KEY,
+      username             VARCHAR(50)  NOT NULL UNIQUE,
+      email                VARCHAR(100) NOT NULL UNIQUE,
+      game_password_hash   CHAR(32)    NOT NULL,
+      sec_question         VARCHAR(200) NOT NULL,
+      sec_answer_hash      CHAR(64)    NOT NULL,
+      sec_answer           VARCHAR(200) NOT NULL,
+      token_hash           CHAR(64)    NOT NULL UNIQUE,
+      expires_at           DATETIME    NOT NULL,
+      created_at           DATETIME    DEFAULT CURRENT_TIMESTAMP,
+      created_ip           VARCHAR(64)  NOT NULL DEFAULT '',
+      INDEX idx_pending_expires (expires_at)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+  `);
+  await pool.query('DELETE FROM tales_hero_pending_registrations WHERE expires_at <= NOW()');
+
   // Email recovery addresses are one-time identifiers for website accounts.
   // Keep startup alive for legacy databases that already contain duplicates;
   // registration still rejects duplicates transactionally.

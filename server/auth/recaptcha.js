@@ -7,8 +7,8 @@ const VERIFY_URL = 'https://challenges.cloudflare.com/turnstile/v0/siteverify';
  */
 async function verifyRecaptcha(token, remoteIp) {
   const secret = process.env.TURNSTILE_SECRET_KEY;
-  if (!secret) return process.env.NODE_ENV !== 'production';
-  if (!token || token === 'dev-bypass') return true;
+  if (!secret) return process.env.NODE_ENV !== 'production' && token === 'dev-bypass';
+  if (!token) return false;
 
   const body = new URLSearchParams({ secret, response: token });
   if (remoteIp) body.set('remoteip', remoteIp);

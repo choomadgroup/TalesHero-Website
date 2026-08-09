@@ -16,6 +16,7 @@ const FROM_ADDRESS = 'noreply@taleshero.web.id';
 const REPLY_TO     = 'support@taleshero.web.id';
 const FROM         = `"Tales Hero Indonesia" <${FROM_ADDRESS}>`;
 const BASE         = 'https://taleshero.web.id';
+const APP_BASE_URL = (process.env.APP_BASE_URL?.trim() || BASE).replace(/\/+$/, '');
 
 // Logo di-embed langsung via CID — tampil di Gmail tanpa perlu klik "Tampilkan gambar"
 const LOGO_CID  = 'logo@taleshero.web.id';
@@ -337,6 +338,79 @@ export async function sendSecurityQuestionEmail(toEmail, toUsername, secQuestion
       'List-Unsubscribe' : `<mailto:${REPLY_TO}?subject=unsubscribe>`,
       'X-Mailer'         : 'Tales Hero Indonesia Mailer',
       'X-Entity-Ref-ID'  : `recovery-${toEmail}-${Date.now()}`,
+    },
+  });
+
+  if (error) throw new Error(`[mailer] Resend error: ${error.message}`);
+}
+
+// ── Registration Verification ──────────────────────────────────────────────
+export async function sendRegistrationVerificationEmail(toEmail, toUsername, token) {
+  const resend = getResendClient();
+  const link = `${APP_BASE_URL}/verifikasi?token=${encodeURIComponent(token)}`;
+
+  const bodyHtml = `
+    <p style="margin:0 0 6px;font-size:24px;font-weight:700;color:#111827;font-family:Arial,Helvetica,sans-serif">
+      Verifikasi Akun
+    </p>
+    <p style="margin:0 0 28px;font-size:14px;color:#6b7280;font-family:Arial,Helvetica,sans-serif;line-height:1.6;border-bottom:1px solid #f1f5f9;padding-bottom:20px">
+      Satu langkah lagi untuk mengaktifkan akun <strong style="color:#374151">${toUsername}</strong>
+    </p>
+    <p style="margin:0 0 16px;font-size:15px;color:#374151;font-family:Arial,Helvetica,sans-serif;line-height:1.7">
+      Halo <strong>${toUsername}</strong>,<br>
+      klik tombol di bawah untuk memverifikasi email dan membuat akun game Tales Hero Indonesia.
+      Link ini berlaku selama <strong>30 menit</strong>.
+    </p>
+    <table cellpadding="0" cellspacing="0" role="presentation" width="100%" style="margin:24px 0">
+      <tr><td align="center">
+        <a href="${link}" target="_blank" rel="noopener"
+           style="display:inline-block;padding:15px 48px;background:linear-gradient(135deg,#db2777 0%,#ec4899 100%);color:#ffffff;text-decoration:none;font-weight:700;font-size:15px;font-family:Arial,Helvetica,sans-serif;border-radius:10px;letter-spacing:.4px">
+          Verifikasi Email
+        </a>
+      </td></tr>
+    </table>
+    <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:14px 18px;margin:0 0 20px">
+      <p style="margin:0 0 6px;font-size:12px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:.5px;font-family:Arial,Helvetica,sans-serif">
+        Atau salin link ini ke browser
+      </p>
+      <a href="${link}" style="font-size:12px;color:#db2777;word-break:break-all;font-family:Arial,Helvetica,sans-serif;line-height:1.6">${link}</a>
+    </div>
+    <div style="background:#fffbeb;border:1px solid #fcd34d;border-radius:8px;padding:14px 18px">
+      <p style="margin:0;font-size:13px;color:#92400e;font-family:Arial,Helvetica,sans-serif;line-height:1.6">
+        Jika kamu tidak membuat akun ini, abaikan email ini. Tidak ada akun game yang dibuat sebelum email diverifikasi.
+      </p>
+    </div>`;
+
+  const plainText = [
+    'Verifikasi Akun — Tales Hero Indonesia',
+    '',
+    `Halo ${toUsername},`,
+    '',
+    'Klik link berikut untuk memverifikasi email dan membuat akun game.',
+    'Link berlaku selama 30 menit:',
+    link,
+    '',
+    'Jika kamu tidak membuat akun ini, abaikan email ini.',
+    `Butuh bantuan? Hubungi ${SOCIAL.support}`,
+    `© ${new Date().getFullYear()} Tales Hero Indonesia`,
+  ].join('\n');
+
+  const { error } = await resend.emails.send({
+    from: FROM,
+    to: toEmail,
+    replyTo: REPLY_TO,
+    subject: 'Verifikasi Akun — Tales Hero Indonesia',
+    text: plainText,
+    html: emailShell(
+      'linear-gradient(90deg,#db2777,#ec4899)',
+      bodyHtml,
+      `Verifikasi email Tales Hero Indonesia untuk ${toUsername}. Berlaku 30 menit.`,
+    ),
+    attachments: logoAttachment(),
+    headers: {
+      'List-Unsubscribe': `<mailto:${REPLY_TO}?subject=unsubscribe>`,
+      'X-Mailer': 'Tales Hero Indonesia Mailer',
+      'X-Entity-Ref-ID': `verify-${toEmail}-${Date.now()}`,
     },
   });
 

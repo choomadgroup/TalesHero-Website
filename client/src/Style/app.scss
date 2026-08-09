@@ -7257,6 +7257,49 @@ $nl-sans:     'Poppins', -apple-system, sans-serif;
   }
 }
 
+.cs-page--verify {
+  min-height: 68vh;
+}
+
+.verify-card {
+  max-width: 520px;
+}
+
+.verify-state {
+  padding: 18px 0 8px;
+  text-align: center;
+
+  &__icon {
+    width: 62px;
+    height: 62px;
+    margin-bottom: 14px;
+
+    &--loading { color: #e91e63; animation: verify-pulse 1.4s ease-in-out infinite; }
+    &--success { color: #2e9b58; }
+    &--error { color: #d94b69; }
+  }
+
+  &__title {
+    margin: 0 0 10px;
+    color: #1a1a2e;
+    font-size: 24px;
+  }
+
+  &__desc {
+    margin: 0 auto 24px;
+    max-width: 390px;
+    color: #777789;
+    font-size: 14px;
+    line-height: 1.65;
+    word-break: break-word;
+  }
+}
+
+@keyframes verify-pulse {
+  0%, 100% { opacity: .45; transform: scale(.94); }
+  50% { opacity: 1; transform: scale(1); }
+}
+
 // ── Proteksi konten — production only ────────────────────────
 // Teks & gambar tidak bisa diseleksi atau di-drag
 img {
