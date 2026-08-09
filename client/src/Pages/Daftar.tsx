@@ -208,9 +208,10 @@ export default function Daftar() {
                             <h1 className="daftar-form-wrap__title">Buat Akun Baru</h1>
                             <p className="daftar-form-wrap__sub">Bergabunglah dan jadilah hero legendaris!</p>
                             <div className="daftar-recovery-note">
-                                Email dan pertanyaan keamanan akan langsung tersimpan saat pendaftaran.
-                                Email bisa digunakan untuk login, reset kata sandi, dan menemukan kembali
-                                pertanyaan keamanan jika kamu lupa pertanyaannya.
+                                Demi menjaga keamanan server dan mengurangi akun palsu, syarat pendaftaran
+                                kini lebih ketat. Gunakan email aktif, selesaikan verifikasi keamanan, lalu
+                                klik link verifikasi yang dikirim ke email sebelum akunmu diaktifkan.
+                                Satu email hanya dapat digunakan untuk satu akun.
                             </div>
 
                             {errors.api && (
