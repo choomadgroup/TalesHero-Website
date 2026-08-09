@@ -7,7 +7,12 @@ const VERIFY_URL = 'https://challenges.cloudflare.com/turnstile/v0/siteverify';
  */
 async function verifyRecaptcha(token, remoteIp) {
   const secret = process.env.TURNSTILE_SECRET_KEY;
-  if (!secret) return process.env.NODE_ENV !== 'production' && token === 'dev-bypass';
+  // Vite dev mode uses a local bypass token. This must be checked before
+  // looking at the configured production secret; otherwise the dev server
+  // sends "dev-bypass" to Cloudflare and Cloudflare correctly rejects it.
+  // Never accept this token when the server is running in production.
+  if (process.env.NODE_ENV !== 'production' && token === 'dev-bypass') return true;
+  if (!secret) return false;
   if (!token) return false;
 
   const body = new URLSearchParams({ secret, response: token });
