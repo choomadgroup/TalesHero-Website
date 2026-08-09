@@ -45,6 +45,7 @@ Website game online action adventure Tales Hero Indonesia — landing page + hal
 
 - Tidak suka folder/file tambahan yang tidak perlu — jaga struktur seminimal mungkin
 - Tidak suka `.replit-artifact` dan folder sistem muncul di GitHub — sudah di-gitignore
+- Nama panggilan untuk assistant: Madrols
 
 ## Email (Nodemailer SMTP)
 
