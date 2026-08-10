@@ -29,10 +29,10 @@ async function verifyRecaptcha(token, remoteIp) {
     });
     if (!res.ok) return false;
     const result = await res.json();
-    console.log('[turnstile] verify:', result.success, result['error-codes']);
+    console.log('[Turnstile] verify:', result.success, result['error-codes']);
     return result.success === true;
   } catch (err) {
-    console.error('[turnstile] verification error:', err.message);
+    console.error('[Turnstile] verification error:', err.message);
     return false;
   } finally {
     clearTimeout(timeout);

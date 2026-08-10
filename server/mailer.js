@@ -321,12 +321,12 @@ export async function sendAccountInfoEmail({
     from: FROM,
     to: toEmail,
     replyTo: REPLY_TO,
-    subject: 'Informasi Akun dan Reset Kata Sandi — Tales Hero Indonesia',
+    subject: 'Informasi Akun — Tales Hero Indonesia',
     text: plainText,
     html: emailShell(
       'linear-gradient(90deg,#1d4ed8,#3b82f6)',
       bodyHtml,
-      'Informasi akun Tales Hero Indonesia dan link reset kata sandi.',
+      'Informasi akun Tales Hero Indonesia',
     ),
     attachments: logoAttachment(),
     headers: {
