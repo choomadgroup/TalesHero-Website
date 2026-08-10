@@ -16,6 +16,7 @@ import { ALLOWED_SECURITY_QUESTIONS } from './security-questions.js';
 import { captchaError, verifyRecaptcha } from './recaptcha.js';
 import { registrationRateLimit } from './rate-limit.js';
 import { sendRegistrationVerificationEmail } from '../mailer.js';
+import { getClientIp } from './client-ip.js';
 
 function sha256(str) {
   return crypto.createHash('sha256').update(str, 'utf8').digest('hex');
@@ -130,12 +131,10 @@ async function register(req, res) {
 
     const token = crypto.randomBytes(32).toString('hex');
     const tokenHash = sha256(token);
-    const expiresAt = new Date(Date.now() + 30 * 60 * 1000);
-
     await conn.query(
       `INSERT INTO tales_hero_pending_registrations
        (username, email, game_password_hash, sec_question, sec_answer_hash, sec_answer, token_hash, expires_at, created_ip)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+       VALUES (?, ?, ?, ?, ?, ?, ?, DATE_ADD(NOW(), INTERVAL 30 MINUTE), ?)`,
       [
         username.trim(),
         normalizedEmail,
@@ -144,8 +143,7 @@ async function register(req, res) {
         sha256(secAnswer.trim().toLowerCase()),
         secAnswer.trim(),
         tokenHash,
-        expiresAt,
-        req.ip ?? req.socket?.remoteAddress ?? '',
+        getClientIp(req),
       ],
     );
 

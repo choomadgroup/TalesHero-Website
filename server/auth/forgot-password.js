@@ -62,11 +62,10 @@ async function forgotPassword(req, res) {
 
     // Buat token baru
     const token     = crypto.randomBytes(32).toString('hex');
-    const expiresAt = new Date(Date.now() + 60 * 60 * 1000); // 1 jam
-
     await query(
-      `INSERT INTO password_reset_tokens (username, token, type, expires_at) VALUES (?, ?, 'password', ?)`,
-      [username, token, expiresAt],
+      `INSERT INTO password_reset_tokens (username, token, type, expires_at)
+       VALUES (?, ?, 'password', DATE_ADD(NOW(), INTERVAL 1 HOUR))`,
+      [username, token],
     );
 
     await sendPasswordResetEmail(email, username, token);

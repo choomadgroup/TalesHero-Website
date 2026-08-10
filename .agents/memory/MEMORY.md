@@ -10,3 +10,4 @@
 - [Tales Hero character detection](taleshero-character-detection.md) — use tblavataritemdesc fdType=1/fdPosition=0 for base char; fdAvatarCharacterSettingNum tracks fashion set, not base char
 - [Tales Hero item catalogue](taleshero-item-catalogue.md) — player items join fdItemDescNum to tblavataritemdesc; set variants come from tblavataritemdescex
 - [Tales Hero registration protection](taleshero-registration-protection.md) — email verification must complete before any game account row is created
+- [Tales Hero token timezones](taleshero-token-timezones.md) — create MySQL DATETIME expiries with NOW()/DATE_ADD, not Node UTC Date objects

@@ -43,12 +43,10 @@ async function createSession(res, username) {
   // remain valid until their own expiry.
   await query('DELETE FROM tales_hero_sessions WHERE expires_at <= NOW()');
   const token = crypto.randomBytes(32).toString('hex');
-  const expiresAt = new Date(Date.now() + SESSION_TTL_SECONDS * 1000);
-
   await query(
     `INSERT INTO tales_hero_sessions (token_hash, username, expires_at)
-     VALUES (?, ?, ?)`,
-    [hashToken(token), username, expiresAt],
+     VALUES (?, ?, DATE_ADD(NOW(), INTERVAL 7 DAY))`,
+    [hashToken(token), username],
   );
   setSessionCookie(res, token);
 }

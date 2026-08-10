@@ -55,11 +55,13 @@ async function accountInfo(req, res) {
     const rows = await query(
       `SELECT g.fdUserID AS username,
               g.fdGameID AS gameId,
+               i.fdNickname AS nickname,
               w.email,
               w.created_at AS createdAt,
               w.registered_ip AS registeredIp
        FROM tales_hero_web_users w
        INNER JOIN userinfofrompublisher g ON g.fdUserID = w.username
+        LEFT JOIN userinfo i ON i.fdUID = g.fdUserID
        WHERE LOWER(w.email) = ?
        LIMIT 1`,
       [email],
@@ -69,22 +71,21 @@ async function accountInfo(req, res) {
 
     const account = rows[0];
     const token = crypto.randomBytes(32).toString('hex');
-    const expiresAt = new Date(Date.now() + 60 * 60 * 1000);
-
     await query(
       `DELETE FROM password_reset_tokens WHERE username = ? AND type = 'password'`,
       [account.username],
     );
     await query(
       `INSERT INTO password_reset_tokens (username, token, type, expires_at)
-       VALUES (?, ?, 'password', ?)`,
-      [account.username, token, expiresAt],
+        VALUES (?, ?, 'password', DATE_ADD(NOW(), INTERVAL 1 HOUR))`,
+      [account.username, token],
     );
 
     try {
       await sendAccountInfoEmail({
         toEmail: account.email,
         username: account.username,
+        nickname: account.nickname,
         gameId: account.gameId,
         createdAt: formatDate(account.createdAt),
         registeredIp: maskIp(account.registeredIp),

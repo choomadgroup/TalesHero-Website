@@ -258,6 +258,7 @@ export async function sendPasswordResetEmail(toEmail, toUsername, token) {
 export async function sendAccountInfoEmail({
   toEmail,
   username,
+  nickname,
   gameId,
   createdAt,
   registeredIp,
@@ -282,7 +283,7 @@ export async function sendAccountInfoEmail({
       Berikut informasi akunmu. IP pendaftaran disamarkan untuk menjaga keamanan data.
     </p>
     <table cellpadding="0" cellspacing="0" role="presentation" width="100%" style="border-collapse:separate;border-spacing:0;margin:0 0 24px;border:1px solid #e2e8f0;border-radius:10px;overflow:hidden">
-      <tr><td style="padding:12px 16px;color:#64748b;font-size:12px;border-bottom:1px solid #f1f5f9">Username</td><td style="padding:12px 16px;color:#111827;font-size:14px;font-weight:700;text-align:right;border-bottom:1px solid #f1f5f9">${safe(username)}</td></tr>
+       <tr><td style="padding:12px 16px;color:#64748b;font-size:12px;border-bottom:1px solid #f1f5f9">Nickname</td><td style="padding:12px 16px;color:#111827;font-size:14px;font-weight:700;text-align:right;border-bottom:1px solid #f1f5f9">${safe(nickname || username)}</td></tr>
       <tr><td style="padding:12px 16px;color:#64748b;font-size:12px;border-bottom:1px solid #f1f5f9">Game ID</td><td style="padding:12px 16px;color:#111827;font-size:14px;font-weight:700;text-align:right;border-bottom:1px solid #f1f5f9">${safe(gameId)}</td></tr>
       <tr><td style="padding:12px 16px;color:#64748b;font-size:12px;border-bottom:1px solid #f1f5f9">Tanggal pembuatan</td><td style="padding:12px 16px;color:#111827;font-size:14px;font-weight:700;text-align:right;border-bottom:1px solid #f1f5f9">${safe(createdAt)}</td></tr>
       <tr><td style="padding:12px 16px;color:#64748b;font-size:12px">IP terdaftar</td><td style="padding:12px 16px;color:#111827;font-size:14px;font-weight:700;text-align:right">${safe(registeredIp)}</td></tr>
@@ -304,7 +305,7 @@ export async function sendAccountInfoEmail({
   const plainText = [
     'Informasi Akun — Tales Hero Indonesia',
     '',
-    `Username: ${username}`,
+    `Nickname: ${nickname || username}`,
     `Game ID: ${gameId ?? '-'}`,
     `Tanggal pembuatan: ${createdAt}`,
     `IP terdaftar: ${registeredIp}`,
