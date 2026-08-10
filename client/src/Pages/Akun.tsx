@@ -316,8 +316,8 @@ export default function Akun() {
 
                             {/* Identity text */}
                             <div className="akun-hero-banner__identity">
-                                <span className="akun-hero-banner__eyebrow">✦ Halo! Aku dikenal</span>
-                                <h1 className="akun-hero-banner__nick">{user.nickname || user.username}</h1>
+                                <span className="akun-hero-banner__eyebrow">✦ Halo! Aku dikenal ✦ </span>
+                                <h1 className="akun-hero-banner__nick">{user.nickname || "Belum Ada Nickname"}</h1>
                                 {charData && (
                                     <span className="akun-hero-banner__charname">{charData.name}</span>
                                 )}
