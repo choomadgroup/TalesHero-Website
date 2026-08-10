@@ -377,8 +377,12 @@ export default function Career() {
         if (authLoading || statusLoading) {
             return (
                 <div className="career-gate">
-                    <div className="career-gate__spinner" />
-                    <p>Memeriksa sesi...</p>
+                    <div className="career-gate__skeleton" aria-label="Memeriksa sesi" aria-busy="true">
+                        <span className="career-gate__skeleton-icon" />
+                        <span className="career-gate__skeleton-line career-gate__skeleton-line--title" />
+                        <span className="career-gate__skeleton-line" />
+                        <span className="career-gate__skeleton-line career-gate__skeleton-line--short" />
+                    </div>
                 </div>
             );
         }

@@ -998,6 +998,45 @@
   letter-spacing: 1px;
 }
 
+.admin-loading-skeleton {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+  min-height: 160px;
+  padding: 12px 0;
+
+  &__head,
+  &__row span {
+    display: block;
+    border-radius: 5px;
+    background: linear-gradient(90deg, var(--cp-surface3) 25%, #252557 50%, var(--cp-surface3) 75%);
+    background-size: 800px 100%;
+    animation: admin-skeleton-shimmer 1.45s ease-in-out infinite;
+  }
+
+  &__head {
+    width: 32%;
+    height: 18px;
+    margin-bottom: 7px;
+  }
+
+  &__row {
+    display: grid;
+    grid-template-columns: 1.7fr 1fr .8fr .6fr;
+    gap: 12px;
+
+    span {
+      height: 28px;
+      border-radius: 6px;
+    }
+  }
+}
+
+@keyframes admin-skeleton-shimmer {
+  0% { background-position: -400px 0; }
+  100% { background-position: 400px 0; }
+}
+
 .admin-error {
   color: var(--cp-red);
   font-size: 12.5px;

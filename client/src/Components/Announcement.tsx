@@ -4,6 +4,7 @@ import { asset } from '@/Lib/utils';
 import { useApiNews } from '@/Hooks/use-news';
 import { CATEGORY_LABELS, CATEGORY_COLORS, type NewsCategory } from '@/Lib/newsLoader';
 import CharacterSpotlight from './CharacterSpotlight';
+import { ContentSkeleton } from './ContentSkeleton';
 
 const SLIDES = [
     '/Image/Home/Slideshow/obj-sp-001.png',
@@ -50,8 +51,8 @@ export default function Announcement() {
 
                     <ul className="ann-list">
                         {loading && (
-                            <li className="ann-row" style={{ pointerEvents: 'none', opacity: 0.5 }}>
-                                <span style={{ fontSize: 12, color: '#aaa' }}>Memuat berita…</span>
+                            <li className="ann-row ann-row--skeleton" aria-label="Memuat berita" aria-busy="true">
+                                <ContentSkeleton rows={1} className="content-skeleton--announcement" />
                             </li>
                         )}
                         {!loading && announcements.length === 0 && (

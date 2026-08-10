@@ -32,7 +32,8 @@ function blockSite() {
 
 /**
  * Proteksi konten Tales Hero Indonesia.
- * Hanya aktif di production — tidak mengganggu saat development.
+ * Proteksi browser aktif di production. Proteksi sumber utama dilakukan server-side
+ * supaya tidak bergantung pada JavaScript client yang bisa dimatikan.
  */
 export function useProtection() {
     useEffect(() => {
@@ -63,6 +64,11 @@ export function useProtection() {
         // ── 2. Blokir klik kanan ─────────────────────────────
         const blockContextMenu = (e: MouseEvent) => e.preventDefault();
         document.addEventListener('contextmenu', blockContextMenu);
+        const blockCopy = (e: ClipboardEvent) => e.preventDefault();
+        const blockSelection = (e: Event) => e.preventDefault();
+        document.addEventListener('copy', blockCopy);
+        document.addEventListener('cut', blockCopy);
+        document.addEventListener('selectstart', blockSelection);
 
         // ── 3. Blokir shortcut DevTools & View Source ────────
         const blockKeys = (e: KeyboardEvent) => {
@@ -91,6 +97,9 @@ export function useProtection() {
 
         return () => {
             document.removeEventListener('contextmenu', blockContextMenu);
+            document.removeEventListener('copy', blockCopy);
+            document.removeEventListener('cut', blockCopy);
+            document.removeEventListener('selectstart', blockSelection);
             document.removeEventListener('keydown', blockKeys);
             document.removeEventListener('dragstart', blockDrag);
         };

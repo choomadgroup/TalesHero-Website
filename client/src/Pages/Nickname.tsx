@@ -361,7 +361,13 @@ export default function NicknamePage() {
                                 </span>
                             </div>
                             {logsLoading ? (
-                                <p className="nickname-page__logs-empty">Memuat…</p>
+                                <div className="nickname-page__logs-skeleton" aria-label="Memuat riwayat nickname" aria-busy="true">
+                                    {[0, 1, 2].map(index => (
+                                        <span key={index} className="nickname-page__logs-skeleton-row">
+                                            <i /><i /><i />
+                                        </span>
+                                    ))}
+                                </div>
                             ) : !logsData?.logs.length ? (
                                 <p className="nickname-page__logs-empty">Belum pernah mengganti nickname.</p>
                             ) : (

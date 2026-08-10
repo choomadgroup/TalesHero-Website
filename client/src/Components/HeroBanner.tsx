@@ -189,11 +189,17 @@ export default function HeroBanner() {
                                 >
                                     Daftar Sekarang
                                 </button>
+                                {accountCount === null && (
+                                    <span className="hero-banner__players-badge hero-banner__players-badge--skeleton" aria-label="Memuat jumlah akun" />
+                                )}
                                 {accountCount !== null && (
                                     <span className="hero-banner__players-badge">
                                         <IoPeopleOutline size={13} />
                                         {accountCount.toLocaleString('id-ID')} Akun Terdaftar
                                     </span>
+                                )}
+                                {onlineCount === null && (
+                                    <span className="hero-banner__online-badge hero-banner__online-badge--skeleton" aria-label="Memuat jumlah pemain online" />
                                 )}
                                 {onlineCount !== null && (
                                     <span
@@ -231,7 +237,11 @@ export default function HeroBanner() {
                                                     Player Online
                                                 </span>
 
-                                                {loadingPlayers && <span style={{ fontSize: 12, color: '#94a3b8' }}>Memuat…</span>}
+                                                {loadingPlayers && (
+                                                    <span className="online-players-skeleton" aria-label="Memuat daftar pemain">
+                                                        <i /><i /><i />
+                                                    </span>
+                                                )}
                                                 {!loadingPlayers && (!onlinePlayers || onlinePlayers.length === 0) && (
                                                     <span style={{ fontSize: 12, color: '#94a3b8' }}>Tidak ada player online</span>
                                                 )}

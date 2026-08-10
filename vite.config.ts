@@ -193,7 +193,7 @@ function addJsonResponseHelpers(res: any) {
 const apiPlugin = {
   name: 'tales-hero-api',
   async configureServer(server: any) {
-    const blockedSourcePath = /^\/(?:client\/src|server|attached_assets|\.local|\.agents|node_modules)(?:\/|$)|^\/(?:vite\.config\.ts|package\.json|pnpm-lock\.yaml|tsconfig(?:\.[^/]+)?|\.env(?:\.[^/]*)?)$/i;
+    const blockedSourcePath = /^\/(?:client|src|server|attached_assets|public|\.local|\.agents|node_modules|\.git)(?:\/|$)|^\/(?:vite\.config\.(?:ts|js)|package\.json|pnpm-lock\.yaml|pnpm-workspace\.yaml|tsconfig(?:\.[^/]+)?|wrangler\.toml|railway\.toml|replit\.md|README(?:\.[^/]+)?|\.replit(?:\.[^/]*)?|\.env(?:\.[^/]*)?)$/i;
 
     // Security headers (CORS, CSP, X-Frame-Options, etc.) di dev server
     server.middlewares.use((req: any, res: any, next: any) => {

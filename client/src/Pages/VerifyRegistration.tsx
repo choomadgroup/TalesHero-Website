@@ -82,9 +82,12 @@ export default function VerifyRegistration() {
                 >
                     {state.status === 'loading' ? (
                         <div className="verify-state">
-                            <IoMailOutline className="verify-state__icon verify-state__icon--loading" />
-                            <h1 className="verify-state__title">Memverifikasi email...</h1>
-                            <p className="verify-state__desc">Tunggu sebentar, kami sedang mengaktifkan akunmu.</p>
+                            <div className="verify-skeleton" aria-label="Memverifikasi email" aria-busy="true">
+                                <span className="verify-skeleton__icon"><IoMailOutline /></span>
+                                <span className="verify-skeleton__title" />
+                                <span className="verify-skeleton__line" />
+                                <span className="verify-skeleton__line verify-skeleton__line--short" />
+                            </div>
                         </div>
                     ) : state.status === 'success' ? (
                         <div className="verify-state">

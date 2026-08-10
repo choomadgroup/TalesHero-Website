@@ -56,7 +56,7 @@ app.get('/api/stats', stats);
 app.get('/api/items', publicGetItems);
 app.get('/api/items/image/:part/:id.png', publicGetItemImage);
 
-const blockedPublicPath = /^\/(?:client\/src|server|attached_assets|\.local|\.agents|node_modules)(?:\/|$)|^\/(?:vite\.config\.ts|package\.json|pnpm-lock\.yaml|tsconfig(?:\.[^/]+)?|\.env(?:\.[^/]*)?)$/i;
+const blockedPublicPath = /^\/(?:client|src|server|attached_assets|public|\.local|\.agents|node_modules|\.git)(?:\/|$)|^\/(?:vite\.config\.(?:ts|js)|package\.json|pnpm-lock\.yaml|pnpm-workspace\.yaml|tsconfig(?:\.[^/]+)?|wrangler\.toml|railway\.toml|replit\.md|README(?:\.[^/]+)?|\.replit(?:\.[^/]*)?|\.env(?:\.[^/]*)?)$/i;
 const privatePagePath = /^\/(?:forgot-password|reset-password|akun|nickname|dashboard\/admin)(?:\/|$)/i;
 
 // Never let source, backend modules, workspace metadata, or environment files

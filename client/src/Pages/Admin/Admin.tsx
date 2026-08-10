@@ -27,6 +27,19 @@ const IconRedeem    = () => <svg width="16" height="16" fill="none" stroke="curr
 const IconAccount   = () => <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>;
 const IconCareer    = () => <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v2"/><line x1="12" y1="12" x2="12" y2="16"/><line x1="10" y1="14" x2="14" y2="14"/></svg>;
 
+function AdminLoadingSkeleton({ rows = 4 }: { rows?: number }) {
+  return (
+    <div className="admin-loading-skeleton" aria-label="Memuat data" aria-busy="true">
+      <div className="admin-loading-skeleton__head" />
+      {Array.from({ length: rows }).map((_, index) => (
+        <div className="admin-loading-skeleton__row" key={index}>
+          <span /><span /><span /><span />
+        </div>
+      ))}
+    </div>
+  );
+}
+
 // ── empty form ────────────────────────────────────────────────────────────────
 const emptyForm = (): NewsFormData => ({
   title: '', slug: '', category: 'update', content: '', excerpt: '', coverUrl: '', published: false,
@@ -284,7 +297,7 @@ function ArticleList({
           </div>
 
           {loading ? (
-            <div className="admin-loading">Memuat artikel…</div>
+            <AdminLoadingSkeleton rows={5} />
           ) : articles.length === 0 ? (
             <div className="admin-article-list__empty">
               <IconNews />
@@ -424,7 +437,7 @@ function DownloadManager({ showToast }: { showToast: (msg: string) => void }) {
         {error && <div className="admin-error">{error}</div>}
 
         {loading ? (
-          <div className="admin-loading">Memuat data download…</div>
+          <AdminLoadingSkeleton rows={3} />
         ) : (
           <div className="adl-list">
             <p className="adl-list__hint">
@@ -777,7 +790,7 @@ function RedeemManager({ adminUser, showToast }: { adminUser: AdminUser | null; 
         )}
 
         {loading ? (
-          <div className="admin-loading">Memuat kode redeem…</div>
+          <AdminLoadingSkeleton rows={5} />
         ) : codes.length === 0 ? (
           <div className="admin-article-list__empty">
             <IconRedeem />
@@ -958,7 +971,7 @@ function AccountSection({ adminUser, showToast }: {
       <div className="admin-topbar"><h1>Akun Saya</h1></div>
       <div className="admin-content">
         {pageLoad ? (
-          <div className="admin-loading">Memuat info akun…</div>
+          <AdminLoadingSkeleton rows={4} />
         ) : (
           <div style={{ maxWidth: 700, display: 'flex', flexDirection: 'column', gap: 20 }}>
 
@@ -1212,6 +1225,7 @@ function CareerSection({ showToast, adminUser }: { showToast: (m: string) => voi
       </div>
 
       {/* ── Application list ── */}
+      {loading && <AdminLoadingSkeleton rows={4} />}
       {apps.length === 0 && !loading && (
         <div style={{ textAlign:'center', color:'#6a7494', padding:48, fontSize:14 }}>Belum ada lamaran masuk.</div>
       )}
@@ -1501,7 +1515,7 @@ export default function AdminPage() {
   if (authenticated === null) {
     return (
       <div className="admin-loading" style={{ minHeight:'100vh',display:'flex',alignItems:'center',justifyContent:'center',fontFamily:'Poppins,sans-serif' }}>
-        Memuat…
+        <AdminLoadingSkeleton rows={4} />
       </div>
     );
   }
