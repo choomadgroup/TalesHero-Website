@@ -133,6 +133,8 @@ Database game harus menyediakan tabel utama `userinfofrompublisher`. Tabel `user
 | --- | --- |
 | `MONGODB_URI` | Connection string MongoDB untuk berita dan data admin |
 | `APP_BASE_URL` | Domain yang digunakan dalam link email; default `https://taleshero.web.id` |
+| `MAIL_FROM_ADDRESS` | Alamat pengirim email; default `noreply@taleshero.web.id`, domain harus diverifikasi di Resend |
+| `MAIL_REPLY_TO` | Alamat untuk balasan email; default `support@taleshero.web.id` |
 | `PORT` | Port server; default mengikuti environment Replit/workflow |
 | `BASE_PATH` | Prefix dasar aplikasi; biasanya `/` |
 | `CORS_ORIGINS` | Daftar origin yang diizinkan jika membutuhkan konfigurasi CORS |

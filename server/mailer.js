@@ -12,8 +12,8 @@ function getResendClient() {
   return new Resend(apiKey);
 }
 
-const FROM_ADDRESS = 'noreply@taleshero.web.id';
-const REPLY_TO     = 'support@taleshero.web.id';
+const FROM_ADDRESS = (process.env.MAIL_FROM_ADDRESS?.trim() || 'noreply@taleshero.web.id');
+const REPLY_TO     = (process.env.MAIL_REPLY_TO?.trim() || 'support@taleshero.web.id');
 const FROM         = `"Tales Hero Indonesia" <${FROM_ADDRESS}>`;
 const BASE         = 'https://taleshero.web.id';
 const APP_BASE_URL = (process.env.APP_BASE_URL?.trim() || BASE).replace(/\/+$/, '');
@@ -34,6 +34,13 @@ const ICON = {
   instagram : `${BASE}/Image/Email/instagram.svg`,
   support   : `${BASE}/Image/Email/support.svg`,
 };
+
+function throwResendError(error) {
+  const details = [error?.name, error?.statusCode, error?.message]
+    .filter(value => value !== undefined && value !== null && value !== '')
+    .join(': ');
+  throw new Error(`[mailer] Resend error: ${details || 'Unknown Resend error'}`);
+}
 
 // ── Helpers ────────────────────────────────────────────────────────────────
 
@@ -252,7 +259,7 @@ export async function sendPasswordResetEmail(toEmail, toUsername, token) {
     },
   });
 
-  if (error) throw new Error(`[mailer] Resend error: ${error.message}`);
+  if (error) throwResendError(error);
 }
 
 export async function sendAccountInfoEmail({
@@ -336,7 +343,7 @@ export async function sendAccountInfoEmail({
     },
   });
 
-  if (error) throw new Error(`[mailer] Resend error: ${error.message}`);
+  if (error) throwResendError(error);
 }
 
 // ── Security Question ──────────────────────────────────────────────────────
@@ -425,7 +432,7 @@ export async function sendSecurityQuestionEmail(toEmail, toUsername, secQuestion
     },
   });
 
-  if (error) throw new Error(`[mailer] Resend error: ${error.message}`);
+  if (error) throwResendError(error);
 }
 
 // ── Registration Verification ──────────────────────────────────────────────
@@ -498,5 +505,5 @@ export async function sendRegistrationVerificationEmail(toEmail, toUsername, tok
     },
   });
 
-  if (error) throw new Error(`[mailer] Resend error: ${error.message}`);
+  if (error) throwResendError(error);
 }

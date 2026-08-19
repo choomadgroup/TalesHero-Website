@@ -57,6 +57,7 @@ Secret yang dibutuhkan:
 - `RESEND_API_KEY` — API key dari Resend
 
 `APP_BASE_URL` opsional dan dipakai untuk domain link verifikasi; default-nya `https://taleshero.web.id`.
+`MAIL_FROM_ADDRESS` dan `MAIL_REPLY_TO` opsional untuk mengganti alamat pengirim dan balasan; keduanya harus memakai domain yang sudah diverifikasi di Resend.
 
 ## Proteksi Registrasi
 
