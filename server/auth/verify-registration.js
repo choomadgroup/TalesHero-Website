@@ -53,8 +53,8 @@ async function verifyRegistration(req, res) {
     }
 
     await conn.query(
-      `INSERT INTO userinfofrompublisher (fdUserID, fdGameID, fdPassword)
-       VALUES (?, ?, ?)`,
+      `INSERT INTO userinfofrompublisher (fdUserID, fdGameID, fdPassword, fdWhitelist)
+       VALUES (?, ?, ?, 1)`,
       [pending.username, pending.username, pending.game_password_hash],
     );
     await conn.query(

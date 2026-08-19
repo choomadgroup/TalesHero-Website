@@ -19,6 +19,7 @@ CREATE TABLE IF NOT EXISTS userinfofrompublisher (
   fdGameID   VARCHAR(50) DEFAULT NULL,
   fdPassword VARCHAR(50) NOT NULL, -- lowercase MD5 hex, required by game server
   fdCash     INT DEFAULT 100000,
+  fdWhitelist TINYINT NOT NULL DEFAULT 1, -- 1 = allowed to log in, 0 = banned
   PRIMARY KEY (fdUserID),
   UNIQUE KEY fdUserID (fdUserID)
 ) ENGINE=InnoDB DEFAULT CHARSET=tis620;

@@ -102,6 +102,17 @@ async function migrate() {
   `);
   await pool.query('DELETE FROM tales_hero_pending_registrations WHERE expires_at <= NOW()');
 
+  // The game checks this flag when accepting publisher accounts.
+  // Existing game databases may predate the website schema.
+  try {
+    await pool.query(`
+      ALTER TABLE userinfofrompublisher
+      ADD COLUMN fdWhitelist TINYINT NOT NULL DEFAULT 1
+    `);
+  } catch (error) {
+    if (error?.code !== 'ER_DUP_FIELDNAME') throw error;
+  }
+
   // Email recovery addresses are one-time identifiers for website accounts.
   // Keep startup alive for legacy databases that already contain duplicates;
   // registration still rejects duplicates transactionally.

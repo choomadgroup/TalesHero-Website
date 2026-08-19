@@ -3,7 +3,7 @@ name: Tales Hero account data
 description: Durable mapping for account profile and currency data in the external game database.
 ---
 
-Cash is stored on `userinfofrompublisher.fdCash`. MAU is stored on `userinfofrompublisher.fdMau` (added via migration in db.js). TR/game money is stored on `userinfogame.fdGameMoney`, EXP on `userinfogame.fdExp` — both joined through `userinfo.fdUserNum`. The in-game nickname is `userinfo.fdNickname`; keep it separate from the immutable publisher username.
+Cash is stored on `userinfofrompublisher.fdCash`. `fdWhitelist` is also on `userinfofrompublisher`: `1` permits game login and `0` represents a ban. MAU is stored on `userinfofrompublisher.fdMau` (added via migration in db.js). TR/game money is stored on `userinfogame.fdGameMoney`, EXP on `userinfogame.fdExp` — both joined through `userinfo.fdUserNum`. The in-game nickname is `userinfo.fdNickname`; keep it separate from the immutable publisher username.
 
 **Why:** The website account screen needs to read the game database's existing balances rather than inventing or duplicating wallet fields.
 
