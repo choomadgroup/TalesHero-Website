@@ -154,8 +154,14 @@ async function register(req, res) {
     try {
       await sendRegistrationVerificationEmail(normalizedEmail, username.trim(), token);
     } catch (emailError) {
+      // Do not leave an unusable pending registration behind. The user must
+      // be able to submit the form again after Resend recovers.
       await pool.query('DELETE FROM tales_hero_pending_registrations WHERE token_hash = ?', [tokenHash]);
-      throw emailError;
+      console.warn('[register] verification email temporarily unavailable:', emailError?.message ?? emailError);
+      res.setHeader('Retry-After', '30');
+      return res.status(503).json({
+        message: 'Layanan email sedang sibuk. Data pendaftaran belum dibuat. Silakan coba lagi dalam beberapa saat.',
+      });
     }
 
     return res.status(201).json({

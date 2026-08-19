@@ -44,15 +44,41 @@ function throwResendError(error) {
 
 async function sendResendEmail(resend, payload) {
   const retryableStatuses = new Set([408, 429, 500, 502, 503, 504]);
+  const maxAttempts = 4;
 
-  for (let attempt = 0; attempt < 3; attempt += 1) {
-    const result = await resend.emails.send(payload);
-    if (!result?.error) return result;
+  const getStatusCode = (error) => {
+    const value = error?.statusCode ?? error?.status ?? error?.response?.status;
+    const statusCode = Number(value);
+    return Number.isInteger(statusCode) ? statusCode : null;
+  };
 
-    const statusCode = Number(result.error.statusCode);
-    const canRetry = retryableStatuses.has(statusCode) && attempt < 2;
-    if (!canRetry) return result;
+  const isRetryableError = (error) => {
+    const statusCode = getStatusCode(error);
+    if (statusCode && retryableStatuses.has(statusCode)) return true;
 
+    // The Resend SDK can surface an upstream 5xx as a plain Error without
+    // exposing the HTTP status. Treat those transient messages like 5xxs.
+    const message = String(error?.message ?? error ?? '').toLowerCase();
+    return /internal server error|temporarily unavailable|service unavailable|timed out|timeout|fetch failed|econnreset|socket hang up|network error/.test(message);
+  };
+
+  for (let attempt = 0; attempt < maxAttempts; attempt += 1) {
+    try {
+      const result = await resend.emails.send(payload);
+      if (!result?.error) return result;
+
+      if (!isRetryableError(result.error) || attempt === maxAttempts - 1) {
+        return result;
+      }
+    } catch (error) {
+      if (!isRetryableError(error) || attempt === maxAttempts - 1) {
+        throw error;
+      }
+    }
+
+    // Give Resend enough time to recover, while keeping registration
+    // responsive. A fresh request is safer than immediately hammering a
+    // transiently failing upstream.
     await new Promise(resolve => setTimeout(resolve, 1000 * (attempt + 1)));
   }
 }
