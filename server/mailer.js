@@ -42,6 +42,21 @@ function throwResendError(error) {
   throw new Error(`[mailer] Resend error: ${details || 'Unknown Resend error'}`);
 }
 
+async function sendResendEmail(resend, payload) {
+  const retryableStatuses = new Set([408, 429, 500, 502, 503, 504]);
+
+  for (let attempt = 0; attempt < 3; attempt += 1) {
+    const result = await resend.emails.send(payload);
+    if (!result?.error) return result;
+
+    const statusCode = Number(result.error.statusCode);
+    const canRetry = retryableStatuses.has(statusCode) && attempt < 2;
+    if (!canRetry) return result;
+
+    await new Promise(resolve => setTimeout(resolve, 1000 * (attempt + 1)));
+  }
+}
+
 // ── Helpers ────────────────────────────────────────────────────────────────
 
 /** Preheader — teks tersembunyi yang muncul sebagai preview di inbox */
@@ -240,7 +255,7 @@ export async function sendPasswordResetEmail(toEmail, toUsername, token) {
     `© ${new Date().getFullYear()} Tales Hero Indonesia`,
   ].join('\n');
 
-  const { error } = await resend.emails.send({
+  const { error } = await sendResendEmail(resend, {
     from        : FROM,
     to          : toEmail,
     replyTo     : REPLY_TO,
@@ -324,7 +339,7 @@ export async function sendAccountInfoEmail({
     `Bantuan: ${SOCIAL.support}`,
   ].join('\n');
 
-  const { error } = await resend.emails.send({
+  const { error } = await sendResendEmail(resend, {
     from: FROM,
     to: toEmail,
     replyTo: REPLY_TO,
@@ -413,7 +428,7 @@ export async function sendSecurityQuestionEmail(toEmail, toUsername, secQuestion
     `© ${new Date().getFullYear()} Tales Hero Indonesia`,
   ].join('\n');
 
-  const { error } = await resend.emails.send({
+  const { error } = await sendResendEmail(resend, {
     from        : FROM,
     to          : toEmail,
     replyTo     : REPLY_TO,
@@ -486,7 +501,7 @@ export async function sendRegistrationVerificationEmail(toEmail, toUsername, tok
     `© ${new Date().getFullYear()} Tales Hero Indonesia`,
   ].join('\n');
 
-  const { error } = await resend.emails.send({
+  const { error } = await sendResendEmail(resend, {
     from: FROM,
     to: toEmail,
     replyTo: REPLY_TO,
