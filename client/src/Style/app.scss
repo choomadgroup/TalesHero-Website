@@ -537,6 +537,7 @@ section, footer {
   }
 
   &__logo {
+    position: relative;
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -545,7 +546,11 @@ section, footer {
     border-bottom: 1px solid rgba(255, 255, 255, 0.06);
     flex-shrink: 0;
 
-    img { height: 44px; object-fit: contain; }
+    img {
+      height: 44px;
+      object-fit: contain;
+      margin: 0 auto;
+    }
   }
 
   &__close {
@@ -559,6 +564,9 @@ section, footer {
     border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: 12px;
     cursor: pointer;
+    position: absolute;
+    top: 10px;
+    right: 20px;
     transition: color 0.18s ease, background 0.18s ease, border-color 0.18s ease;
 
     &:hover,
