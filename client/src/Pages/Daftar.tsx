@@ -6,6 +6,7 @@ import { usePageMeta } from '@/Hooks/use-page-meta';
 import Header from '@/Components/Header';
 import Footer from '@/Components/Footer';
 import TurnstileWidget from '@/Components/TurnstileWidget';
+import LegalConsentModal from '@/Components/LegalConsentModal';
 import {
     IoHome, IoEye, IoEyeOff, IoCheckmarkCircle,
     IoPersonOutline, IoMailOutline, IoLockClosedOutline,
@@ -44,6 +45,7 @@ interface FormErrors {
     confirm?:     string;
     secQuestion?: string;
     secAnswer?:   string;
+    consent?:     string;
     api?:         string;
 }
 
@@ -102,6 +104,8 @@ export default function Daftar() {
     const [loading, setLoading]         = useState(false);
     const [success, setSuccess]         = useState(false);
     const [captcha, setCaptcha]         = useState('');
+    const [legalOpen, setLegalOpen]     = useState(false);
+    const [legalChecked, setLegalChecked] = useState(false);
     const passwordRules = [
         { label: 'Minimal 8 karakter', valid: form.password.length >= 8 },
         { label: 'Mengandung huruf besar (A–Z)', valid: /[A-Z]/.test(form.password) },
@@ -123,6 +127,11 @@ export default function Daftar() {
         if (Object.keys(errs).length > 0) { setErrors(errs); return; }
         if (!captcha) {
             setErrors({ api: 'Harap selesaikan verifikasi keamanan terlebih dahulu.' });
+            return;
+        }
+        if (!legalChecked) {
+            setErrors({ consent: 'Kamu harus menyetujui Terms of Service dan Privacy Policy.' });
+            setLegalOpen(true);
             return;
         }
 
@@ -373,6 +382,24 @@ export default function Daftar() {
 
                                 {/* Submit */}
                                 <TurnstileWidget onToken={setCaptcha} />
+                                <div className={`daftar-consent${errors.consent ? ' daftar-consent--error' : ''}`}>
+                                    <input
+                                        id="registration-consent"
+                                        type="checkbox"
+                                        checked={legalChecked}
+                                        onChange={event => {
+                                            setLegalChecked(event.target.checked);
+                                            if (errors.consent) setErrors(err => ({ ...err, consent: undefined }));
+                                        }}
+                                    />
+                                    <label htmlFor="registration-consent">
+                                        Saya menyetujui{' '}
+                                        <button type="button" onClick={() => setLegalOpen(true)}>Terms of Service</button>
+                                        {' '}dan{' '}
+                                        <button type="button" onClick={() => setLegalOpen(true)}>Privacy Policy</button>.
+                                    </label>
+                                    {errors.consent && <p className="daftar-field__error">{errors.consent}</p>}
+                                </div>
                                 <button type="submit" className="daftar-submit" disabled={loading}>
                                     {loading ? <span className="daftar-submit__spinner" /> : 'Daftar Sekarang'}
                                 </button>
@@ -395,6 +422,13 @@ export default function Daftar() {
             </motion.div>
         </div>
         <Footer />
+        <LegalConsentModal
+            open={legalOpen}
+            checked={legalChecked}
+            onCheckedChange={setLegalChecked}
+            onAccept={() => setLegalOpen(false)}
+            onClose={() => setLegalOpen(false)}
+        />
         </>
     );
 }

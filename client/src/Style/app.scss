@@ -350,6 +350,272 @@ section, footer {
   margin-top: 4px;
 }
 
+// ─── Legal pages and registration consent ───────────────────────────────────
+.legal-page {
+  position: relative;
+  min-height: calc(100vh - 60px);
+  padding: 132px 24px 80px;
+  overflow: hidden;
+  background: #080817;
+  color: #e9e9f4;
+
+  &__bg {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background:
+      radial-gradient(circle at 15% 12%, rgba(250, 176, 5, 0.16), transparent 30%),
+      radial-gradient(circle at 88% 42%, rgba(219, 39, 119, 0.14), transparent 32%);
+  }
+
+  &__container {
+    position: relative;
+    z-index: 1;
+    width: min(900px, 100%);
+    margin: 0 auto;
+  }
+
+  &__heading {
+    text-align: center;
+    margin-bottom: 28px;
+
+    h1 {
+      margin: 6px 0 10px;
+      color: #fff;
+      font-size: clamp(30px, 5vw, 48px);
+      letter-spacing: -1px;
+    }
+
+    p:last-child { margin: 0; color: rgba(255, 255, 255, 0.5); font-size: 13px; }
+  }
+
+  &__eyebrow {
+    margin: 0;
+    color: #fab005;
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+  }
+
+  &__switcher {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    margin-bottom: 18px;
+
+    button {
+      padding: 10px 16px;
+      color: rgba(255, 255, 255, 0.55);
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 999px;
+      cursor: pointer;
+      font: inherit;
+      font-size: 13px;
+      font-weight: 700;
+
+      &.is-active { color: #151525; background: #fab005; border-color: #fab005; }
+    }
+  }
+
+  &__card {
+    padding: clamp(24px, 5vw, 52px);
+    background: rgba(16, 16, 35, 0.9);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 22px;
+    box-shadow: 0 22px 70px rgba(0, 0, 0, 0.3);
+  }
+}
+
+.legal-document {
+  color: rgba(255, 255, 255, 0.68);
+  font-size: 15px;
+  line-height: 1.8;
+
+  &__lead {
+    margin-top: 0;
+    color: rgba(255, 255, 255, 0.86);
+    font-size: 16px;
+  }
+
+  h2 {
+    margin: 30px 0 8px;
+    color: #fff;
+    font-size: 18px;
+  }
+
+  p { margin: 0 0 12px; }
+  ul { margin: 0 0 14px; padding-left: 22px; }
+  li { margin: 5px 0; }
+  a { color: #fab005; }
+}
+
+.legal-consent-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 11000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background: rgba(4, 4, 14, 0.78);
+  backdrop-filter: blur(8px);
+}
+
+.legal-consent-modal {
+  display: flex;
+  flex-direction: column;
+  width: min(720px, 100%);
+  max-height: min(88vh, 760px);
+  overflow: hidden;
+  color: #e9e9f4;
+  background: #111126;
+  border: 1px solid rgba(250, 176, 5, 0.25);
+  border-radius: 20px;
+  box-shadow: 0 24px 90px rgba(0, 0, 0, 0.55);
+
+  &__header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 24px 26px 18px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+
+    h2 { margin: 3px 0 0; color: #fff; font-size: 24px; }
+  }
+
+  &__eyebrow {
+    margin: 0;
+    color: #fab005;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+  }
+
+  &__close {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    color: rgba(255, 255, 255, 0.65);
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    cursor: pointer;
+  }
+
+  &__tabs {
+    display: flex;
+    gap: 6px;
+    padding: 12px 26px 0;
+    background: rgba(255, 255, 255, 0.02);
+
+    button {
+      padding: 10px 12px;
+      color: rgba(255, 255, 255, 0.5);
+      background: transparent;
+      border: 0;
+      border-bottom: 2px solid transparent;
+      cursor: pointer;
+      font: inherit;
+      font-size: 13px;
+      font-weight: 700;
+
+      &.is-active { color: #fab005; border-bottom-color: #fab005; }
+    }
+  }
+
+  &__body {
+    min-height: 0;
+    overflow-y: auto;
+    padding: 20px 26px 26px;
+
+    .legal-document { font-size: 14px; }
+  }
+
+  &__footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 18px;
+    padding: 18px 26px 22px;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    background: #0d0d1c;
+  }
+
+  &__check {
+    display: flex;
+    align-items: flex-start;
+    gap: 9px;
+    color: rgba(255, 255, 255, 0.72);
+    cursor: pointer;
+    font-size: 13px;
+    line-height: 1.45;
+
+    input { margin-top: 3px; accent-color: #fab005; }
+    .legal-consent-modal__checkmark { color: #fab005; }
+  }
+
+  &__accept {
+    flex-shrink: 0;
+    padding: 12px 18px;
+    color: #171725;
+    background: linear-gradient(135deg, #fab005, #fd7e14);
+    border: 0;
+    border-radius: 999px;
+    cursor: pointer;
+    font: inherit;
+    font-size: 13px;
+    font-weight: 800;
+
+    &:disabled { cursor: not-allowed; opacity: 0.35; }
+  }
+}
+
+.daftar-consent {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  gap: 9px;
+  margin: 4px 0 14px;
+  color: rgba(255, 255, 255, 0.62);
+  font-size: 12px;
+  line-height: 1.5;
+
+  input { margin-top: 3px; accent-color: #db2777; }
+  label { cursor: pointer; }
+  button {
+    padding: 0;
+    color: #f3a6c8;
+    background: none;
+    border: 0;
+    cursor: pointer;
+    font: inherit;
+    text-decoration: underline;
+  }
+
+  .daftar-field__error { margin: 4px 0 0; }
+  &--error { color: #ff9eae; }
+}
+
+@media (max-width: 600px) {
+  .legal-page { padding: 112px 16px 56px; }
+  .legal-page__switcher { flex-wrap: wrap; }
+  .legal-page__card { padding: 22px 18px; border-radius: 16px; }
+  .legal-document { font-size: 14px; }
+  .legal-consent-overlay { padding: 10px; }
+  .legal-consent-modal { max-height: 94vh; border-radius: 16px; }
+  .legal-consent-modal__header,
+  .legal-consent-modal__tabs,
+  .legal-consent-modal__body { padding-left: 18px; padding-right: 18px; }
+  .legal-consent-modal__footer { flex-direction: column; align-items: stretch; padding: 16px 18px 18px; }
+  .legal-consent-modal__accept { width: 100%; }
+}
+
 .game-drawer__link--sub {
   padding-left: 32px !important;
   font-size: 13px !important;

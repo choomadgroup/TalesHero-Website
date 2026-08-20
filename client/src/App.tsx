@@ -20,6 +20,7 @@ import NewsArticlePage from '@/Pages/News/NewsArticlePage';
 import AdminPage from '@/Pages/Admin/Admin';
 import Nickname from '@/Pages/Nickname';
 import Career from '@/Pages/Career';
+import Legal from '@/Pages/Legal';
 import NotFound from '@/Pages/Not-Found';
 
 function Router() {
@@ -36,6 +37,8 @@ function Router() {
             <Route path="/download" component={Download} />
             <Route path="/support" component={Support} />
             <Route path="/career" component={Career} />
+            <Route path="/terms" component={() => <Legal type="terms" />} />
+            <Route path="/privacy" component={() => <Legal type="privacy" />} />
             <Route path="/guides/pengantar" component={GuidesPengantar} />
             <Route path="/guides/karakter" component={GuidesKarakter} />
             <Route path="/guides/item" component={GuidesItem} />

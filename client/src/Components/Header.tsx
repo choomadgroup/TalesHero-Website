@@ -4,7 +4,7 @@ import { useLocation } from 'wouter';
 import { GiBookmarklet } from 'react-icons/gi';
 import { HiMenuAlt3, HiX, HiChevronDown, HiLogin, HiUserAdd, HiDownload, HiQuestionMarkCircle, HiNewspaper } from 'react-icons/hi';
 import { MdHeadset, MdHeadsetOff } from 'react-icons/md';
-import { IoPersonCircleOutline, IoLogOutOutline, IoGiftOutline, IoCreateOutline } from 'react-icons/io5';
+import { IoPersonCircleOutline, IoLogOutOutline, IoGiftOutline, IoCreateOutline, IoDocumentTextOutline } from 'react-icons/io5';
 import { useMusic } from '@/Hooks/use-music';
 import { useAuth } from '@/Hooks/use-auth';
 import RedeemModal from '@/Components/RedeemModal';
@@ -15,6 +15,7 @@ const NAV_LINKS = [
     { label: 'Download', href: '/download', icon: <HiDownload size={14} /> },
     { label: 'Support',  href: '/support',  icon: <HiQuestionMarkCircle size={14} /> },
     { label: 'Karir',    href: '/career',   icon: <HiUserAdd size={14} /> },
+    { label: 'Terms & Privacy', href: '/terms', icon: <IoDocumentTextOutline size={14} /> },
 ];
 
 // Item dropdown Pengenalan Game
