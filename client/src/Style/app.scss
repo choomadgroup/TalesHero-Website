@@ -610,15 +610,28 @@ section, footer {
     box-shadow: 0 0 0 2px rgba(220, 38, 38, 0.18);
   }
 
-  label { cursor: pointer; }
+  label {
+    display: block;
+    flex: 1 1 auto;
+    min-width: 0;
+    color: #111827 !important;
+    cursor: pointer;
+    white-space: normal;
+  }
+
   button {
+    display: inline;
+    width: auto;
+    min-width: 0;
     padding: 0;
     color: #ad2459;
     background: none;
     border: 0;
     cursor: pointer;
     font: inherit;
+    line-height: inherit;
     text-decoration: underline;
+    vertical-align: baseline;
   }
 
   &--error { color: #171725; }
