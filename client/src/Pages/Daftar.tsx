@@ -386,6 +386,7 @@ export default function Daftar() {
                                     <input
                                         id="registration-consent"
                                         type="checkbox"
+                                        className={errors.consent && !legalChecked ? 'daftar-consent__checkbox--invalid' : ''}
                                         checked={legalChecked}
                                         onChange={event => {
                                             setLegalChecked(event.target.checked);
@@ -398,7 +399,6 @@ export default function Daftar() {
                                         {' '}dan{' '}
                                         <button type="button" onClick={() => setLegalOpen(true)}>Privacy Policy</button>.
                                     </label>
-                                    {errors.consent && <p className="daftar-field__error">{errors.consent}</p>}
                                 </div>
                                 <button type="submit" className="daftar-submit" disabled={loading}>
                                     {loading ? <span className="daftar-submit__spinner" /> : 'Daftar Sekarang'}

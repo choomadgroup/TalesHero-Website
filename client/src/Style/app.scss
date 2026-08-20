@@ -582,15 +582,38 @@ section, footer {
   align-items: flex-start;
   gap: 9px;
   margin: 4px 0 14px;
-  color: rgba(255, 255, 255, 0.62);
+  color: #171725;
   font-size: 12px;
   line-height: 1.5;
 
-  input { margin-top: 3px; accent-color: #db2777; }
+  input {
+    appearance: none;
+    flex: 0 0 18px;
+    width: 18px;
+    height: 18px;
+    margin: 1px 0 0;
+    border: 2px solid #aeb4c0;
+    border-radius: 4px;
+    background: #fff;
+    cursor: pointer;
+    transition: border-color 0.18s ease, background 0.18s ease, box-shadow 0.18s ease;
+
+    &:checked {
+      border-color: #db2777;
+      background: linear-gradient(135deg, #db2777, #ec4899);
+      box-shadow: inset 0 0 0 3px #fff;
+    }
+  }
+
+  &__checkbox--invalid {
+    border-color: #dc2626 !important;
+    box-shadow: 0 0 0 2px rgba(220, 38, 38, 0.18);
+  }
+
   label { cursor: pointer; }
   button {
     padding: 0;
-    color: #f3a6c8;
+    color: #ad2459;
     background: none;
     border: 0;
     cursor: pointer;
@@ -598,8 +621,7 @@ section, footer {
     text-decoration: underline;
   }
 
-  .daftar-field__error { margin: 4px 0 0; }
-  &--error { color: #ff9eae; }
+  &--error { color: #171725; }
 }
 
 @media (max-width: 600px) {
