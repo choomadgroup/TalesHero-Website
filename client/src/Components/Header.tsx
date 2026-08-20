@@ -238,9 +238,23 @@ const Header = ({ light = false }: { light?: boolean }) => {
             {/* Mobile drawer */}
             {opened && (
                 <div className="game-drawer-overlay" onClick={() => setOpened(false)}>
-                    <div className="game-drawer" onClick={e => e.stopPropagation()}>
+                    <div
+                        className="game-drawer"
+                        role="dialog"
+                        aria-modal="true"
+                        aria-label="Menu navigasi"
+                        onClick={e => e.stopPropagation()}
+                    >
+                        <div className="game-drawer__handle" aria-hidden="true" />
                         <div className="game-drawer__logo">
                             <img src={asset("/Image/tales-hero-banner.png")} alt="Tales Hero" height={36} />
+                            <button
+                                className="game-drawer__close"
+                                onClick={() => setOpened(false)}
+                                aria-label="Tutup menu"
+                            >
+                                <HiX size={22} />
+                            </button>
                         </div>
 
                         <nav className="game-drawer__nav">
