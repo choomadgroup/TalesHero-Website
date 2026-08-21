@@ -103,14 +103,21 @@ async function migrate() {
   await pool.query('DELETE FROM tales_hero_pending_registrations WHERE expires_at <= NOW()');
 
   // The game checks this flag when accepting publisher accounts.
-  // Existing game databases may predate the website schema.
-  try {
+  // Check first so every restart does not attempt a table ALTER and wait on
+  // metadata locks before the registration endpoint becomes responsive.
+  const [whitelistColumn] = await pool.query(`
+    SELECT COLUMN_NAME
+    FROM information_schema.COLUMNS
+    WHERE TABLE_SCHEMA = DATABASE()
+      AND TABLE_NAME = 'userinfofrompublisher'
+      AND COLUMN_NAME = 'fdWhitelist'
+    LIMIT 1
+  `);
+  if (whitelistColumn.length === 0) {
     await pool.query(`
       ALTER TABLE userinfofrompublisher
       ADD COLUMN fdWhitelist TINYINT NOT NULL DEFAULT 1
     `);
-  } catch (error) {
-    if (error?.code !== 'ER_DUP_FIELDNAME') throw error;
   }
 
   // Email recovery addresses are one-time identifiers for website accounts.

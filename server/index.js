@@ -21,6 +21,7 @@ import {
 } from './admin-redeem.js';
 import turnstileConfig from './auth/turnstile-config.js';
 import verifyRegistration from './auth/verify-registration.js';
+import resendRegistration from './auth/resend-registration.js';
 import stats, { onlinePlayers } from './stats.js';
 import { migrate } from './db.js';
 import { applySecurityHeaders } from './security.js';
@@ -51,6 +52,7 @@ app.get('/healthz', (_req, res) => {
 });
 app.get('/api/config/turnstile', turnstileConfig);
 app.get('/auth/verify-registration', verifyRegistration);
+app.post('/auth/resend-registration', resendRegistration);
 app.get('/api/stats/online-players', onlinePlayers);
 app.get('/api/stats', stats);
 app.get('/api/items', publicGetItems);

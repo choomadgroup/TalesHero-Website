@@ -44,7 +44,7 @@ function throwResendError(error) {
 
 async function sendResendEmail(resend, payload) {
   const retryableStatuses = new Set([408, 429, 500, 502, 503, 504]);
-  const maxAttempts = 4;
+  const maxAttempts = 3;
 
   const getStatusCode = (error) => {
     const value = error?.statusCode ?? error?.status ?? error?.response?.status;
@@ -76,10 +76,9 @@ async function sendResendEmail(resend, payload) {
       }
     }
 
-    // Give Resend enough time to recover, while keeping registration
-    // responsive. A fresh request is safer than immediately hammering a
-    // transiently failing upstream.
-    await new Promise(resolve => setTimeout(resolve, 1000 * (attempt + 1)));
+    // Keep registration responsive while still giving a transient upstream
+    // error a couple of fresh attempts.
+    await new Promise(resolve => setTimeout(resolve, 500 * (2 ** attempt)));
   }
 }
 

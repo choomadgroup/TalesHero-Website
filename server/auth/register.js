@@ -67,6 +67,7 @@ function gamePassword(password) {
  */
 async function register(req, res) {
   let conn;
+  const startedAt = Date.now();
   try {
     const { username, email, password, secQuestion, secAnswer, captcha } = req.body ?? {};
     const normalizedEmail = email?.trim().toLowerCase();
@@ -93,7 +94,12 @@ async function register(req, res) {
 
     // ── 2. Simpan sebagai pending — akun game belum dibuat ──
     await conn.beginTransaction();
-    await conn.query('DELETE FROM tales_hero_pending_registrations WHERE expires_at <= NOW()');
+    await conn.query(
+      `DELETE FROM tales_hero_pending_registrations
+       WHERE (username = ? OR email = ?)
+         AND expires_at <= NOW()`,
+      [username.trim(), normalizedEmail],
+    );
 
     const [existing] = await conn.query(
       'SELECT fdUserID FROM userinfofrompublisher WHERE fdUserID = ? LIMIT 1',
@@ -133,8 +139,8 @@ async function register(req, res) {
     const tokenHash = sha256(token);
     await conn.query(
       `INSERT INTO tales_hero_pending_registrations
-       (username, email, game_password_hash, sec_question, sec_answer_hash, sec_answer, token_hash, expires_at, created_ip)
-       VALUES (?, ?, ?, ?, ?, ?, ?, DATE_ADD(NOW(), INTERVAL 30 MINUTE), ?)`,
+       (username, email, game_password_hash, sec_question, sec_answer_hash, sec_answer, token_hash, expires_at, created_ip, last_sent_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?, DATE_ADD(NOW(), INTERVAL 30 MINUTE), ?, NOW())`,
       [
         username.trim(),
         normalizedEmail,
@@ -150,9 +156,11 @@ async function register(req, res) {
     await conn.commit();
     conn.release();
     conn = null;
+    console.info(`[register] pending registration saved in ${Date.now() - startedAt}ms`);
 
     try {
       await sendRegistrationVerificationEmail(normalizedEmail, username.trim(), token);
+      console.info(`[register] verification email sent in ${Date.now() - startedAt}ms`);
     } catch (emailError) {
       // Do not leave an unusable pending registration behind. The user must
       // be able to submit the form again after Resend recovers.
