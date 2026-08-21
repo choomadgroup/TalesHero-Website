@@ -117,7 +117,7 @@ Database game harus menyediakan tabel utama `userinfofrompublisher`. Tabel `user
 
 | Variable | Keterangan |
 | --- | --- |
-| `RESEND_SECRET_KEY` | API key Resend untuk mengirim email |
+| `RESEND_API_KEY` | API key Resend untuk mengirim email |
 | `TURNSTILE_SITE_KEY` | Site key Cloudflare Turnstile yang digunakan frontend |
 | `TURNSTILE_SECRET_KEY` | Secret key Turnstile untuk verifikasi server-side |
 
@@ -140,7 +140,7 @@ Database game harus menyediakan tabel utama `userinfofrompublisher`. Tabel `user
 | `CORS_ORIGINS` | Daftar origin yang diizinkan jika membutuhkan konfigurasi CORS |
 | `NODE_ENV` | Environment aplikasi, misalnya `development` atau `production` |
 
-Email hanya diinisialisasi saat benar-benar digunakan, sehingga project tetap dapat start untuk development ketika `RESEND_SECRET_KEY` belum tersedia. Fitur yang membutuhkan email tetap tidak dapat digunakan sebelum secret tersebut diisi. `RESEND_API_KEY` lama tetap didukung sebagai alias.
+Email hanya diinisialisasi saat benar-benar digunakan, sehingga project tetap dapat start untuk development ketika `RESEND_API_KEY` belum tersedia. Fitur yang membutuhkan email tetap tidak dapat digunakan sebelum secret tersebut diisi. `RESEND_SECRET_KEY` lama tetap didukung sebagai alias.
 
 ## Struktur Project
 

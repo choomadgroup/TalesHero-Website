@@ -54,7 +54,7 @@ Website game online action adventure Tales Hero Indonesia — landing page + hal
 Pengirim email memakai **Resend** untuk email verifikasi akun dan pemulihan akun.
 
 Secret yang dibutuhkan:
-- `RESEND_SECRET_KEY` — API key dari Resend (`RESEND_API_KEY` lama juga didukung)
+- `RESEND_API_KEY` — API key dari Resend (`RESEND_SECRET_KEY` lama juga didukung)
 
 `APP_BASE_URL` opsional dan dipakai untuk domain link verifikasi; default-nya `https://taleshero.web.id`.
 `MAIL_FROM_ADDRESS` dan `MAIL_REPLY_TO` opsional untuk mengganti alamat pengirim dan balasan; keduanya harus memakai domain yang sudah diverifikasi di Resend.
@@ -65,7 +65,7 @@ Secret yang dibutuhkan:
 - Pendaftaran disimpan sementara di `tales_hero_pending_registrations`; akun game belum dibuat sebelum link email diverifikasi.
 - Link verifikasi berlaku 30 menit dan memakai token hash satu kali.
 - Rate limit register: 3 per IP per hari, 5 per email per jam, dan 5 per username per jam.
-- Email verifikasi dikirim melalui `RESEND_SECRET_KEY`; `APP_BASE_URL` opsional untuk mengganti domain link verifikasi.
+- Email verifikasi dikirim melalui `RESEND_API_KEY`; `APP_BASE_URL` opsional untuk mengganti domain link verifikasi.
 - Data pending yang kedaluwarsa dibersihkan saat migrasi database.
 - Fitur temukan akun hanya mengirim detail ke email terdaftar; data akun dan IP tidak ditampilkan langsung di browser.
 
