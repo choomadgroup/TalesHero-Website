@@ -159,22 +159,20 @@ async function register(req, res) {
     conn = null;
     console.info(`[register] pending registration saved in ${Date.now() - startedAt}ms`);
 
-    try {
-      await sendRegistrationVerificationEmail(normalizedEmail, username.trim(), token);
-      console.info(`[register] verification email sent in ${Date.now() - startedAt}ms`);
-    } catch (emailError) {
-      // Do not leave an unusable pending registration behind. The user must
-      // be able to submit the form again after Resend recovers.
-      await pool.query('DELETE FROM tales_hero_pending_registrations WHERE token_hash = ?', [tokenHash]);
-      console.warn('[register] verification email temporarily unavailable:', emailError?.message ?? emailError);
-      res.setHeader('Retry-After', '30');
-      return res.status(503).json({
-        message: 'Layanan email sedang sibuk. Data pendaftaran belum dibuat. Silakan coba lagi dalam beberapa saat.',
+    // Return as soon as the pending record is durable. Email delivery runs
+    // in the background so Railway latency or a slow Resend response does not
+    // make players wait on the registration screen. If delivery fails, the
+    // pending record remains available to the resend endpoint.
+    void sendRegistrationVerificationEmail(normalizedEmail, username.trim(), token)
+      .then(() => {
+        console.info(`[register] verification email sent in ${Date.now() - startedAt}ms`);
+      })
+      .catch((emailError) => {
+        console.warn('[register] verification email temporarily unavailable:', emailError?.message ?? emailError);
       });
-    }
 
     return res.status(201).json({
-      message: 'Link verifikasi sudah dikirim ke email kamu. Akun game dibuat setelah email berhasil diverifikasi.',
+      message: 'Pendaftaran berhasil disimpan. Email verifikasi sedang dikirim ke email kamu.',
     });
 
   } catch (err) {
