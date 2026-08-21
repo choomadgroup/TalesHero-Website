@@ -117,7 +117,7 @@ Database game harus menyediakan tabel utama `userinfofrompublisher`. Tabel `user
 
 | Variable | Keterangan |
 | --- | --- |
-| `RESEND_API_KEY` | API key Resend untuk mengirim email |
+| `RESEND_SECRET_KEY` | API key Resend untuk mengirim email |
 | `TURNSTILE_SITE_KEY` | Site key Cloudflare Turnstile yang digunakan frontend |
 | `TURNSTILE_SECRET_KEY` | Secret key Turnstile untuk verifikasi server-side |
 
@@ -140,7 +140,7 @@ Database game harus menyediakan tabel utama `userinfofrompublisher`. Tabel `user
 | `CORS_ORIGINS` | Daftar origin yang diizinkan jika membutuhkan konfigurasi CORS |
 | `NODE_ENV` | Environment aplikasi, misalnya `development` atau `production` |
 
-Email hanya diinisialisasi saat benar-benar digunakan, sehingga project tetap dapat start untuk development ketika `RESEND_API_KEY` belum tersedia. Fitur yang membutuhkan email tetap tidak dapat digunakan sebelum secret tersebut diisi.
+Email hanya diinisialisasi saat benar-benar digunakan, sehingga project tetap dapat start untuk development ketika `RESEND_SECRET_KEY` belum tersedia. Fitur yang membutuhkan email tetap tidak dapat digunakan sebelum secret tersebut diisi. `RESEND_API_KEY` lama tetap didukung sebagai alias.
 
 ## Struktur Project
 
@@ -181,6 +181,10 @@ Email hanya diinisialisasi saat benar-benar digunakan, sehingga project tetap da
 6. Token diverifikasi satu kali dan berlaku selama 30 menit.
 7. Setelah berhasil diverifikasi, akun dipindahkan ke `userinfofrompublisher`.
 
+Jika link belum diterima, email yang sama dapat digunakan untuk mengirim ulang link
+verifikasi dari halaman hasil pendaftaran. Link baru berlaku 30 menit dan dibatasi
+cooldown serta jumlah pengiriman ulang.
+
 Akun game tidak dibuat sebelum email verification berhasil. Link verification yang sudah digunakan atau melewati masa berlaku harus dibuat ulang dengan melakukan registrasi kembali.
 
 ## Endpoint Utama
@@ -192,6 +196,7 @@ Semua endpoint menggunakan relative URL agar tetap kompatibel dengan Replit prev
 | Method | Endpoint | Keterangan |
 | --- | --- | --- |
 | `POST` | `/auth/register` | Membuat pending registration |
+| `POST` | `/auth/resend-registration` | Mengirim ulang link verifikasi pending |
 | `GET` | `/auth/verify-registration` | Memverifikasi token email |
 | `POST` | `/auth/login` | Login akun game |
 | `GET` | `/auth/me` | Mengambil session/profile aktif |

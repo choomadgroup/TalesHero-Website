@@ -129,6 +129,7 @@ async function register(req, res) {
         && pending[0].email === normalizedEmail;
       await conn.rollback();
       return res.status(409).json({
+        code: sameRequest ? 'PENDING_VERIFICATION' : 'REGISTRATION_CONFLICT',
         message: sameRequest
           ? 'Verifikasi email sebelumnya masih berlaku. Periksa inbox atau tunggu sampai link kedaluwarsa.'
           : 'Username atau email sedang dipakai dalam pendaftaran yang belum diverifikasi.',

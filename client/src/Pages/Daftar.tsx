@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import FormSkeleton from '@/Components/FormSkeleton';
 import { useLocation } from 'wouter';
@@ -103,6 +103,11 @@ export default function Daftar() {
     const [showConfirm, setShowConfirm] = useState(false);
     const [loading, setLoading]         = useState(false);
     const [success, setSuccess]         = useState(false);
+    const [successTitle, setSuccessTitle] = useState('Pendaftaran Berhasil!');
+    const [successMessage, setSuccessMessage] = useState('');
+    const [resendLoading, setResendLoading] = useState(false);
+    const [resendError, setResendError] = useState('');
+    const [resendCooldown, setResendCooldown] = useState(0);
     const [captcha, setCaptcha]         = useState('');
     const [legalOpen, setLegalOpen]     = useState(false);
     const [legalChecked, setLegalChecked] = useState(false);
@@ -115,6 +120,14 @@ export default function Daftar() {
         { label: 'Ulangi kata sandi harus sama', valid: Boolean(form.confirm) && form.confirm === form.password },
     ];
     const passwordStarted = Boolean(form.password || form.confirm);
+
+    useEffect(() => {
+        if (resendCooldown <= 0) return;
+        const timer = window.setInterval(() => {
+            setResendCooldown(value => Math.max(0, value - 1));
+        }, 1000);
+        return () => window.clearInterval(timer);
+    }, [resendCooldown]);
 
     const set = (key: keyof FormData) => (e: React.ChangeEvent<HTMLInputElement>) => {
         setForm(f => ({ ...f, [key]: e.target.value }));
@@ -152,14 +165,52 @@ export default function Daftar() {
             });
             if (!res.ok) {
                 const data = await res.json().catch(() => ({}));
-                setErrors({ api: data?.message ?? 'Pendaftaran gagal. Coba lagi nanti.' });
+                if (data?.code === 'PENDING_VERIFICATION') {
+                    setSuccessTitle('Verifikasi Email Masih Menunggu');
+                    setSuccessMessage(data.message);
+                    setSuccess(true);
+                } else {
+                    setErrors({ api: data?.message ?? 'Pendaftaran gagal. Coba lagi nanti.' });
+                }
             } else {
+                const data = await res.json().catch(() => ({}));
+                setSuccessTitle('Pendaftaran Berhasil!');
+                setSuccessMessage(data?.message ?? 'Link verifikasi sudah dikirim ke email kamu.');
                 setSuccess(true);
             }
         } catch {
             setErrors({ api: 'Tidak dapat terhubung ke server.' });
         } finally {
             setLoading(false);
+        }
+    };
+
+    const handleResend = async () => {
+        const email = form.email.trim().toLowerCase();
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+            setResendError('Masukkan email yang valid untuk mengirim ulang link.');
+            return;
+        }
+        setResendLoading(true);
+        setResendError('');
+        try {
+            const res = await fetch('/auth/resend-registration', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email }),
+            });
+            const data = await res.json().catch(() => ({}));
+            if (!res.ok) {
+                setResendError(data?.message ?? 'Gagal mengirim ulang link. Coba lagi nanti.');
+                if (data?.retryAfter) setResendCooldown(Number(data.retryAfter));
+                return;
+            }
+            setSuccessMessage(data?.message ?? 'Link verifikasi baru sudah dikirim.');
+            setResendCooldown(Number(data?.retryAfter ?? 60));
+        } catch {
+            setResendError('Tidak dapat terhubung ke server.');
+        } finally {
+            setResendLoading(false);
         }
     };
 
@@ -199,11 +250,33 @@ export default function Daftar() {
                             transition={{ duration: 0.4 }}
                         >
                             <IoCheckmarkCircle className="daftar-success__icon" />
-                            <h2 className="daftar-success__title">Pendaftaran Berhasil!</h2>
+                            <h2 className="daftar-success__title">{successTitle}</h2>
                             <p className="daftar-success__desc">
-                                 Link verifikasi sudah dikirim ke email <strong>{form.email}</strong>.<br />
-                                 Klik link tersebut untuk mengaktifkan akun game kamu.
+                                 {successMessage}<br />
+                                 Email tujuan: <strong>{form.email}</strong>
                             </p>
+                            <div className="daftar-resend">
+                                <label htmlFor="resend-email">Belum menerima email?</label>
+                                <div className="daftar-resend__row">
+                                    <input
+                                        id="resend-email"
+                                        type="email"
+                                        value={form.email}
+                                        onChange={event => setForm(current => ({ ...current, email: event.target.value }))}
+                                        placeholder="Email pendaftaran"
+                                        autoComplete="email"
+                                    />
+                                    <button
+                                        type="button"
+                                        className="cs-page__btn cs-page__btn--pink"
+                                        onClick={handleResend}
+                                        disabled={resendLoading || resendCooldown > 0}
+                                    >
+                                        {resendLoading ? 'Mengirim...' : resendCooldown > 0 ? `Tunggu ${resendCooldown}s` : 'Kirim Ulang'}
+                                    </button>
+                                </div>
+                                {resendError && <p className="daftar-resend__error">{resendError}</p>}
+                            </div>
                             <button className="cs-page__btn cs-page__btn--pink" onClick={() => setLocation('/login')}>
                                  Kembali ke Login
                             </button>

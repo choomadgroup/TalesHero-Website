@@ -7,8 +7,8 @@ import path from 'path';
 import { Resend } from 'resend';
 
 function getResendClient() {
-  const apiKey = process.env.RESEND_API_KEY?.trim();
-  if (!apiKey) throw new Error('[Mailer] RESEND_API_KEY is not configured.');
+  const apiKey = (process.env.RESEND_API_KEY || process.env.RESEND_SECRET_KEY)?.trim();
+  if (!apiKey) throw new Error('[Mailer] RESEND_API_KEY or RESEND_SECRET_KEY is not configured.');
   return new Resend(apiKey);
 }
 

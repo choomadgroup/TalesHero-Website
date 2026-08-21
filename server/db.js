@@ -97,10 +97,33 @@ async function migrate() {
       expires_at           DATETIME    NOT NULL,
       created_at           DATETIME    DEFAULT CURRENT_TIMESTAMP,
       created_ip           VARCHAR(64)  NOT NULL DEFAULT '',
+       resend_count         INT          NOT NULL DEFAULT 0,
+       last_sent_at         DATETIME     DEFAULT NULL,
       INDEX idx_pending_expires (expires_at)
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
   `);
   await pool.query('DELETE FROM tales_hero_pending_registrations WHERE expires_at <= NOW()');
+
+  // Resend support was added after the pending-registration table existed in
+  // some databases. Keep these additions separate so either missing column
+  // can be applied independently to a partially migrated legacy table.
+  try {
+    await pool.query(`
+      ALTER TABLE tales_hero_pending_registrations
+      ADD COLUMN resend_count INT NOT NULL DEFAULT 0 AFTER created_ip
+    `);
+  } catch (error) {
+    if (error?.code !== 'ER_DUP_FIELDNAME') throw error;
+  }
+
+  try {
+    await pool.query(`
+      ALTER TABLE tales_hero_pending_registrations
+      ADD COLUMN last_sent_at DATETIME DEFAULT NULL AFTER resend_count
+    `);
+  } catch (error) {
+    if (error?.code !== 'ER_DUP_FIELDNAME') throw error;
+  }
 
   // The game checks this flag when accepting publisher accounts.
   // Check first so every restart does not attempt a table ALTER and wait on

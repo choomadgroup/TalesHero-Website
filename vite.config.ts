@@ -31,6 +31,7 @@ import me from './server/auth/me.js';
 import logout from './server/auth/logout.js';
 import turnstileConfig from './server/auth/turnstile-config.js';
 import verifyRegistration from './server/auth/verify-registration.js';
+import resendRegistration from './server/auth/resend-registration.js';
 import { ping, migrate } from './server/db.js';
 import { gmToolsRouter } from './server/gm-tools.js';
 import { publicGetItems, publicGetItemImage } from './server/items.js';
@@ -319,6 +320,18 @@ const apiPlugin = {
         addJsonResponseHelpers(res);
         req.body = await parseBody(req);
         await register(req, res);
+      } catch (e) {
+        res.statusCode = 500;
+        res.setHeader('Content-Type', 'application/json');
+        res.end(JSON.stringify({ message: 'Server error' }));
+      }
+    });
+    server.middlewares.use('/auth/resend-registration', async (req: any, res: any, next: any) => {
+      if (req.method !== 'POST') { next(); return; }
+      try {
+        addJsonResponseHelpers(res);
+        req.body = await parseBody(req);
+        await resendRegistration(req, res);
       } catch (e) {
         res.statusCode = 500;
         res.setHeader('Content-Type', 'application/json');
