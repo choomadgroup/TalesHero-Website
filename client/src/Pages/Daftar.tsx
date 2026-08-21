@@ -256,16 +256,9 @@ export default function Daftar() {
                                  Email tujuan: <strong>{form.email}</strong>
                             </p>
                             <div className="daftar-resend">
-                                <label htmlFor="resend-email">Belum menerima email?</label>
+                                <p className="daftar-resend__prompt">Belum menerima email?</p>
                                 <div className="daftar-resend__row">
-                                    <input
-                                        id="resend-email"
-                                        type="email"
-                                        value={form.email}
-                                        onChange={event => setForm(current => ({ ...current, email: event.target.value }))}
-                                        placeholder="Email pendaftaran"
-                                        autoComplete="email"
-                                    />
+                                    <span className="daftar-resend__email">{form.email}</span>
                                     <button
                                         type="button"
                                         className="cs-page__btn cs-page__btn--pink"

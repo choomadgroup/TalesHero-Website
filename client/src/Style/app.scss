@@ -3474,7 +3474,7 @@ footer.site-footer {
     background: #fff7fa;
     text-align: left;
 
-    label {
+    &__prompt {
       display: block;
       margin-bottom: 8px;
       color: #8b5367;
@@ -3487,18 +3487,19 @@ footer.site-footer {
       align-items: center;
       gap: 8px;
 
-      input {
+      & > .daftar-resend__email {
         min-width: 0;
         flex: 1;
-        height: 40px;
         padding: 0 11px;
+        min-height: 40px;
+        display: flex;
+        align-items: center;
+        overflow-wrap: anywhere;
         border: 1px solid #e8c4d1;
+        background: #fff;
         border-radius: 8px;
         color: #333;
         font-size: 12px;
-        outline: none;
-
-        &:focus { border-color: #e91e63; }
       }
 
       .cs-page__btn {
