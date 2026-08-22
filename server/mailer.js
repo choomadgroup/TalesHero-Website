@@ -2,8 +2,6 @@
 //  Tales Hero Indonesia — Email Sender (Resend)
 // ============================================================
 
-import fs   from 'fs';
-import path from 'path';
 import { Resend } from 'resend';
 
 function getResendClient() {
@@ -19,9 +17,6 @@ const BASE         = 'https://taleshero.web.id';
 const APP_BASE_URL = (process.env.APP_BASE_URL?.trim() || BASE).replace(/\/+$/, '');
 
 // Logo di-embed langsung via CID — tampil di Gmail tanpa perlu klik "Tampilkan gambar"
-const LOGO_CID  = 'logo@taleshero.web.id';
-const LOGO_PATH = path.resolve('public/Image/tales-hero-banner.png');
-
 const SOCIAL = {
   facebook  : 'https://facebook.com/talesheronostalgia',
   instagram : 'https://instagram.com/taleshero.in.id',
@@ -59,7 +54,7 @@ async function sendResendEmail(resend, payload) {
     // The Resend SDK can surface an upstream 5xx as a plain Error without
     // exposing the HTTP status. Treat those transient messages like 5xxs.
     const message = String(error?.message ?? error ?? '').toLowerCase();
-    return /internal server error|temporarily unavailable|service unavailable|timed out|timeout|fetch failed|econnreset|socket hang up|network error/.test(message);
+    return /internal server error|temporarily unavailable|service unavailable|unable to fetch data|request could not be resolved|timed out|timeout|fetch failed|econnreset|socket hang up|network error/.test(message);
   };
 
   for (let attempt = 0; attempt < maxAttempts; attempt += 1) {
@@ -90,29 +85,6 @@ function preheader(text) {
 max-width:0;opacity:0;overflow:hidden;mso-hide:all">${text}&nbsp;&zwnj;&zwnj;&zwnj;&zwnj;</div>`;
 }
 
-/**
- * Baca logo sebagai Buffer untuk di-embed via CID.
- * Fallback ke empty buffer jika file tidak ditemukan.
- */
-function readLogo() {
-  try { return fs.readFileSync(LOGO_PATH); }
-  catch { return null; }
-}
-
-/**
- * Attachment list — logo selalu disertakan sebagai inline.
- */
-function logoAttachment() {
-  const buf = readLogo();
-  if (!buf) return [];
-  return [{
-    filename    : 'tales-hero-logo.png',
-    content     : buf,
-    contentType : 'image/png',
-    contentId   : LOGO_CID,
-  }];
-}
-
 // ── Shell HTML ─────────────────────────────────────────────────────────────
 
 function emailShell(accentGradient, bodyHtml, previewText = '') {
@@ -140,7 +112,7 @@ function emailShell(accentGradient, bodyHtml, previewText = '') {
         <!-- Logo header -->
         <tr>
           <td style="padding:28px 36px 20px;text-align:center;border-bottom:1px solid #eef0f3">
-            <img src="cid:${LOGO_CID}"
+            <img src="${BASE}/Image/tales-hero-banner.png"
                  alt="Tales Hero Indonesia"
                  width="200" height="auto"
                  style="display:block;height:auto;max-height:68px;object-fit:contain;border:0;outline:none;margin:0 auto"/>
@@ -291,7 +263,6 @@ export async function sendPasswordResetEmail(toEmail, toUsername, token) {
       bodyHtml,
       `Link reset kata sandi Tales Hero Indonesia untuk ${toUsername}. Berlaku 1 jam.`,
     ),
-    attachments : logoAttachment(),
     headers     : {
       'List-Unsubscribe' : `<mailto:${REPLY_TO}?subject=unsubscribe>`,
       'X-Mailer'         : 'Tales Hero Indonesia Mailer',
@@ -375,7 +346,6 @@ export async function sendAccountInfoEmail({
       bodyHtml,
       'Informasi akun Tales Hero Indonesia',
     ),
-    attachments: logoAttachment(),
     headers: {
       'List-Unsubscribe': `<mailto:${REPLY_TO}?subject=unsubscribe>`,
       'X-Mailer': 'Tales Hero Indonesia Mailer',
@@ -464,7 +434,6 @@ export async function sendSecurityQuestionEmail(toEmail, toUsername, secQuestion
       bodyHtml,
       `Informasi pemulihan akun Tales Hero Indonesia untuk ${toUsername}.`,
     ),
-    attachments : logoAttachment(),
     headers     : {
       'List-Unsubscribe' : `<mailto:${REPLY_TO}?subject=unsubscribe>`,
       'X-Mailer'         : 'Tales Hero Indonesia Mailer',
@@ -537,7 +506,6 @@ export async function sendRegistrationVerificationEmail(toEmail, toUsername, tok
       bodyHtml,
       `Verifikasi email Tales Hero Indonesia untuk ${toUsername}. Berlaku 30 menit.`,
     ),
-    attachments: logoAttachment(),
     headers: {
       'List-Unsubscribe': `<mailto:${REPLY_TO}?subject=unsubscribe>`,
       'X-Mailer': 'Tales Hero Indonesia Mailer',
